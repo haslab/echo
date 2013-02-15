@@ -1,3 +1,3 @@
 Echo
 Bidirectional model transformation tool for QVT-R
-FASE'13
+Accepted FASE'13
