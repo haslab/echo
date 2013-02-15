@@ -1,2 +1,2 @@
 Echo
-Bidirectional model transformation tool for QVT-R
+Bidirectional model transformation tool for QVT-R.
