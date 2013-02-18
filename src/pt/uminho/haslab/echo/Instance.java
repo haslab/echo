@@ -29,16 +29,11 @@ public class Instance {
 	private final Map<EEnumLiteral,PrimSig> mapLitSig;
 	private final Map<PrimSig, Expr> mapSigState;
 
-	
-	
-	private Map<Expr,Expr> mapContent = new HashMap<Expr,Expr>();
-	
+	private Map<Expr,Expr> mapContent = new HashMap<Expr,Expr>();	
 	
 	private Map<EObject,PrimSig> mapObjSig = new HashMap<EObject,PrimSig>();
-	private List<Sig> sigList =new ArrayList<Sig>();
+	private List<Sig> sigList = new ArrayList<Sig>();
 	private Expr factExpr = null; 
-	
-	
 	
 	public Instance(EObject obj,Transformer t,String prefix) throws Err
 	{
@@ -48,25 +43,24 @@ public class Instance {
 		mapSfField = t.getMapSfField();
 		mapSigState = t.getMapSigState();
 		mapLitSig = t.getMapLitSig();
-		state =new PrimSig(pre + counter++,t.getState(),Attr.ONE);
+		state = new PrimSig(pre + counter++,t.getState(),Attr.ONE);
 		sigList.add(state);
 		initContent();
 		makeSigList(eObj);
-		makeFactExpr();	
-		
+		System.out.println("Singleton sigs:" + sigList.toString());
+		makeFactExpr();
 	}
 	
 
 	
-
+	// initializes relations to n-ary none
 	private void initContent()
 	{
 		for(Expr f: mapSigState.values()) {
 			System.out.println(f.toString());
 			mapContent.put(f,Sig.NONE);}
 		for(EStructuralFeature sf: mapSfField.keySet()){
-			System.out.println(sf.toString());
-
+			//System.out.println(sf.toString());
 			if(sf.getEType().getName().equals("EBoolean"))
 				mapContent.put(mapSfField.get(sf),Sig.NONE);
 			else
@@ -89,13 +83,13 @@ public class Instance {
 	{
 		factExpr = Sig.NONE.no();
 		
-		
 		for(Expr f: mapContent.keySet())
 		{
 			/*System.out.println("fe: " + factExpr);
 			System.out.println("f: " + f);
 			System.out.println("mcf: " + mapContent.get(f));*/
-			factExpr = factExpr.and(f.join(state).equal(mapContent.get(f)));
+			if (!f.toString().equals("String"))
+				factExpr = factExpr.and(f.join(state).equal(mapContent.get(f)));
 		}
 	}
 	
@@ -119,9 +113,6 @@ public class Instance {
 		return res;
 	}
 	
-	
-	
-	
 	private PrimSig makeSigList(EObject it) throws Err
 	{
 		Expr field;
@@ -131,16 +122,14 @@ public class Instance {
 		Expr aux = null;
 		Object eG;
 		PrimSig parent = mapClassSig.get(it.eClass());
-		System.out.println(parent);
-		PrimSig res = new PrimSig(pre + counter++,parent ,Attr.ONE);
-		
+		System.out.println("Object instances of "+parent);
+		PrimSig res = new PrimSig(pre + counter++, parent, Attr.ONE);
 		
 		/*listSiblings = mapContents.get(parent);
 		listSiblings.add(res);*/
 		
 		fieldState = mapSigState.get(parent);
 		siblings = mapContent.get(fieldState);
-		
 		
 		siblings = siblings.plus(res);
 		mapContent.put(fieldState,siblings);
@@ -167,14 +156,13 @@ public class Instance {
 			else if(sf instanceof EAttribute && eG != null)
 				handleAttr(eG,res,field);
 		}
-		
 		return res;
 	}
 	
 	
 	private void handleAttr(Object obj, Sig it, Expr field) throws Err
 	{
-		System.out.println("obj = "+ obj);
+		System.out.println("Object instance attribute: "+ obj);
 		Expr manos = mapContent.get(field);
 		if(obj instanceof Boolean)
 		{
@@ -189,11 +177,14 @@ public class Instance {
 		{
 			manos = manos.plus(it.product(mapLitSig.get((EEnumLiteral)obj)));
 			mapContent.put(field, manos);
-		}
-			
-			
+		}else if(obj instanceof String)
+		{
+			PrimSig str = new Sig.PrimSig("\""+(String) obj+"\"");
+			sigList.add(str);
 
-		
+			manos = manos.plus(it.product(str));
+			mapContent.put(field, manos);
+		}else throw new Error("Primitive type for attribute not supported: "+obj.toString());
 	}
 	
 	
