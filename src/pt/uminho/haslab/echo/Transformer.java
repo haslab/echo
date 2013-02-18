@@ -127,9 +127,18 @@ public class Transformer {
 			{
 				Expr field = ec.addField(prefix + attr.getName(),state.setOf());
 				mapSfField.put(attr,field);
+			}else if(attr.getEType().getName().equals("EString"))
+			{
+				Expr field = ec.addField(prefix + attr.getName(),Sig.STRING.product(state));
+				mapSfField.put(attr,field);
+				Expr fact= field.join(state.decl.get());
+				Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.STRING);
+				fact = fact.in(bound);
+				fact = fact.forAll(state.decl);
+				ec.addFact(fact);
 			}
 			else
-				System.out.println(attr.getEType().getName());
+				throw new Error("Primitive type for attribute not supported: "+attr.getEType().getName());
 			
 	}
 	
@@ -165,7 +174,6 @@ public class Transformer {
 			processReference(r,parent);
 	}
 
-
 	private void processReference(EReference r, PrimSig parent) throws Err {
 		EClass type = r.getEReferenceType();
 		PrimSig sigType = mapClassSig.get(type);
@@ -178,13 +186,11 @@ public class Transformer {
 		Expr sTypeState = mapSigState.get(sigType);
 		if(op!=null)
 		{
-			
 			opField = mapSfField.get(op);
 			if(opField != null)
 				parent.addFact(field.join(s).equal(opField.join(s).transpose()).forAll(state.decl));
 		}
 			
-		
 		if(r.getLowerBound() > 0)
 			parent.addFact(parent.decl.get().join(field).join(s).cardinality().gte(ExprConstant.makeNUMBER(r.getLowerBound())).forAll(state.decl));
 		if(r.getUpperBound() != -1)
