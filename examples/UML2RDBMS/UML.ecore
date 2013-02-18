@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="UML" nsURI="pt.uminho.di.haslab.uml" nsPrefix="pt.uminho.di.haslab.uml">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="UML" nsURI="http://fatbit.uminho.pt/echo/examples/uml2rdbms/"
+    nsPrefix="echo.examples.uml2rdbms.UML">
   <eClassifiers xsi:type="ecore:EClass" name="Class">
     <eOperations name="setName">
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
