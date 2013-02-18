@@ -6,21 +6,22 @@
     xmlns:echo.examples.uml2rdbms.UML="http://fatbit.uminho.pt/echo/examples/uml2rdbms/"
     xsi:schemaLocation="http://fatbit.uminho.pt/echo/examples/uml2rdbms/ UML.ecore"
     name="Company">
-  <classes name="Person">
-    <attributes
-        name="Name"/>
+  <classes name="Person"
+      sub="//@classes.1 //@classes.2">
     <attributes
         name="Age"/>
+    <attributes
+        name="Name"/>
   </classes>
   <classes name="Employer"
       persistent="true"
-      general="//@classes.0">
+      super="//@classes.0">
     <attributes
         name="Group"/>
   </classes>
   <classes name="Employee"
       persistent="true"
-      general="//@classes.0">
+      super="//@classes.0">
     <attributes
         name="Project"/>
   </classes>
