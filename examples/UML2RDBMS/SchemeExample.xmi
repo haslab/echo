@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ASCII"?>
+<pt.uminho.di.haslab.rdbms:Scheme
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:pt.uminho.di.haslab.rdbms="pt.uminho.di.haslab.rdbms"
+    xsi:schemaLocation="pt.uminho.di.haslab.rdbms RDBMS.ecore"
+    name="Company">
+  <tables name="Employer">
+    <columns
+        name="Name"/>
+    <columns
+        name="Age"/>
+    <columns
+        name="Group"/>
+  </tables>
+  <tables name="Employee">
+    <columns
+        name="Name"/>
+    <columns
+        name="Age"/>
+    <columns
+        name="Project"/>
+  </tables>
+</pt.uminho.di.haslab.rdbms:Scheme>
