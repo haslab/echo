@@ -117,7 +117,7 @@ public class Transformer {
 				PrimSig sigType = mapClassSig.get(attr.getEType());
 				Expr field = ec.addField(prefix + attr.getName(),sigType.product(state));
 				mapSfField.put(attr,field);
-				Expr fact= field.join(state.decl.get());
+				Expr fact = field.join(state.decl.get());
 				Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(sigType);
 				fact = fact.in(bound);
 				fact = fact.forAll(state.decl);
@@ -127,11 +127,12 @@ public class Transformer {
 			{
 				Expr field = ec.addField(prefix + attr.getName(),state.setOf());
 				mapSfField.put(attr,field);
+				
 			}else if(attr.getEType().getName().equals("EString"))
 			{
 				Expr field = ec.addField(prefix + attr.getName(),Sig.STRING.product(state));
 				mapSfField.put(attr,field);
-				Expr fact= field.join(state.decl.get());
+				Expr fact = field.join(state.decl.get());
 				Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.STRING);
 				fact = fact.in(bound);
 				fact = fact.forAll(state.decl);
@@ -179,18 +180,17 @@ public class Transformer {
 		PrimSig sigType = mapClassSig.get(type);
 		Expr field = parent.addField(prefix + r.getName(),sigType.product(state));
 		mapSfField.put(r, field);
+		// processing opposite references
 		Expr opField = null;
 		EReference op = r.getEOpposite();
 		Expr s = state.decl.get();
-		Expr parState = mapSigState.get(parent);
-		Expr sTypeState = mapSigState.get(sigType);
 		if(op!=null)
 		{
 			opField = mapSfField.get(op);
 			if(opField != null)
 				parent.addFact(field.join(s).equal(opField.join(s).transpose()).forAll(state.decl));
 		}
-			
+		// processing multiplicities
 		if(r.getLowerBound() > 0)
 			parent.addFact(parent.decl.get().join(field).join(s).cardinality().gte(ExprConstant.makeNUMBER(r.getLowerBound())).forAll(state.decl));
 		if(r.getUpperBound() != -1)
@@ -198,7 +198,8 @@ public class Transformer {
 		if(r.isContainment())
 			sigType.addFact(field.join(s).join(sigType.decl.get()).one().forAll(state.decl));
 		
-		
+		Expr parState = mapSigState.get(parent);
+		Expr sTypeState = mapSigState.get(sigType);		
 		parent.addFact(field.join(s).in(parState.join(s).product(sTypeState.join(s))).forAll(state.decl));
 	}
 

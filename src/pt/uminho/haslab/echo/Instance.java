@@ -10,10 +10,12 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EReference;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
@@ -60,8 +62,9 @@ public class Instance {
 			System.out.println(f.toString());
 			mapContent.put(f,Sig.NONE);}
 		for(EStructuralFeature sf: mapSfField.keySet()){
-			//System.out.println(sf.toString());
-			if(sf.getEType().getName().equals("EBoolean"))
+			
+			if (sf instanceof EReference && ((EReference) sf).getEOpposite().isContainment()) {}
+			else if(sf.getEType().getName().equals("EBoolean"))
 				mapContent.put(mapSfField.get(sf),Sig.NONE);
 			else
 				mapContent.put(mapSfField.get(sf),Sig.NONE.product(Sig.NONE));}
@@ -146,11 +149,14 @@ public class Instance {
 			{
 				if(!((EList<?>) eG).isEmpty())
 				{
-					aux = handleRef((EList<?>) eG);
-					
-					mappedExpr = mapContent.get(field);
-					mappedExpr = mappedExpr.plus(res.product(aux));
-					mapContent.put(field, mappedExpr);		
+					if (sf instanceof EReference) {
+						EReference op = ((EReference) sf).getEOpposite();
+						if (!op.isContainment()){				
+							aux = handleRef((EList<?>) eG);
+							mappedExpr = mapContent.get(field);
+							mappedExpr = mappedExpr.plus(res.product(aux));
+							mapContent.put(field, mappedExpr);	}	
+					}
 				}
 			}
 			else if(sf instanceof EAttribute && eG != null)
@@ -179,9 +185,8 @@ public class Instance {
 			mapContent.put(field, manos);
 		}else if(obj instanceof String)
 		{
-			PrimSig str = new Sig.PrimSig("\""+(String) obj+"\"");
-			sigList.add(str);
-
+			Expr str = ExprConstant.Op.STRING.make(null,(String) obj);
+			
 			manos = manos.plus(it.product(str));
 			mapContent.put(field, manos);
 		}else throw new Error("Primitive type for attribute not supported: "+obj.toString());

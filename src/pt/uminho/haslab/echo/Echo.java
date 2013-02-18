@@ -88,6 +88,7 @@ public class Echo {
 		A4Options options = new A4Options();
 		options.solver = A4Options.SatSolver.SAT4J;
 		
+		System.out.println("*** Processing metamodel.");
 		Transformer t = new Transformer(pck,pck.getName() + "_");
 		//Transformer t2 = new Transformer(p2,"bs_");
 		
@@ -102,6 +103,7 @@ public class Echo {
 			System.out.println("___________________");
 		}
 
+		System.out.println("*** Processing instance.");
 		Instance inst = new Instance(ins,t,"");
 		//inst.print();
 		System.out.println("Singleton sigs (object instances):");
@@ -111,10 +113,17 @@ public class Echo {
 	
 		sigList.addAll(inst.getSigList());
 		
-		
+		for(Sig s:sigList)
+		{
+			System.out.println(s +" extends " + ((PrimSig) s).parent);
+		}
+
 		System.out.println("Command fact: \n "+ inst.getFact());
+		System.out.println("Sig list: \n "+ sigList);
 		
-		Command cmd = new Command(false, 4, -1, -1, UNIV.some().and(inst.getFact()));
+//		Command cmd = new Command(false, 5, -1, -1, UNIV.some());
+		Command cmd = new Command(false, 5, -1, -1, UNIV.some().and(inst.getFact()));
+		System.out.println(cmd.getAllStringConstants(sigList));
 		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, sigList, cmd, options);
 		//sol1 = sol1.next().next().next().next().next();
 		
