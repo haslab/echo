@@ -62,13 +62,16 @@ public class Instance {
 
 	private void initContent()
 	{
-		for(Expr f: mapSigState.values())
-			mapContent.put(f,Sig.NONE);
-		for(EStructuralFeature sf: mapSfField.keySet())
+		for(Expr f: mapSigState.values()) {
+			System.out.println(f.toString());
+			mapContent.put(f,Sig.NONE);}
+		for(EStructuralFeature sf: mapSfField.keySet()){
+			System.out.println(sf.toString());
+
 			if(sf.getEType().getName().equals("EBoolean"))
 				mapContent.put(mapSfField.get(sf),Sig.NONE);
 			else
-				mapContent.put(mapSfField.get(sf),Sig.NONE.product(Sig.NONE));
+				mapContent.put(mapSfField.get(sf),Sig.NONE.product(Sig.NONE));}
 	}
 
 	

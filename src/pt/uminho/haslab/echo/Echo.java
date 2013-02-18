@@ -103,13 +103,11 @@ public class Echo {
 			System.out.println("___________________");
 		}
 
-		
 		Instance inst =  new Instance(ins,t,"");
 		//inst.print();
 		for(Sig s: inst.getSigList())
 			System.out.println(s);
 	
-		
 		sigList.addAll(inst.getSigList());
 		
 		
