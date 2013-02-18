@@ -28,7 +28,6 @@ public class Instance {
 	private final Map<EStructuralFeature,Expr> mapSfField;
 	private final Map<EEnumLiteral,PrimSig> mapLitSig;
 	private final Map<PrimSig, Expr> mapSigState;
-	
 
 	
 	

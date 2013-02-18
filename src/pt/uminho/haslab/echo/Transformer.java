@@ -25,9 +25,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class Transformer {
 
-	
-	
-	private HashMap<EClassifier,PrimSig> mapClassSig =new HashMap<EClassifier,PrimSig>();
+	private HashMap<EClassifier,PrimSig> mapClassSig = new HashMap<EClassifier,PrimSig>();
 	private HashMap<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
 	private HashMap<EStructuralFeature,Expr> mapSfField = new HashMap<EStructuralFeature,Expr>();
 	private HashMap<PrimSig,Expr> mapSigState = new HashMap<PrimSig,Expr>();
@@ -35,8 +33,6 @@ public class Transformer {
 	private final String prefix;
 	private final PrimSig state;
 	private List<Sig> sigList;
-	
-	
 	
 	public Transformer(EPackage p) throws Err{
 		state = new PrimSig("State");
@@ -140,30 +136,26 @@ public class Transformer {
 	
 	private Sig makeSig(EClass ec) throws Err
 	{
-		PrimSig res=mapClassSig.get(ec);
+		PrimSig res = mapClassSig.get(ec);
 		if(res == null)
 		{
-			boolean podeProcessar = true;
 			PrimSig parent = null;
 			List<EClass> superTypes = null;
 		
 			superTypes = ec.getESuperTypes();
+			if(superTypes.size() > 1) throw new Error("Multiple inheritance not supported.");
 			if(!superTypes.isEmpty())
 			{
 				parent = mapClassSig.get(superTypes.get(0));
-				if(parent == null)
-					podeProcessar = false;		
+				if(parent == null) throw new Error("Parent class not found.");	
 			}
-			if(podeProcessar)
-			{
-				if(ec.isAbstract())
-					res = new PrimSig(prefix + ec.getName(),parent,Attr.ABSTRACT);
-				else res = new PrimSig(prefix + ec.getName(),parent);
-				mapSigState.put(res,res.addField(prefix + ec.getName().toLowerCase(),state.setOf()));
-				mapClassSig.put(ec, res);
-				processAttributes(ec.getEAllAttributes(),res);
-				sigList.add(res);
-			}
+			if(ec.isAbstract())
+				res = new PrimSig(prefix + ec.getName(),parent,Attr.ABSTRACT);
+			else res = new PrimSig(prefix + ec.getName(),parent);
+			mapSigState.put(res,res.addField(prefix + ec.getName().toLowerCase(),state.setOf()));
+			mapClassSig.put(ec, res);
+			processAttributes(ec.getEAllAttributes(),res);
+			sigList.add(res);
 		}
 		return res;
 	}

@@ -23,6 +23,7 @@ import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 
@@ -36,8 +37,7 @@ public class Echo {
 
 		ResourceSet load_resourceSet = new ResourceSetImpl();
 
-		// Register XML Factory implementation to handle files with any
-		// extension
+		// Register XML Factory implementation to handle files with any extension
 		load_resourceSet.getResourceFactoryRegistry()
 				.getExtensionToFactoryMap().put("*",
 						new XMIResourceFactoryImpl());
@@ -54,8 +54,7 @@ public class Echo {
 	{
 		ResourceSet load_resourceSet = new ResourceSetImpl();
 
-		// Register XML Factory implementation to handle files with ecore
-		// extension
+		// Register XML Factory implementation to handle files with ecore extension
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(
 			    "ecore", new EcoreResourceFactoryImpl());
 		
@@ -74,9 +73,9 @@ public class Echo {
 	
 	
 	public static void main(String[] args) throws Err{
-		EPackage p = (EPackage) loadObjectFromEcore(args[0]);
+		EPackage pck = (EPackage) loadObjectFromEcore(args[0]);
 		//EPackage p2 = (EPackage) loadObjectFromEcore(args[2]);
-		EObject ins = loadModelInstance(args[1],p);
+		EObject ins = loadModelInstance(args[1],pck);
 			
 		A4Reporter rep = new A4Reporter() {
 			// For example, here we choose to display each "warning" by printing it to System.out
@@ -89,7 +88,7 @@ public class Echo {
 		A4Options options = new A4Options();
 		options.solver = A4Options.SatSolver.SAT4J;
 		
-		Transformer t = new Transformer(p,"bow_");
+		Transformer t = new Transformer(pck,pck.getName() + "_");
 		//Transformer t2 = new Transformer(p2,"bs_");
 		
 		List<Sig> sigList = t.getSigList();
@@ -97,30 +96,33 @@ public class Echo {
 		
 		for(Sig s:sigList)
 		{
-			System.out.println("Factos de " + s+ "  :");
+			System.out.println("Factos de " + s + "  :");
 			for(Expr f : s.getFacts())
 				System.out.println(f);
 			System.out.println("___________________");
 		}
 
-		Instance inst =  new Instance(ins,t,"");
+		Instance inst = new Instance(ins,t,"");
 		//inst.print();
-		for(Sig s: inst.getSigList())
-			System.out.println(s);
+		System.out.println("Singleton sigs (object instances):");
+		for(Sig s: inst.getSigList()) {
+			if (!s.isTopLevel()) 
+				System.out.println(((PrimSig) s).parent.toString()+" : "+s.toString());}
 	
 		sigList.addAll(inst.getSigList());
 		
 		
-		System.out.println("facts : \n "+ inst.getFact());
+		System.out.println("Command fact: \n "+ inst.getFact());
 		
 		Command cmd = new Command(false, 4, -1, -1, UNIV.some().and(inst.getFact()));
 		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, sigList, cmd, options);
 		//sol1 = sol1.next().next().next().next().next();
 		
 		if (sol1.satisfiable()) {
-	           sol1.writeXML("alloy_output.xml");
-	           new VizGUI(true, "alloy_output.xml", null);
-		}
+			sol1.writeXML("alloy_output.xml");
+	        // opens the visualizer with the resulting model
+			new VizGUI(true, "alloy_output.xml", null);
+		} else System.out.println("Formula not satisfiable.");
 	}
 }
 
