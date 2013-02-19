@@ -12,12 +12,12 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+
+
+
 import pt.uminho.haslab.emof.ast.EMOF.Operation;
-
 import pt.uminho.haslab.emof.ast.EMOF.impl.ElementImpl;
-
 import pt.uminho.haslab.emof.ast.QVTBase.TypedModel;
-
 import pt.uminho.haslab.emof.ast.QVTRelation.QVTRelationPackage;
 import pt.uminho.haslab.emof.ast.QVTRelation.Relation;
 import pt.uminho.haslab.emof.ast.QVTRelation.RelationImplementation;

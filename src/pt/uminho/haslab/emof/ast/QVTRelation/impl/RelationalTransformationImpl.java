@@ -14,8 +14,8 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
-import pt.uminho.haslab.emof.ast.QVTBase.impl.TransformationImpl;
 
+import pt.uminho.haslab.emof.ast.QVTBase.impl.TransformationImpl;
 import pt.uminho.haslab.emof.ast.QVTRelation.Key;
 import pt.uminho.haslab.emof.ast.QVTRelation.QVTRelationPackage;
 import pt.uminho.haslab.emof.ast.QVTRelation.RelationalTransformation;

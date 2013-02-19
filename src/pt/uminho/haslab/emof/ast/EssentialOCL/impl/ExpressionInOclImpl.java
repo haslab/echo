@@ -17,10 +17,10 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.Type;
-
 import pt.uminho.haslab.emof.ast.EMOF.impl.TypedElementImpl;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
 import pt.uminho.haslab.emof.ast.EssentialOCL.ExpressionInOcl;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;

@@ -18,8 +18,8 @@ import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 
-import pt.uminho.haslab.emof.ast.EMOF.impl.NamedElementImpl;
 
+import pt.uminho.haslab.emof.ast.EMOF.impl.NamedElementImpl;
 import pt.uminho.haslab.emof.ast.QVTBase.Domain;
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
 import pt.uminho.haslab.emof.ast.QVTBase.Rule;

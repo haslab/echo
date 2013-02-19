@@ -9,10 +9,10 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.Type;
-
 import pt.uminho.haslab.emof.ast.EMOF.impl.DataTypeImpl;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.CollectionType;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
 

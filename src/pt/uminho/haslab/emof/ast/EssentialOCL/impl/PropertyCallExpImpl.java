@@ -9,8 +9,8 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
-import pt.uminho.haslab.emof.ast.EMOF.Property;
 
+import pt.uminho.haslab.emof.ast.EMOF.Property;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
 import pt.uminho.haslab.emof.ast.EssentialOCL.PropertyCallExp;
 

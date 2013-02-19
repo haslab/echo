@@ -7,22 +7,22 @@ import org.eclipse.emf.ecore.EPackage;
 
 import org.eclipse.emf.ecore.util.Switch;
 
+
+
+
 import pt.uminho.haslab.emof.ast.EMOF.Element;
 import pt.uminho.haslab.emof.ast.EMOF.NamedElement;
 import pt.uminho.haslab.emof.ast.EMOF.Type;
 import pt.uminho.haslab.emof.ast.EMOF.TypedElement;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.CallExp;
 import pt.uminho.haslab.emof.ast.EssentialOCL.FeatureCallExp;
 import pt.uminho.haslab.emof.ast.EssentialOCL.NavigationCallExp;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
 import pt.uminho.haslab.emof.ast.EssentialOCL.PropertyCallExp;
-
 import pt.uminho.haslab.emof.ast.QVTBase.Domain;
 import pt.uminho.haslab.emof.ast.QVTBase.Pattern;
 import pt.uminho.haslab.emof.ast.QVTBase.Rule;
 import pt.uminho.haslab.emof.ast.QVTBase.Transformation;
-
 import pt.uminho.haslab.emof.ast.QVTRelation.*;
 
 /**

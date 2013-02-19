@@ -8,8 +8,8 @@ import org.eclipse.emf.ecore.EClass;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
-import pt.uminho.haslab.emof.ast.EMOF.impl.TypeImpl;
 
+import pt.uminho.haslab.emof.ast.EMOF.impl.TypeImpl;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
 import pt.uminho.haslab.emof.ast.EssentialOCL.TemplateParameterType;
 

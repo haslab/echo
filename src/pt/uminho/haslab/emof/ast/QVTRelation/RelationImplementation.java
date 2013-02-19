@@ -2,9 +2,9 @@
  */
 package pt.uminho.haslab.emof.ast.QVTRelation;
 
+
 import pt.uminho.haslab.emof.ast.EMOF.Element;
 import pt.uminho.haslab.emof.ast.EMOF.Operation;
-
 import pt.uminho.haslab.emof.ast.QVTBase.TypedModel;
 
 /**

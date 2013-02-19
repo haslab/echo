@@ -10,11 +10,11 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
-import pt.uminho.haslab.emof.ast.QVTBase.impl.PatternImpl;
 
+
+import pt.uminho.haslab.emof.ast.QVTBase.impl.PatternImpl;
 import pt.uminho.haslab.emof.ast.QVTRelation.DomainPattern;
 import pt.uminho.haslab.emof.ast.QVTRelation.QVTRelationPackage;
-
 import pt.uminho.haslab.emof.ast.QVTTemplate.TemplateExp;
 
 /**

@@ -4,8 +4,8 @@ package pt.uminho.haslab.emof.ast.QVTRelation;
 
 import org.eclipse.emf.common.util.EList;
 
-import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
 
+import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
 import pt.uminho.haslab.emof.ast.QVTBase.Pattern;
 import pt.uminho.haslab.emof.ast.QVTBase.Rule;
 

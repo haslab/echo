@@ -12,12 +12,12 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+
+
+
 import pt.uminho.haslab.emof.ast.EMOF.Property;
-
 import pt.uminho.haslab.emof.ast.EMOF.impl.ElementImpl;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
-
 import pt.uminho.haslab.emof.ast.QVTTemplate.ObjectTemplateExp;
 import pt.uminho.haslab.emof.ast.QVTTemplate.PropertyTemplateItem;
 import pt.uminho.haslab.emof.ast.QVTTemplate.QVTTemplatePackage;

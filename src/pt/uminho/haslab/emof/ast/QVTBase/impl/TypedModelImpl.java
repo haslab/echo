@@ -17,8 +17,8 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-import pt.uminho.haslab.emof.ast.EMOF.impl.NamedElementImpl;
 
+import pt.uminho.haslab.emof.ast.EMOF.impl.NamedElementImpl;
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
 import pt.uminho.haslab.emof.ast.QVTBase.Transformation;
 import pt.uminho.haslab.emof.ast.QVTBase.TypedModel;

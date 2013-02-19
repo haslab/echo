@@ -10,11 +10,11 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
+
+
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
 import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.impl.LiteralExpImpl;
-
 import pt.uminho.haslab.emof.ast.QVTTemplate.QVTTemplatePackage;
 import pt.uminho.haslab.emof.ast.QVTTemplate.TemplateExp;
 

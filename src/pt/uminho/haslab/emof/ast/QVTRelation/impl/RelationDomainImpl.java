@@ -17,10 +17,10 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+
+
 import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
-
 import pt.uminho.haslab.emof.ast.QVTBase.impl.DomainImpl;
-
 import pt.uminho.haslab.emof.ast.QVTRelation.DomainPattern;
 import pt.uminho.haslab.emof.ast.QVTRelation.QVTRelationPackage;
 import pt.uminho.haslab.emof.ast.QVTRelation.RelationDomain;

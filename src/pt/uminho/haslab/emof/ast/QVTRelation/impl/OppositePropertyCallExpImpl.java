@@ -4,8 +4,8 @@ package pt.uminho.haslab.emof.ast.QVTRelation.impl;
 
 import org.eclipse.emf.ecore.EClass;
 
-import pt.uminho.haslab.emof.ast.EssentialOCL.impl.PropertyCallExpImpl;
 
+import pt.uminho.haslab.emof.ast.EssentialOCL.impl.PropertyCallExpImpl;
 import pt.uminho.haslab.emof.ast.QVTRelation.OppositePropertyCallExp;
 import pt.uminho.haslab.emof.ast.QVTRelation.QVTRelationPackage;
 

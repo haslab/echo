@@ -2,8 +2,8 @@
  */
 package pt.uminho.haslab.emof.ast.QVTRelation;
 
-import pt.uminho.haslab.emof.ast.EMOF.Element;
 
+import pt.uminho.haslab.emof.ast.EMOF.Element;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
 import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
 

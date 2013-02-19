@@ -12,8 +12,8 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-import pt.uminho.haslab.emof.ast.EMOF.impl.TypedElementImpl;
 
+import pt.uminho.haslab.emof.ast.EMOF.impl.TypedElementImpl;
 import pt.uminho.haslab.emof.ast.EssentialOCL.CollectionLiteralExp;
 import pt.uminho.haslab.emof.ast.EssentialOCL.CollectionLiteralPart;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;

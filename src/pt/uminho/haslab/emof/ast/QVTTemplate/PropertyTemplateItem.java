@@ -2,9 +2,9 @@
  */
 package pt.uminho.haslab.emof.ast.QVTTemplate;
 
+
 import pt.uminho.haslab.emof.ast.EMOF.Element;
 import pt.uminho.haslab.emof.ast.EMOF.Property;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
 
 /**

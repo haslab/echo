@@ -19,12 +19,12 @@ import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.EMOFPackage;
 import pt.uminho.haslab.emof.ast.EMOF.Tag;
 import pt.uminho.haslab.emof.ast.EMOF.Type;
-
 import pt.uminho.haslab.emof.ast.EMOF.impl.ClassImpl;
-
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
 import pt.uminho.haslab.emof.ast.QVTBase.Rule;
 import pt.uminho.haslab.emof.ast.QVTBase.Transformation;

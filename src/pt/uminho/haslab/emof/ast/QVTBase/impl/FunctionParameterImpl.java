@@ -12,13 +12,13 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.EMOFPackage;
 import pt.uminho.haslab.emof.ast.EMOF.MultiplicityElement;
 import pt.uminho.haslab.emof.ast.EMOF.Operation;
 import pt.uminho.haslab.emof.ast.EMOF.Parameter;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.impl.VariableImpl;
-
 import pt.uminho.haslab.emof.ast.QVTBase.FunctionParameter;
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
 

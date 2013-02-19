@@ -15,10 +15,10 @@ import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.impl.ElementImpl;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
-
 import pt.uminho.haslab.emof.ast.QVTBase.Pattern;
 import pt.uminho.haslab.emof.ast.QVTBase.Predicate;
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;

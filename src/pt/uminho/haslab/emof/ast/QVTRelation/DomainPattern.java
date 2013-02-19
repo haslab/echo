@@ -2,8 +2,8 @@
  */
 package pt.uminho.haslab.emof.ast.QVTRelation;
 
-import pt.uminho.haslab.emof.ast.QVTBase.Pattern;
 
+import pt.uminho.haslab.emof.ast.QVTBase.Pattern;
 import pt.uminho.haslab.emof.ast.QVTTemplate.TemplateExp;
 
 /**

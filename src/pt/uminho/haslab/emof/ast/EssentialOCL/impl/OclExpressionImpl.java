@@ -4,8 +4,8 @@ package pt.uminho.haslab.emof.ast.EssentialOCL.impl;
 
 import org.eclipse.emf.ecore.EClass;
 
-import pt.uminho.haslab.emof.ast.EMOF.impl.TypedElementImpl;
 
+import pt.uminho.haslab.emof.ast.EMOF.impl.TypedElementImpl;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
 

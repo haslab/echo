@@ -7,10 +7,10 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.EMOFPackage;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
-
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
 
 /**

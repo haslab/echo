@@ -17,8 +17,8 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
-import pt.uminho.haslab.emof.ast.EMOF.Operation;
 
+import pt.uminho.haslab.emof.ast.EMOF.Operation;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OperationCallExp;

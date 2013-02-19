@@ -7,13 +7,13 @@ import org.eclipse.emf.ecore.EPackage;
 
 import org.eclipse.emf.ecore.util.Switch;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.Element;
 import pt.uminho.haslab.emof.ast.EMOF.NamedElement;
 import pt.uminho.haslab.emof.ast.EMOF.TypedElement;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.LiteralExp;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
-
 import pt.uminho.haslab.emof.ast.QVTTemplate.*;
 
 /**

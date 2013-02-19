@@ -10,10 +10,10 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
+
+
 import pt.uminho.haslab.emof.ast.EMOF.impl.OperationImpl;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
-
 import pt.uminho.haslab.emof.ast.QVTBase.Function;
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
 

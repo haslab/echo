@@ -9,8 +9,8 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
-import pt.uminho.haslab.emof.ast.EMOF.EnumerationLiteral;
 
+import pt.uminho.haslab.emof.ast.EMOF.EnumerationLiteral;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EnumLiteralExp;
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
 

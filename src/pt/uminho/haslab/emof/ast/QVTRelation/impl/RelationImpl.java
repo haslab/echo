@@ -18,12 +18,12 @@ import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+
+
+
 import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
-
 import pt.uminho.haslab.emof.ast.QVTBase.Pattern;
-
 import pt.uminho.haslab.emof.ast.QVTBase.impl.RuleImpl;
-
 import pt.uminho.haslab.emof.ast.QVTRelation.QVTRelationPackage;
 import pt.uminho.haslab.emof.ast.QVTRelation.Relation;
 import pt.uminho.haslab.emof.ast.QVTRelation.RelationImplementation;

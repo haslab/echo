@@ -9,12 +9,12 @@ import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
 
 import org.eclipse.emf.ecore.EObject;
 
+
 import pt.uminho.haslab.emof.ast.EMOF.DataType;
 import pt.uminho.haslab.emof.ast.EMOF.Element;
 import pt.uminho.haslab.emof.ast.EMOF.NamedElement;
 import pt.uminho.haslab.emof.ast.EMOF.Type;
 import pt.uminho.haslab.emof.ast.EMOF.TypedElement;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.*;
 
 /**

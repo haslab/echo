@@ -10,6 +10,16 @@ import org.eclipse.emf.ecore.EReference;
 
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
+
+
+
+
+
+
+
+
+
+
 import pt.uminho.haslab.emof.ast.EMOF.Comment;
 import pt.uminho.haslab.emof.ast.EMOF.DataType;
 import pt.uminho.haslab.emof.ast.EMOF.EMOFFactory;
@@ -31,25 +41,15 @@ import pt.uminho.haslab.emof.ast.EMOF.Tag;
 import pt.uminho.haslab.emof.ast.EMOF.Type;
 import pt.uminho.haslab.emof.ast.EMOF.TypedElement;
 import pt.uminho.haslab.emof.ast.EMOF.URIExtent;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.EssentialOCLPackage;
-
 import pt.uminho.haslab.emof.ast.EssentialOCL.impl.EssentialOCLPackageImpl;
-
 import pt.uminho.haslab.emof.ast.PrimitiveTypes.PrimitiveTypesPackage;
-
 import pt.uminho.haslab.emof.ast.PrimitiveTypes.impl.PrimitiveTypesPackageImpl;
-
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
-
 import pt.uminho.haslab.emof.ast.QVTBase.impl.QVTBasePackageImpl;
-
 import pt.uminho.haslab.emof.ast.QVTRelation.QVTRelationPackage;
-
 import pt.uminho.haslab.emof.ast.QVTRelation.impl.QVTRelationPackageImpl;
-
 import pt.uminho.haslab.emof.ast.QVTTemplate.QVTTemplatePackage;
-
 import pt.uminho.haslab.emof.ast.QVTTemplate.impl.QVTTemplatePackageImpl;
 
 /**

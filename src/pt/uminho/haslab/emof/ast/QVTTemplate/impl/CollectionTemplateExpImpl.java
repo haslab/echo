@@ -17,10 +17,10 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+
 import pt.uminho.haslab.emof.ast.EssentialOCL.CollectionType;
 import pt.uminho.haslab.emof.ast.EssentialOCL.OclExpression;
 import pt.uminho.haslab.emof.ast.EssentialOCL.Variable;
-
 import pt.uminho.haslab.emof.ast.QVTTemplate.CollectionTemplateExp;
 import pt.uminho.haslab.emof.ast.QVTTemplate.QVTTemplatePackage;
 

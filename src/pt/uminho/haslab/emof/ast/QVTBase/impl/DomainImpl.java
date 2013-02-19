@@ -12,8 +12,8 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-import pt.uminho.haslab.emof.ast.EMOF.impl.NamedElementImpl;
 
+import pt.uminho.haslab.emof.ast.EMOF.impl.NamedElementImpl;
 import pt.uminho.haslab.emof.ast.QVTBase.Domain;
 import pt.uminho.haslab.emof.ast.QVTBase.QVTBasePackage;
 import pt.uminho.haslab.emof.ast.QVTBase.Rule;
