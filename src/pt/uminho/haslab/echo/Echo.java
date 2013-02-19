@@ -16,6 +16,9 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
+import pt.uminho.haslab.echo.transform.XMI2Alloy;
+import pt.uminho.haslab.echo.transform.ECore2Alloy;
+
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 
 import edu.mit.csail.sdg.alloy4.Err;
@@ -89,7 +92,7 @@ public class Echo {
 		options.solver = A4Options.SatSolver.SAT4J;
 		
 		System.out.println("*** Processing metamodel.");
-		Transformer t = new Transformer(pck,pck.getName() + "_");
+		ECore2Alloy t = new ECore2Alloy(pck,pck.getName() + "_");
 		//Transformer t2 = new Transformer(p2,"bs_");
 		
 		List<Sig> sigList = t.getSigList();
@@ -104,7 +107,7 @@ public class Echo {
 		}
 
 		System.out.println("*** Processing instance.");
-		Instance inst = new Instance(ins,t,"");
+		XMI2Alloy inst = new XMI2Alloy(ins,t,"");
 		//inst.print();
 		System.out.println("Singleton sigs (object instances):");
 		for(Sig s: inst.getSigList()) {
