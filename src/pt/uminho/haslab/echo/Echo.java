@@ -1,8 +1,9 @@
 package pt.uminho.haslab.echo;
 import static edu.mit.csail.sdg.alloy4compiler.ast.Sig.UNIV;
 
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -23,6 +24,7 @@ import edu.mit.csail.sdg.alloy4.A4Reporter;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
+import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -35,6 +37,9 @@ import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 
 public class Echo {
+	
+	// state sigs (instance,state)
+	private static Map<PrimSig,PrimSig> sigStates = new HashMap<PrimSig,PrimSig>();
 	
 	public static EObject loadModelInstance(String argURI,EPackage p) {
 
@@ -91,8 +96,12 @@ public class Echo {
 		A4Options options = new A4Options();
 		options.solver = A4Options.SatSolver.SAT4J;
 		
+		PrimSig statesig = createStateSig(pck.getName());
+		PrimSig stateinstance = createStateInstance(statesig);
+		sigStates.put(stateinstance, statesig);
+		
 		System.out.println("*** Processing metamodel.");
-		ECore2Alloy t = new ECore2Alloy(pck,pck.getName() + "_");
+		ECore2Alloy t = new ECore2Alloy(pck,pck.getName() + "_",statesig);
 		//Transformer t2 = new Transformer(p2,"bs_");
 		
 		List<Sig> sigList = t.getSigList();
@@ -107,7 +116,7 @@ public class Echo {
 		}
 
 		System.out.println("*** Processing instance.");
-		XMI2Alloy inst = new XMI2Alloy(ins,t,"");
+		XMI2Alloy inst = new XMI2Alloy(ins,t,"",stateinstance);
 		//inst.print();
 		System.out.println("Singleton sigs (object instances):");
 		for(Sig s: inst.getSigList()) {
@@ -124,7 +133,6 @@ public class Echo {
 		System.out.println("Command fact: \n "+ inst.getFact());
 		System.out.println("Sig list: \n "+ sigList);
 		
-//		Command cmd = new Command(false, 5, -1, -1, UNIV.some());
 		Command cmd = new Command(false, 5, -1, -1, UNIV.some().and(inst.getFact()));
 		System.out.println(cmd.getAllStringConstants(sigList));
 		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, sigList, cmd, options);
@@ -135,6 +143,15 @@ public class Echo {
 	        // opens the visualizer with the resulting model
 			new VizGUI(true, "alloy_output.xml", null);
 		} else System.out.println("Formula not satisfiable.");
+	}
+	
+	private static PrimSig createStateSig(String sig) throws Err{
+		PrimSig s = new PrimSig(sig,Attr.ABSTRACT);
+		return s;
+	}
+	private static PrimSig createStateInstance(PrimSig sig) throws Err{
+		PrimSig s = new PrimSig(sig.toString()+"1",sig,Attr.ONE);
+		return s;
 	}
 }
 

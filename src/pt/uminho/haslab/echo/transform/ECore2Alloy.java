@@ -54,6 +54,14 @@ public class ECore2Alloy {
 		prefix = pref;
 		sigList = makeSigList();
 	}
+
+	public ECore2Alloy(EPackage p, String pref,PrimSig state) throws Err{
+		this.state = state;
+		this.pack = p;
+		this.prefix = pref;
+		this.sigList = makeSigList();
+	}
+
 	
 	public HashMap<PrimSig,Expr> getMapSigState()
 	{

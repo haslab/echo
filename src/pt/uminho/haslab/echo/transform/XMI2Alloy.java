@@ -54,6 +54,22 @@ public class XMI2Alloy {
 		makeFactExpr();
 	}
 	
+	public XMI2Alloy(EObject obj,ECore2Alloy t,String prefix, PrimSig stateSig) throws Err
+	{
+		pre = prefix;
+		eObj = obj;
+		mapClassSig = t.getMapClassSig();
+		mapSfField = t.getMapSfField();
+		mapSigState = t.getMapSigState();
+		mapLitSig = t.getMapLitSig();
+		state = stateSig;
+		sigList.add(state);
+		initContent();
+		makeSigList(eObj);
+		System.out.println("Singleton sigs:" + sigList.toString());
+		makeFactExpr();
+	}
+	
 
 	
 	// initializes relations to n-ary none
