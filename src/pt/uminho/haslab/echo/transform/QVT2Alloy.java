@@ -1,9 +1,8 @@
 package pt.uminho.haslab.echo.transform;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.ocl.ecore.OCLExpression;
-import org.eclipse.qvtd.pivot.qvtbase.impl.TransformationImpl;
-import org.eclipse.qvtd.pivot.qvtrelation.impl.RelationImpl;
+
+import pt.uminho.haslab.emof.ast.QVTBase.impl.TransformationImpl;
 
 
 public class QVT2Alloy {
