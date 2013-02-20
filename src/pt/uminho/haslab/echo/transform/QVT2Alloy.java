@@ -1,42 +1,41 @@
 package pt.uminho.haslab.echo.transform;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 
+import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 import pt.uminho.haslab.emof.ast.QVTBase.Rule;
 import pt.uminho.haslab.emof.ast.QVTBase.Transformation;
+import pt.uminho.haslab.emof.ast.QVTBase.TypedModel;
 import pt.uminho.haslab.emof.ast.QVTRelation.Relation;
 
 
 public class QVT2Alloy {
 
-	Transformation qvt;
-	EPackage mm1, mm2;
-	EObject sv1, sv2;
+	private Transformation qvt;
+	private TypedModel target;
 	
-	Expr fact;
+	public final Expr fact;
 	
-	public QVT2Alloy (EPackage mm1, EPackage mm2, EObject sv1, EObject sv2, Transformation qvt) {
+	public QVT2Alloy (TypedModel target, Transformation qvt) throws Err {
 		this.qvt = qvt;
-		this.mm1 = mm1;
-		this.mm2 = mm2;
-		this.sv1 = sv1;
-		this.sv2 = sv2;
+		this.target = target;
 		
-		for (Rule rel : qvt.getRule())
-			if (rel instanceof Relation)
-				processRelation((Relation) rel);
-			else throw new Error ("Rule not supported.");
+		Expr fact = Sig.NONE.no();
+
+		for (Rule rel : qvt.getRule()){
+			if (!(rel instanceof Relation)) throw new Error ("Rule not supported: "+rel.toString());
+			else {
+				QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,qvt);
+				fact = fact.and(trans.getFact());
+			}
+		}
+		this.fact = fact;
 	}
-	
-	private void processRelation (Relation rel) {
-		if (!rel.getIsTopLevel()) return;
-		
-		
-		
-		
+
+	public Expr getFact() {
+		return fact;
 	}
-	
+
 }

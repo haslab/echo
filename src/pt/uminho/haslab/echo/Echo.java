@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
+import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
 
@@ -24,7 +25,6 @@ import edu.mit.csail.sdg.alloy4.A4Reporter;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
-import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -96,8 +96,8 @@ public class Echo {
 		A4Options options = new A4Options();
 		options.solver = A4Options.SatSolver.SAT4J;
 		
-		PrimSig statesig = createStateSig(pck.getName());
-		PrimSig stateinstance = createStateInstance(statesig);
+		PrimSig statesig = AlloyUtil.createStateSig(pck.getName());
+		PrimSig stateinstance = AlloyUtil.createStateInstance(statesig,true);
 		sigStates.put(stateinstance, statesig);
 		
 		System.out.println("*** Processing metamodel.");
@@ -133,6 +133,7 @@ public class Echo {
 		System.out.println("Command fact: \n "+ inst.getFact());
 		System.out.println("Sig list: \n "+ sigList);
 		
+		
 		Command cmd = new Command(false, 5, -1, -1, UNIV.some().and(inst.getFact()));
 		System.out.println(cmd.getAllStringConstants(sigList));
 		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, sigList, cmd, options);
@@ -145,13 +146,6 @@ public class Echo {
 		} else System.out.println("Formula not satisfiable.");
 	}
 	
-	private static PrimSig createStateSig(String sig) throws Err{
-		PrimSig s = new PrimSig(sig,Attr.ABSTRACT);
-		return s;
-	}
-	private static PrimSig createStateInstance(PrimSig sig) throws Err{
-		PrimSig s = new PrimSig(sig.toString()+"1",sig,Attr.ONE);
-		return s;
-	}
+
 }
 
