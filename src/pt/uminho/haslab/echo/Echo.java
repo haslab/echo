@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.qvtparser.QvtParserRunner;
+import net.sourceforge.qvtparser.model.qvtbase.Transformation;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -78,13 +81,30 @@ public class Echo {
 	}
 		
 	
+	private static Transformation getTransformation(String qvtFile, String MMfile1, String MMfile2) throws Exception
+	{
+		List<String> metamodelFiles = new java.util.ArrayList<String>();
+		metamodelFiles.add(MMfile1);
+		metamodelFiles.add(MMfile2);
+		
+		QvtParserRunner qvtRun = new QvtParserRunner(qvtFile, metamodelFiles);
+		Transformation t = null;
+		EObject o = qvtRun.getQvtModel().getModelElements().get(0);
+		
+		if(o instanceof Transformation)
+		{	
+			System.out.println("yeah");
+			t = (Transformation) o;
+		}
+		return t;
+	}
 	
-	
-	public static void main(String[] args) throws Err{
+	public static void main(String[] args) throws Exception{
 		EPackage pck = (EPackage) loadObjectFromEcore(args[0]);
 		//EPackage p2 = (EPackage) loadObjectFromEcore(args[2]);
 		EObject ins = loadModelInstance(args[1],pck);
-			
+		
+		
 		A4Reporter rep = new A4Reporter() {
 			// For example, here we choose to display each "warning" by printing it to System.out
 			@Override public void warning(ErrorWarning msg) {
@@ -143,6 +163,9 @@ public class Echo {
 	        // opens the visualizer with the resulting model
 			new VizGUI(true, "alloy_output.xml", null);
 		} else System.out.println("Formula not satisfiable.");
+		
+		getTransformation("Uml2Rdbms.qvt","UML.ecore","RDBMS.ecore");
+		
 	}
 	
 	private static PrimSig createStateSig(String sig) throws Err{
