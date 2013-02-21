@@ -1,42 +1,48 @@
 package pt.uminho.haslab.echo.transform;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sourceforge.qvtparser.model.qvtbase.Rule;
+import net.sourceforge.qvtparser.model.qvtbase.Transformation;
+import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
+import net.sourceforge.qvtparser.model.qvtrelation.Relation;
+import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-
-import pt.uminho.haslab.emof.ast.QVTBase.Rule;
-import pt.uminho.haslab.emof.ast.QVTBase.Transformation;
-import pt.uminho.haslab.emof.ast.QVTRelation.Relation;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 
 public class QVT2Alloy {
 
-	Transformation qvt;
-	EPackage mm1, mm2;
-	EObject sv1, sv2;
+	private Transformation qvt;
+	private TypedModel target;
 	
-	Expr fact;
+	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
+
+	public final Expr fact;
 	
-	public QVT2Alloy (EPackage mm1, EPackage mm2, EObject sv1, EObject sv2, Transformation qvt) {
+	public QVT2Alloy (TypedModel target, Transformation qvt, Map<String,List<Sig>> modelsigs) throws Err {
 		this.qvt = qvt;
-		this.mm1 = mm1;
-		this.mm2 = mm2;
-		this.sv1 = sv1;
-		this.sv2 = sv2;
+		this.target = target;
+		this.modelsigs = modelsigs;
 		
-		for (Rule rel : qvt.getRule())
-			if (rel instanceof Relation)
-				processRelation((Relation) rel);
-			else throw new Error ("Rule not supported.");
+		Expr fact = Sig.NONE.no();
+
+		for (Object rel1 : qvt.getRule()){ // should be Rule
+			Rule rel = (Rule) rel1;
+			if (!(rel instanceof Relation)) throw new Error ("Rule not supported: "+rel.toString());
+			else {
+				QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,qvt,this.modelsigs);
+				fact = fact.and(trans.getFact());
+			}
+		}
+		this.fact = fact;
 	}
-	
-	private void processRelation (Relation rel) {
-		if (!rel.getIsTopLevel()) return;
-		
-		
-		
-		
+
+	public Expr getFact() {
+		return fact;
 	}
-	
+
 }
