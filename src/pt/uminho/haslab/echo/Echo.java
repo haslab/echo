@@ -164,7 +164,7 @@ public class Echo {
 			new VizGUI(true, "alloy_output.xml", null);
 		} else System.out.println("Formula not satisfiable.");
 		
-		getTransformation("Uml2Rdbms.qvt","UML.ecore","RDBMS.ecore");
+		getTransformation("Examples/UML2RDBMS/UML2RDBMS.qvt","Examples/UML2RDBMS/UML.ecore","Examples/UML2RDBMS/RDBMS.ecore");
 		
 	}
 	
