@@ -38,21 +38,6 @@ public class XMI2Alloy {
 	private List<Sig> sigList = new ArrayList<Sig>();
 	private Expr factExpr = null; 
 	
-	public XMI2Alloy(EObject obj,ECore2Alloy t,String prefix) throws Err
-	{
-		pre = prefix;
-		eObj = obj;
-		mapClassSig = t.getMapClassSig();
-		mapSfField = t.getMapSfField();
-		mapSigState = t.getMapSigState();
-		mapLitSig = t.getMapLitSig();
-		state = new PrimSig(pre + counter++,t.getState(),Attr.ONE);
-		sigList.add(state);
-		initContent();
-		makeSigList(eObj);
-		System.out.println("Singleton sigs:" + sigList.toString());
-		makeFactExpr();
-	}
 	
 	public XMI2Alloy(EObject obj,ECore2Alloy t,String prefix, PrimSig stateSig) throws Err
 	{
@@ -64,6 +49,7 @@ public class XMI2Alloy {
 		mapLitSig = t.getMapLitSig();
 		state = stateSig;
 		sigList.add(state);
+		sigList.add(AlloyUtil.STATE);
 		initContent();
 		makeSigList(eObj);
 		System.out.println("Singleton sigs:" + sigList.toString());
@@ -79,8 +65,7 @@ public class XMI2Alloy {
 			System.out.println(f.toString());
 			mapContent.put(f,Sig.NONE);}
 		for(EStructuralFeature sf: mapSfField.keySet()){
-			
-			if (sf instanceof EReference && ((EReference) sf).getEOpposite().isContainment()) {}
+			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
 			else if(sf.getEType().getName().equals("EBoolean"))
 				mapContent.put(mapSfField.get(sf),Sig.NONE);
 			else
@@ -129,7 +114,7 @@ public class XMI2Alloy {
 				
 				if(res==null) res = ref;
 				else res = res.plus(ref);
-			}
+			}else throw new Error ("Invalid reference.");
 		return res;
 	}
 	
@@ -164,11 +149,12 @@ public class XMI2Alloy {
 			eG = it.eGet(sf);
 			if(eG instanceof EList<?>)
 			{
+				System.out.println("Handling reference " + sf.getName());
 				if(!((EList<?>) eG).isEmpty())
 				{
 					if (sf instanceof EReference) {
 						EReference op = ((EReference) sf).getEOpposite();
-						if (!op.isContainment()){				
+						if (op == null || (op != null && !op.isContainment())){				
 							aux = handleRef((EList<?>) eG);
 							mappedExpr = mapContent.get(field);
 							mappedExpr = mappedExpr.plus(res.product(aux));
