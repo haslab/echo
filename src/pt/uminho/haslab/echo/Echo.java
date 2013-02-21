@@ -49,6 +49,8 @@ public class Echo {
 	private static Map<String,EPackage> mms = new HashMap<String,EPackage>();
 	// instances
 	private static Map<String,EObject> insts = new HashMap<String,EObject>();
+	// mm name -> alloy sigs
+	private static Map<String,List<Sig>> mmsalloy = new HashMap<String,List<Sig>>();
 	
 	public static EObject loadModelInstance(String argURI,EPackage p) {
 
@@ -129,6 +131,9 @@ public class Echo {
 		A4Options options = new A4Options();
 		options.solver = A4Options.SatSolver.SAT4J;
 		
+		Expr commandfact = Sig.NONE.no();
+		List<Sig> allsigs = new ArrayList<Sig>();
+		
 		for (String name : mms.keySet()) {
 			EPackage pck = mms.get(name);
 			EObject inst = insts.get(name);
@@ -155,24 +160,29 @@ public class Echo {
 			sigList.addAll(insttrans.getSigList());
 			
 			System.out.println("Command fact: "+ insttrans.getFact());
-			System.out.println("Sig list: "+ sigList);
-			
-			Command cmd = new Command(false, 5, -1, -1, UNIV.some().and(insttrans.getFact()));
-			A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, sigList, cmd, options);
-			//sol1 = sol1.next().next().next().next().next();
-			
-			if (sol1.satisfiable()) {
-				sol1.writeXML("alloy_output.xml");
-		        // opens the visualizer with the resulting model
-				new VizGUI(true, "alloy_output.xml", null);
-			} else System.out.println("Formula not satisfiable.");
+			System.out.println("Sig list: "+ sigList);	
 		
+			mmsalloy.put(pck.getName(), sigList);
+			commandfact = commandfact.and(insttrans.getFact());
+			allsigs.addAll(sigList);
 		}
+		
+		Command cmd = new Command(false, 5, -1, -1, UNIV.some().and(commandfact));
+		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
+		//sol1 = sol1.next().next().next().next().next();
+		
+		if (sol1.satisfiable()) {
+			sol1.writeXML("alloy_output.xml");
+	        // opens the visualizer with the resulting model
+			new VizGUI(true, "alloy_output.xml", null);
+		} else System.out.println("Formula not satisfiable.");
 		
 		Transformation qtrans = getTransformation("Examples/UML2RDBMS/UML2RDBMS.qvt","Examples/UML2RDBMS/UML.ecore","Examples/UML2RDBMS/RDBMS.ecore");
 		if (qtrans == null) throw new Error ("Empty transformation.");
+		// randomly chosen target
 		TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
-//		QVT2Alloy qvtrans = new QVT2Alloy(mdl, qtrans, sigList);
+		QVT2Alloy qvtrans = new QVT2Alloy(mdl, qtrans, mmsalloy);
+		
 		
 	}
 
