@@ -10,7 +10,9 @@ import net.sourceforge.qvtparser.model.emof.Property;
 import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
 import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
 import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
+import net.sourceforge.qvtparser.model.qvtbase.Transformation;
 import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
+import net.sourceforge.qvtparser.model.qvtrelation.Relation;
 import net.sourceforge.qvtparser.model.qvtrelation.RelationCallExp;
 import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
 import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
@@ -26,10 +28,12 @@ public class OCL2Alloy {
 	private List<Sig> modelsigs = new ArrayList<Sig>();
 	private TypedModel target;
 	private List<Decl> vardecls;
+	private Transformation qvt;
 
 	public OCL2Alloy(TypedModel domain, List<Sig> modelsigs,
-			TypedModel target, List<Decl> vardecls) {
+			TypedModel target, List<Decl> vardecls, Transformation qvt) {
 		this.domain = domain;
+		this.qvt = qvt;
 		this.modelsigs = modelsigs;
 		this.target = target;
 		this.vardecls = vardecls;
@@ -96,11 +100,16 @@ public class OCL2Alloy {
 		return result;
 	}
 	
+	public Expr oclExprToAlloy (RelationCallExp expr) throws Exception {
+		QVTRelation2Alloy trans = new QVTRelation2Alloy (target, expr.getReferredRelation(), modelsigs, qvt, vardecls);
+		return trans.getFact();
+	}
+	
 	public Expr oclExprToAlloy (OclExpression expr) throws Exception {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);
-		else if (expr instanceof RelationCallExp) return ExprConstant.FALSE;
+		else if (expr instanceof RelationCallExp) return oclExprToAlloy((RelationCallExp) expr);
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
 	}
 }

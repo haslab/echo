@@ -16,7 +16,7 @@ public class QVT2Alloy {
 
 	public final Expr fact;
 	
-	public QVT2Alloy (TypedModel target, Transformation qvt, List<Sig> modelsigs) throws Exception {
+	public QVT2Alloy (TypedModel target, List<Sig> modelsigs, Transformation qvt) throws Exception {
 		
 		Expr fact = ExprConstant.TRUE;
 
@@ -24,7 +24,7 @@ public class QVT2Alloy {
 			Rule rel = (Rule) rel1;
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else {
-				QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,qvt,modelsigs);
+				QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,modelsigs,qvt);
 				fact = AlloyUtil.cleanAnd(fact,trans.getFact());
 			}
 		}
