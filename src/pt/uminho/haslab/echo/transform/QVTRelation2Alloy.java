@@ -25,7 +25,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class QVTRelation2Alloy {
 
-	private Relation rel;
 	private TypedModel target;
 	// targetvariables are variables from target domain that do not occur in the source domains
 	private List<Variable> sourcevariables = new ArrayList<Variable>();
@@ -40,7 +39,6 @@ public class QVTRelation2Alloy {
 
 	public QVTRelation2Alloy (TypedModel target, Relation rel, Transformation qvt, Map<String,List<Sig>> modelsigs) throws Err {
 		this.target = target;
-		this.rel = rel;
 		this.modelsigs = modelsigs;
 
 		Expr fact;
@@ -73,7 +71,6 @@ public class QVTRelation2Alloy {
 		Decl[] aux2 = new Decl[aux.size()];
 		aux2 = aux.toArray(aux2);
 		fact = patternToExpr(targetdomain).forSome(alloytargetvars.get(0),aux2);
-		fact = Sig.NONE.no();
 
 		Expr sourceExpr = Sig.NONE.no();
 
@@ -87,7 +84,7 @@ public class QVTRelation2Alloy {
 		aux2 = aux.toArray(aux2);
 
 		fact = (sourceExpr.implies(fact)).forAll(alloysourcevars.get(0),aux2);	
-		System.out.println("Final rel fact: "+fact.toString());
+		System.out.println("Fact relation "+rel.getName()+":" +fact.toString());
 		
 		this.fact = fact;
 	}
@@ -107,7 +104,6 @@ public class QVTRelation2Alloy {
 			for (PropertyTemplateItem item : temps)
 				sourcevariables.addAll(AlloyUtil.variablesOCLExpression(item.getValue()));
 			sourcevariables.add(dom.getRootVariable());
-			System.out.println("Variables occurring in source "+ dom.getTypedModel().getName() +" domain pattern: "+sourcevariables);
 		}
 		
 		temp = targetdomain.getPattern().getTemplateExpression();
@@ -117,8 +113,6 @@ public class QVTRelation2Alloy {
 			targetvariables.addAll(AlloyUtil.variablesOCLExpression(item.getValue()));
 		targetvariables.add(targetdomain.getRootVariable());
 		targetvariables.removeAll(sourcevariables);
-		System.out.println("Variables occurring exclusively in target "+ targetdomain.getTypedModel().getName() +" domain pattern: "+targetvariables);
-
 	}
 
 	

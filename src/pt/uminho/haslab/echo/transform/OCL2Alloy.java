@@ -8,6 +8,7 @@ import net.sourceforge.qvtparser.model.emof.Property;
 import net.sourceforge.qvtparser.model.emof.impl.PackageImpl;
 import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
 import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
+import net.sourceforge.qvtparser.model.essentialocl.Variable;
 import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
 import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
 import net.sourceforge.qvtparser.model.qvtrelation.RelationDomain;
@@ -56,21 +57,43 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws Err{
 		Expr result = Sig.NONE.no();
 		for (Object part1: ((ObjectTemplateExp) temp).getPart()) { // should be PropertyTemplateItem
+			
+			// calculates OCL expression
 			PropertyTemplateItem part = (PropertyTemplateItem) part1;
 			OclExpression value = part.getValue();
 			Expr ocl = this.oclExprToAlloy(value);
+			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 			String mdl = ((PackageImpl) domain.getTypedModel().getUsedPackage().get(0)).getName();
 			List<Sig> sigs = modelsigs.get(mdl);
 			Expr localfield = AlloyUtil.localStateAttribute(prop, domain.getTypedModel(), sigs, target.equals(domain.getTypedModel()));
-			String varname = domain.getRootVariable().getName();
+			// retrieves the Alloy root variable
+			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
 			for (Decl d : vardecls)
 				if (d.get().label.equals(varname))
 					decl = d;
 			if (decl == null) throw new Error ("Variable not declared: "+varname);
 			ExprHasName var = decl.get();
-			Expr item = (var.join(localfield)).in(ocl);
+			
+			// merges the whole thing
+			Expr item;
+			if (ocl.equals(ExprConstant.TRUE)) item = var.in(localfield);
+			else if (ocl.equals(ExprConstant.FALSE)) item = var.not().in(localfield);
+			else if (value instanceof ObjectTemplateExp) {
+				varname = ((ObjectTemplateExp) value).getBindsTo().getName();
+				decl = null;
+				for (Decl d : vardecls)
+					if (d.get().label.equals(varname))
+						decl = d;
+				if (decl == null) throw new Error ("Variable not declared: "+varname);
+				ExprHasName var1 = decl.get();
+				item = var1.in(var.join(localfield));
+				item = item.and(ocl);
+			}
+			else {
+				item = ocl.in(var.join(localfield));
+			}
 			
 			result = result.and(item);
 		}
