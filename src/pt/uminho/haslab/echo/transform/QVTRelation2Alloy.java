@@ -62,6 +62,7 @@ public class QVTRelation2Alloy {
 		initVariableLists(true);
 		
 		fact = calculateFact();
+		System.out.println("Fact relation "+rel.getName()+":" +fact.toString());
 	}
 	
 	// this one takes a list of declarations as an extra argument: used with relation calls, since some variables are already quantified
@@ -78,6 +79,7 @@ public class QVTRelation2Alloy {
 		initVariableLists(false);
 		
 		fact = calculateFact();
+		
 	}
 	
 	// separating target domain from the rest
@@ -129,7 +131,6 @@ public class QVTRelation2Alloy {
 				fact = fact.forAll(d);
 		}
 
-		System.out.println("Fact relation "+rel.getName()+":" +fact.toString());
 		return fact;
 	}
 	
