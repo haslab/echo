@@ -30,38 +30,14 @@ public class ECore2Alloy {
 	private HashMap<EStructuralFeature,Expr> mapSfField = new HashMap<EStructuralFeature,Expr>();
 	private HashMap<PrimSig,Expr> mapSigState = new HashMap<PrimSig,Expr>();
 	private final EPackage pack;
-	private final String prefix;
 	private final PrimSig state;
 	private List<Sig> sigList;
 	
 	public ECore2Alloy(EPackage p) throws Err{
-		state = new PrimSig("State");
+		state = AlloyUtil.STATE;
 		pack = p;
-		prefix = "";
 		sigList = makeSigList();
 	}
-	
-	public ECore2Alloy(EPackage p, String pref) throws Err{
-		state = new PrimSig("State");
-		pack = p;
-		prefix = pref;
-		sigList = makeSigList();
-	}
-	
-	public ECore2Alloy(EPackage p, String pref,String stateName) throws Err{
-		state = new PrimSig(stateName);
-		pack = p;
-		prefix = pref;
-		sigList = makeSigList();
-	}
-
-	public ECore2Alloy(EPackage p, String pref,PrimSig state) throws Err{
-		this.state = state;
-		this.pack = p;
-		this.prefix = pref;
-		this.sigList = makeSigList();
-	}
-
 	
 	public HashMap<PrimSig,Expr> getMapSigState()
 	{
@@ -123,7 +99,7 @@ public class ECore2Alloy {
 			if (attr.getEType() instanceof EEnum)
 			{
 				PrimSig sigType = mapClassSig.get(attr.getEType());
-				Expr field = ec.addField(prefix + attr.getName(),sigType.product(state));
+				Expr field = ec.addField(AlloyUtil.pckPrefix(pack,attr.getName()),sigType.product(state));
 				mapSfField.put(attr,field);
 				Expr fact = field.join(state.decl.get());
 				Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(sigType);
@@ -133,12 +109,12 @@ public class ECore2Alloy {
 				
 			}else if(attr.getEType().getName().equals("EBoolean"))
 			{
-				Expr field = ec.addField(prefix + attr.getName(),state.setOf());
+				Expr field = ec.addField(AlloyUtil.pckPrefix(pack,attr.getName()),state.setOf());
 				mapSfField.put(attr,field);
 				
 			}else if(attr.getEType().getName().equals("EString"))
 			{
-				Expr field = ec.addField(prefix + attr.getName(),Sig.STRING.product(state));
+				Expr field = ec.addField(AlloyUtil.pckPrefix(pack,attr.getName()),Sig.STRING.product(state));
 				mapSfField.put(attr,field);
 				Expr fact = field.join(state.decl.get());
 				Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.STRING);
@@ -168,9 +144,9 @@ public class ECore2Alloy {
 				if(parent == null) throw new Error("Parent class not found.");	
 			}
 			if(ec.isAbstract())
-				res = new PrimSig(prefix + ec.getName(),parent,Attr.ABSTRACT);
-			else res = new PrimSig(prefix + ec.getName(),parent);
-			mapSigState.put(res,res.addField(prefix + ec.getName().toLowerCase(),state.setOf()));
+				res = new PrimSig(AlloyUtil.pckPrefix(pack,ec.getName()),parent,Attr.ABSTRACT);
+			else res = new PrimSig(AlloyUtil.pckPrefix(pack,ec.getName()),parent);
+			mapSigState.put(res,res.addField(AlloyUtil.pckPrefix(pack,ec.getName()).toLowerCase(),state.setOf()));
 			mapClassSig.put(ec, res);
 			processAttributes(ec.getEAllAttributes(),res);
 			sigList.add(res);
@@ -186,7 +162,7 @@ public class ECore2Alloy {
 	private void processReference(EReference r, PrimSig parent) throws Err {
 		EClass type = r.getEReferenceType();
 		PrimSig sigType = mapClassSig.get(type);
-		Expr field = parent.addField(prefix + r.getName(),sigType.product(state));
+		Expr field = parent.addField(AlloyUtil.pckPrefix(pack,r.getName()),sigType.product(state));
 		mapSfField.put(r, field);
 		// processing opposite references
 		Expr opField = null;
@@ -242,7 +218,7 @@ public class ECore2Alloy {
 	{
 		for(EEnumLiteral lit: el)
 		{
-			PrimSig litSig = new PrimSig(prefix + lit.getLiteral(),parent,Attr.ONE);
+			PrimSig litSig = new PrimSig(AlloyUtil.pckPrefix(pack,lit.getLiteral()),parent,Attr.ONE);
 			mapLitSig.put(lit, litSig);
 			sigList.add(litSig);
 		}
@@ -253,7 +229,7 @@ public class ECore2Alloy {
 		PrimSig enumSig = null;
 		for(EEnum en: list)
 		{
-			enumSig = new PrimSig(prefix + en.getName(),Attr.ABSTRACT);
+			enumSig = new PrimSig(AlloyUtil.pckPrefix(pack,en.getName()),Attr.ABSTRACT);
 			sigList.add(enumSig);
 			mapClassSig.put(en, enumSig);
 			//mapSigState.put(enumSig, enumSig.addField(prefix + en.getName().toLowerCase(),state.setOf()));

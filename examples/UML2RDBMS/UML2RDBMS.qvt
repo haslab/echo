@@ -1,0 +1,28 @@
+transformation uml2rdbms (uml : UML; rdbms : RDBMS) {
+
+  top relation P2S { 
+    pn: String; p:RDBMS::Scheme; s:UML::Package;
+    domain uml p:Package { 
+      name=pn };
+    domain rdbms s:Scheme { 
+      name=pn };
+  }
+
+  top relation C2T { 
+    cn: String; 
+    domain uml c:Class { 
+      persistent=true, 
+      namespace=p:Package{}, name=cn };
+    domain rdbms t:Table { 
+      scheme=s:Scheme{}, name=cn };
+    when { P2S(p,s); }
+    where { A2C(c,t); }
+  }
+
+  relation A2C {
+    cn : String; a : UML::Attribute; g : UML::Class;
+    domain uml c:Class {};
+    domain rdbms t:Table { columns = cl:Column {name = cn} };
+  }
+
+}

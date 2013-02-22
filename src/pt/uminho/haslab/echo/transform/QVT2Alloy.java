@@ -1,36 +1,34 @@
 package pt.uminho.haslab.echo.transform;
 
+import java.util.List;
 
-import edu.mit.csail.sdg.alloy4.Err;
+import pt.uminho.haslab.echo.ErrorTransform;
+
+import net.sourceforge.qvtparser.model.qvtbase.Rule;
+import net.sourceforge.qvtparser.model.qvtbase.Transformation;
+import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
+import net.sourceforge.qvtparser.model.qvtrelation.Relation;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-
-import pt.uminho.haslab.emof.ast.QVTBase.Rule;
-import pt.uminho.haslab.emof.ast.QVTBase.Transformation;
-import pt.uminho.haslab.emof.ast.QVTBase.TypedModel;
-import pt.uminho.haslab.emof.ast.QVTRelation.Relation;
-
 
 public class QVT2Alloy {
 
-	private Transformation qvt;
-	private TypedModel target;
-	
 	public final Expr fact;
 	
-	public QVT2Alloy (TypedModel target, Transformation qvt) throws Err {
-		this.qvt = qvt;
-		this.target = target;
+	public QVT2Alloy (TypedModel target, Transformation qvt, List<Sig> modelsigs) throws Exception {
 		
-		Expr fact = Sig.NONE.no();
+		Expr fact = ExprConstant.TRUE;
 
-		for (Rule rel : qvt.getRule()){
-			if (!(rel instanceof Relation)) throw new Error ("Rule not supported: "+rel.toString());
+		for (Object rel1 : qvt.getRule()){ // should be Rule
+			Rule rel = (Rule) rel1;
+			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else {
-				QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,qvt);
-				fact = fact.and(trans.getFact());
+				QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,qvt,modelsigs);
+				fact = AlloyUtil.cleanAnd(fact,trans.getFact());
 			}
 		}
+		
 		this.fact = fact;
 	}
 
