@@ -17,7 +17,7 @@ public final class ErrorTransform extends Exception {
 
 	@Override public String toString() {
 		if (object == null) return "Error on transformation "+trans+": "+super.getMessage();
-		else return  "Error transforming "+object.getClass()+ " on "+trans+": "+super.getMessage();
+		else return  "Error transforming "+object.getClass().getSimpleName()+ " on "+trans+": "+super.getMessage();
 	}
 
 }

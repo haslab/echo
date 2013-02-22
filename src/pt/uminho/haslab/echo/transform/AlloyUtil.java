@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.eclipse.emf.ecore.EPackage;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorTransform;
+
 import net.sourceforge.qvtparser.model.emof.Property;
 import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
 import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
@@ -20,6 +23,7 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
@@ -54,7 +58,7 @@ public class AlloyUtil {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-	public static List<Decl> variableListToExpr (List<Variable> ovars, List<Sig> sigs) throws Err{
+	public static List<Decl> variableListToExpr (List<Variable> ovars, List<Sig> sigs) throws Exception {
 		List<Decl> avars = new ArrayList<Decl>();
 		for (Variable ovar : ovars) {
 			Expr range = Sig.NONE;
@@ -64,8 +68,10 @@ public class AlloyUtil {
 				for (Sig s : sigs)
 					if (s.label.equals(pckPrefix(ovar.getType().getPackage(),type))) range = s;
 		
-			if (range.equals(Sig.NONE)) throw new Error ("Sig not found: "+type);
-			Decl d = range.oneOf(ovar.getName());
+			if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs,"AlloyUtil",ovar);
+			Decl d;
+			try { d = range.oneOf(ovar.getName()); }
+			catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",range);}
 			avars.add(d);
 		}
 		return avars;
@@ -126,18 +132,11 @@ public class AlloyUtil {
 		return (pck + "_" + str);
 	}
 	
-	// retrieves the list of variable occurrences of an OCL expression (incomplete)
-	public static List<Variable> variablesOCLExpression (OclExpression exp) {
-		List<Variable> vars = new ArrayList<Variable>();
-		if (exp instanceof VariableExp) vars.add(((VariableExp) exp).getReferredVariable()); 
-		else if (exp instanceof ObjectTemplateExp) {
-			vars.add(((ObjectTemplateExp) exp).getBindsTo()); 
-			for (Object part : ((ObjectTemplateExp) exp).getPart())
-				vars.addAll(variablesOCLExpression( ((PropertyTemplateItem) part).getValue() ) );
-		}
-		else if (exp instanceof BooleanLiteralExp) {}
-		else throw new Error ("OCL expression not supported: "+exp.getClass());
-		return vars;
+	// ignores first parameter if "no none" or "true"
+	public static Expr cleanAnd (Expr e, Expr f) {
+		if (e.isSame(Sig.NONE.no()) || e.isSame(ExprConstant.TRUE)) return f;
+		else if (f.isSame(Sig.NONE.no()) || f.isSame(ExprConstant.TRUE)) return e;
+		else return e.and(f);
 	}
 	
 }

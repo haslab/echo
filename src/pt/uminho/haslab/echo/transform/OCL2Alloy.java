@@ -1,20 +1,17 @@
 package pt.uminho.haslab.echo.transform;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
 import net.sourceforge.qvtparser.model.emof.Property;
-import net.sourceforge.qvtparser.model.emof.impl.PackageImpl;
 import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
 import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
 import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
 import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
-import net.sourceforge.qvtparser.model.qvtrelation.RelationDomain;
 import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
 import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -26,14 +23,12 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class OCL2Alloy {
 
-	private RelationDomain domain;
-	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
+	private TypedModel domain;
+	private List<Sig> modelsigs = new ArrayList<Sig>();
 	private TypedModel target;
 	private List<Decl> vardecls;
 
-	
-	
-	public OCL2Alloy(RelationDomain domain, Map<String, List<Sig>> modelsigs,
+	public OCL2Alloy(TypedModel domain, List<Sig> modelsigs,
 			TypedModel target, List<Decl> vardecls) {
 		this.domain = domain;
 		this.modelsigs = modelsigs;
@@ -67,12 +62,8 @@ public class OCL2Alloy {
 			Expr ocl = this.oclExprToAlloy(value);
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
-			String mdl = ((PackageImpl) domain.getTypedModel().getUsedPackage().get(0)).getName();
-			List<Sig> sigs = modelsigs.get(mdl);
 			Expr localfield = null;
-			try {
-				localfield = AlloyUtil.localStateAttribute(prop, domain.getTypedModel(), sigs, target.equals(domain.getTypedModel()));
-			}
+			try {localfield = AlloyUtil.localStateAttribute(prop, domain, modelsigs, target.equals(domain));}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",prop); }
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();

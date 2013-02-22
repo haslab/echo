@@ -1,7 +1,6 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.List;
-import java.util.Map;
 
 import pt.uminho.haslab.echo.ErrorTransform;
 
@@ -17,7 +16,7 @@ public class QVT2Alloy {
 	
 	public final Expr fact;
 	
-	public QVT2Alloy (TypedModel target, Transformation qvt, Map<String,List<Sig>> modelsigs) throws Exception {
+	public QVT2Alloy (TypedModel target, Transformation qvt, List<Sig> modelsigs) throws Exception {
 		
 		Expr fact = ExprConstant.TRUE;
 

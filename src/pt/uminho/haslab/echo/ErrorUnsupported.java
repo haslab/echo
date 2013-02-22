@@ -17,7 +17,7 @@ public final class ErrorUnsupported extends Exception {
 
 	@Override public String toString() {
 		if (object == null) return "Unsupported object on "+trans+": "+super.getMessage();
-		else return  "Unsupported "+object.getClass()+ " on "+trans+": "+super.getMessage();
+		else return  "Unsupported "+object.getClass().getSimpleName()+ " on "+trans+": "+super.getMessage();
 	}
 
 }

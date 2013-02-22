@@ -29,9 +29,7 @@ import pt.uminho.haslab.echo.transform.ECore2Alloy;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 
-import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
-import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -49,8 +47,6 @@ public class Echo {
 	private static Map<String,EPackage> mms = new HashMap<String,EPackage>();
 	// instances
 	private static Map<String,EObject> insts = new HashMap<String,EObject>();
-	// mm name -> alloy sigs
-	private static Map<String,List<Sig>> mmsalloy = new HashMap<String,List<Sig>>();
 	
 	public static EObject loadModelInstance(String argURI,EPackage p) {
 
@@ -162,10 +158,17 @@ public class Echo {
 			System.out.println("Command fact: "+ insttrans.getFact());
 			System.out.println("Sig list: "+ sigList);	
 		
-			mmsalloy.put(pck.getName(), sigList);
 			commandfact = commandfact.and(insttrans.getFact());
 			allsigs.addAll(sigList);
 		}
+		
+		Transformation qtrans = getTransformation("Examples/UML2RDBMS/UML2RDBMS.qvt","Examples/UML2RDBMS/UML.ecore","Examples/UML2RDBMS/RDBMS.ecore");
+		if (qtrans == null) throw new Error ("Empty transformation.");
+		// randomly chosen target
+		TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
+		QVT2Alloy qvtrans = new QVT2Alloy(mdl, qtrans, allsigs);
+		// if Alloy isn't satisfiable, try to remove this :)
+		commandfact = commandfact.and(qvtrans.getFact());
 		
 		Command cmd = new Command(false, 5, -1, -1, UNIV.some().and(commandfact));
 		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
@@ -175,14 +178,7 @@ public class Echo {
 			sol1.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
 			new VizGUI(true, "alloy_output.xml", null);
-		} else System.out.println("Formula not satisfiable.");
-		
-		Transformation qtrans = getTransformation("Examples/UML2RDBMS/UML2RDBMS.qvt","Examples/UML2RDBMS/UML.ecore","Examples/UML2RDBMS/RDBMS.ecore");
-		if (qtrans == null) throw new Error ("Empty transformation.");
-		// randomly chosen target
-		TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
-		QVT2Alloy qvtrans = new QVT2Alloy(mdl, qtrans, mmsalloy);
-		
+		} else System.out.println("Formula not satisfiable.");		
 		
 	}
 
