@@ -9,13 +9,8 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 
 import net.sourceforge.qvtparser.model.emof.Property;
-import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
-import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
 import net.sourceforge.qvtparser.model.essentialocl.Variable;
-import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
 import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
-import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
-import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
 import net.sourceforge.qvtparser.model.emof.impl.PackageImpl;
 import net.sourceforge.qvtparser.model.emof.Package;
 
@@ -40,20 +35,22 @@ public class AlloyUtil {
 	
     // creates state variables for a particular metamodel, extensions of STATE
     // if metamodel is target, two instances are created
-	public static List<PrimSig> createStateSig(String sig, boolean target) throws Err{
+	public static List<PrimSig> createStateSig(String sig, boolean target) throws ErrorAlloy{
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
 		
-		if (!target) {
-			PrimSig s = new PrimSig(sig,STATE,Attr.ONE);
-			sigs.add(s);
-		} else {
-			PrimSig s = new PrimSig(sig,STATE,Attr.ABSTRACT);
-			PrimSig s1 = new PrimSig(sig+"1",s,Attr.ONE);
-			PrimSig s2 = new PrimSig(sig+"2",s,Attr.ONE);
-			sigs.add(s);
-			sigs.add(s1);
-			sigs.add(s2);
-		}
+		try {
+			if (!target) {
+				PrimSig s = new PrimSig(sig,STATE,Attr.ONE);
+				sigs.add(s);
+			} else {
+				PrimSig s = new PrimSig(sig,STATE,Attr.ABSTRACT);
+				PrimSig s1 = new PrimSig(sig+"1",s,Attr.ONE);
+				PrimSig s2 = new PrimSig(sig+"2",s,Attr.ONE);
+				sigs.add(s);
+				sigs.add(s1);
+				sigs.add(s2);
+			}
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil"); }
 		return sigs;
 	}
 	
@@ -91,12 +88,12 @@ public class AlloyUtil {
 	}
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Expr exp, TypedModel mdl, boolean target) throws Err{
+	public static Expr localStateAttribute(Expr exp, TypedModel mdl, boolean target) throws ErrorAlloy{
 		PackageImpl pck = (PackageImpl) mdl.getUsedPackage().get(0);
 		PrimSig statesig = createStateSig(pck.getName(),target).get(0); //should be getName()
 		return exp.join(statesig);
 	}
-	public static Expr localStateAttribute(Property prop, TypedModel mdl, List<Sig> sigs, boolean target) throws Err{
+	public static Expr localStateAttribute(Property prop, TypedModel mdl, List<Sig> sigs, boolean target) throws ErrorAlloy{
 		PackageImpl pck = (PackageImpl) mdl.getUsedPackage().get(0);
 		PrimSig statesig = createStateSig(pck.getName(),target).get(0); //should be getName()
 		Expr exp = propertyToField(prop,mdl,sigs);

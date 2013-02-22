@@ -49,7 +49,6 @@ public class QVTRelation2Alloy {
 		this.rel = rel;
 
 		Expr fact,sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
-		String mdl;
 		
 		// separating target domain from the rest
 		for (Object dom1 : rel.getDomain()) { // should be Domain
@@ -128,7 +127,6 @@ public class QVTRelation2Alloy {
 				OclExpression oclwhen = ((Predicate) predicate).getConditionExpression();
 				whenvariables.addAll(OCLUtil.variablesOCLExpression(oclwhen));
 			}
-		System.out.println("When variables: "+whenvariables);
 		
 		for (RelationDomain dom : sourcedomains) {
 			temp = dom.getPattern().getTemplateExpression();

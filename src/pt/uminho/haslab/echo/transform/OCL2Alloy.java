@@ -3,7 +3,6 @@ package pt.uminho.haslab.echo.transform;
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
@@ -12,9 +11,9 @@ import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
 import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
 import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
 import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
+import net.sourceforge.qvtparser.model.qvtrelation.RelationCallExp;
 import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
 import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
-import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
@@ -52,7 +51,7 @@ public class OCL2Alloy {
 		else return ExprConstant.FALSE;
 	}
 	
-	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws Exception{
+	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws Exception {
 		Expr result = Sig.NONE.no();
 		for (Object part1: ((ObjectTemplateExp) temp).getPart()) { // should be PropertyTemplateItem
 			
@@ -63,8 +62,7 @@ public class OCL2Alloy {
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 			Expr localfield = null;
-			try {localfield = AlloyUtil.localStateAttribute(prop, domain, modelsigs, target.equals(domain));}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",prop); }
+			localfield = AlloyUtil.localStateAttribute(prop, domain, modelsigs, target.equals(domain));
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
@@ -102,6 +100,7 @@ public class OCL2Alloy {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);
+		else if (expr instanceof RelationCallExp) return ExprConstant.FALSE;
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
 	}
 }
