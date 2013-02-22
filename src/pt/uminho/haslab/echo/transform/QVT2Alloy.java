@@ -24,8 +24,10 @@ public class QVT2Alloy {
 			Rule rel = (Rule) rel1;
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else {
-				QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,modelsigs,qvt);
-				fact = AlloyUtil.cleanAnd(fact,trans.getFact());
+				if (((Relation) rel).getIsTopLevel() != null && ((Relation) rel).getIsTopLevel()) { // apparently, non-top is null
+					QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,modelsigs,qvt);
+					fact = AlloyUtil.cleanAnd(fact,trans.getFact());
+				}
 			}
 		}
 		
