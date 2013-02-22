@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+
 import net.sourceforge.qvtparser.model.emof.Property;
 import net.sourceforge.qvtparser.model.emof.impl.PackageImpl;
 import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
 import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
-import net.sourceforge.qvtparser.model.essentialocl.Variable;
 import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
 import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
 import net.sourceforge.qvtparser.model.qvtrelation.RelationDomain;
@@ -38,13 +41,13 @@ public class OCL2Alloy {
 		this.vardecls = vardecls;
 	}
 	
-	public Expr oclExprToAlloy (VariableExp expr) throws Err{
+	public Expr oclExprToAlloy (VariableExp expr) throws ErrorTransform{
 		String varname = expr.getName();
 		Decl decl = null;
 		for (Decl d : vardecls){
 			if (d.get().label.equals(varname))
 				decl = d;}
-		if (decl == null) throw new Error ("Variable not declared: "+varname);
+		if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",expr);
 		ExprHasName var = decl.get();
 		return var;	
 	}
@@ -54,7 +57,7 @@ public class OCL2Alloy {
 		else return ExprConstant.FALSE;
 	}
 	
-	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws Err{
+	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws Exception{
 		Expr result = Sig.NONE.no();
 		for (Object part1: ((ObjectTemplateExp) temp).getPart()) { // should be PropertyTemplateItem
 			
@@ -66,14 +69,18 @@ public class OCL2Alloy {
 			Property prop = part.getReferredProperty();
 			String mdl = ((PackageImpl) domain.getTypedModel().getUsedPackage().get(0)).getName();
 			List<Sig> sigs = modelsigs.get(mdl);
-			Expr localfield = AlloyUtil.localStateAttribute(prop, domain.getTypedModel(), sigs, target.equals(domain.getTypedModel()));
+			Expr localfield = null;
+			try {
+				localfield = AlloyUtil.localStateAttribute(prop, domain.getTypedModel(), sigs, target.equals(domain.getTypedModel()));
+			}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",prop); }
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
 			for (Decl d : vardecls)
 				if (d.get().label.equals(varname))
 					decl = d;
-			if (decl == null) throw new Error ("Variable not declared: "+varname);
+			if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",((ObjectTemplateExp) temp).getBindsTo());
 			ExprHasName var = decl.get();
 			
 			// merges the whole thing
@@ -86,24 +93,24 @@ public class OCL2Alloy {
 				for (Decl d : vardecls)
 					if (d.get().label.equals(varname))
 						decl = d;
-				if (decl == null) throw new Error ("Variable not declared: "+varname);
+				if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",((ObjectTemplateExp) value).getBindsTo());
 				ExprHasName var1 = decl.get();
 				item = var1.in(var.join(localfield));
-				item = item.and(ocl);
+				item = AlloyUtil.cleanAnd(item,ocl);
 			}
 			else {
 				item = ocl.in(var.join(localfield));
 			}
 			
-			result = result.and(item);
+			result = AlloyUtil.cleanAnd(result,item);
 		}
 		return result;
 	}
 	
-	public Expr oclExprToAlloy (OclExpression expr) throws Err{
+	public Expr oclExprToAlloy (OclExpression expr) throws Exception {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);
-		else throw new Error ("OCL expression not supported: "+expr.getClass());
+		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
 	}
 }

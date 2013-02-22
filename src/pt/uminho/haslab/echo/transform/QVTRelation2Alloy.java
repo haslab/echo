@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+
 import net.sourceforge.qvtparser.model.emof.impl.PackageImpl;
 import net.sourceforge.qvtparser.model.essentialocl.Variable;
 import net.sourceforge.qvtparser.model.qvtbase.Domain;
@@ -17,35 +20,36 @@ import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
 import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
 import net.sourceforge.qvtparser.model.qvttemplate.TemplateExp;
 
-
-import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class QVTRelation2Alloy {
 
-	private TypedModel target;
-	// targetvariables are variables from target domain that do not occur in the source domains
+	// target variables are variables from target domain that do not occur in the source domains
 	private List<Variable> sourcevariables = new ArrayList<Variable>();
 	private List<Variable> targetvariables = new ArrayList<Variable>();
+	// separated target and source domains
 	private RelationDomain targetdomain;
 	private List<RelationDomain> sourcedomains = new ArrayList<RelationDomain>();
+	// the alloy signatures of each metamodel
 	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
+	// Declarations of quantified variables; needed for respective variable occurrences;
 	private List<Decl> decls = new ArrayList<Decl>();
 	// the Alloy expression rising from this relations
 	final Expr fact;
 	
 
-	public QVTRelation2Alloy (TypedModel target, Relation rel, Transformation qvt, Map<String,List<Sig>> modelsigs) throws Err {
-		this.target = target;
+	public QVTRelation2Alloy (TypedModel target, Relation rel, Transformation qvt, Map<String,List<Sig>> modelsigs) throws Exception {
 		this.modelsigs = modelsigs;
 
 		Expr fact;
 		
 		for (Object dom1 : rel.getDomain()) { // should be Domain
 			Domain dom = (Domain) dom1;
-			if (!(dom instanceof RelationDomain)) throw new Error("QVT2Alloy: Not a domain relation: "+dom.toString());
+			// "Domains" of QVT Relations must be "RelationDomains"
+			if (!(dom instanceof RelationDomain)) 
+				throw new ErrorTransform("Not a domain relation.","QVTRelation2Alloy",dom);
 			else if (dom.getTypedModel().equals(target)) targetdomain = (RelationDomain) dom;
 			else sourcedomains.add((RelationDomain) dom);
 		}
@@ -75,7 +79,7 @@ public class QVTRelation2Alloy {
 		Expr sourceExpr = Sig.NONE.no();
 
 		for (RelationDomain dom : sourcedomains) {
-			sourceExpr = sourceExpr.and(patternToExpr(dom));
+			sourceExpr = AlloyUtil.cleanAnd(sourceExpr,patternToExpr(dom));
 		}
 		
 		aux = new ArrayList<Decl>(alloysourcevars);
@@ -89,17 +93,15 @@ public class QVTRelation2Alloy {
 		this.fact = fact;
 	}
 	
-	public Expr getFact() {
-		return fact;
-	}
-	
 	// separates source from target variables (eventually also when and where variables)
-	private void initVariableLists(){
+	private void initVariableLists() throws ErrorUnsupported{
 		TemplateExp temp;
 		List<PropertyTemplateItem> temps;
 		for (RelationDomain dom : sourcedomains) {
 			temp = dom.getPattern().getTemplateExpression();
-			if (!(temp instanceof ObjectTemplateExp)) throw new Error ("Template not an ObjectTemplate.");
+			// No support for CollectionTemplateExp
+			if (!(temp instanceof ObjectTemplateExp)) 
+				throw new ErrorUnsupported ("Template not an ObjectTemplate.","QVTRelation2Alloy",temp);
 			temps = new ArrayList<PropertyTemplateItem>(((ObjectTemplateExp) temp).getPart());
 			for (PropertyTemplateItem item : temps)
 				sourcevariables.addAll(AlloyUtil.variablesOCLExpression(item.getValue()));
@@ -107,7 +109,9 @@ public class QVTRelation2Alloy {
 		}
 		
 		temp = targetdomain.getPattern().getTemplateExpression();
-		if (!(temp instanceof ObjectTemplateExp)) throw new Error ("QVT2Alloy: Template not an ObjectTemplate.");
+		// No support for CollectionTemplateExp
+		if (!(temp instanceof ObjectTemplateExp)) 
+			throw new ErrorUnsupported ("Template not an ObjectTemplate.","QVTRelation2Alloy",temp);
 		temps = new ArrayList<PropertyTemplateItem>(((ObjectTemplateExp) temp).getPart());
 		for (PropertyTemplateItem item : temps)
 			targetvariables.addAll(AlloyUtil.variablesOCLExpression(item.getValue()));
@@ -115,17 +119,17 @@ public class QVTRelation2Alloy {
 		targetvariables.removeAll(sourcevariables);
 	}
 
-	
-	private Expr patternToExpr (RelationDomain domain) throws Err {
-		OCL2Alloy ocltrans = new OCL2Alloy(domain,modelsigs,target,decls);
-		Expr result = Sig.NONE.no();
+	// calls OCL2Alloy on the domain pattern
+	private Expr patternToExpr (RelationDomain domain) throws Exception {
+		OCL2Alloy ocltrans = new OCL2Alloy(domain,modelsigs,targetdomain.getTypedModel(),decls);
+
 		DomainPattern pattern = domain.getPattern();
 		TemplateExp temp = pattern.getTemplateExpression(); 
 		
-		result = ocltrans.oclExprToAlloy(temp);
-
-		return result;
+		return ocltrans.oclExprToAlloy(temp);
 	}
 	
-	
+	public Expr getFact() {
+		return fact;
+	}
 }
