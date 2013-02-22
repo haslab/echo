@@ -1,7 +1,7 @@
 transformation uml2rdbms (uml : UML; rdbms : RDBMS) {
 
   top relation P2S { 
-    pn: String;
+    pn: String; p:RDBMS::Scheme; s:UML::Package;
     domain uml p:Package { 
       name=pn };
     domain rdbms s:Scheme { 
