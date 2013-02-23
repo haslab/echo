@@ -1,6 +1,8 @@
 package pt.uminho.haslab.echo;
-import static edu.mit.csail.sdg.alloy4compiler.ast.Sig.UNIV;
 
+import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
@@ -91,31 +94,114 @@ public class Echo {
 		metamodelFiles.add(MMfile1);
 		metamodelFiles.add(MMfile2);
 		
+		PrintStream tmp=System.out;
+		System.setOut(new PrintStream(new NullStream()));
 		QvtParserRunner qvtRun = new QvtParserRunner(qvtFile, metamodelFiles);
+		System.setOut(tmp);
+		
 		Transformation t = null;
 		EObject o = qvtRun.getQvtModel().getModelElements().get(0);
 		
 		if(o instanceof Transformation)
 		{	
-			System.out.println("yeah");
 			t = (Transformation) o;
 		} else throw new Error("Parser failer: " + o.getClass());
 		return t;
 	}
 	
 	public static void main(String[] args) throws Exception{
+		if (args.length != 6) throw new Error ("Wrong number of arguments: [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
+													"E.g. \"UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
+		
+		Expr delta = null;
+		String target = args[1];
+		
 		// eventually should be an arbitrary number
 		EPackage paux; EObject iaux;
-		paux = (EPackage) loadObjectFromEcore(args[0]);
-		mms.put(paux.getName(),paux);
-		iaux = loadModelInstance(args[1],paux);
-		insts.put(paux.getName(),iaux);
-
 		paux = (EPackage) loadObjectFromEcore(args[2]);
 		mms.put(paux.getName(),paux);
 		iaux = loadModelInstance(args[3],paux);
 		insts.put(paux.getName(),iaux);
 		
+		paux = (EPackage) loadObjectFromEcore(args[4]);
+		mms.put(paux.getName(),paux);
+		iaux = loadModelInstance(args[5],paux);
+		insts.put(paux.getName(),iaux);
+		
+		Expr commandfact = Sig.NONE.no();
+		List<Sig> allsigs = new ArrayList<Sig>();
+		allsigs.add(AlloyUtil.STATE);
+		
+		for (String name : mms.keySet()) {
+			
+			System.out.println("** Processing metamodel "+name+".");
+			
+			EPackage pck = mms.get(name);
+			EObject inst = insts.get(name);
+			boolean istarget = pck.getName().equals(target);
+			if (inst == null || pck == null) throw new Error ("Bad file parsing");
+			
+			// generating state instances
+			List<PrimSig> stateinstances; 
+			if (istarget) stateinstances = AlloyUtil.createStateSig(pck.getName(),true);
+			else stateinstances = AlloyUtil.createStateSig(pck.getName(),false);
+			
+			System.out.println("State signatures: "+stateinstances);
+				
+			ECore2Alloy mmtrans = new ECore2Alloy(pck,stateinstances.get(0));
+			
+			List<Sig> sigList = mmtrans.getSigList();
+			
+			System.out.println("Metamodel signatures: "+sigList);
+
+			//for(Sig s:sigList) {
+			//	System.out.println("Factos de " + s + "  :");
+			//	for(Expr f : s.getFacts())
+			//		System.out.println(f); }
+			
+			if (istarget) { 
+				delta = (mmtrans.getDeltaExpr(stateinstances.get(2),stateinstances.get(1))).equal(ExprConstant.makeNUMBER(0));
+				System.out.println("Delta function: "+delta);
+			}
+			
+			XMI2Alloy insttrans;
+			if (istarget) insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(1));
+			else  insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(0));
+			
+			//System.out.println("Singleton sigs (object instances):");
+			//for(Sig s: insttrans.getSigList()) {
+			//	System.out.println(((PrimSig) s).parent.toString()+" : "+s.toString());}
+
+			List<Sig> instList = insttrans.getSigList();
+			sigList.addAll(instList);
+			
+			System.out.println("Instance signatures: "+sigList);
+			
+			Expr instFact = insttrans.getFact();
+			
+			commandfact = commandfact.and(instFact);
+			
+			System.out.println("Instance facts: "+instFact);
+			
+			allsigs.addAll(sigList);
+			allsigs.addAll(stateinstances);
+			
+			System.out.println("");
+		}
+		
+		Transformation qtrans = getTransformation(args[0],args[2],args[4]);
+		if (qtrans == null) throw new Error ("Empty transformation.");
+
+		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
+
+		TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
+		QVT2Alloy qvtrans = new QVT2Alloy(mdl,allsigs,qtrans);
+		Expr qvtfact = qvtrans.getFact();
+				
+		System.out.println("QVT fact "+qvtfact);
+		System.out.println("");		
+		
+		// starting Alloy
 		A4Reporter rep = new A4Reporter() {
 			// For example, here we choose to display each "warning" by printing it to System.out
 			@Override public void warning(ErrorWarning msg) {
@@ -126,59 +212,37 @@ public class Echo {
 		
 		A4Options options = new A4Options();
 		options.solver = A4Options.SatSolver.SAT4J;
+		options.noOverflow = true;
 		
-		Expr commandfact = Sig.NONE.no();
-		List<Sig> allsigs = new ArrayList<Sig>();
-		
-		for (String name : mms.keySet()) {
-			EPackage pck = mms.get(name);
-			EObject inst = insts.get(name);
-			if (inst == null || pck == null) throw new Error ("Bad file parsing");
-			
-			// generating state instances
-			PrimSig stateinstance = AlloyUtil.createStateSig(pck.getName(),false).get(0);
-			
-			ECore2Alloy mmtrans = new ECore2Alloy(pck);
-			
-			List<Sig> sigList = mmtrans.getSigList();
-			
-			for(Sig s:sigList) {
-				System.out.println("Factos de " + s + "  :");
-				for(Expr f : s.getFacts())
-					System.out.println(f); }
-			
-			XMI2Alloy insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstance);
+		System.out.println("** Processing Alloy command: "+qtrans.getName()+" on the direction of "+target+".");
 
-			System.out.println("Singleton sigs (object instances):");
-			for(Sig s: insttrans.getSigList()) {
-				System.out.println(((PrimSig) s).parent.toString()+" : "+s.toString());}
-		
-			sigList.addAll(insttrans.getSigList());
-			
-			System.out.println("Command fact: "+ insttrans.getFact());
-			System.out.println("Sig list: "+ sigList);	
-		
-			commandfact = commandfact.and(insttrans.getFact());
-			allsigs.addAll(sigList);
-		}
-		
-		Transformation qtrans = getTransformation("Examples/UML2RDBMS/UML2RDBMS.qvt","Examples/UML2RDBMS/UML.ecore","Examples/UML2RDBMS/RDBMS.ecore");
-		if (qtrans == null) throw new Error ("Empty transformation.");
-		// randomly chosen target
-		TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
-		QVT2Alloy qvtrans = new QVT2Alloy(mdl, qtrans, allsigs);
-		// if Alloy isn't satisfiable, try to remove this :)
-		commandfact = commandfact.and(qvtrans.getFact());
-		
-		Command cmd = new Command(false, 5, -1, -1, UNIV.some().and(commandfact));
+		commandfact = (commandfact.and(qvtfact)).and(delta);		
+		Command cmd = new Command(false, 5, 4, 2, commandfact);
+
+		System.out.println("Final command fact: "+(commandfact));
+		System.out.println("Final sigs: "+(allsigs));
+
 		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		//sol1 = sol1.next().next().next().next().next();
-		
+			
 		if (sol1.satisfiable()) {
 			sol1.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
-			new VizGUI(true, "alloy_output.xml", null);
-		} else System.out.println("Formula not satisfiable.");			
+			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
+			String theme = (args[0]).replace(".qvt", ".thm");
+			if (new File(theme).isFile())
+				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
+		} else System.out.println("Formula not satisfiable.");
+	}
+	
+	private static class NullStream extends OutputStream {
+	    @Override
+	    public void write(int b){ return; }
+	    @Override
+	    public void write(byte[] b){ return; }
+	    @Override
+	    public void write(byte[] b, int off, int len){ return; }
+	    public NullStream(){}
 	}
 }
 
