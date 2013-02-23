@@ -48,12 +48,11 @@ public class XMI2Alloy {
 		mapSigState = t.getMapSigState();
 		mapLitSig = t.getMapLitSig();
 		state = stateSig;
-		sigList.add(state);
-		sigList.add(AlloyUtil.STATE);
 		initContent();
 		makeSigList(eObj);
-		System.out.println("Singleton sigs:" + sigList.toString());
 		makeFactExpr();
+		System.out.println("Singleton sigs:" + sigList.toString());
+		System.out.println("Expr:" + mapSfField.values().toString());
 	}
 	
 
@@ -62,7 +61,6 @@ public class XMI2Alloy {
 	private void initContent()
 	{
 		for(Expr f: mapSigState.values()) {
-			System.out.println(f.toString());
 			mapContent.put(f,Sig.NONE);}
 		for(EStructuralFeature sf: mapSfField.keySet()){
 			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
@@ -127,7 +125,7 @@ public class XMI2Alloy {
 		Expr aux = null;
 		Object eG;
 		PrimSig parent = mapClassSig.get(it.eClass());
-		System.out.println("Object instances of "+parent);
+		//System.out.println("Object instances of "+parent);
 		PrimSig res = new PrimSig(pre + counter++, parent, Attr.ONE);
 		
 		/*listSiblings = mapContents.get(parent);
@@ -149,7 +147,7 @@ public class XMI2Alloy {
 			eG = it.eGet(sf);
 			if(eG instanceof EList<?>)
 			{
-				System.out.println("Handling reference " + sf.getName());
+				//System.out.println("Handling reference " + sf.getName());
 				if(!((EList<?>) eG).isEmpty())
 				{
 					if (sf instanceof EReference) {
@@ -171,7 +169,7 @@ public class XMI2Alloy {
 	
 	private void handleAttr(Object obj, Sig it, Expr field) throws Err
 	{
-		System.out.println("Object instance attribute: "+ obj);
+		//System.out.println("Object instance attribute: "+ obj);
 		Expr manos = mapContent.get(field);
 		if(obj instanceof Boolean)
 		{

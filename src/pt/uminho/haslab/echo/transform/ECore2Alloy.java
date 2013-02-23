@@ -16,6 +16,8 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
+
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -33,8 +35,8 @@ public class ECore2Alloy {
 	private final PrimSig state;
 	private List<Sig> sigList;
 	
-	public ECore2Alloy(EPackage p) throws Err{
-		state = AlloyUtil.STATE;
+	public ECore2Alloy(EPackage p, PrimSig statesig) throws Err{
+		state = statesig;
 		pack = p;
 		sigList = makeSigList();
 	}
@@ -195,7 +197,6 @@ public class ECore2Alloy {
 		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
 		sigList = new ArrayList<Sig>();
-		sigList.add(state);
 		
 		for(EClassifier e: list)
 		{
@@ -256,6 +257,19 @@ public class ECore2Alloy {
 			processReferences(e.getEAllReferences(),mapClassSig.get(e));
 		
 		return sigList;
+	}
+	
+	public Expr getDeltaExpr(PrimSig m, PrimSig n) throws ErrorAlloy{
+		Expr result = ExprConstant.makeNUMBER(0);
+		for (Expr e : mapSigState.values()) {
+			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
+			result = result.iplus(aux);
+		}
+		for (Expr e : mapSfField.values()) {
+			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
+			result = result.iplus(aux);
+		}
+		return result;
 	}
 	
 	
