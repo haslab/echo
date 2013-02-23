@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<projection> <type name="State"/> </projection>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="0"/>
+   <type name="1"/>
+   <type name="10"/>
+   <type name="11"/>
+   <type name="12"/>
+   <type name="13"/>
+   <type name="14"/>
+   <type name="15"/>
+   <type name="16"/>
+   <type name="2"/>
+   <type name="3"/>
+   <type name="4"/>
+   <type name="5"/>
+   <type name="6"/>
+   <type name="7"/>
+   <type name="8"/>
+   <type name="9"/>
+   <type name="Int"/>
+   <type name="RDBMS"/>
+   <type name="RDBMS&apos;"/>
+   <type name="RDBMS&apos;&apos;"/>
+   <type name="RDBMS&apos;&apos;&apos;"/>
+   <type name="RDBMS&apos;&apos;&apos;&apos;"/>
+   <type name="RDBMS&apos;&apos;&apos;&apos;&apos;"/>
+   <type name="RDBMS&apos;&apos;&apos;&apos;&apos;&apos;"/>
+   <type name="State"/>
+   <type name="String"/>
+   <type name="UML"/>
+   <type name="UML&apos;"/>
+   <type name="UML&apos;&apos;"/>
+   <type name="UML&apos;&apos;&apos;"/>
+   <type name="UML&apos;&apos;&apos;&apos;"/>
+   <type name="UML&apos;&apos;&apos;&apos;&apos;"/>
+   <type name="UML1"/>
+   <type name="UML1&apos;"/>
+   <type name="UML1&apos;&apos;"/>
+   <type name="UML1&apos;&apos;&apos;"/>
+   <type name="UML1&apos;&apos;&apos;&apos;"/>
+   <type name="UML1&apos;&apos;&apos;&apos;&apos;"/>
+   <type name="UML2"/>
+   <type name="UML2&apos;"/>
+   <type name="UML2&apos;&apos;"/>
+   <type name="UML2&apos;&apos;&apos;"/>
+   <type name="UML2&apos;&apos;&apos;&apos;"/>
+   <type name="UML2&apos;&apos;&apos;&apos;&apos;"/>
+   <type name="univ"/>
+   <type name="seq/Int"/>
+   <set name="rdbms_column" type="RDBMS_Column"/>
+   <set name="rdbms_scheme" type="RDBMS_Scheme"/>
+   <set name="rdbms_table" type="RDBMS_Table"/>
+   <set name="uml_attribute" type="UML_Attribute"/>
+   <set name="uml_class" type="UML_Class"/>
+   <set name="uml_package" type="UML_Package"/>
+   <set name="UML_persistent" type="UML_Class"/>
+</node>
+
+<node color="Blue">
+   <type name="RDBMS_Table"/>
+   <type name="UML_Class"/>
+</node>
+
+<node shape="Ellipse" color="Green">
+   <type name="RDBMS_Column"/>
+   <type name="UML_Attribute"/>
+</node>
+
+<node shape="Trapezoid" color="Gray">
+   <type name="RDBMS_Scheme"/>
+   <type name="UML_Package"/>
+</node>
+
+<edge layout="yes">
+   <relation name="RDBMS_scheme"> <type name="RDBMS_Table"/> <type name="RDBMS_Scheme"/> </relation>
+   <relation name="UML_namespace"> <type name="UML_Class"/> <type name="UML_Package"/> </relation>
+</edge>
+
+<edge visible="no" attribute="yes">
+   <relation name="RDBMS_name"> <type name="RDBMS_Column"/> <type name="String"/> </relation>
+   <relation name="RDBMS_name"> <type name="RDBMS_Scheme"/> <type name="String"/> </relation>
+   <relation name="RDBMS_name"> <type name="RDBMS_Table"/> <type name="String"/> </relation>
+   <relation name="UML_name"> <type name="UML_Attribute"/> <type name="String"/> </relation>
+   <relation name="UML_name"> <type name="UML_Class"/> <type name="String"/> </relation>
+   <relation name="UML_name"> <type name="UML_Package"/> <type name="String"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
