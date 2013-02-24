@@ -147,6 +147,7 @@ public class Echo {
 			
 			// generating state instances
 			List<PrimSig> stateinstances; 
+			// only the target needs an extra state instance, and only if enforce mode
 			if (istarget&&!check) stateinstances = AlloyUtil.createStateSig(pck.getName(),true);
 			else stateinstances = AlloyUtil.createStateSig(pck.getName(),false);
 			
@@ -163,6 +164,7 @@ public class Echo {
 			//	for(Expr f : s.getFacts())
 			//		System.out.println(f); }
 			
+			// only the target needs the delta function and only if enforce mode
 			if (istarget&&!check) { 
 				delta = (mmtrans.getDeltaExpr(stateinstances.get(2),stateinstances.get(1))).equal(ExprConstant.makeNUMBER(0));
 				System.out.println("Delta function: "+delta);
@@ -222,7 +224,7 @@ public class Echo {
 
 		commandfact = (commandfact.and(qvtfact)).and(delta);		
 		
-		// depends of running mode
+		// enforce and check mode are run and check commands respectively
 		Command cmd = new Command(check, 5, 4, 2, commandfact);
 		
 		System.out.println("Final command fact: "+(commandfact));
@@ -232,13 +234,17 @@ public class Echo {
 		//sol1 = sol1.next().next().next().next().next();
 			
 		if (sol1.satisfiable()) {
+			if (check) System.out.println("Counter-example found.");
+			else System.out.println("Instance found.");
 			sol1.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
 			String theme = (args[1]).replace(".qvt", ".thm");
 			if (new File(theme).isFile())
 				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
-		} else System.out.println("Formula not satisfiable.");
+		} else 
+			if (check) System.out.println("No counter-example found.");
+			else System.out.println("No instance found.");
 	}
 	
 	private static class NullStream extends OutputStream {
