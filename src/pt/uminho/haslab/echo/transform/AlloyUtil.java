@@ -35,7 +35,7 @@ public class AlloyUtil {
 	
     // creates state variables for a particular metamodel, extensions of STATE
     // if metamodel is target, two instances are created
-	public static List<PrimSig> createStateSig(String sig, boolean target) throws ErrorAlloy{
+	public static List<PrimSig> createStateSig(String sig, boolean target) throws ErrorAlloy {
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
 		
 		try {
@@ -55,7 +55,7 @@ public class AlloyUtil {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-	public static List<Decl> variableListToExpr (List<Variable> ovars, List<Sig> sigs) throws Exception {
+	public static List<Decl> variableListToExpr (List<Variable> ovars, List<Sig> sigs) throws ErrorTransform, ErrorAlloy {
 		List<Decl> avars = new ArrayList<Decl>();
 		for (Variable ovar : ovars) {
 			Expr range = Sig.NONE;
@@ -75,7 +75,7 @@ public class AlloyUtil {
 	}
 
 	// creates an Alloy declaration from an OCL variable
-	public static Decl variableListToExpr (Variable ovar, List<Sig> sigs) throws Err{
+	public static Decl variableListToExpr (Variable ovar, List<Sig> sigs) throws ErrorAlloy {
 		Expr range = Sig.NONE;
 		String type = ovar.getType().getName();
 		if (type.equals("String")) range = Sig.STRING;
@@ -83,7 +83,9 @@ public class AlloyUtil {
 			if (s.label.equals(pckPrefix(ovar.getType().getPackage(),type))) range = s;
 		
 		if (range.equals(Sig.NONE)) throw new Error ("Sig not found: "+type);
-		Decl d = range.oneOf(ovar.getName());
+		Decl d;
+		try { d = range.oneOf(ovar.getName()); }
+		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",ovar);}
 		return d;
 	}
 	

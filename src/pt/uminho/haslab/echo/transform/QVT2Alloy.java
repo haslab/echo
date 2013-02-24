@@ -2,7 +2,9 @@ package pt.uminho.haslab.echo.transform;
 
 import java.util.List;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 
 import net.sourceforge.qvtparser.model.qvtbase.Rule;
 import net.sourceforge.qvtparser.model.qvtbase.Transformation;
@@ -16,7 +18,7 @@ public class QVT2Alloy {
 
 	public final Expr fact;
 	
-	public QVT2Alloy (TypedModel target, List<Sig> modelsigs, Transformation qvt) throws Exception {
+	public QVT2Alloy (TypedModel target, List<Sig> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		
 		Expr fact = ExprConstant.TRUE;
 

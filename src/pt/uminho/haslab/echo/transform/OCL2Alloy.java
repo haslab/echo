@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.transform;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
@@ -39,7 +40,7 @@ public class OCL2Alloy {
 		this.vardecls = vardecls;
 	}
 	
-	public Expr oclExprToAlloy (VariableExp expr) throws ErrorTransform{
+	public Expr oclExprToAlloy (VariableExp expr) throws ErrorTransform {
 		String varname = expr.getName();
 		Decl decl = null;
 		for (Decl d : vardecls){
@@ -55,7 +56,7 @@ public class OCL2Alloy {
 		else return ExprConstant.FALSE;
 	}
 	
-	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws Exception {
+	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr result = Sig.NONE.no();
 		for (Object part1: ((ObjectTemplateExp) temp).getPart()) { // should be PropertyTemplateItem
 			
@@ -100,12 +101,12 @@ public class OCL2Alloy {
 		return result;
 	}
 	
-	public Expr oclExprToAlloy (RelationCallExp expr) throws Exception {
+	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		QVTRelation2Alloy trans = new QVTRelation2Alloy (target, expr.getReferredRelation(), modelsigs, qvt, vardecls);
 		return trans.getFact();
 	}
 	
-	public Expr oclExprToAlloy (OclExpression expr) throws Exception {
+	public Expr oclExprToAlloy (OclExpression expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);

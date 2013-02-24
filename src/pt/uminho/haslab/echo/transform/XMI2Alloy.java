@@ -12,6 +12,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EReference;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
@@ -39,7 +43,7 @@ public class XMI2Alloy {
 	private Expr factExpr = null; 
 	
 	
-	public XMI2Alloy(EObject obj,ECore2Alloy t,String prefix, PrimSig stateSig) throws Err
+	public XMI2Alloy(EObject obj,ECore2Alloy t,String prefix, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		pre = prefix;
 		eObj = obj;
@@ -51,8 +55,7 @@ public class XMI2Alloy {
 		initContent();
 		makeSigList(eObj);
 		makeFactExpr();
-		System.out.println("Singleton sigs:" + sigList.toString());
-		System.out.println("Expr:" + mapSfField.values().toString());
+		//System.out.println("Singleton sigs: " + sigList.toString());
 	}
 	
 
@@ -96,7 +99,7 @@ public class XMI2Alloy {
 		}
 	}
 	
-	private Expr handleRef(EList<?> eG) throws Err
+	private Expr handleRef(EList<?> eG) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		Expr res=null;
 		PrimSig ref;
@@ -107,16 +110,15 @@ public class XMI2Alloy {
 				EObject obj = (EObject) o;
 				ref = mapObjSig.get(obj);
 				
-				if(ref == null)
-					ref=makeSigList(obj);
+				if(ref == null) ref=makeSigList(obj);
 				
 				if(res==null) res = ref;
 				else res = res.plus(ref);
-			}else throw new Error ("Invalid reference.");
+			}else throw new ErrorTransform("Invalid reference.","XMI2Alloy",o);
 		return res;
 	}
 	
-	private PrimSig makeSigList(EObject it) throws Err
+	private PrimSig makeSigList(EObject it) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		Expr field;
 		Expr fieldState;
@@ -126,7 +128,9 @@ public class XMI2Alloy {
 		Object eG;
 		PrimSig parent = mapClassSig.get(it.eClass());
 		//System.out.println("Object instances of "+parent);
-		PrimSig res = new PrimSig(pre + counter++, parent, Attr.ONE);
+		PrimSig res;
+		try {res = new PrimSig(pre + counter++, parent, Attr.ONE);}
+		catch (Err a) {throw new ErrorAlloy(a.getMessage(),"XMI2Alloy",parent);}
 		
 		/*listSiblings = mapContents.get(parent);
 		listSiblings.add(res);*/
@@ -167,7 +171,7 @@ public class XMI2Alloy {
 	}
 	
 	
-	private void handleAttr(Object obj, Sig it, Expr field) throws Err
+	private void handleAttr(Object obj, Sig it, Expr field) throws ErrorUnsupported
 	{
 		//System.out.println("Object instance attribute: "+ obj);
 		Expr manos = mapContent.get(field);
@@ -190,7 +194,13 @@ public class XMI2Alloy {
 			
 			manos = manos.plus(it.product(str));
 			mapContent.put(field, manos);
-		}else throw new Error("Primitive type for attribute not supported: "+obj.toString());
+		}else if(obj instanceof Integer)
+		{
+			Expr str = ExprConstant.makeNUMBER((Integer) obj);
+			
+			manos = manos.plus(it.product(str));
+			mapContent.put(field, manos);
+		}else throw new ErrorUnsupported("Primitive type for attribute not supported.","XMI2Alloy",obj.toString());
 	}
 	
 	

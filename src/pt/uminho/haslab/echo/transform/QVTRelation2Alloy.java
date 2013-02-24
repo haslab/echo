@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.transform;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
@@ -51,7 +52,7 @@ public class QVTRelation2Alloy {
 	// the Alloy expression rising from this relations
 	final Expr fact;
 
-	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt) throws Exception {
+	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
 		this.qvt = qvt;
 		this.rel = rel;
@@ -62,11 +63,11 @@ public class QVTRelation2Alloy {
 		initVariableLists(true);
 		
 		fact = calculateFact();
-		System.out.println("Fact relation "+rel.getName()+":" +fact.toString());
+		//System.out.println("Fact relation "+rel.getName()+":" +fact.toString());
 	}
 	
 	// this one takes a list of declarations as an extra argument: used with relation calls, since some variables are already quantified
-	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt, List<Decl> prevdecls) throws Exception {
+	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt, List<Decl> prevdecls) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
 		this.qvt = qvt;
 		this.rel = rel;
@@ -94,48 +95,50 @@ public class QVTRelation2Alloy {
 		}
 	}
 	// calculates the final fact
-	private Expr calculateFact() throws Exception {
+	private Expr calculateFact() throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
 
 		Expr fact,sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
 
 		// calculates the target expression
 		OCL2Alloy ocltrans = new OCL2Alloy(target,modelsigs,targetdomain.getTypedModel(),decls,qvt);
-		if (rel.getWhere() != null)
-			for (Object predicate : rel.getWhere().getPredicate()) {
-				OclExpression oclwhere = ((Predicate) predicate).getConditionExpression();
-				whereexpr = AlloyUtil.cleanAnd(whereexpr,ocltrans.oclExprToAlloy(oclwhere));
+		try {
+			if (rel.getWhere() != null)
+				for (Object predicate : rel.getWhere().getPredicate()) {
+					OclExpression oclwhere = ((Predicate) predicate).getConditionExpression();
+					whereexpr = AlloyUtil.cleanAnd(whereexpr,ocltrans.oclExprToAlloy(oclwhere));
+				}
+			targetexpr = AlloyUtil.cleanAnd(patternToExpr(targetdomain),whereexpr);
+			for (Decl d : alloytargetvars)
+				targetexpr = targetexpr.forSome(d);
+			
+			// calculates the source expression
+			for (RelationDomain dom : sourcedomains) 
+				sourceexpr = AlloyUtil.cleanAnd(sourceexpr,patternToExpr(dom));
+			
+			// calculates the source => target expression
+			fact = (sourceexpr.implies(targetexpr));
+			for (Decl d : alloysourcevars)
+				fact = fact.forAll(d);	
+			
+			// calculates the when expression
+			if (rel.getWhen() != null){
+				for (Object predicate : rel.getWhen().getPredicate()) {
+					OclExpression oclwhen = ((Predicate) predicate).getConditionExpression();
+					whenexpr = AlloyUtil.cleanAnd(whenexpr,ocltrans.oclExprToAlloy(oclwhen));
+				}
+	
+				// calculates the when => source => target expression
+				fact = (whenexpr.implies(fact));	
+				for (Decl d : alloywhenvars)
+					fact = fact.forAll(d);
 			}
-		targetexpr = AlloyUtil.cleanAnd(patternToExpr(targetdomain),whereexpr);
-		for (Decl d : alloytargetvars)
-			targetexpr = targetexpr.forSome(d);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",rel);}
 		
-		// calculates the source expression
-		for (RelationDomain dom : sourcedomains) 
-			sourceexpr = AlloyUtil.cleanAnd(sourceexpr,patternToExpr(dom));
-		
-		// calculates the source => target expression
-		fact = (sourceexpr.implies(targetexpr));
-		for (Decl d : alloysourcevars)
-			fact = fact.forAll(d);	
-		
-		// calculates the when expression
-		if (rel.getWhen() != null){
-			for (Object predicate : rel.getWhen().getPredicate()) {
-				OclExpression oclwhen = ((Predicate) predicate).getConditionExpression();
-				whenexpr = AlloyUtil.cleanAnd(whenexpr,ocltrans.oclExprToAlloy(oclwhen));
-			}
-
-			// calculates the when => source => target expression
-			fact = (whenexpr.implies(fact));	
-			for (Decl d : alloywhenvars)
-				fact = fact.forAll(d);
-		}
-
 		return fact;
 	}
 	
 	// separates source from target variables (eventually also when and where variables)
-	private void initVariableLists(boolean top) throws Exception{
+	private void initVariableLists(boolean top) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		TemplateExp temp;
 		List<PropertyTemplateItem> temps;
 		List<Variable> whenvariables = new ArrayList<Variable>();
@@ -198,7 +201,7 @@ public class QVTRelation2Alloy {
 	}
 
 	// calls OCL2Alloy on the domain pattern
-	private Expr patternToExpr (RelationDomain domain) throws Exception {
+	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		OCL2Alloy ocltrans = new OCL2Alloy(domain.getTypedModel(),modelsigs,targetdomain.getTypedModel(),decls,qvt);
 
 		DomainPattern pattern = domain.getPattern();
