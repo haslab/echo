@@ -110,22 +110,26 @@ public class Echo {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		if (args.length != 6) throw new Error ("Wrong number of arguments: [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
-													"E.g. \"UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
-		
+		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
+													"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
+		Boolean check;
 		Expr delta = null;
-		String target = args[1];
-		
+		String target = args[2];
+
+		if (args[0].equals("check")) check = true;
+		else if (args[0].equals("enforce")) check = false;
+		else throw new Error ("Invalid running mode: should be \"check\" or \"enforce\"");
+
 		// eventually should be an arbitrary number
 		EPackage paux; EObject iaux;
-		paux = (EPackage) loadObjectFromEcore(args[2]);
+		paux = (EPackage) loadObjectFromEcore(args[3]);
 		mms.put(paux.getName(),paux);
-		iaux = loadModelInstance(args[3],paux);
+		iaux = loadModelInstance(args[4],paux);
 		insts.put(paux.getName(),iaux);
 		
-		paux = (EPackage) loadObjectFromEcore(args[4]);
+		paux = (EPackage) loadObjectFromEcore(args[5]);
 		mms.put(paux.getName(),paux);
-		iaux = loadModelInstance(args[5],paux);
+		iaux = loadModelInstance(args[6],paux);
 		insts.put(paux.getName(),iaux);
 		
 		Expr commandfact = Sig.NONE.no();
@@ -143,7 +147,7 @@ public class Echo {
 			
 			// generating state instances
 			List<PrimSig> stateinstances; 
-			if (istarget) stateinstances = AlloyUtil.createStateSig(pck.getName(),true);
+			if (istarget&&!check) stateinstances = AlloyUtil.createStateSig(pck.getName(),true);
 			else stateinstances = AlloyUtil.createStateSig(pck.getName(),false);
 			
 			System.out.println("State signatures: "+stateinstances);
@@ -159,13 +163,13 @@ public class Echo {
 			//	for(Expr f : s.getFacts())
 			//		System.out.println(f); }
 			
-			if (istarget) { 
+			if (istarget&&!check) { 
 				delta = (mmtrans.getDeltaExpr(stateinstances.get(2),stateinstances.get(1))).equal(ExprConstant.makeNUMBER(0));
 				System.out.println("Delta function: "+delta);
 			}
 			
 			XMI2Alloy insttrans;
-			if (istarget) insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(1));
+			if (istarget&&!check) insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(1));
 			else  insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(0));
 			
 			//System.out.println("Singleton sigs (object instances):");
@@ -189,7 +193,7 @@ public class Echo {
 			System.out.println("");
 		}
 		
-		Transformation qtrans = getTransformation(args[0],args[2],args[4]);
+		Transformation qtrans = getTransformation(args[1],args[3],args[5]);
 		if (qtrans == null) throw new Error ("Empty transformation.");
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
@@ -214,11 +218,13 @@ public class Echo {
 		options.solver = A4Options.SatSolver.SAT4J;
 		options.noOverflow = true;
 		
-		System.out.println("** Processing Alloy command: "+qtrans.getName()+" on the direction of "+target+".");
+		System.out.println("** Processing Alloy command: "+args[0]+" "+qtrans.getName()+" on the direction of "+target+".");
 
 		commandfact = (commandfact.and(qvtfact)).and(delta);		
-		Command cmd = new Command(false, 5, 4, 2, commandfact);
-
+		
+		// depends of running mode
+		Command cmd = new Command(check, 5, 4, 2, commandfact);
+		
 		System.out.println("Final command fact: "+(commandfact));
 		System.out.println("Final sigs: "+(allsigs));
 
@@ -229,7 +235,7 @@ public class Echo {
 			sol1.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
-			String theme = (args[0]).replace(".qvt", ".thm");
+			String theme = (args[1]).replace(".qvt", ".thm");
 			if (new File(theme).isFile())
 				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
 		} else System.out.println("Formula not satisfiable.");
