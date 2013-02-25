@@ -113,7 +113,8 @@ public class Echo {
 		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
 													"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
 		Boolean check;
-		Expr delta = null;
+		Expr deltaexpr = null;
+		int delta = 0;
 		String target = args[2];
 
 		if (args[0].equals("check")) check = true;
@@ -132,7 +133,7 @@ public class Echo {
 		iaux = loadModelInstance(args[6],paux);
 		insts.put(paux.getName(),iaux);
 		
-		Expr commandfact = Sig.NONE.no();
+		Expr modelfact = Sig.NONE.no();
 		List<Sig> allsigs = new ArrayList<Sig>();
 		allsigs.add(AlloyUtil.STATE);
 		
@@ -148,8 +149,7 @@ public class Echo {
 			// generating state instances
 			List<PrimSig> stateinstances; 
 			// only the target needs an extra state instance, and only if enforce mode
-			if (istarget&&!check) stateinstances = AlloyUtil.createStateSig(pck.getName(),true);
-			else stateinstances = AlloyUtil.createStateSig(pck.getName(),false);
+			stateinstances = AlloyUtil.createStateSig(pck.getName(),istarget&&!check);
 			
 			System.out.println("State signatures: "+stateinstances);
 				
@@ -166,13 +166,12 @@ public class Echo {
 			
 			// only the target needs the delta function and only if enforce mode
 			if (istarget&&!check) { 
-				delta = (mmtrans.getDeltaExpr(stateinstances.get(2),stateinstances.get(1))).equal(ExprConstant.makeNUMBER(0));
-				System.out.println("Delta function: "+delta);
+				deltaexpr = (mmtrans.getDeltaExpr(stateinstances.get(2),stateinstances.get(1)));
+				System.out.println("Delta function: "+deltaexpr);
 			}
 			
 			XMI2Alloy insttrans;
-			if (istarget&&!check) insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(1));
-			else  insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(0));
+			insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(istarget&&!check?1:0));
 			
 			//System.out.println("Singleton sigs (object instances):");
 			//for(Sig s: insttrans.getSigList()) {
@@ -185,7 +184,7 @@ public class Echo {
 			
 			Expr instFact = insttrans.getFact();
 			
-			commandfact = commandfact.and(instFact);
+			modelfact = modelfact.and(instFact);
 			
 			System.out.println("Instance facts: "+instFact);
 			
@@ -222,29 +221,49 @@ public class Echo {
 		
 		System.out.println("** Processing Alloy command: "+args[0]+" "+qtrans.getName()+" on the direction of "+target+".");
 
-		commandfact = (commandfact.and(qvtfact)).and(delta);		
+		Expr commandfact;
+		if (check) commandfact = (modelfact.and(qvtfact));		 
+		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
 		
-		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(check, 5, 4, 2, commandfact);
 		
 		System.out.println("Final command fact: "+(commandfact));
-		System.out.println("Final sigs: "+(allsigs));
+		System.out.println("Final sigs: "+(allsigs)+"\n");
+
+		System.out.println("** Running Alloy.");
+		// enforce and check mode are run and check commands respectively
+		Command cmd = new Command(check, 5, 4, 2, commandfact);
 
 		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		//sol1 = sol1.next().next().next().next().next();
-			
+		
+		if (check) {
+			if (sol1.satisfiable()) System.out.println("Instance found for delta "+delta+".");
+			else System.out.println("No counter-example found.");
+		} else {
+			while (!sol1.satisfiable()) {
+				// enforce and check mode are run and check commands respectively
+				cmd = new Command(check, 5, 4, 2, commandfact);
+				
+				sol1 = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
+				//sol1 = sol1.next().next().next().next().next();
+				
+				if (sol1.satisfiable())
+					System.out.println("Instance found for delta "+delta+".");
+				else {
+					System.out.println("No instance found for delta "+delta+".");
+					commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));
+				}
+			}
+		}
+		
 		if (sol1.satisfiable()) {
-			if (check) System.out.println("Counter-example found.");
-			else System.out.println("Instance found.");
 			sol1.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
 			String theme = (args[1]).replace(".qvt", ".thm");
 			if (new File(theme).isFile())
 				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
-		} else 
-			if (check) System.out.println("No counter-example found.");
-			else System.out.println("No instance found.");
+		}
 	}
 	
 	private static class NullStream extends OutputStream {
