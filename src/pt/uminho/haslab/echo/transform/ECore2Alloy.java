@@ -104,7 +104,7 @@ public class ECore2Alloy {
 				if (attr.getEType() instanceof EEnum)
 				{
 					PrimSig sigType = mapClassSig.get(attr.getEType());
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack,attr.getName()),sigType.product(state));
+					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),sigType.product(state));
 					mapSfField.put(attr,field);
 					Expr fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(sigType);
@@ -114,12 +114,12 @@ public class ECore2Alloy {
 					
 				}else if(attr.getEType().getName().equals("EBoolean"))
 				{
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack,attr.getName()),state.setOf());
+					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),state.setOf());
 					mapSfField.put(attr,field);
 					
 				}else if(attr.getEType().getName().equals("EString"))
 				{
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack,attr.getName()),Sig.STRING.product(state));
+					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.STRING.product(state));
 					mapSfField.put(attr,field);
 					Expr fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.STRING);
@@ -128,7 +128,7 @@ public class ECore2Alloy {
 					ec.addFact(fact);
 				}else if(attr.getEType().getName().equals("EInt"))
 				{
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack,attr.getName()),Sig.SIGINT.product(state));
+					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.SIGINT.product(state));
 					mapSfField.put(attr,field);
 					Expr fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.SIGINT);
@@ -157,9 +157,9 @@ public class ECore2Alloy {
 					if(parent == null) throw new ErrorTransform("Parent class not found.","ECore2Alloy",superTypes);	
 				}
 				if(ec.isAbstract())
-					res = new PrimSig(AlloyUtil.pckPrefix(pack,ec.getName()),parent,Attr.ABSTRACT);
-				else res = new PrimSig(AlloyUtil.pckPrefix(pack,ec.getName()),parent);
-				mapSigState.put(res,res.addField(AlloyUtil.pckPrefix(pack,ec.getName()).toLowerCase(),state.setOf()));
+					res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent,Attr.ABSTRACT);
+				else res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent);
+				mapSigState.put(res,res.addField(AlloyUtil.pckPrefix(pack.getName(),ec.getName()).toLowerCase(),state.setOf()));
 				mapClassSig.put(ec, res);
 				processAttributes(ec.getEAllAttributes(),res);
 				sigList.add(res);
@@ -177,7 +177,7 @@ public class ECore2Alloy {
 		EClass type = r.getEReferenceType();
 		PrimSig sigType = mapClassSig.get(type);
 		Expr field;
-		try{field = parent.addField(AlloyUtil.pckPrefix(pack,r.getName()),sigType.product(state));}
+		try{field = parent.addField(AlloyUtil.pckPrefix(pack.getName(),r.getName()),sigType.product(state));}
 		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",r);}
 		mapSfField.put(r, field);
 		// processing opposite references
@@ -237,7 +237,7 @@ public class ECore2Alloy {
 		PrimSig litSig = null;
 		for(EEnumLiteral lit: el)
 		{
-			try { litSig = new PrimSig(AlloyUtil.pckPrefix(pack,lit.getLiteral()),parent,Attr.ONE); }
+			try { litSig = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),lit.getLiteral()),parent,Attr.ONE); }
 			catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",lit);}
 			mapLitSig.put(lit, litSig);
 			sigList.add(litSig);
@@ -249,7 +249,7 @@ public class ECore2Alloy {
 		PrimSig enumSig = null;
 		for(EEnum en: list)
 		{
-			try{ enumSig = new PrimSig(AlloyUtil.pckPrefix(pack,en.getName()),Attr.ABSTRACT);}
+			try{ enumSig = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),en.getName()),Attr.ABSTRACT);}
 			catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",en);}
 			sigList.add(enumSig);
 			mapClassSig.put(en, enumSig);

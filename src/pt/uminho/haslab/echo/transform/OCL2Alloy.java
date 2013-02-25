@@ -13,7 +13,6 @@ import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
 import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
 import net.sourceforge.qvtparser.model.qvtbase.Transformation;
 import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
-import net.sourceforge.qvtparser.model.qvtrelation.Relation;
 import net.sourceforge.qvtparser.model.qvtrelation.RelationCallExp;
 import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
 import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
@@ -25,15 +24,12 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class OCL2Alloy {
 
-	private TypedModel domain;
 	private List<Sig> modelsigs = new ArrayList<Sig>();
 	private TypedModel target;
 	private List<Decl> vardecls;
 	private Transformation qvt;
 
-	public OCL2Alloy(TypedModel domain, List<Sig> modelsigs,
-			TypedModel target, List<Decl> vardecls, Transformation qvt) {
-		this.domain = domain;
+	public OCL2Alloy(TypedModel target, List<Sig> modelsigs, List<Decl> vardecls, Transformation qvt) {
 		this.qvt = qvt;
 		this.modelsigs = modelsigs;
 		this.target = target;
@@ -67,7 +63,8 @@ public class OCL2Alloy {
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 			Expr localfield = null;
-			localfield = AlloyUtil.localStateAttribute(prop, domain, modelsigs, target.equals(domain));
+			String mdl = prop.getClass_().getPackage().getName();
+			localfield = AlloyUtil.localStateAttribute(prop, mdl, modelsigs, modelsigs);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;

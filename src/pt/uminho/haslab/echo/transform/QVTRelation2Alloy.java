@@ -100,7 +100,7 @@ public class QVTRelation2Alloy {
 		Expr fact,sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
 
 		// calculates the target expression
-		OCL2Alloy ocltrans = new OCL2Alloy(target,modelsigs,targetdomain.getTypedModel(),decls,qvt);
+		OCL2Alloy ocltrans = new OCL2Alloy(target,modelsigs,decls,qvt);
 		try {
 			if (rel.getWhere() != null)
 				for (Object predicate : rel.getWhere().getPredicate()) {
@@ -202,7 +202,7 @@ public class QVTRelation2Alloy {
 
 	// calls OCL2Alloy on the domain pattern
 	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		OCL2Alloy ocltrans = new OCL2Alloy(domain.getTypedModel(),modelsigs,targetdomain.getTypedModel(),decls,qvt);
+		OCL2Alloy ocltrans = new OCL2Alloy(target,modelsigs,decls,qvt);
 
 		DomainPattern pattern = domain.getPattern();
 		TemplateExp temp = pattern.getTemplateExpression(); 

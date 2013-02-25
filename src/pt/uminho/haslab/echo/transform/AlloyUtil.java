@@ -3,16 +3,11 @@ package pt.uminho.haslab.echo.transform;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.emf.ecore.EPackage;
-
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 
 import net.sourceforge.qvtparser.model.emof.Property;
 import net.sourceforge.qvtparser.model.essentialocl.Variable;
-import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
-import net.sourceforge.qvtparser.model.emof.impl.PackageImpl;
-import net.sourceforge.qvtparser.model.emof.Package;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
@@ -63,7 +58,7 @@ public class AlloyUtil {
 			if (type.equals("String")) range = Sig.STRING;
 			else 
 				for (Sig s : sigs)
-					if (s.label.equals(pckPrefix(ovar.getType().getPackage(),type))) range = s;
+					if (s.label.equals(pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
 		
 			if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs,"AlloyUtil",ovar);
 			Decl d;
@@ -80,7 +75,7 @@ public class AlloyUtil {
 		String type = ovar.getType().getName();
 		if (type.equals("String")) range = Sig.STRING;
 		else for (Sig s : sigs)
-			if (s.label.equals(pckPrefix(ovar.getType().getPackage(),type))) range = s;
+			if (s.label.equals(pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
 		
 		if (range.equals(Sig.NONE)) throw new Error ("Sig not found: "+type);
 		Decl d;
@@ -90,20 +85,18 @@ public class AlloyUtil {
 	}
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Expr exp, TypedModel mdl, boolean target) throws ErrorAlloy{
-		PackageImpl pck = (PackageImpl) mdl.getUsedPackage().get(0);
-		PrimSig statesig = createStateSig(pck.getName(),target).get(0); //should be getName()
-		return exp.join(statesig);
-	}
-	public static Expr localStateAttribute(Property prop, TypedModel mdl, List<Sig> sigs, boolean target) throws ErrorAlloy{
-		PackageImpl pck = (PackageImpl) mdl.getUsedPackage().get(0);
-		PrimSig statesig = createStateSig(pck.getName(),target).get(0); //should be getName()
+	public static Expr localStateAttribute(Property prop, String mdl, List<Sig> statesigs, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
+		Sig statesig = null;
+		for (Sig sig : statesigs)
+			if (sig.toString().equals(mdl))
+				statesig = sig;
+		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
 		Expr exp = propertyToField(prop,mdl,sigs);
 		return exp.join(statesig);
 	}
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	public static Sig.Field propertyToField (Property prop, TypedModel mdl, List<Sig> sigs) {
+	public static Sig.Field propertyToField (Property prop, String mdl, List<Sig> sigs) {
 		Sig sig = null;
 		for (Sig s : sigs)
 			if (s.toString().equals(pckPrefix(mdl,prop.getClass_().getName()))) sig = s;
@@ -118,17 +111,8 @@ public class AlloyUtil {
 	}
 	
 	// methods used to append prefixes to expressions
-	public static String pckPrefix (TypedModel mdl, String str) {
-		String pck = ((PackageImpl) mdl.getUsedPackage().get(0)).getName();
-		return (pck + "_" + str);
-	}
-	public static String pckPrefix (EPackage mdl, String str) {
-		String pck = mdl.getName();
-		return (pck + "_" + str);
-	}	
-	public static String pckPrefix (Package mdl, String str) {
-		String pck = mdl.getName();
-		return (pck + "_" + str);
+	public static String pckPrefix (String mdl, String str) {
+		return (mdl + "_" + str);
 	}
 	
 	// ignores first parameter if "no none" or "true"
