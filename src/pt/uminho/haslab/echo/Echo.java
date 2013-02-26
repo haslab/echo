@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import edu.mit.csail.sdg.alloy4.A4Reporter;
 
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
+import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -116,6 +118,8 @@ public class Echo {
 		Expr deltaexpr = null;
 		int delta = 0;
 		String target = args[2];
+		Collection<CommandScope> sourcescopes = new ArrayList<CommandScope>(),
+				targetscopes = new ArrayList<CommandScope>();
 
 		if (args[0].equals("check")) check = true;
 		else if (args[0].equals("enforce")) check = false;
@@ -177,10 +181,14 @@ public class Echo {
 			//for(Sig s: insttrans.getSigList()) {
 			//	System.out.println(((PrimSig) s).parent.toString()+" : "+s.toString());}
 
-			List<Sig> instList = insttrans.getSigList();
+			List<PrimSig> instList = insttrans.getSigList();
 			sigList.addAll(instList);
 			
 			System.out.println("Instance signatures: "+sigList);
+			
+			Collection<CommandScope> scope = AlloyUtil.createScope(instList);
+			(istarget?targetscopes:sourcescopes).addAll(scope);
+			System.out.println("Scope: "+scope);
 			
 			Expr instFact = insttrans.getFact();
 			
@@ -231,33 +239,37 @@ public class Echo {
 
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(check, 5, 4, 2, commandfact);
+		Command cmd = new Command(check, 0, 5, 2, commandfact);
+		
+		System.out.println("Command scope: "+cmd.scope);
 
-		A4Solution sol1 = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
-		//sol1 = sol1.next().next().next().next().next();
+
+		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
+		//sol = sol.next().next().next().next().next();
 		
 		if (check) {
-			if (sol1.satisfiable()) System.out.println("Instance found for delta "+delta+".");
-			else System.out.println("No counter-example found.");
+			if (sol.satisfiable()) System.out.println("Instance found. Models consistent.");
+			else System.out.println("No instance found..");
 		} else {
-			while (!sol1.satisfiable()) {
+			while (!sol.satisfiable()) {
+				System.out.println("No instance found for delta "+delta+".");
+
+				commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));
+
 				// enforce and check mode are run and check commands respectively
-				cmd = new Command(check, 5, 4, 2, commandfact);
+				cmd = new Command(check, 0, 4, 2, commandfact);
 				
-				sol1 = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
-				//sol1 = sol1.next().next().next().next().next();
+				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
+				//sol = sol1.next().next().next().next().next();
 				
-				if (sol1.satisfiable())
-					System.out.println("Instance found for delta "+delta+".");
-				else {
-					System.out.println("No instance found for delta "+delta+".");
-					commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));
-				}
 			}
+			System.out.println("Instance found for delta "+delta+".");
+				
 		}
 		
-		if (sol1.satisfiable()) {
-			sol1.writeXML("alloy_output.xml");
+		
+		if (sol.satisfiable()) {
+			sol.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
 			String theme = (args[1]).replace(".qvt", ".thm");

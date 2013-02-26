@@ -64,7 +64,7 @@ public class OCL2Alloy {
 			Property prop = part.getReferredProperty();
 			Expr localfield = null;
 			String mdl = prop.getClass_().getPackage().getName();
-			localfield = AlloyUtil.localStateAttribute(prop, mdl, modelsigs, modelsigs);
+			localfield = AlloyUtil.localStateAttribute(prop, mdl, modelsigs);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;

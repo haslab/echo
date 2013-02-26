@@ -39,7 +39,7 @@ public class XMI2Alloy {
 	private Map<Expr,Expr> mapContent = new HashMap<Expr,Expr>();	
 	
 	private Map<EObject,PrimSig> mapObjSig = new HashMap<EObject,PrimSig>();
-	private List<Sig> sigList = new ArrayList<Sig>();
+	private List<PrimSig> sigList = new ArrayList<PrimSig>();
 	private Expr factExpr = null; 
 	
 	
@@ -74,7 +74,7 @@ public class XMI2Alloy {
 	}
 
 	
-	public List<Sig> getSigList()
+	public List<PrimSig> getSigList()
 	{
 		return sigList;
 	}

@@ -1,7 +1,10 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
@@ -10,7 +13,9 @@ import net.sourceforge.qvtparser.model.emof.Property;
 import net.sourceforge.qvtparser.model.essentialocl.Variable;
 
 import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
+import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
@@ -85,14 +90,20 @@ public class AlloyUtil {
 	}
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, String mdl, List<Sig> statesigs, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
-		Sig statesig = null;
-		for (Sig sig : statesigs)
-			if (sig.toString().equals(mdl))
-				statesig = sig;
+	public static Expr localStateAttribute(Property prop, String mdl, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
+		Sig statesig = getStateSig(sigs,mdl);
+
 		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
 		Expr exp = propertyToField(prop,mdl,sigs);
 		return exp.join(statesig);
+	}
+	
+	public static PrimSig getStateSig(List<Sig> sigs, String mdl) {
+		PrimSig statesig = null;
+		for (Sig sig : sigs)
+			if (sig.toString().equals(mdl+"2") || (sig.toString().equals(mdl) && statesig == null))
+				statesig = (PrimSig) sig;
+		return statesig;
 	}
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
@@ -120,6 +131,24 @@ public class AlloyUtil {
 		if (e.isSame(Sig.NONE.no()) || e.isSame(ExprConstant.TRUE)) return f;
 		else if (f.isSame(Sig.NONE.no()) || f.isSame(ExprConstant.TRUE)) return e;
 		else return e.and(f);
+	}
+	
+	public static Collection<CommandScope> createScope (List<PrimSig> sigs) throws ErrorAlloy {
+		Map<String,CommandScope> scopes = new HashMap<String,CommandScope>();
+		
+		for (PrimSig sig : sigs) {
+			String type = sig.parent.toString();
+			CommandScope scope = scopes.get(type);
+			if (scope == null)
+				try { scope = new CommandScope(sig.parent, true, 1);}
+				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil",sig);}
+			else 
+				try { scope = new CommandScope(sig.parent, true, scope.startingScope+1);}
+				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil",sig);}
+			scopes.put(type, scope);
+		}
+		
+		return scopes.values();
 	}
 	
 }
