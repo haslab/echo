@@ -19,6 +19,8 @@
    <type name="14"/>
    <type name="15"/>
    <type name="16"/>
+   <type name="17"/>
+   <type name="18"/>
    <type name="2"/>
    <type name="3"/>
    <type name="4"/>
@@ -29,32 +31,11 @@
    <type name="9"/>
    <type name="Int"/>
    <type name="RDBMS"/>
-   <type name="RDBMS&apos;"/>
-   <type name="RDBMS&apos;&apos;"/>
-   <type name="RDBMS&apos;&apos;&apos;"/>
-   <type name="RDBMS&apos;&apos;&apos;&apos;"/>
-   <type name="RDBMS&apos;&apos;&apos;&apos;&apos;"/>
-   <type name="RDBMS&apos;&apos;&apos;&apos;&apos;&apos;"/>
    <type name="State"/>
    <type name="String"/>
    <type name="UML"/>
-   <type name="UML&apos;"/>
-   <type name="UML&apos;&apos;"/>
-   <type name="UML&apos;&apos;&apos;"/>
-   <type name="UML&apos;&apos;&apos;&apos;"/>
-   <type name="UML&apos;&apos;&apos;&apos;&apos;"/>
    <type name="UML1"/>
-   <type name="UML1&apos;"/>
-   <type name="UML1&apos;&apos;"/>
-   <type name="UML1&apos;&apos;&apos;"/>
-   <type name="UML1&apos;&apos;&apos;&apos;"/>
-   <type name="UML1&apos;&apos;&apos;&apos;&apos;"/>
    <type name="UML2"/>
-   <type name="UML2&apos;"/>
-   <type name="UML2&apos;&apos;"/>
-   <type name="UML2&apos;&apos;&apos;"/>
-   <type name="UML2&apos;&apos;&apos;&apos;"/>
-   <type name="UML2&apos;&apos;&apos;&apos;&apos;"/>
    <type name="univ"/>
    <type name="seq/Int"/>
    <set name="rdbms_column" type="RDBMS_Column"/>
@@ -84,6 +65,13 @@
 <edge layout="yes">
    <relation name="RDBMS_scheme"> <type name="RDBMS_Table"/> <type name="RDBMS_Scheme"/> </relation>
    <relation name="UML_namespace"> <type name="UML_Class"/> <type name="UML_Package"/> </relation>
+   <relation name="UML_super"> <type name="UML_Class"/> <type name="UML_Class"/> </relation>
+</edge>
+
+<edge visible="no">
+   <relation name="UML_class"> <type name="UML_Attribute"/> <type name="UML_Class"/> </relation>
+   <relation name="UML_classes"> <type name="UML_Package"/> <type name="UML_Class"/> </relation>
+   <relation name="UML_sub"> <type name="UML_Class"/> <type name="UML_Class"/> </relation>
 </edge>
 
 <edge visible="no" attribute="yes">
