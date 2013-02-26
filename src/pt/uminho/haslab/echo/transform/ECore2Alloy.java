@@ -22,6 +22,7 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -35,7 +36,7 @@ public class ECore2Alloy {
 	private HashMap<PrimSig,Expr> mapSigState = new HashMap<PrimSig,Expr>();
 	private final EPackage pack;
 	private final PrimSig state;
-	private List<Sig> sigList;
+	private List<PrimSig> sigList;
 	
 	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform{
 		state = statesig;
@@ -71,9 +72,9 @@ public class ECore2Alloy {
 		return mapClassSig;
 	}
 	
-	public List<Sig> getSigList()
+	public List<PrimSig> getSigList()
 	{
-		return new ArrayList<Sig>(sigList);
+		return new ArrayList<PrimSig>(sigList);
 	}
 	/*
 	private void processAttribute(EAttribute attr,PrimSig ec) throws Err
@@ -99,38 +100,38 @@ public class ECore2Alloy {
 	*/
 	private void processAttributes(List<EAttribute> attrList,PrimSig ec) throws ErrorUnsupported, ErrorAlloy
 	{
+		Expr field=null, fact=null;
 		for(EAttribute attr : attrList)
 			try{
 				if (attr.getEType() instanceof EEnum)
 				{
 					PrimSig sigType = mapClassSig.get(attr.getEType());
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),sigType.product(state));
+					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),sigType.product(state));
 					mapSfField.put(attr,field);
-					Expr fact = field.join(state.decl.get());
+					fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(sigType);
 					fact = fact.in(bound);
 					fact = fact.forAll(state.decl);
-					ec.addFact(fact);
-					
+					ec.addFact(fact);				
 				}else if(attr.getEType().getName().equals("EBoolean"))
 				{
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),state.setOf());
+					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),state.setOf());
 					mapSfField.put(attr,field);
 					
 				}else if(attr.getEType().getName().equals("EString"))
 				{
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.STRING.product(state));
+					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.STRING.product(state));
 					mapSfField.put(attr,field);
-					Expr fact = field.join(state.decl.get());
+					fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.STRING);
 					fact = fact.in(bound);
 					fact = fact.forAll(state.decl);
 					ec.addFact(fact);
 				}else if(attr.getEType().getName().equals("EInt"))
 				{
-					Expr field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.SIGINT.product(state));
+					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.SIGINT.product(state));
 					mapSfField.put(attr,field);
-					Expr fact = field.join(state.decl.get());
+					fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.SIGINT);
 					fact = fact.in(bound);
 					fact = fact.forAll(state.decl);
@@ -138,10 +139,12 @@ public class ECore2Alloy {
 				}else
 					throw new ErrorUnsupported("Primitive type for attribute not supported.","ECore2Alloy",attr.getEType());
 			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",attr);}			
+			
+
 	}
 	
 	
-	private Sig makeSig(EClass ec) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private PrimSig makeSig(EClass ec) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		PrimSig res = mapClassSig.get(ec);
 		if(res == null) {
@@ -168,52 +171,61 @@ public class ECore2Alloy {
 		return res;
 	}
 	
-	private void processReferences(List<EReference> eAllReferences, PrimSig parent) throws ErrorAlloy {
+	private void processReferences(List<EReference> eAllReferences, PrimSig parent) throws ErrorAlloy, ErrorTransform {
 		for(EReference r : eAllReferences)
 			processReference(r,parent);
 	}
 
-	private void processReference(EReference r, PrimSig parent) throws ErrorAlloy {
+	private void processReference(EReference r, PrimSig srcsig) throws ErrorAlloy, ErrorTransform {
 		EClass type = r.getEReferenceType();
-		PrimSig sigType = mapClassSig.get(type);
+		PrimSig trgsig = mapClassSig.get(type);
 		Expr field;
-		try{field = parent.addField(AlloyUtil.pckPrefix(pack.getName(),r.getName()),sigType.product(state));}
+		try{field = srcsig.addField(AlloyUtil.pckPrefix(pack.getName(),r.getName()),trgsig.product(state));}
 		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",r);}
 		mapSfField.put(r, field);
 		// processing opposite references
 		Expr opField = null;
 		EReference op = r.getEOpposite();
-		Expr s = state.decl.get();
-		if(op!=null)
-		{
+		Decl s = state.decl;
+		if(op!=null) {
 			opField = mapSfField.get(op);
 			if(opField != null)
-				try{parent.addFact(field.join(s).equal(opField.join(s).transpose()).forAll(state.decl));}
+				try{srcsig.addFact(field.join(s.get()).equal(opField.join(s.get()).transpose()).forAll(state.decl));}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",r);}
-
 		}
 		// processing multiplicities
+		Expr fact;
 		try{
-			if(r.getLowerBound() > 0)
-				parent.addFact(parent.decl.get().join(field).join(s).cardinality().gte(ExprConstant.makeNUMBER(r.getLowerBound())).forAll(state.decl));
-			if(r.getUpperBound() != -1)
-				parent.addFact(parent.decl.get().join(field).join(s).cardinality().lte(ExprConstant.makeNUMBER(r.getUpperBound())).forAll(state.decl));
-			if(r.isContainment())
-				sigType.addFact(field.join(s).join(sigType.decl.get()).one().forAll(state.decl));
-			Expr parState = mapSigState.get(parent);
-			Expr sTypeState = mapSigState.get(sigType);		
-			parent.addFact(field.join(s).in(parState.join(s).product(sTypeState.join(s))).forAll(state.decl));
+			if(r.getLowerBound() > 0) {
+				Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("x");
+				fact = (d.get()).join(field.join(s.get())).cardinality().gte(ExprConstant.makeNUMBER(r.getLowerBound())).forAll(s,d);
+				srcsig.addFact(fact);
+			}
+			if(r.getUpperBound() != -1){
+				Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("x");
+				fact = (d.get()).join(field.join(s.get())).cardinality().lte(ExprConstant.makeNUMBER(r.getUpperBound())).forAll(s,d);
+				srcsig.addFact(fact);
+				System.out.println("DEBUG2: "+fact+" , "+d.expr+ " , "+s.expr);
+			}
+			if(r.isContainment()){
+				Decl d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("x");
+				fact = ((field.join(s.get())).join(d.get())).one().forAll(s,d);
+				trgsig.addFact(fact);
+			}
+			Expr parState = mapSigState.get(srcsig);
+			Expr sTypeState = mapSigState.get(trgsig);		
+			srcsig.addFact(field.join(s.get()).in(parState.join(s.get()).product(sTypeState.join(s.get()))).forAll(state.decl));
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",r);}
 	}
 
 
-	private List<Sig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private List<PrimSig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		List<EClassifier> list = pack.getEClassifiers();
 		List<EClass> classList = new LinkedList<EClass>();
 		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
-		sigList = new ArrayList<Sig>();
+		sigList = new ArrayList<PrimSig>();
 		
 		for(EClassifier e: list)
 		{
@@ -244,7 +256,7 @@ public class ECore2Alloy {
 		}
 	} 
 	
-	private List<Sig> processEEnum(List<EEnum> list) throws ErrorAlloy 
+	private List<PrimSig> processEEnum(List<EEnum> list) throws ErrorAlloy 
 	{
 		PrimSig enumSig = null;
 		for(EEnum en: list)
@@ -260,7 +272,7 @@ public class ECore2Alloy {
 		return sigList;
 	}
 	
-	private List<Sig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private List<PrimSig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		LinkedList<EClass> list = new LinkedList<EClass>(classList);
 		EClass ec = list.poll();

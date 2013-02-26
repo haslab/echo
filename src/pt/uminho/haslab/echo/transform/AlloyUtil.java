@@ -20,6 +20,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class AlloyUtil {
@@ -98,6 +99,17 @@ public class AlloyUtil {
 		return exp.join(statesig);
 	}
 	
+	public static Expr localStateSig(PrimSig sig, Expr var) throws ErrorTransform{
+		Expr exp = null;
+		for (Field field : sig.getFields()) {
+			if ((field.label.toUpperCase()).equals(sig.label.toUpperCase()))
+					exp = field;
+		}
+		if (exp == null) throw new ErrorTransform ("State field not found.","AlloyUtil",exp);
+		
+		return exp.join(var);
+	}
+	
 	public static PrimSig getStateSig(List<Sig> sigs, String mdl) {
 		PrimSig statesig = null;
 		for (Sig sig : sigs)
@@ -140,10 +152,10 @@ public class AlloyUtil {
 			String type = sig.parent.toString();
 			CommandScope scope = scopes.get(type);
 			if (scope == null)
-				try { scope = new CommandScope(sig.parent, true, 1);}
+				try { scope = new CommandScope(sig.parent, false, 2);}
 				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil",sig);}
 			else 
-				try { scope = new CommandScope(sig.parent, true, scope.startingScope+1);}
+				try { scope = new CommandScope(sig.parent, false, scope.startingScope+1);}
 				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil",sig);}
 			scopes.put(type, scope);
 		}
