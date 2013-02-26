@@ -15,8 +15,8 @@ public class ErrorAlloy extends Exception {
 	}
 
 	@Override public String toString() {
-		if (object == null) return "Error on transformation "+trans+": "+super.getMessage();
-		else return  "Error transforming "+object.getClass()+ " on "+trans+": "+super.getMessage();
+		if (object == null) return "Alloy error on "+trans+": "+super.getMessage();
+		else return  "Alloy error "+object.getClass()+ " on "+trans+": "+super.getMessage();
 	}
 
 }

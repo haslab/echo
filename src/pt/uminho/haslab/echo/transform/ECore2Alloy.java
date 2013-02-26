@@ -205,7 +205,6 @@ public class ECore2Alloy {
 				Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("x");
 				fact = (d.get()).join(field.join(s.get())).cardinality().lte(ExprConstant.makeNUMBER(r.getUpperBound())).forAll(s,d);
 				srcsig.addFact(fact);
-				System.out.println("DEBUG2: "+fact+" , "+d.expr+ " , "+s.expr);
 			}
 			if(r.isContainment()){
 				Decl d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("x");

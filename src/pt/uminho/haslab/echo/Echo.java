@@ -31,6 +31,7 @@ import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
+import edu.mit.csail.sdg.alloy4.ConstList;
 
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
@@ -118,8 +119,7 @@ public class Echo {
 		Expr deltaexpr = null;
 		int delta = 0;
 		String target = args[2];
-		Collection<CommandScope> sourcescopes = new ArrayList<CommandScope>(),
-				targetscopes = new ArrayList<CommandScope>();
+		List<CommandScope> targetscopes = new ArrayList<CommandScope>();
 
 		if (args[0].equals("check")) check = true;
 		else if (args[0].equals("enforce")) check = false;
@@ -159,14 +159,15 @@ public class Echo {
 				
 			ECore2Alloy mmtrans = new ECore2Alloy(pck,stateinstances.get(0));
 			
-			List<Sig> sigList = mmtrans.getSigList();
+			List<PrimSig> sigList = mmtrans.getSigList();
 			
-			System.out.println("Metamodel signatures: "+sigList);
-
-			//for(Sig s:sigList) {
-			//	System.out.println("Factos de " + s + "  :");
-			//	for(Expr f : s.getFacts())
-			//		System.out.println(f); }
+			/*System.out.println("Metamodel signatures: "+sigList);
+			for (Sig sig : sigList)
+					System.out.println(sig.attributes);
+			for(Sig s:sigList) {
+				System.out.println("Factos de " + s + "  :");
+				for(Expr f : s.getFacts())
+					System.out.println(f); }*/
 			
 			// only the target needs the delta function and only if enforce mode
 			if (istarget&&!check) { 
@@ -186,9 +187,8 @@ public class Echo {
 			
 			System.out.println("Instance signatures: "+sigList);
 			
-			Collection<CommandScope> scope = AlloyUtil.createScope(instList);
-			(istarget?targetscopes:sourcescopes).addAll(scope);
-			System.out.println("Scope: "+scope);
+			targetscopes = AlloyUtil.createScope(instList);
+			System.out.println("Scope: "+targetscopes);
 			
 			Expr instFact = insttrans.getFact();
 			
@@ -232,6 +232,7 @@ public class Echo {
 		Expr commandfact;
 		if (check) commandfact = (modelfact.and(qvtfact));		 
 		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
+		//commandfact = ExprConstant.TRUE;
 		
 		
 		System.out.println("Final command fact: "+(commandfact));
@@ -239,13 +240,14 @@ public class Echo {
 
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(check, 0, 5, 2, commandfact);
-		
+		Command cmd = new Command(false, 10, 5, 2, commandfact);
+
 		System.out.println("Command scope: "+cmd.scope);
 
 
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		//sol = sol.next().next().next().next().next();
+		
 		
 		if (check) {
 			if (sol.satisfiable()) System.out.println("Instance found. Models consistent.");
@@ -255,10 +257,12 @@ public class Echo {
 				System.out.println("No instance found for delta "+delta+".");
 
 				commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));
+				//commandfact = ExprConstant.TRUE;
 
 				// enforce and check mode are run and check commands respectively
-				cmd = new Command(check, 0, 4, 2, commandfact);
-				
+				cmd = new Command(check, 0, 5, 2, commandfact);
+				cmd = cmd.change(AlloyUtil.incrementScope(targetscopes));
+
 				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 				//sol = sol1.next().next().next().next().next();
 				
