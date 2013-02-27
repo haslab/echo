@@ -196,18 +196,31 @@ public class ECore2Alloy {
 		// processing multiplicities
 		Expr fact;
 		try{
-			if(r.getLowerBound() > 0) {
-				Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("x");
+			Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("x");
+			if (r.getLowerBound() == 1 && r.getUpperBound() == 1) {
+				fact = (d.get()).join(field.join(s.get())).one().forAll(s,d);
+				srcsig.addFact(fact);	
+			} else if (r.getLowerBound() == 0 && r.getUpperBound() == 1) {
+				fact = (d.get()).join(field.join(s.get())).lone().forAll(s,d);
+				srcsig.addFact(fact);	
+			} else if (r.getLowerBound() == 1 && r.getUpperBound() == -1) {
+				fact = (d.get()).join(field.join(s.get())).some().forAll(s,d);
+				srcsig.addFact(fact);	
+			} else if (r.getUpperBound() == 0) {
+				fact = (d.get()).join(field.join(s.get())).no().forAll(s,d);
+				srcsig.addFact(fact);	
+			} else if (r.getLowerBound() == 0 && r.getUpperBound() == -1) {}
+			if(r.getLowerBound() > 1) {
 				fact = (d.get()).join(field.join(s.get())).cardinality().gte(ExprConstant.makeNUMBER(r.getLowerBound())).forAll(s,d);
 				srcsig.addFact(fact);
 			}
 			if(r.getUpperBound() != -1){
-				Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("x");
 				fact = (d.get()).join(field.join(s.get())).cardinality().lte(ExprConstant.makeNUMBER(r.getUpperBound())).forAll(s,d);
 				srcsig.addFact(fact);
 			}
+			
+			d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("x");
 			if(r.isContainment()){
-				Decl d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("x");
 				fact = ((field.join(s.get())).join(d.get())).one().forAll(s,d);
 				trgsig.addFact(fact);
 			}
