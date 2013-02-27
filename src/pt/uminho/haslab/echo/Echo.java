@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
-import edu.mit.csail.sdg.alloy4.ConstList;
 
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
@@ -207,8 +205,8 @@ public class Echo {
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
 
-		TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
-		QVT2Alloy qvtrans = new QVT2Alloy(mdl,allsigs,qtrans);
+		//TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
+		QVT2Alloy qvtrans = new QVT2Alloy(qtrans.getModelParameter(),allsigs,qtrans);
 		Expr qvtfact = qvtrans.getFact();
 				
 		System.out.println("QVT fact "+qvtfact);
@@ -241,8 +239,6 @@ public class Echo {
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
 		Command cmd = new Command(false, 10, 5, 2, commandfact);
-
-		System.out.println("Command scope: "+cmd.scope);
 
 
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);

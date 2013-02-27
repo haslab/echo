@@ -18,7 +18,7 @@ public class QVT2Alloy {
 
 	public final Expr fact;
 	
-	public QVT2Alloy (TypedModel target, List<Sig> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVT2Alloy (List<TypedModel> mdls, List<Sig> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		
 		Expr fact = ExprConstant.TRUE;
 
@@ -27,8 +27,11 @@ public class QVT2Alloy {
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else {
 				if (((Relation) rel).getIsTopLevel() != null && ((Relation) rel).getIsTopLevel()) { // apparently, non-top is null
-					QVTRelation2Alloy trans = new QVTRelation2Alloy(target,(Relation) rel,modelsigs,qvt);
-					fact = AlloyUtil.cleanAnd(fact,trans.getFact());
+					for (TypedModel mdl : mdls) {
+						QVTRelation2Alloy trans = new QVTRelation2Alloy(mdl,(Relation) rel,modelsigs,qvt);
+						fact = AlloyUtil.cleanAnd(fact,trans.getFact());
+						System.out.println("QVT: "+trans.getFact());
+					}
 				}
 			}
 		}
