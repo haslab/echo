@@ -189,13 +189,13 @@ public class QVTRelation2Alloy {
 		}
 		
 		// calculates the source variables declarations (quantifications)
-		alloysourcevars = AlloyUtil.variableListToExpr(sourcevariables,modelsigs);
+		alloysourcevars = OCL2Alloy.variableListToExpr(sourcevariables,modelsigs);
 		decls.addAll(alloysourcevars);
 		// calculates the when variables declarations (quantifications)
-		alloywhenvars = AlloyUtil.variableListToExpr(whenvariables,modelsigs);
+		alloywhenvars = OCL2Alloy.variableListToExpr(whenvariables,modelsigs);
 		decls.addAll(alloywhenvars);
 		// calculates the target variables declarations (quantifications)
-		alloytargetvars = AlloyUtil.variableListToExpr(targetvariables,modelsigs);
+		alloytargetvars = OCL2Alloy.variableListToExpr(targetvariables,modelsigs);
 		decls.addAll(alloytargetvars);
 		
 	}

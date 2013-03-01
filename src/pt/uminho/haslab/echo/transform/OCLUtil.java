@@ -7,8 +7,10 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 
 import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
 import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
+import net.sourceforge.qvtparser.model.essentialocl.OperationCallExp;
 import net.sourceforge.qvtparser.model.essentialocl.Variable;
 import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
+import net.sourceforge.qvtparser.model.essentialocl.impl.PropertyCallExpImpl;
 import net.sourceforge.qvtparser.model.qvtrelation.RelationCallExp;
 import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
 import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
@@ -29,6 +31,14 @@ public class OCLUtil {
 		else if (exp instanceof RelationCallExp) {
 			for (Object e : ((RelationCallExp) exp).getArgument())
 				vars.addAll(variablesOCLExpression((OclExpression) e));
+		}
+		else if (exp instanceof OperationCallExp) {
+			for (Object e : ((OperationCallExp) exp).getArgument())
+				vars.addAll(variablesOCLExpression((OclExpression) e));
+			vars.addAll(variablesOCLExpression(((OperationCallExp) exp).getSource()));
+		}
+		else if (exp instanceof PropertyCallExpImpl) {
+			vars.addAll(variablesOCLExpression(((PropertyCallExpImpl) exp).getSource()));
 		}
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCLUtil",exp);
 		return vars;

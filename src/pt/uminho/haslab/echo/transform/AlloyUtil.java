@@ -56,47 +56,16 @@ public class AlloyUtil {
 		return sigs;
 	}
 	
-	// creates a list of Alloy declarations from a list of OCL variables
-	public static List<Decl> variableListToExpr (List<Variable> ovars, List<Sig> sigs) throws ErrorTransform, ErrorAlloy {
-		List<Decl> avars = new ArrayList<Decl>();
-		for (Variable ovar : ovars) {
-			Expr range = Sig.NONE;
-			String type = ovar.getType().getName();
-			if (type.equals("String")) range = Sig.STRING;
-			else 
-				for (Sig s : sigs)
-					if (s.label.equals(pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
-		
-			if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs,"AlloyUtil",ovar);
-			Decl d;
-			try { d = range.oneOf(ovar.getName()); }
-			catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",range);}
-			avars.add(d);
-		}
-		return avars;
-	}
-
-	// creates an Alloy declaration from an OCL variable
-	public static Decl variableListToExpr (Variable ovar, List<Sig> sigs) throws ErrorAlloy {
-		Expr range = Sig.NONE;
-		String type = ovar.getType().getName();
-		if (type.equals("String")) range = Sig.STRING;
-		else for (Sig s : sigs)
-			if (s.label.equals(pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
-		
-		if (range.equals(Sig.NONE)) throw new Error ("Sig not found: "+type);
-		Decl d;
-		try { d = range.oneOf(ovar.getName()); }
-		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",ovar);}
-		return d;
-	}
+	
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, String mdl, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
+	public static Expr localStateAttribute(Property prop, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
+		String mdl = prop.getClass_().getPackage().getName();
 		Sig statesig = getStateSig(sigs,mdl);
+		
 
 		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
-		Expr exp = propertyToField(prop,mdl,sigs);
+		Expr exp = OCL2Alloy.propertyToField(prop,sigs);
 		return exp.join(statesig);
 	}
 	
@@ -119,20 +88,7 @@ public class AlloyUtil {
 		return statesig;
 	}
 
-	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	public static Sig.Field propertyToField (Property prop, String mdl, List<Sig> sigs) {
-		Sig sig = null;
-		for (Sig s : sigs)
-			if (s.toString().equals(pckPrefix(mdl,prop.getClass_().getName()))) sig = s;
-		if (sig == null) throw new Error ("Sig not found: "+pckPrefix(mdl,prop.getClass_().getName()));
 
-		Sig.Field exp = null;
-		for (Sig.Field field : sig.getFields())
-			if ((field.label).equals(pckPrefix(mdl,prop.getName())))
-				exp = field;
-		if (exp == null) throw new Error ("Field not found: "+pckPrefix(mdl,prop.getName()));
-		return exp;
-	}
 	
 	// methods used to append prefixes to expressions
 	public static String pckPrefix (String mdl, String str) {
