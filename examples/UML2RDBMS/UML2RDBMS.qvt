@@ -23,6 +23,7 @@ transformation uml2rdbms (uml : UML; rdbms : RDBMS) {
     cn : String; a : UML::Attribute; g : UML::Class;
     domain uml c:Class {};
     domain rdbms t:Table { columns = cl:Column {name = cn} };
+    where { not (c.name = cn); }
   }
 
 }

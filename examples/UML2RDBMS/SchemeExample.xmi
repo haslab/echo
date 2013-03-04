@@ -22,4 +22,12 @@
     <columns
         name="Project"/>
   </tables>
+  <tables name="New">
+    <columns
+        name="Tesste"/>
+  </tables>
+  <tables name="asdasd">
+    <columns
+        name="asdasdsa"/>
+  </tables>
 </echo.examples.uml2rdbms.RDBMS:Scheme>
