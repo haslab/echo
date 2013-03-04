@@ -1,16 +1,11 @@
 package pt.uminho.haslab.echo;
 
 import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sourceforge.qvtparser.QvtParserRunner;
-import net.sourceforge.qvtparser.model.qvtbase.Transformation;
-import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -23,6 +18,14 @@ import org.eclipse.emf.ecore.util.ExtendedMetaData;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
+import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
+import org.eclipse.xtext.resource.XtextResourceSet;
+
+import com.google.inject.Injector;
 
 import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.QVT2Alloy;
@@ -89,25 +92,37 @@ public class Echo {
 	}
 		
 	
-	private static Transformation getTransformation(String qvtFile, String MMfile1, String MMfile2) throws Exception
+	private static RelationalTransformation getTransformation(String qvtFile) throws Exception
 	{
-		List<String> metamodelFiles = new java.util.ArrayList<String>();
-		metamodelFiles.add(MMfile1);
-		metamodelFiles.add(MMfile2);
+		CS2PivotResourceAdapter adapter = null;
+
 		
-		PrintStream tmp=System.out;
-		System.setOut(new PrintStream(new NullStream()));
-		QvtParserRunner qvtRun = new QvtParserRunner(qvtFile, metamodelFiles);
-		System.setOut(tmp);
+		QVTrelationStandaloneSetup.doSetup();
 		
-		Transformation t = null;
-		EObject o = qvtRun.getQvtModel().getModelElements().get(0);
+		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
+		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
+		//resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
+		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI(qvtFile), true);
 		
-		if(o instanceof Transformation)
-		{	
-			t = (Transformation) o;
-		} else throw new Error("Parser failer: " + o.getClass());
-		return t;
+		adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
+		Resource pivotResource = adapter.getPivotResource(xtextResource);
+		
+		/*resourceSet.getResources();
+		
+		Resource resource = resourceSet.createResource(URI.createURI("dummy:/AbstractToConcrete.qvtr"));
+		InputStream in = new FileInputStream("AbstractToConcrete.qvtr");
+		
+		resource.load(in, resourceSet.getLoadOptions());
+		
+		TopLevelCS t= (TopLevelCS) resourceSet.getResources().get(0).getContents().get(0);
+		for(TransformationCS es : t.getTransformations())
+			System.out.println(es.getKeyDecls());*/
+		
+		//for(EObject o: resourceSet.getResources().get(0).getContents())
+		
+		RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
+		RelationalTransformation rt = (RelationalTransformation) rm.eContents().get(0);
+		return rt;
 	}
 	
 	public static void main(String[] args) throws Exception{
@@ -200,7 +215,7 @@ public class Echo {
 			System.out.println("");
 		}
 		
-		Transformation qtrans = getTransformation(args[1],args[3],args[5]);
+		RelationalTransformation qtrans = getTransformation(args[1]);
 		if (qtrans == null) throw new Error ("Empty transformation.");
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
@@ -278,14 +293,5 @@ public class Echo {
 		}
 	}
 	
-	private static class NullStream extends OutputStream {
-	    @Override
-	    public void write(int b){ return; }
-	    @Override
-	    public void write(byte[] b){ return; }
-	    @Override
-	    public void write(byte[] b, int off, int len){ return; }
-	    public NullStream(){}
-	}
 }
 

@@ -3,23 +3,25 @@ package pt.uminho.haslab.echo.transform;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
+import org.eclipse.ocl.examples.pivot.IteratorExp;
+import org.eclipse.ocl.examples.pivot.OCLExpression;
+import org.eclipse.ocl.examples.pivot.OperationCallExp;
+import org.eclipse.ocl.examples.pivot.Property;
+import org.eclipse.ocl.examples.pivot.VariableDeclaration;
+import org.eclipse.ocl.examples.pivot.VariableExp;
+import org.eclipse.ocl.examples.pivot.internal.impl.PropertyCallExpImpl;
+import org.eclipse.qvtd.pivot.qvtbase.Transformation;
+import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
+import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
+import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
+
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
-import net.sourceforge.qvtparser.model.emof.Property;
-import net.sourceforge.qvtparser.model.essentialocl.BooleanLiteralExp;
-import net.sourceforge.qvtparser.model.essentialocl.IteratorExp;
-import net.sourceforge.qvtparser.model.essentialocl.OclExpression;
-import net.sourceforge.qvtparser.model.essentialocl.OperationCallExp;
-import net.sourceforge.qvtparser.model.essentialocl.Variable;
-import net.sourceforge.qvtparser.model.essentialocl.VariableExp;
-import net.sourceforge.qvtparser.model.essentialocl.impl.PropertyCallExpImpl;
-import net.sourceforge.qvtparser.model.qvtbase.Transformation;
-import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
-import net.sourceforge.qvtparser.model.qvtrelation.RelationCallExp;
-import net.sourceforge.qvtparser.model.qvttemplate.ObjectTemplateExp;
-import net.sourceforge.qvtparser.model.qvttemplate.PropertyTemplateItem;
+
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -53,7 +55,7 @@ public class OCL2Alloy {
 	}
 	
 	public Expr oclExprToAlloy (BooleanLiteralExp expr){
-		if (expr.getBooleanSymbol()) return ExprConstant.TRUE;
+		if (expr.isBooleanSymbol()) return ExprConstant.TRUE;
 		else return ExprConstant.FALSE;
 	}
 	
@@ -63,7 +65,7 @@ public class OCL2Alloy {
 			
 			// calculates OCL expression
 			PropertyTemplateItem part = (PropertyTemplateItem) part1;
-			OclExpression value = part.getValue();
+			OCLExpression value = part.getValue();
 			Expr ocl = this.oclExprToAlloy(value);
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
@@ -162,27 +164,27 @@ public class OCL2Alloy {
 		else if (expr.getReferredOperation().getName().equals("isEmpty"))
 			res = src.no();
 		else if (expr.getReferredOperation().getName().equals("="))
-			res = src.equal(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.equal(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("and"))
-			res = src.and(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.and(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("or"))
-			res = src.or(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.or(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("implies"))
-			res = src.implies(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.implies(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("<"))
-			res = src.lt(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.lt(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals(">"))
-			res = src.gt(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.gt(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("<="))
-			res = src.lte(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.lte(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals(">="))
-			res = src.gte(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.gte(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("union"))
-			res = src.plus(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.plus(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("intersection"))
-			res = src.intersect(oclExprToAlloy((OclExpression) expr.getArgument().get(0)));
+			res = src.intersect(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("includes"))
-			res =(oclExprToAlloy((OclExpression) expr.getArgument().get(0))).in(src);
+			res =(oclExprToAlloy((OCLExpression) expr.getArgument().get(0))).in(src);
 		
 	
 		//else if (expr.getReferredOperation().getName().equals("oclIsKindOf")) {}
@@ -193,7 +195,7 @@ public class OCL2Alloy {
 	}
 
 	
-	public Expr oclExprToAlloy (OclExpression expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (OCLExpression expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);
@@ -223,9 +225,9 @@ public class OCL2Alloy {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-		public static List<Decl> variableListToExpr (List<Variable> ovars, List<Sig> sigs) throws ErrorTransform, ErrorAlloy {
+		public static List<Decl> variableListToExpr (List<? extends VariableDeclaration> ovars, List<Sig> sigs) throws ErrorTransform, ErrorAlloy {
 			List<Decl> avars = new ArrayList<Decl>();
-			for (Variable ovar : ovars) {
+			for (VariableDeclaration ovar : ovars) {
 				Expr range = Sig.NONE;
 				String type = ovar.getType().getName();
 				if (type.equals("String")) range = Sig.STRING;
