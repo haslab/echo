@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bowling:Tournament xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bowling="http://pt.uminho.di.haslab.bowling" xsi:schemaLocation="http://pt.uminho.di.haslab.bowling ./bowling.ecore" type="Amateur">
+</bowling:Tournament>
