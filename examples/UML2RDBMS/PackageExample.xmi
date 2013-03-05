@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ASCII"?>
-<echo.examples.uml2rdbms.UML:Package
+<uml:Package
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:echo.examples.uml2rdbms.UML="http://fatbit.uminho.pt/echo/examples/uml2rdbms/"
-    xsi:schemaLocation="http://fatbit.uminho.pt/echo/examples/uml2rdbms/ UML.ecore"
+  	xmlns:uml="UML" 
+  	xsi:schemaLocation="UML UML.ecore#UML"
     name="Company">
   <classes name="Person"
       sub="//@classes.1 //@classes.2"
@@ -27,4 +27,4 @@
     <attributes
         name="Project"/>
   </classes>
-</echo.examples.uml2rdbms.UML:Package>
+</uml:Package>

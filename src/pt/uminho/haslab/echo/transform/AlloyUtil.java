@@ -1,23 +1,21 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ocl.examples.pivot.Property;
+
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 
-import net.sourceforge.qvtparser.model.emof.Property;
-import net.sourceforge.qvtparser.model.essentialocl.Variable;
 
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
-import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -60,9 +58,8 @@ public class AlloyUtil {
 	
 	// composes an expression with the respective state variable
 	public static Expr localStateAttribute(Property prop, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
-		String mdl = prop.getClass_().getPackage().getName();
+		String mdl = prop.getOwningType().getPackage().getName();
 		Sig statesig = getStateSig(sigs,mdl);
-		
 
 		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
 		Expr exp = OCL2Alloy.propertyToField(prop,sigs);

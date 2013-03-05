@@ -2,14 +2,16 @@ package pt.uminho.haslab.echo.transform;
 
 import java.util.List;
 
+import org.eclipse.qvtd.pivot.qvtbase.Rule;
+import org.eclipse.qvtd.pivot.qvtbase.Transformation;
+import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
+import org.eclipse.qvtd.pivot.qvtrelation.Relation;
+
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
-import net.sourceforge.qvtparser.model.qvtbase.Rule;
-import net.sourceforge.qvtparser.model.qvtbase.Transformation;
-import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
-import net.sourceforge.qvtparser.model.qvtrelation.Relation;
+
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -22,11 +24,11 @@ public class QVT2Alloy {
 		
 		Expr fact = ExprConstant.TRUE;
 
-		for (Object rel1 : qvt.getRule()){ // should be Rule
-			Rule rel = (Rule) rel1;
+		for (Rule rel : qvt.getRule()){
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else {
-				if (((Relation) rel).getIsTopLevel() != null && ((Relation) rel).getIsTopLevel()) { // apparently, non-top is null
+				System.out.println("isTOP: "+((Relation) rel).isIsTopLevel());
+				if (!((Relation) rel).isIsTopLevel() && !rel.getName().equals("A2C")) {
 					for (TypedModel mdl : mdls) {
 						QVTRelation2Alloy trans = new QVTRelation2Alloy(mdl,(Relation) rel,modelsigs,qvt);
 						fact = AlloyUtil.cleanAnd(fact,trans.getFact());
@@ -35,7 +37,6 @@ public class QVT2Alloy {
 				}
 			}
 		}
-		
 		this.fact = fact;
 	}
 

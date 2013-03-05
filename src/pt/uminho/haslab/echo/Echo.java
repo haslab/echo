@@ -1,16 +1,11 @@
 package pt.uminho.haslab.echo;
 
 import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.sourceforge.qvtparser.QvtParserRunner;
-import net.sourceforge.qvtparser.model.qvtbase.Transformation;
-import net.sourceforge.qvtparser.model.qvtbase.TypedModel;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -23,6 +18,17 @@ import org.eclipse.emf.ecore.util.ExtendedMetaData;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
+import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
+import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
+import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
+import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.resource.XtextResourceSet;
+
+import com.google.inject.Injector;
 
 import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.QVT2Alloy;
@@ -30,7 +36,6 @@ import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
-
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
@@ -40,10 +45,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
-
 
 public class Echo {
 	
@@ -51,6 +54,18 @@ public class Echo {
 	private static Map<String,EPackage> mms = new HashMap<String,EPackage>();
 	// instances
 	private static Map<String,EObject> insts = new HashMap<String,EObject>();
+	// sigs
+	private static List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
+	// model fact
+	private static Expr modelfact = Sig.NONE.no();
+	// delta fact
+	private static Expr deltaexpr = null;
+	// check vs. enforce
+	private static Boolean check;
+	// delta
+	private static int delta = 0;
+	// target scopes (only these need be increased)
+	private static List<CommandScope> targetscopes = new ArrayList<CommandScope>();
 	
 	public static EObject loadModelInstance(String argURI,EPackage p) {
 
@@ -88,40 +103,38 @@ public class Echo {
 		return load_resource.getContents().get(0);
 	}
 		
-	
-	private static Transformation getTransformation(String qvtFile, String MMfile1, String MMfile2) throws Exception
-	{
-		List<String> metamodelFiles = new java.util.ArrayList<String>();
-		metamodelFiles.add(MMfile1);
-		metamodelFiles.add(MMfile2);
+	private static RelationalTransformation getTransformation(String qvtFile) throws Exception {
+		CS2PivotResourceAdapter adapter = null;
+
+		OCLstdlib.install();
+		QVTrelationStandaloneSetup.doSetup();
 		
-		PrintStream tmp=System.out;
-		System.setOut(new PrintStream(new NullStream()));
-		QvtParserRunner qvtRun = new QvtParserRunner(qvtFile, metamodelFiles);
-		System.setOut(tmp);
+		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
+		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
+		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		
-		Transformation t = null;
-		EObject o = qvtRun.getQvtModel().getModelElements().get(0);
+		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI(qvtFile), true);
+
+		String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "Error parsing QVT.", "\n\t");
+		if (message != null) throw new ErrorParser (message,"QVT Parser");
 		
-		if(o instanceof Transformation)
-		{	
-			t = (Transformation) o;
-		} else throw new Error("Parser failer: " + o.getClass());
-		return t;
+		adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
+		Resource pivotResource = adapter.getPivotResource(xtextResource);
+				
+		RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
+		RelationalTransformation rt = (RelationalTransformation) rm.eContents().get(0);
+		return rt;
 	}
 	
 	public static void main(String[] args) throws Exception{
 		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
-													"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
-		Boolean check;
-		Expr deltaexpr = null;
-		int delta = 0;
+												"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
+
 		String target = args[2];
-		List<CommandScope> targetscopes = new ArrayList<CommandScope>();
 
 		if (args[0].equals("check")) check = true;
 		else if (args[0].equals("enforce")) check = false;
-		else throw new Error ("Invalid running mode: should be \"check\" or \"enforce\"");
+		else throw new ErrorParser ("Invalid running mode: should be \"check\" or \"enforce\"","Command Parser");
 
 		// eventually should be an arbitrary number
 		EPackage paux; EObject iaux;
@@ -134,10 +147,6 @@ public class Echo {
 		mms.put(paux.getName(),paux);
 		iaux = loadModelInstance(args[6],paux);
 		insts.put(paux.getName(),iaux);
-		
-		Expr modelfact = Sig.NONE.no();
-		List<Sig> allsigs = new ArrayList<Sig>();
-		allsigs.add(AlloyUtil.STATE);
 		
 		for (String name : mms.keySet()) {
 			
@@ -200,7 +209,7 @@ public class Echo {
 			System.out.println("");
 		}
 		
-		Transformation qtrans = getTransformation(args[1],args[3],args[5]);
+		RelationalTransformation qtrans = getTransformation(args[1]);
 		if (qtrans == null) throw new Error ("Empty transformation.");
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
@@ -230,8 +239,6 @@ public class Echo {
 		Expr commandfact;
 		if (check) commandfact = (modelfact.and(qvtfact));		 
 		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
-		//commandfact = ExprConstant.TRUE;
-		
 		
 		System.out.println("Final command fact: "+(commandfact));
 		System.out.println("Final sigs: "+(allsigs)+"\n");
@@ -240,10 +247,8 @@ public class Echo {
 		// enforce and check mode are run and check commands respectively
 		Command cmd = new Command(false, 10, 5, 2, commandfact);
 
-
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		//sol = sol.next().next().next().next().next();
-		
 		
 		if (check) {
 			if (sol.satisfiable()) System.out.println("Instance found. Models consistent.");
@@ -264,28 +269,17 @@ public class Echo {
 				
 			}
 			System.out.println("Instance found for delta "+delta+".");
-				
 		}
-		
 		
 		if (sol.satisfiable()) {
 			sol.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
-			String theme = (args[1]).replace(".qvt", ".thm");
+			String theme = (args[1]).replace(".qvtr", ".thm");
 			if (new File(theme).isFile())
 				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
 		}
 	}
 	
-	private static class NullStream extends OutputStream {
-	    @Override
-	    public void write(int b){ return; }
-	    @Override
-	    public void write(byte[] b){ return; }
-	    @Override
-	    public void write(byte[] b, int off, int len){ return; }
-	    public NullStream(){}
-	}
 }
 

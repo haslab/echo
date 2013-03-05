@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ASCII"?>
-<echo.examples.uml2rdbms.RDBMS:Scheme
+<rdbms:Scheme
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:echo.examples.uml2rdbms.RDBMS="http://fatbit.uminho.pt/echo/examples/uml2rdbms/"
-    xsi:schemaLocation="http://fatbit.uminho.pt/echo/examples/uml2rdbms/ RDBMS.ecore"
+    xmlns:rdbms="RDBMS" 
+  	xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
     name="Company">
   <tables name="Employer">
     <columns
@@ -30,4 +30,4 @@
     <columns
         name="asdasdsa"/>
   </tables>
-</echo.examples.uml2rdbms.RDBMS:Scheme>
+</rdbms:Scheme>
