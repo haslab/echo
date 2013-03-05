@@ -24,11 +24,11 @@ public class QVT2Alloy {
 		
 		Expr fact = ExprConstant.TRUE;
 
-		for (Object rel1 : qvt.getRule()){ // should be Rule
-			Rule rel = (Rule) rel1;
+		for (Rule rel : qvt.getRule()){
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else {
-				if (((Relation) rel).isIsTopLevel()) { // apparently, non-top is null
+				System.out.println("isTOP: "+((Relation) rel).isIsTopLevel());
+				if (!((Relation) rel).isIsTopLevel() && !rel.getName().equals("A2C")) {
 					for (TypedModel mdl : mdls) {
 						QVTRelation2Alloy trans = new QVTRelation2Alloy(mdl,(Relation) rel,modelsigs,qvt);
 						fact = AlloyUtil.cleanAnd(fact,trans.getFact());
@@ -37,7 +37,6 @@ public class QVT2Alloy {
 				}
 			}
 		}
-		
 		this.fact = fact;
 	}
 

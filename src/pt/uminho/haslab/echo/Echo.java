@@ -1,33 +1,31 @@
 package pt.uminho.haslab.echo;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.plugin.EcorePlugin;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.BasicExtendedMetaData;
 import org.eclipse.emf.ecore.util.ExtendedMetaData;
 import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.eclipse.emf.ecore.xmi.impl.EMOFResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.ocl.examples.domain.utilities.ProjectMap;
+import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
 import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
+import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 
 import com.google.inject.Injector;
@@ -36,10 +34,8 @@ import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.QVT2Alloy;
 import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
-import testes.LoadTestCase;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
-
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
@@ -49,11 +45,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
-
-import org.eclipse.core.runtime.*;
 
 public class Echo {
 	
@@ -61,6 +54,18 @@ public class Echo {
 	private static Map<String,EPackage> mms = new HashMap<String,EPackage>();
 	// instances
 	private static Map<String,EObject> insts = new HashMap<String,EObject>();
+	// sigs
+	private static List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
+	// model fact
+	private static Expr modelfact = Sig.NONE.no();
+	// delta fact
+	private static Expr deltaexpr = null;
+	// check vs. enforce
+	private static Boolean check;
+	// delta
+	private static int delta = 0;
+	// target scopes (only these need be increased)
+	private static List<CommandScope> targetscopes = new ArrayList<CommandScope>();
 	
 	public static EObject loadModelInstance(String argURI,EPackage p) {
 
@@ -98,46 +103,24 @@ public class Echo {
 		return load_resource.getContents().get(0);
 	}
 		
-	
-	private static RelationalTransformation getTransformation(String qvtFile) throws Exception
-	{
+	private static RelationalTransformation getTransformation(String qvtFile) throws Exception {
 		CS2PivotResourceAdapter adapter = null;
 
-		
+		OCLstdlib.install();
 		QVTrelationStandaloneSetup.doSetup();
 		
-		//Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
-		//XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
-		//resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
-		System.out.println(URI.createURI("platform:/resource/echo/UML2RDBMS.qvtr"));
+		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
+		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
+		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		
-		ResourceSet resourceSet = new ResourceSetImpl();
-		ProjectMap.initializeURIResourceMap(resourceSet);
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl()); //$NON-NLS-1$
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("pivot", new XMIResourceFactoryImpl()); //$NON-NLS-1$
-			
-		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("UML2RDBMS.qvtr"), true);
+		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI(qvtFile), true);
 
-		String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "aaa", "\n\t");
-		if (message != null)
-			throw new Exception (message);
+		String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "Error parsing QVT.", "\n\t");
+		if (message != null) throw new ErrorParser (message,"QVT Parser");
 		
 		adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
 		Resource pivotResource = adapter.getPivotResource(xtextResource);
-		
-		/*resourceSet.getResources();
-		
-		Resource resource = resourceSet.createResource(URI.createURI("dummy:/AbstractToConcrete.qvtr"));
-		InputStream in = new FileInputStream("AbstractToConcrete.qvtr");
-		
-		resource.load(in, resourceSet.getLoadOptions());
-		
-		TopLevelCS t= (TopLevelCS) resourceSet.getResources().get(0).getContents().get(0);
-		for(TransformationCS es : t.getTransformations())
-			System.out.println(es.getKeyDecls());*/
-		
-		//for(EObject o: resourceSet.getResources().get(0).getContents())
-		
+				
 		RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
 		RelationalTransformation rt = (RelationalTransformation) rm.eContents().get(0);
 		return rt;
@@ -145,17 +128,13 @@ public class Echo {
 	
 	public static void main(String[] args) throws Exception{
 		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
-													"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
-		Boolean check;
-		Expr deltaexpr = null;
-		int delta = 0;
-		String target = args[2];
-		List<CommandScope> targetscopes = new ArrayList<CommandScope>();
+												"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
 
+		String target = args[2];
 
 		if (args[0].equals("check")) check = true;
 		else if (args[0].equals("enforce")) check = false;
-		else throw new Error ("Invalid running mode: should be \"check\" or \"enforce\"");
+		else throw new ErrorParser ("Invalid running mode: should be \"check\" or \"enforce\"","Command Parser");
 
 		// eventually should be an arbitrary number
 		EPackage paux; EObject iaux;
@@ -168,10 +147,6 @@ public class Echo {
 		mms.put(paux.getName(),paux);
 		iaux = loadModelInstance(args[6],paux);
 		insts.put(paux.getName(),iaux);
-		
-		Expr modelfact = Sig.NONE.no();
-		List<Sig> allsigs = new ArrayList<Sig>();
-		allsigs.add(AlloyUtil.STATE);
 		
 		for (String name : mms.keySet()) {
 			
@@ -264,8 +239,6 @@ public class Echo {
 		Expr commandfact;
 		if (check) commandfact = (modelfact.and(qvtfact));		 
 		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
-		//commandfact = ExprConstant.TRUE;
-		
 		
 		System.out.println("Final command fact: "+(commandfact));
 		System.out.println("Final sigs: "+(allsigs)+"\n");
@@ -274,10 +247,8 @@ public class Echo {
 		// enforce and check mode are run and check commands respectively
 		Command cmd = new Command(false, 10, 5, 2, commandfact);
 
-
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		//sol = sol.next().next().next().next().next();
-		
 		
 		if (check) {
 			if (sol.satisfiable()) System.out.println("Instance found. Models consistent.");
@@ -298,9 +269,7 @@ public class Echo {
 				
 			}
 			System.out.println("Instance found for delta "+delta+".");
-				
 		}
-		
 		
 		if (sol.satisfiable()) {
 			sol.writeXML("alloy_output.xml");

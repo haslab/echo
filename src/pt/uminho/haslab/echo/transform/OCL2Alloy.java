@@ -21,7 +21,6 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -44,12 +43,12 @@ public class OCL2Alloy {
 	}
 	
 	public Expr oclExprToAlloy (VariableExp expr) throws ErrorTransform {
-		String varname = expr.getName();
+		String varname = expr.toString();
 		Decl decl = null;
 		for (Decl d : vardecls){
 			if (d.get().label.equals(varname))
 				decl = d;}
-		if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",expr);
+		if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",varname);
 		ExprHasName var = decl.get();
 		return var;	
 	}
@@ -61,16 +60,14 @@ public class OCL2Alloy {
 	
 	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr result = Sig.NONE.no();
-		for (Object part1: ((ObjectTemplateExp) temp).getPart()) { // should be PropertyTemplateItem
-			
+		
+		for (PropertyTemplateItem part: temp.getPart()) {
 			// calculates OCL expression
-			PropertyTemplateItem part = (PropertyTemplateItem) part1;
 			OCLExpression value = part.getValue();
 			Expr ocl = this.oclExprToAlloy(value);
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 			Expr localfield = null;
-			String mdl = prop.getClass_().getPackage().getName();
 			localfield = AlloyUtil.localStateAttribute(prop, sigs);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
@@ -99,9 +96,15 @@ public class OCL2Alloy {
 			else {
 				item = ocl.in(var.join(localfield));
 			}
-			
 			result = AlloyUtil.cleanAnd(result,item);
 		}
+
+		/*OCLExpression where = temp.getWhere();
+		if (where != null) {
+			Expr awhere = oclExprToAlloy(where);
+			result = AlloyUtil.cleanAnd(result,awhere);
+		}*/
+		
 		return result;
 	}
 	
@@ -209,12 +212,12 @@ public class OCL2Alloy {
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
 	public static Sig.Field propertyToField (Property prop, List<Sig> sigs) {
-		String mdl = prop.getClass_().getPackage().getName();
+		String mdl = prop.getOwningType().getPackage().getName();
 		
 		Sig sig = null;
 		for (Sig s : sigs)
-			if (s.toString().equals(AlloyUtil.pckPrefix(mdl,prop.getClass_().getName()))) sig = s;
-		if (sig == null) throw new Error ("Sig not found: "+AlloyUtil.pckPrefix(mdl,prop.getClass_().getName()));
+			if (s.toString().equals(AlloyUtil.pckPrefix(mdl,prop.getOwningType().getName()))) sig = s;
+		if (sig == null) throw new Error ("Sig not found: "+AlloyUtil.pckPrefix(mdl,prop.getOwningType().getName()));
 
 		Sig.Field exp = null;
 		for (Sig.Field field : sig.getFields())

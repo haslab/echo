@@ -58,9 +58,8 @@ public class AlloyUtil {
 	
 	// composes an expression with the respective state variable
 	public static Expr localStateAttribute(Property prop, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
-		String mdl = prop.getClass_().getPackage().getName();
+		String mdl = prop.getOwningType().getPackage().getName();
 		Sig statesig = getStateSig(sigs,mdl);
-		
 
 		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
 		Expr exp = OCL2Alloy.propertyToField(prop,sigs);
