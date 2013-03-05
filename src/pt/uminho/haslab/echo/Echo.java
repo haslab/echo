@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,14 +11,18 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.plugin.EcorePlugin;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.BasicExtendedMetaData;
 import org.eclipse.emf.ecore.util.ExtendedMetaData;
 import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.ecore.xmi.impl.EMOFResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.ocl.examples.domain.utilities.ProjectMap;
+import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
 import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
@@ -31,6 +36,7 @@ import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.QVT2Alloy;
 import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
+import testes.LoadTestCase;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 
@@ -47,6 +53,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
+import org.eclipse.core.runtime.*;
 
 public class Echo {
 	
@@ -99,10 +106,21 @@ public class Echo {
 		
 		QVTrelationStandaloneSetup.doSetup();
 		
-		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
-		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
+		//Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
+		//XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
 		//resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
-		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI(qvtFile), true);
+		System.out.println(URI.createURI("platform:/resource/echo/UML2RDBMS.qvtr"));
+		
+		ResourceSet resourceSet = new ResourceSetImpl();
+		ProjectMap.initializeURIResourceMap(resourceSet);
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl()); //$NON-NLS-1$
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("pivot", new XMIResourceFactoryImpl()); //$NON-NLS-1$
+			
+		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("UML2RDBMS.qvtr"), true);
+
+		String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "aaa", "\n\t");
+		if (message != null)
+			throw new Exception (message);
 		
 		adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
 		Resource pivotResource = adapter.getPivotResource(xtextResource);
@@ -133,6 +151,7 @@ public class Echo {
 		int delta = 0;
 		String target = args[2];
 		List<CommandScope> targetscopes = new ArrayList<CommandScope>();
+
 
 		if (args[0].equals("check")) check = true;
 		else if (args[0].equals("enforce")) check = false;
@@ -287,7 +306,7 @@ public class Echo {
 			sol.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
-			String theme = (args[1]).replace(".qvt", ".thm");
+			String theme = (args[1]).replace(".qvtr", ".thm");
 			if (new File(theme).isFile())
 				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
 		}
