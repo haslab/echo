@@ -7,7 +7,8 @@
     xsi:schemaLocation="http://fatbit.uminho.pt/echo/examples/uml2rdbms/ UML.ecore"
     name="Company">
   <classes name="Person"
-      sub="//@classes.1 //@classes.2">
+      sub="//@classes.1 //@classes.2"
+      id="2">
     <attributes
         name="Age"/>
     <attributes
@@ -15,7 +16,8 @@
   </classes>
   <classes name="Employer"
       persistent="true"
-      super="//@classes.0">
+      super="//@classes.0"
+      id="3">
     <attributes
         name="Group"/>
   </classes>
