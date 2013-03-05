@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<bookStore:BookStore xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bookStore="http:///pt.uminho.di.haslab.bookStore.ecore" xsi:schemaLocation="http:///pt.uminho.di.haslab.bookStore.ecore ./bookStore.ecore" owner="David Brown" location="Street#12, Top Town, NY">
-  <books name="Harry Potter and the Deathly Hallows" isbn="157221"/>
-  <absBooks xsi:type="bookStore:Book" name="Harry Potter and the Deathly Hallows" isbn="157221"/>
-</bookStore:BookStore>
