@@ -1,0 +1,33 @@
+import uml : 'UML.ecore'::UML;
+import rdbms : 'RDBMS.ecore'::RDBMS;
+
+transformation uml2rdbms (uml : uml, rdbms : rdbms) {
+
+  top relation P2S { 
+    pn: String; 
+    domain uml p:Package { 
+      name=pn };
+    domain rdbms s:Scheme { 
+      name=pn };
+  }
+
+  top relation C2T { 
+    cn: String; 
+    domain uml c:Class { 
+      persistent=true, 
+      namespace=p:Package{}, name=cn };
+    domain rdbms t:Table { 
+      scheme=s:Scheme{}, name=cn };
+    when { P2S(p,s); }
+    where { A2C(c,t); }
+  }
+
+  relation A2C {
+    cn : String; a:UML::Package; g:UML::Class;
+    domain uml c:Class {} { g.attributes->includes(a) and a.name = cn and (c->closure(super)->includes(g) or g = c) };
+    domain rdbms t:Table { columns = cl:Column {name = cn} };
+    where { not (c.name = cn); }
+  }
+
+
+}
