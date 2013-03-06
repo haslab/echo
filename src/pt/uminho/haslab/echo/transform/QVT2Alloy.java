@@ -32,7 +32,7 @@ public class QVT2Alloy {
 					for (TypedModel mdl : mdls) {
 						QVTRelation2Alloy trans = new QVTRelation2Alloy(mdl,(Relation) rel,modelsigs,qvt);
 						fact = AlloyUtil.cleanAnd(fact,trans.getFact());
-						System.out.println("QVT: "+trans.getFact());
+						System.out.println("QVT relation "+rel.getName()+": "+trans.getFact());
 					}
 				}
 			}

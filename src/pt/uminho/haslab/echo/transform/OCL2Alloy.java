@@ -1,7 +1,9 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
 import org.eclipse.ocl.examples.pivot.IteratorExp;
@@ -99,11 +101,11 @@ public class OCL2Alloy {
 			result = AlloyUtil.cleanAnd(result,item);
 		}
 
-		/*OCLExpression where = temp.getWhere();
+		OCLExpression where = temp.getWhere();
 		if (where != null) {
 			Expr awhere = oclExprToAlloy(where);
 			result = AlloyUtil.cleanAnd(result,awhere);
-		}*/
+		}
 		
 		return result;
 	}
@@ -116,34 +118,41 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (IteratorExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
 
-		List<Decl> decls = variableListToExpr(expr.getIterator(),sigs);
+		List<Decl> decls = variableListToExpr(new HashSet(expr.getIterator()),sigs);
 		vardecls.addAll(decls);
 		Expr src = oclExprToAlloy(expr.getSource());
 		Expr bdy = oclExprToAlloy(expr.getBody());
 		
-		if (expr.getName().equals("forAll")) {
+		if (expr.getReferredIteration().getName().equals("forAll")) {
 			res = (src.implies(bdy));
 			for (Decl d : decls)
 				try {res = res.forAll(d);}
 				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
-		} else if (expr.getName().equals("forAll")) {
+		} else if (expr.getReferredIteration().getName().equals("forAll")) {
 			res = (src.implies(bdy));
 			for (Decl d : decls)
 				try {res = res.forSome(d);}
 				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
-		} else if (expr.getName().equals("select")) {
+		} else if (expr.getReferredIteration().getName().equals("select")) {
 			res = (src.and(bdy));
 			for (Decl d : decls)
 				try {res = res.comprehensionOver(d);}
 				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
-		} else if (expr.getName().equals("reject")) {
+		} else if (expr.getReferredIteration().getName().equals("reject")) {
 			res = (src.and(bdy.not()));
 			for (Decl d : decls)
 				try {res = res.comprehensionOver(d);}
 				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
 		}
-		
-		//else if (expr.getName().equals("closure")) {}
+		else if (expr.getReferredIteration().getName().equals("closure")) {
+			res = Sig.NONE.no();
+			if (decls.size() != 1) throw new ErrorTransform ("Invalid variables on closure.","OCL2Alloy",decls);
+			try {
+				Decl dd = bdy.oneOf("_2");
+				res = res.comprehensionOver(decls.get(0),dd);
+			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
+			res = src.join(res.closure());	
+		}
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
 
 		return res;
@@ -188,11 +197,11 @@ public class OCL2Alloy {
 			res = src.intersect(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("includes"))
 			res =(oclExprToAlloy((OCLExpression) expr.getArgument().get(0))).in(src);
+		else if (expr.getReferredOperation().getName().equals("oclAsSet")) {
+			res = src;
+		}
 		
-	
-		//else if (expr.getReferredOperation().getName().equals("oclIsKindOf")) {}
-		
-		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
+		else throw new ErrorUnsupported ("OCL expression not supported."+expr.getName()+","+expr.getArgument().toString(),"OCL2Alloy",expr);
 
 		return res;
 	}
@@ -228,7 +237,7 @@ public class OCL2Alloy {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-		public static List<Decl> variableListToExpr (List<? extends VariableDeclaration> ovars, List<Sig> sigs) throws ErrorTransform, ErrorAlloy {
+		public static List<Decl> variableListToExpr (Set<? extends VariableDeclaration> ovars, List<Sig> sigs) throws ErrorTransform, ErrorAlloy {
 			List<Decl> avars = new ArrayList<Decl>();
 			for (VariableDeclaration ovar : ovars) {
 				Expr range = Sig.NONE;

@@ -1,7 +1,9 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
@@ -13,7 +15,6 @@ import org.eclipse.qvtd.pivot.qvtrelation.DomainPattern;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationDomain;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
-import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 import org.eclipse.qvtd.pivot.qvttemplate.TemplateExp;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -129,6 +130,7 @@ public class QVTRelation2Alloy {
 				for (Decl d : alloywhenvars)
 					fact = fact.forAll(d);
 			}
+			
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",rel);}
 		
 		return fact;
@@ -137,11 +139,10 @@ public class QVTRelation2Alloy {
 	// separates source from target variables (eventually also when and where variables)
 	private void initVariableDeclarationLists(boolean top) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		TemplateExp temp;
-		List<PropertyTemplateItem> temps;
-		List<VariableDeclaration> whenvariables = new ArrayList<VariableDeclaration>();
-		List<VariableDeclaration> sourcevariables = new ArrayList<VariableDeclaration>();
-		List<VariableDeclaration> targetvariables = new ArrayList<VariableDeclaration>();
-		List<VariableDeclaration> rootvariables = new ArrayList<VariableDeclaration>();
+		Set<VariableDeclaration> whenvariables = new HashSet<VariableDeclaration>();
+		Set<VariableDeclaration> sourcevariables = new HashSet<VariableDeclaration>();
+		Set<VariableDeclaration> targetvariables = new HashSet<VariableDeclaration>();
+		Set<VariableDeclaration> rootvariables = new HashSet<VariableDeclaration>();
 		
 		if (rel.getWhen() != null)
 			for (Predicate predicate : rel.getWhen().getPredicate()) {
@@ -151,25 +152,14 @@ public class QVTRelation2Alloy {
 		
 		for (RelationDomain dom : sourcedomains) {
 			temp = dom.getPattern().getTemplateExpression();
-			// No support for CollectionTemplateExp
-			if (!(temp instanceof ObjectTemplateExp)) 
-				throw new ErrorUnsupported ("Template not an ObjectTemplate.","QVTRelation2Alloy",temp);
-			temps = new ArrayList<PropertyTemplateItem>(((ObjectTemplateExp) temp).getPart());
-			for (PropertyTemplateItem item : temps)
-				sourcevariables.addAll(OCLUtil.variablesOCLExpression(item.getValue()));
-			sourcevariables.add(dom.getRootVariable());
+			sourcevariables.addAll(OCLUtil.variablesOCLExpression(temp));
 			rootvariables.add(dom.getRootVariable());
 		}
 		sourcevariables.removeAll(whenvariables);
 		
 		temp = targetdomain.getPattern().getTemplateExpression();
 		// No support for CollectionTemplateExp
-		if (!(temp instanceof ObjectTemplateExp)) 
-			throw new ErrorUnsupported ("Template not an ObjectTemplate.","QVTRelation2Alloy",temp);
-		temps = new ArrayList<PropertyTemplateItem>(((ObjectTemplateExp) temp).getPart());
-		for (PropertyTemplateItem item : temps)
-			targetvariables.addAll(OCLUtil.variablesOCLExpression(item.getValue()));
-		targetvariables.add(targetdomain.getRootVariable());
+		targetvariables.addAll(OCLUtil.variablesOCLExpression(temp));
 		rootvariables.add(targetdomain.getRootVariable());
 		if (rel.getWhere() != null)
 			for (Predicate predicate : rel.getWhere().getPredicate()) {
@@ -194,6 +184,12 @@ public class QVTRelation2Alloy {
 		// calculates the target variables declarations (quantifications)
 		alloytargetvars = OCL2Alloy.variableListToExpr(targetvariables,modelsigs);
 		decls.addAll(alloytargetvars);
+		
+		System.out.println(rel.getName()+" Target variables: "+targetvariables);
+		System.out.println(rel.getName()+" Source variables: "+sourcevariables);
+		System.out.println(rel.getName()+" When variables: "+whenvariables);
+		System.out.println(rel.getName()+" Root variables: "+rootvariables);
+
 		
 	}
 
