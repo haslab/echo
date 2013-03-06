@@ -1,14 +1,13 @@
 package pt.uminho.haslab.echo.transform;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
+import org.eclipse.ocl.examples.pivot.IfExp;
 import org.eclipse.ocl.examples.pivot.IteratorExp;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 import org.eclipse.ocl.examples.pivot.OperationCallExp;
+import org.eclipse.ocl.examples.pivot.PrimitiveLiteralExp;
 import org.eclipse.ocl.examples.pivot.PropertyCallExp;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 import org.eclipse.ocl.examples.pivot.VariableExp;
@@ -35,7 +34,6 @@ public class OCLUtil {
 				vars.addAll(variablesOCLExpression(part.getValue() ) );
 			vars.addAll(variablesOCLExpression(((ObjectTemplateExp) exp).getWhere())); 
 		}
-		else if (exp instanceof BooleanLiteralExp) {}
 		else if (exp instanceof RelationCallExp) {
 			for (OCLExpression e : ((RelationCallExp) exp).getArgument())
 				vars.addAll(variablesOCLExpression(e));
@@ -53,6 +51,12 @@ public class OCLUtil {
 			vars.addAll(variablesOCLExpression(((IteratorExp) exp).getBody()));
 			vars.removeAll(((IteratorExp) exp).getIterator());
 		}
+		else if (exp instanceof IfExp) {
+			vars.addAll(variablesOCLExpression(((IfExp) exp).getCondition()));
+			vars.addAll(variablesOCLExpression(((IfExp) exp).getThenExpression()));
+			vars.addAll(variablesOCLExpression(((IfExp) exp).getElseExpression()));
+		}
+		else if (exp instanceof PrimitiveLiteralExp) {}
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCLUtil",exp);
 
 		return vars;

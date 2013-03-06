@@ -261,11 +261,11 @@ public class Echo {
 
 				// calculates integer bitwidth
 				int intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
-				System.out.println("Int scope: "+intscope+" for "+delta);
 				// enforce and check mode are run and check commands respectively
 				cmd = new Command(check, 0, intscope, -1, commandfact);
 				cmd = cmd.change(AlloyUtil.incrementScope(targetscopes));
-
+				System.out.println("Running for delta "+delta+"(int "+intscope+")");
+				
 				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 				//sol = sol1.next().next().next().next().next();
 				

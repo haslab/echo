@@ -29,13 +29,13 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 public class QVTRelation2Alloy {
 
 	// variables occuring in the when constraint
-	private List<Decl> alloywhenvars = new ArrayList<Decl>();
+	private Set<Decl> alloywhenvars = new HashSet<Decl>();
 	// variables occuring in source domains but not in the when constraint
-	private List<Decl> alloysourcevars = new ArrayList<Decl>();
+	private Set<Decl> alloysourcevars = new HashSet<Decl>();
 	// variables occuring in target domain and where constraint, but not in the when constraint or source domains
-	private List<Decl> alloytargetvars = new ArrayList<Decl>();
+	private Set<Decl> alloytargetvars = new HashSet<Decl>();
 	// Declarations of quantified variables; needed for respective variable occurrences (union of the above)
-	private List<Decl> decls = new ArrayList<Decl>();
+	private Set<Decl> decls = new HashSet<Decl>();
 		
 	// the alloy signatures of each metamodel
 	private List<Sig> modelsigs = new ArrayList<Sig>();
@@ -66,7 +66,7 @@ public class QVTRelation2Alloy {
 	}
 	
 	// this one takes a list of declarations as an extra argument: used with relation calls, since some variables are already quantified
-	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt, List<Decl> prevdecls) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt, Set<Decl> prevdecls) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
 		this.qvt = qvt;
 		this.rel = rel;
