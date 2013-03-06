@@ -9,7 +9,10 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EValidator;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -18,10 +21,15 @@ import org.eclipse.emf.ecore.util.ExtendedMetaData;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.ocl.examples.pivot.delegate.OCLDelegateDomain;
+import org.eclipse.ocl.examples.pivot.delegate.OCLInvocationDelegateFactory;
+import org.eclipse.ocl.examples.pivot.delegate.OCLSettingDelegateFactory;
+import org.eclipse.ocl.examples.pivot.delegate.OCLValidationDelegateFactory;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
 import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
+import org.eclipse.ocl.examples.xtext.oclinecore.OCLinEcoreStandaloneSetup;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
@@ -106,7 +114,7 @@ public class Echo {
 	private static RelationalTransformation getTransformation(String qvtFile) throws Exception {
 		CS2PivotResourceAdapter adapter = null;
 
-		OCLstdlib.install();
+	//	OCLstdlib.install();
 		QVTrelationStandaloneSetup.doSetup();
 		
 		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
@@ -126,6 +134,7 @@ public class Echo {
 		return rt;
 	}
 	
+	
 	public static void main(String[] args) throws Exception{
 		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
 												"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
@@ -136,6 +145,24 @@ public class Echo {
 		else if (args[0].equals("enforce")) check = false;
 		else throw new ErrorParser ("Invalid running mode: should be \"check\" or \"enforce\"","Command Parser");
 
+		//ocl starter
+		// register Pivot globally (resourceSet == null)
+		org.eclipse.ocl.examples.pivot.OCL.initialize(null);
+
+		String oclDelegateURI = OCLDelegateDomain.OCL_DELEGATE_URI_PIVOT;
+		EOperation.Internal.InvocationDelegate.Factory.Registry.INSTANCE.put(oclDelegateURI,
+		    new OCLInvocationDelegateFactory.Global());
+		EStructuralFeature.Internal.SettingDelegate.Factory.Registry.INSTANCE.put(oclDelegateURI,
+		    new OCLSettingDelegateFactory.Global());
+		EValidator.ValidationDelegate.Registry.INSTANCE.put(oclDelegateURI,
+		    new OCLValidationDelegateFactory.Global());
+
+		OCLinEcoreStandaloneSetup.doSetup();
+		// install the OCL standard library
+		OCLstdlib.install();
+		
+		
+		
 		// eventually should be an arbitrary number
 		EPackage paux; EObject iaux;
 		paux = (EPackage) loadObjectFromEcore(args[3]);
@@ -279,7 +306,7 @@ public class Echo {
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
 			String theme = (args[1]).replace(".qvtr", ".thm");
 			if (new File(theme).isFile())
-				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
+				viz.loadThemeFile("examples/UML2RDBMS/UML2RDBMS.thm");
 		}
 	}
 	
