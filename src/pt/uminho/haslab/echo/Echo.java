@@ -1,6 +1,8 @@
 package pt.uminho.haslab.echo;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,6 +31,7 @@ import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 
 import com.google.inject.Injector;
+import com.sun.java_cup.internal.runtime.Scanner;
 
 import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.QVT2Alloy;
@@ -66,6 +69,10 @@ public class Echo {
 	private static int delta = 0;
 	// target scopes (only these need be increased)
 	private static List<CommandScope> targetscopes = new ArrayList<CommandScope>();
+	// qvt file path
+	private static String qvtpath;
+	// execution direction
+	private static String target;
 	
 	public static EObject loadModelInstance(String argURI,EPackage p) {
 
@@ -129,8 +136,8 @@ public class Echo {
 	public static void main(String[] args) throws Exception{
 		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
 												"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
-
-		String target = args[2];
+		qvtpath = args[1];
+		target = args[2];
 
 		if (args[0].equals("check")) check = true;
 		else if (args[0].equals("enforce")) check = false;
@@ -209,7 +216,7 @@ public class Echo {
 			System.out.println("");
 		}
 		
-		RelationalTransformation qtrans = getTransformation(args[1]);
+		RelationalTransformation qtrans = getTransformation(qvtpath);
 		if (qtrans == null) throw new Error ("Empty transformation.");
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
@@ -238,21 +245,20 @@ public class Echo {
 
 		Expr commandfact;
 		if (check) commandfact = (modelfact.and(qvtfact));		 
-		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
+//		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
+		else commandfact = (modelfact).and(deltaexpr.equal(ExprConstant.makeNUMBER(1)));		
 		
 		System.out.println("Final command fact: "+(commandfact));
 		System.out.println("Final sigs: "+(allsigs)+"\n");
 
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(false, 0, 5, 1, commandfact);
+		Command cmd = new Command(check, 0, 5, 1, commandfact);
 
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
-		//sol = sol.next().next().next().next().next();
 		
 		if (check) {
 			if (sol.satisfiable()) System.out.println("Instance found. Models consistent.");
-			else System.out.println("No instance found..");
 		} else {
 			while (!sol.satisfiable()) {
 				System.out.println("No instance found for delta "+delta+".");
@@ -264,23 +270,35 @@ public class Echo {
 				// enforce and check mode are run and check commands respectively
 				cmd = new Command(check, 0, intscope, -1, commandfact);
 				cmd = cmd.change(AlloyUtil.incrementScope(targetscopes));
-				System.out.println("Running for delta "+delta+"(int "+intscope+")");
+				System.out.println("Running for delta "+delta+" (int "+intscope+")");
 				
-				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
-				//sol = sol1.next().next().next().next().next();
-				
+				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);				
 			}
 			System.out.println("Instance found for delta "+delta+".");
+			
 		}
+
 		
-		if (sol.satisfiable()) {
+
+		if (sol.satisfiable()) {		
 			sol.writeXML("alloy_output.xml");
 	        // opens the visualizer with the resulting model
-			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
-			String theme = (args[1]).replace(".qvtr", ".thm");
-			if (new File(theme).isFile())
-				viz.loadThemeFile("Examples/UML2RDBMS/UML2RDBMS.thm");
+			VizGUI viz = new VizGUI(true, "", null);
+			String theme = (qvtpath).replace(".qvtr", ".thm");
+		
+			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
+			while (sol.satisfiable()){
+				sol.writeXML("alloy_output.xml");
+				viz.loadXML("alloy_output.xml", false);
+				if (new File(theme).isFile()) viz.loadThemeFile(theme);
+				in.readLine(); 
+				System.out.println("Looking for another instance.");
+				sol = sol.next();
+			}
+			in.close();
 		}
+		System.out.println("No instance found.");
+		
 	}
 	
 }
