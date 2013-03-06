@@ -218,7 +218,7 @@ public class Echo {
 		QVT2Alloy qvtrans = new QVT2Alloy(qtrans.getModelParameter(),allsigs,qtrans);
 		Expr qvtfact = qvtrans.getFact();
 				
-		System.out.println("QVT fact "+qvtfact);
+		System.out.println("QVT final: "+qvtfact);
 		System.out.println("");		
 		
 		// starting Alloy
@@ -245,7 +245,7 @@ public class Echo {
 
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(false, 10, 5, 2, commandfact);
+		Command cmd = new Command(false, 0, 5, 1, commandfact);
 
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		//sol = sol.next().next().next().next().next();
@@ -258,10 +258,12 @@ public class Echo {
 				System.out.println("No instance found for delta "+delta+".");
 
 				commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));
-				//commandfact = ExprConstant.TRUE;
 
+				// calculates integer bitwidth
+				int intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
+				System.out.println("Int scope: "+intscope+" for "+delta);
 				// enforce and check mode are run and check commands respectively
-				cmd = new Command(check, 0, 5, 2, commandfact);
+				cmd = new Command(check, 0, intscope, -1, commandfact);
 				cmd = cmd.change(AlloyUtil.incrementScope(targetscopes));
 
 				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
