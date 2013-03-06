@@ -3,8 +3,8 @@
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:rdbms="RDBMS" 
-  	xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
+    xmlns:rdbms="RDBMS"
+    xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
     name="Company">
   <tables name="Employer">
     <columns
@@ -21,13 +21,7 @@
         name="Age"/>
     <columns
         name="Project"/>
-  </tables>
-  <tables name="New">
     <columns
-        name="Tesste"/>
-  </tables>
-  <tables name="asdasd">
-    <columns
-        name="asdasdsa"/>
+        name="New"/>
   </tables>
 </rdbms:Scheme>

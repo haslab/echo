@@ -23,10 +23,9 @@ transformation uml2rdbms (uml : uml, rdbms : rdbms) {
   }
 
   relation A2C {
-    cn : String; a:UML::Package; g:UML::Class;
-    domain uml c:Class {} { g.attributes->includes(a) and a.name = cn and (c->closure(super)->includes(g) or g = c) };
+    cn : String; a:UML::Attribute; g:UML::Class;
+    domain uml c:Class {} {g.attributes->includes(a) and a.name = cn and (c->closure(super)->includes(g) or g = c) };
     domain rdbms t:Table { columns = cl:Column {name = cn} };
-    where { not (c.name = cn); }
   }
 
 
