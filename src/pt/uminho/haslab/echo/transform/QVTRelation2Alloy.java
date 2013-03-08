@@ -185,10 +185,10 @@ public class QVTRelation2Alloy {
 		alloytargetvars = OCL2Alloy.variableListToExpr(targetvariables,modelsigs);
 		decls.addAll(alloytargetvars);
 		
-		System.out.println(rel.getName()+" Target variables: "+targetvariables);
-		System.out.println(rel.getName()+" Source variables: "+sourcevariables);
-		System.out.println(rel.getName()+" When variables: "+whenvariables);
-		System.out.println(rel.getName()+" Root variables: "+rootvariables);
+		//System.out.println(rel.getName()+" Target variables: "+targetvariables);
+		//System.out.println(rel.getName()+" Source variables: "+sourcevariables);
+		//System.out.println(rel.getName()+" When variables: "+whenvariables);
+		//System.out.println(rel.getName()+" Root variables: "+rootvariables);
 
 		
 	}
