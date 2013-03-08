@@ -99,7 +99,7 @@ public class AlloyUtil {
 		else return e.and(f);
 	}
 	
-	public static List<CommandScope> createScope (List<PrimSig> sigs) throws ErrorAlloy {
+	public static ConstList<CommandScope> createScope (List<PrimSig> sigs) throws ErrorAlloy {
 		Map<String,CommandScope> scopes = new HashMap<String,CommandScope>();
 		
 		for (PrimSig sig : sigs) {
@@ -114,7 +114,7 @@ public class AlloyUtil {
 			scopes.put(type, scope);
 		}
 		
-		return new ArrayList<CommandScope>(scopes.values());
+		return ConstList.make(scopes.values());
 	}
 	public static ConstList<CommandScope> incrementScope (List<CommandScope> scopes) throws ErrorSyntax  {
 		List<CommandScope> list = new ArrayList<CommandScope>();

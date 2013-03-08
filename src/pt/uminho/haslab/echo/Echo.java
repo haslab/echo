@@ -46,6 +46,7 @@ import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
+import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
@@ -75,7 +76,7 @@ public class Echo {
 	// delta
 	private static int delta = 0;
 	// target scopes (only these need be increased)
-	private static List<CommandScope> targetscopes = new ArrayList<CommandScope>();
+	private static ConstList<CommandScope> targetscopes;
 	// qvt file path
 	private static String qvtpath;
 	// execution direction
@@ -247,9 +248,14 @@ public class Echo {
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
 
-		//TypedModel mdl = (TypedModel) qtrans.getModelParameter().get(0);
 		QVT2Alloy qvtrans = new QVT2Alloy(qtrans.getModelParameter(),allsigs,qtrans);
-		Expr qvtfact = qvtrans.getFact();
+		Expr qvtfact = Sig.NONE.no();
+		Map<String,Expr> qvtfacts = qvtrans.getFact();
+		for (String e : qvtfacts.keySet()){
+			qvtfact = AlloyUtil.cleanAnd(qvtfact, qvtfacts.get(e));
+			System.out.println(e +": "+qvtfacts.get(e));
+		}
+		
 				
 		System.out.println("QVT final: "+qvtfact);
 		System.out.println("");		
@@ -272,58 +278,52 @@ public class Echo {
 		Expr commandfact;
 		if (check) commandfact = (modelfact.and(qvtfact));		 
 		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
+		int intscope = 1;
 		
 		System.out.println("Final command fact: "+(commandfact));
 		System.out.println("Final sigs: "+(allsigs)+"\n");
 
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(check, 0, 5, 1, commandfact);
+		Command cmd = new Command(check, 0, 5, intscope, commandfact);
 
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		
 		if (check) {
 			if (sol.satisfiable()) System.out.println("Instance found. Models consistent.");
+			else System.out.println("Instance not found. Models inconsistent.");
 		} else {
 			while (!sol.satisfiable()) {
-				System.out.println("No instance found for delta "+delta+".");
+				System.out.println("No instance found for delta "+delta+" ("+targetscopes+", int "+intscope+").");
 
 				commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));
 
 				// calculates integer bitwidth
-				int intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
+				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 				// enforce and check mode are run and check commands respectively
 				cmd = new Command(check, 0, intscope, -1, commandfact);
-				cmd = cmd.change(AlloyUtil.incrementScope(targetscopes));
-				System.out.println("Running for delta "+delta+" (int "+intscope+")");
+				// increases the target signatures' scopes
+				targetscopes = AlloyUtil.incrementScope(targetscopes);
+				cmd = cmd.change(targetscopes);
 				
 				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);				
 			}
-			System.out.println("Instance found for delta "+delta+".");
-			
-		}
-
-		
-
-		if (sol.satisfiable()) {		
-			sol.writeXML("alloy_output.xml");
-	        // opens the visualizer with the resulting model
+			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			VizGUI viz = new VizGUI(true, "", null);
 			String theme = (qvtpath).replace(".qvtr", ".thm");
 		
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
-			while (sol.satisfiable()){
+			while (sol.satisfiable()) {		
+				System.out.println("Instance found for delta "+delta+".");
 				sol.writeXML("alloy_output.xml");
-				viz.loadXML("alloy_output.xml", false);
+		        // opens the visualizer with the resulting model
+				viz.loadXML("alloy_output.xml", true);
 				if (new File(theme).isFile()) viz.loadThemeFile(theme);
 				in.readLine(); 
-				System.out.println("Looking for another instance.");
 				sol = sol.next();
 			}
 			in.close();
+			System.out.println("No more instances for delta "+delta+".");
 		}
-		System.out.println("No instance found.");
-		
 	}
 	
 }
