@@ -249,8 +249,10 @@ public class ECore2Alloy {
 		sd.add(state.decl);
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		OCLHelper helper = ocl.createOCLHelper(obj);
-		OCL2Alloy converter = new OCL2Alloy(null,sigList,sd,null);
 		ExpressionInOCL invariant;
+		List<Sig> l = new ArrayList<Sig>(sigList);
+		l.add(state);
+		OCL2Alloy converter = new OCL2Alloy(null,l,sd,null);
 		for(EAnnotation ea : lAnn)
 			for(String sExpr: ea.getDetails().values())
 			{
@@ -334,7 +336,7 @@ public class ECore2Alloy {
 		for(EClass e: classList)
 		{
 			processReferences(e.getEAllReferences(),mapClassSig.get(e));
-			processEAnnotations(e.getEAnnotations(),e,mapClassSig.get(e).decl);
+			processEAnnotations(e.getEAnnotations(),e,mapClassSig.get(e).oneOf("self"));
 		}
 		
 		return sigList;
