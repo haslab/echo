@@ -14,13 +14,6 @@
    <type name="1"/>
    <type name="10"/>
    <type name="11"/>
-   <type name="12"/>
-   <type name="13"/>
-   <type name="14"/>
-   <type name="15"/>
-   <type name="16"/>
-   <type name="17"/>
-   <type name="18"/>
    <type name="2"/>
    <type name="3"/>
    <type name="4"/>
@@ -69,7 +62,6 @@
 </edge>
 
 <edge visible="no">
-   <relation name="UML_class"> <type name="UML_Attribute"/> <type name="UML_Class"/> </relation>
    <relation name="UML_classes"> <type name="UML_Package"/> <type name="UML_Class"/> </relation>
    <relation name="UML_sub"> <type name="UML_Class"/> <type name="UML_Class"/> </relation>
 </edge>
@@ -78,6 +70,7 @@
    <relation name="RDBMS_name"> <type name="RDBMS_Column"/> <type name="String"/> </relation>
    <relation name="RDBMS_name"> <type name="RDBMS_Scheme"/> <type name="String"/> </relation>
    <relation name="RDBMS_name"> <type name="RDBMS_Table"/> <type name="String"/> </relation>
+   <relation name="RDBMS_tables"> <type name="RDBMS_Scheme"/> <type name="RDBMS_Table"/> </relation>
    <relation name="UML_name"> <type name="UML_Attribute"/> <type name="String"/> </relation>
    <relation name="UML_name"> <type name="UML_Class"/> <type name="String"/> </relation>
    <relation name="UML_name"> <type name="UML_Package"/> <type name="String"/> </relation>
