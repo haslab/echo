@@ -131,7 +131,7 @@ public class QVTRelation2Alloy {
 					fact = fact.forAll(d);
 			}
 			
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",rel);}
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",sourceexpr);}
 		
 		return fact;
 	}

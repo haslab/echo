@@ -37,14 +37,19 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 public class OCL2Alloy {
 
 	private List<Sig> sigs = new ArrayList<Sig>();
-	private TypedModel target;
+	private TypedModel target = null;
 	private Set<Decl> vardecls;
-	private Transformation qvt;
+	private Transformation qvt = null;
 
-	public OCL2Alloy(TypedModel target, List<? extends Sig> modelsigs, Set<Decl> vardecls, Transformation qvt) {
+	public OCL2Alloy(TypedModel target, List<Sig> modelsigs, Set<Decl> vardecls, Transformation qvt) {
 		this.qvt = qvt;
-		this.sigs = (List<Sig>) modelsigs;
+		this.sigs = modelsigs;
 		this.target = target;
+		this.vardecls = vardecls;
+	}
+	
+	public OCL2Alloy(List<Sig> modelsigs, Set<Decl> vardecls) {
+		this.sigs = modelsigs;
 		this.vardecls = vardecls;
 	}
 	
@@ -123,6 +128,7 @@ public class OCL2Alloy {
 	}
 	
 	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		if (qvt == null || target == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
 		QVTRelation2Alloy trans = new QVTRelation2Alloy (target, expr.getReferredRelation(), sigs, qvt, vardecls);
 		return trans.getFact();
 	}
@@ -156,32 +162,33 @@ public class OCL2Alloy {
 				res = ((d.get().in(src)).implies(bdy));
 				res = res.forAll(d);
 			}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
 		} else if (expr.getReferredIteration().getName().equals("forAll")) {
 			try {
 				res = ((d.get().in(src)).and(bdy));
 				res = res.forSome(d);
 			}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
 		} else if (expr.getReferredIteration().getName().equals("select")) {
 			try {
 				res = ((d.get().in(src)).and(bdy));
 				res = res.comprehensionOver(d);
-			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
+			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
 		} else if (expr.getReferredIteration().getName().equals("reject")) {
 			try {
 				res = ((d.get().in(src)).and(bdy.not()));
 				res = res.comprehensionOver(d);
-			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
+			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
 		} else if (expr.getReferredIteration().getName().equals("closure")) {
 			res = Sig.NONE.no();
 			try {
 				Decl dd = bdy.oneOf("2_");
 				res = res.comprehensionOver(d,dd);
-			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",expr);}
+			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
 			res = src.join(res.closure());	
 		}
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
+		vardecls.remove(d);
 
 		//System.out.println("Iterator: "+d+", "+src+", "+bdy+", "+expr.getReferredIteration().getName()+": "+res);
 		

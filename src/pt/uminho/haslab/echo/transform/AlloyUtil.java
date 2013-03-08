@@ -37,20 +37,20 @@ public class AlloyUtil {
     // if metamodel is target, two instances are created
 	public static List<PrimSig> createStateSig(String sig, boolean target) throws ErrorAlloy {
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
-		
+		PrimSig s = null;
 		try {
 			if (!target) {
-				PrimSig s = new PrimSig(sig,STATE,Attr.ONE);
+				s = new PrimSig(sig,STATE,Attr.ONE);
 				sigs.add(s);
 			} else {
-				PrimSig s = new PrimSig(sig,STATE,Attr.ABSTRACT);
+				s = new PrimSig(sig,STATE,Attr.ABSTRACT);
 				PrimSig s1 = new PrimSig(sig+"1",s,Attr.ONE);
 				PrimSig s2 = new PrimSig(sig+"2",s,Attr.ONE);
 				sigs.add(s);
 				sigs.add(s1);
 				sigs.add(s2);
 			}
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil"); }
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
 		return sigs;
 	}
 	
@@ -60,9 +60,6 @@ public class AlloyUtil {
 	public static Expr localStateAttribute(Property prop, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
 		String mdl = prop.getOwningType().getPackage().getName();
 		Sig statesig = getStateSig(sigs,mdl);
-
-		System.out.println(mdl);
-		System.out.println(sigs);
 		
 		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
 		Expr exp = OCL2Alloy.propertyToField(prop,sigs);
@@ -110,10 +107,10 @@ public class AlloyUtil {
 			CommandScope scope = scopes.get(type);
 			if (scope == null)
 				try { scope = new CommandScope(sig.parent, false, 1);}
-				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil",sig);}
+				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
 			else 
 				try { scope = new CommandScope(sig.parent, false, scope.startingScope+1);}
-				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil",sig);}
+				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
 			scopes.put(type, scope);
 		}
 		

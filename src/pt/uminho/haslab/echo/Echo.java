@@ -208,7 +208,7 @@ public class Echo {
 			for(Sig s:sigList) {
 				System.out.println("Factos de " + s + "  :");
 				for(Expr f : s.getFacts())
-					System.out.println(f); } */
+					System.out.println(f); }*/
 			
 			// only the target needs the delta function and only if enforce mode
 			if (istarget&&!check) { 
