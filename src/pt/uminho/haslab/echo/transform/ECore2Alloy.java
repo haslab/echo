@@ -26,6 +26,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class ECore2Alloy {
@@ -162,8 +163,12 @@ public class ECore2Alloy {
 				if(ec.isAbstract())
 					res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent,Attr.ABSTRACT);
 				else res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent);
-				mapSigState.put(res,res.addField(AlloyUtil.pckPrefix(pack.getName(),ec.getName()).toLowerCase(),state.setOf()));
+				Field statefield = res.addField(AlloyUtil.pckPrefix(pack.getName(),ec.getName()).toLowerCase(),state.setOf());
+				mapSigState.put(res,statefield);
 				mapClassSig.put(ec, res);
+				// all atoms must belong to a state
+				Expr stateatoms = res.equal(statefield.join(state));
+				res.addFact(stateatoms);
 				processAttributes(ec.getEAllAttributes(),res);
 				sigList.add(res);
 			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",ec);}	
