@@ -1,0 +1,1 @@
+java -jar ../../bin/echo.jar enforce UML2RDBMS.qvtr UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi
