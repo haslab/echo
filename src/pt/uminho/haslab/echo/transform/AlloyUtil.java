@@ -61,6 +61,9 @@ public class AlloyUtil {
 		String mdl = prop.getOwningType().getPackage().getName();
 		Sig statesig = getStateSig(sigs,mdl);
 
+		System.out.println(mdl);
+		System.out.println(sigs);
+		
 		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
 		Expr exp = OCL2Alloy.propertyToField(prop,sigs);
 		return exp.join(statesig);

@@ -2,19 +2,27 @@ package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.emf.ecore.EAttribute;
-//import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnumLiteral;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
+import org.eclipse.ocl.examples.pivot.OCL;
+import org.eclipse.ocl.examples.pivot.ParserException;
+import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
+import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
@@ -39,7 +47,7 @@ public class ECore2Alloy {
 	private final PrimSig state;
 	private List<PrimSig> sigList;
 	
-	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform{
+	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err{
 		state = statesig;
 		pack = p;
 		sigList = makeSigList();
@@ -176,12 +184,12 @@ public class ECore2Alloy {
 		return res;
 	}
 	
-	private void processReferences(List<EReference> eAllReferences, PrimSig parent) throws ErrorAlloy, ErrorTransform {
+	private void processReferences(List<EReference> eAllReferences, PrimSig parent) throws ErrorAlloy, ErrorTransform, ParserException, ErrorUnsupported {
 		for(EReference r : eAllReferences)
 			processReference(r,parent);
 	}
 
-	private void processReference(EReference r, PrimSig srcsig) throws ErrorAlloy, ErrorTransform {
+	private void processReference(EReference r, PrimSig srcsig) throws ErrorAlloy, ErrorTransform, ParserException, ErrorUnsupported {
 		EClass type = r.getEReferenceType();
 		PrimSig trgsig = mapClassSig.get(type);
 		Expr field;
@@ -233,10 +241,38 @@ public class ECore2Alloy {
 			Expr sTypeState = mapSigState.get(trgsig);		
 			srcsig.addFact(field.join(s.get()).in(parState.join(s.get()).product(sTypeState.join(s.get()))).forAll(state.decl));
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",r);}
+		
+		
 	}
 
 
-	private List<PrimSig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private void processEAnnotations(List<EAnnotation> lAnn, EObject obj,Decl self) throws ParserException, ErrorTransform, ErrorAlloy, ErrorUnsupported, Err
+	{
+		int i = 0;
+		Set<Decl> sd = new HashSet<Decl>();
+		sd.add(self);
+		sd.add(state.decl);
+		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
+		OCLHelper helper = ocl.createOCLHelper(obj);
+		ExpressionInOCL invariant;
+		List<Sig> l = new ArrayList<Sig>(sigList);
+		l.add(state);
+		OCL2Alloy converter = new OCL2Alloy(null,l,sd,null);
+		for(EAnnotation ea : lAnn)
+			for(String sExpr: ea.getDetails().values())
+			{
+				//System.out.println(sExpr);
+				if(i==0)
+					i++;
+				else
+				{
+					invariant = helper.createInvariant(sExpr);
+					converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self, state.decl);
+				}
+			}
+	}
+	
+	private List<PrimSig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err
 	{
 		List<EClassifier> list = pack.getEClassifiers();
 		List<EClass> classList = new LinkedList<EClass>();
@@ -289,7 +325,7 @@ public class ECore2Alloy {
 		return sigList;
 	}
 	
-	private List<PrimSig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private List<PrimSig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err
 	{
 		LinkedList<EClass> list = new LinkedList<EClass>(classList);
 		EClass ec = list.poll();
@@ -303,7 +339,10 @@ public class ECore2Alloy {
 		}
 		
 		for(EClass e: classList)
+		{
 			processReferences(e.getEAllReferences(),mapClassSig.get(e));
+			processEAnnotations(e.getEAnnotations(),e,mapClassSig.get(e).oneOf("self"));
+		}
 		
 		return sigList;
 	}

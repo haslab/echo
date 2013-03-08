@@ -41,9 +41,9 @@ public class OCL2Alloy {
 	private Set<Decl> vardecls;
 	private Transformation qvt;
 
-	public OCL2Alloy(TypedModel target, List<Sig> modelsigs, Set<Decl> vardecls, Transformation qvt) {
+	public OCL2Alloy(TypedModel target, List<? extends Sig> modelsigs, Set<Decl> vardecls, Transformation qvt) {
 		this.qvt = qvt;
-		this.sigs = modelsigs;
+		this.sigs = (List<Sig>) modelsigs;
 		this.target = target;
 		this.vardecls = vardecls;
 	}
