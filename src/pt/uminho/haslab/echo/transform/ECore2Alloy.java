@@ -250,7 +250,6 @@ public class ECore2Alloy {
 
 	private void processEAnnotations(List<EAnnotation> lAnn, EObject obj,PrimSig sig) throws ParserException, ErrorTransform, ErrorAlloy, ErrorUnsupported, Err
 	{
-		int i = 0;
 		Set<Decl> sd = new HashSet<Decl>();
 		Decl self = sig.oneOf("self");
 		sd.add(self);
@@ -265,17 +264,13 @@ public class ECore2Alloy {
 		m2.put(pack.getName(), Arrays.asList(state));
 		OCL2Alloy converter = new OCL2Alloy(m2,m1,sd);
 		for(EAnnotation ea : lAnn)
-			for(String sExpr: ea.getDetails().values())
-			{
-				if(i==0)
-					i++;
-				else
+			if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
+				for(String sExpr: ea.getDetails().values())
 				{
 					invariant = helper.createInvariant(sExpr);
 					Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self, state.decl);
 					sig.addFact(oclalloy);
 				}
-			}
 	}
 	
 	private List<Sig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err

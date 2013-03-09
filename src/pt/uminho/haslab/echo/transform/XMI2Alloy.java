@@ -29,7 +29,7 @@ public class XMI2Alloy {
 	private static int counter = 0;
 	
 	private final String pre;
-	private final EObject eObj;
+	public final EObject eObj;
 	private final PrimSig state;
 	private final Map<EClassifier,PrimSig> mapClassSig;
 	private final Map<EStructuralFeature,Expr> mapSfField;
@@ -42,6 +42,11 @@ public class XMI2Alloy {
 	private List<PrimSig> sigList = new ArrayList<PrimSig>();
 	private Expr factExpr = null; 
 	
+	
+	public Map<EObject,Sig> getMapObjSig()
+	{
+		return new HashMap<EObject,Sig>(mapObjSig);
+	}
 	
 	public XMI2Alloy(EObject obj,ECore2Alloy t,String prefix, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
