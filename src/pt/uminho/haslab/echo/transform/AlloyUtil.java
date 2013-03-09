@@ -35,19 +35,18 @@ public class AlloyUtil {
 	
     // creates state variables for a particular metamodel, extensions of STATE
     // if metamodel is target, two instances are created
-	public static List<PrimSig> createStateSig(String sig, boolean target) throws ErrorAlloy {
+	public static List<PrimSig> createStateSig(String sig, int n, boolean target) throws ErrorAlloy {
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
 		PrimSig s = null;
 		try {
-			if (!target) {
-				s = new PrimSig(sig,STATE,Attr.ONE);
-				sigs.add(s);
-			} else {
-				s = new PrimSig(sig,STATE,Attr.ABSTRACT);
-				PrimSig s1 = new PrimSig(sig+"1",s,Attr.ONE);
-				PrimSig s2 = new PrimSig(sig+"2",s,Attr.ONE);
-				sigs.add(s);
+			s = new PrimSig(sig,STATE,Attr.ABSTRACT);
+			sigs.add(s);
+			for (int i = 1; i <= n; i++) {
+				PrimSig s1 = new PrimSig(sig+i,s,Attr.ONE);
 				sigs.add(s1);
+			}
+			if (target) {
+				PrimSig s2 = new PrimSig(sig+"\'",s,Attr.ONE);
 				sigs.add(s2);
 			}
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
@@ -57,12 +56,17 @@ public class AlloyUtil {
 	
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, List<Sig> sigs) throws ErrorAlloy, ErrorTransform{
+	public static Expr localStateAttribute(Property prop, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs) throws ErrorAlloy, ErrorTransform{
 		String mdl = prop.getOwningType().getPackage().getName();
-		Sig statesig = getStateSig(sigs,mdl);
+		List<PrimSig> sigs = statesigs.get(mdl);
+		PrimSig statesig = null;
+		//ERROOO!!!
+		for (Sig sig : sigs)
+			if (sig.toString().equals(mdl+"\'") || (sig.toString().equals(mdl) && statesig == null))
+				statesig = (PrimSig) sig;
 		
 		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
-		Expr exp = OCL2Alloy.propertyToField(prop,sigs);
+		Expr exp = OCL2Alloy.propertyToField(prop,modelsigs);
 		return exp.join(statesig);
 	}
 	
@@ -77,14 +81,6 @@ public class AlloyUtil {
 		return exp.join(var);
 	}
 	
-	public static PrimSig getStateSig(List<Sig> sigs, String mdl) {
-		PrimSig statesig = null;
-		for (Sig sig : sigs)
-			if (sig.toString().equals(mdl+"2") || (sig.toString().equals(mdl) && statesig == null))
-				statesig = (PrimSig) sig;
-		return statesig;
-	}
-
 
 	
 	// methods used to append prefixes to expressions

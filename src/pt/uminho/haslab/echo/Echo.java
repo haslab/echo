@@ -62,11 +62,9 @@ import edu.mit.csail.sdg.alloy4viz.VizGUI;
 public class Echo {
 	
 	// metamodels
-	private static Map<String,EPackage> mms = new HashMap<String,EPackage>();
+	private static Map<String,EPackage> metamodels = new HashMap<String,EPackage>();
 	// instances
-	private static Map<String,EObject> insts = new HashMap<String,EObject>();
-	// sigs
-	private static List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
+	private static Map<String,List<EObject>> instances = new HashMap<String,List<EObject>>();
 	// model fact
 	private static Expr modelfact = Sig.NONE.no();
 	// delta fact
@@ -80,7 +78,14 @@ public class Echo {
 	// qvt file path
 	private static String qvtpath;
 	// execution direction
-	private static String target;
+	private static String targetfile;
+	private static String targetmodel;
+	private static EObject targetinstance;
+
+	private static Map<String,List<PrimSig>> statesigs = new HashMap<String,List<PrimSig>>();
+	private static Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
+	private static Map<String,List<PrimSig>> instsigs = new HashMap<String,List<PrimSig>>();
+
 	
 	public static EObject loadModelInstance(String argURI,EPackage p) {
 
@@ -146,7 +151,7 @@ public class Echo {
 		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
 												"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
 		qvtpath = args[1];
-		target = args[2];
+		targetfile = args[2];
 
 		if (args[0].equals("check")) check = true;
 		else if (args[0].equals("enforce")) check = false;
@@ -168,39 +173,44 @@ public class Echo {
 		// install the OCL standard library
 		OCLstdlib.install();
 		
-		
-		
 		// eventually should be an arbitrary number
 		EPackage paux; EObject iaux;
 		paux = (EPackage) loadObjectFromEcore(args[3]);
-		mms.put(paux.getName(),paux);
+		metamodels.put(paux.getName(),paux);
 		iaux = loadModelInstance(args[4],paux);
-		insts.put(paux.getName(),iaux);
+		if(instances.get(paux.getName())!=null) instances.get(paux.getName()).add(iaux);
+		else instances.put(paux.getName(),new ArrayList<EObject>(Arrays.asList(iaux)));
+		if(args[4].equals(targetfile)) {
+			targetinstance = iaux;
+			targetmodel = paux.getName();
+		}
 		
 		paux = (EPackage) loadObjectFromEcore(args[5]);
-		mms.put(paux.getName(),paux);
+		metamodels.put(paux.getName(),paux);
 		iaux = loadModelInstance(args[6],paux);
-		insts.put(paux.getName(),iaux);
+		if(instances.get(paux.getName())!=null) instances.get(paux.getName()).add(iaux);
+		else instances.put(paux.getName(),new ArrayList<EObject>(Arrays.asList(iaux)));
+		if(args[6].equals(targetfile)) {
+			targetinstance = iaux;
+			targetmodel = paux.getName();
+		}
 		
-		for (String name : mms.keySet()) {
+		for (String name : metamodels.keySet()) {
 			
 			System.out.println("** Processing metamodel "+name+".");
-			
-			EPackage pck = mms.get(name);
-			EObject inst = insts.get(name);
-			boolean istarget = pck.getName().equals(target);
-			if (inst == null || pck == null) throw new Error ("Bad file parsing");
+			EPackage pck = metamodels.get(name);
+			List<EObject> instmodel = instances.get(name);
+			boolean istarget = name.equals(targetmodel);
 			
 			// generating state instances
-			List<PrimSig> stateinstances; 
-			// only the target needs an extra state instance, and only if enforce mode
-			stateinstances = AlloyUtil.createStateSig(pck.getName(),istarget&&!check);
+			List<PrimSig> stateinstances = AlloyUtil.createStateSig(pck.getName(),instmodel.size(),istarget&&!check);			
+			statesigs.put(name, stateinstances);
 			
+			// only the target needs an extra state instance, and only if enforce mode
 			System.out.println("State signatures: "+stateinstances);
 				
 			ECore2Alloy mmtrans = new ECore2Alloy(pck,stateinstances.get(0));
-			
-			List<PrimSig> sigList = mmtrans.getSigList();
+			modelsigs.put(name,mmtrans.getSigList());
 			
 			/*System.out.println("Metamodel signatures: "+sigList);
 			for (Sig sig : sigList)
@@ -210,47 +220,50 @@ public class Echo {
 				for(Expr f : s.getFacts())
 					System.out.println(f); }*/
 			
-			// only the target needs the delta function and only if enforce mode
-			if (istarget&&!check) { 
-				deltaexpr = (mmtrans.getDeltaExpr(stateinstances.get(2),stateinstances.get(1)));
-				System.out.println("Delta function: "+deltaexpr);
+			List<PrimSig> modelinstsig = new ArrayList<PrimSig>();
+					
+			int instcounter = 1;
+			for (EObject inst : instmodel) {
+				istarget = inst.equals(targetinstance);
+				PrimSig state = stateinstances.get(instcounter);
+				
+				// only the target needs the delta function and only if enforce mode
+				if (istarget&&!check) { 
+					deltaexpr = (mmtrans.getDeltaExpr(stateinstances.get(stateinstances.size()-1),state));
+					System.out.println("Delta function: "+deltaexpr);
+				}
+				
+				XMI2Alloy insttrans = new XMI2Alloy(inst,mmtrans,"",state);
+				
+				//System.out.println("Singleton sigs (object instances):");
+				//for(Sig s: insttrans.getSigList()) {
+				//	System.out.println(((PrimSig) s).parent.toString()+" : "+s.toString());}
+	
+				modelinstsig.addAll(insttrans.getSigList());
+				System.out.println("Instance signatures: "+insttrans.getSigList());
+				
+				if (istarget&&!check) { 
+					targetscopes = AlloyUtil.createScope(insttrans.getSigList());
+					System.out.println("Scope: "+targetscopes);
+				}
+				
+				modelfact = modelfact.and(insttrans.getFact());
+				System.out.println("Instance facts: "+insttrans.getFact());
+				System.out.println("");
+				
+				instcounter++;
 			}
-			
-			XMI2Alloy insttrans;
-			insttrans = new XMI2Alloy(inst,mmtrans,"",stateinstances.get(istarget&&!check?1:0));
-			
-			//System.out.println("Singleton sigs (object instances):");
-			//for(Sig s: insttrans.getSigList()) {
-			//	System.out.println(((PrimSig) s).parent.toString()+" : "+s.toString());}
-
-			List<PrimSig> instList = insttrans.getSigList();
-			sigList.addAll(instList);
-			
-			System.out.println("Instance signatures: "+sigList);
-			
-			if (istarget&&!check) { 
-				targetscopes = AlloyUtil.createScope(instList);
-				System.out.println("Scope: "+targetscopes);
-			}
-			
-			Expr instFact = insttrans.getFact();
-			
-			modelfact = modelfact.and(instFact);
-			
-			System.out.println("Instance facts: "+instFact);
-			
-			allsigs.addAll(sigList);
-			allsigs.addAll(stateinstances);
-			
-			System.out.println("");
+			instsigs.put(name,modelinstsig);
 		}
 		
 		RelationalTransformation qtrans = getTransformation(qvtpath);
 		if (qtrans == null) throw new Error ("Empty transformation.");
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
+		System.out.println("* "+statesigs);
+		System.out.println("* "+modelsigs);
 
-		QVT2Alloy qvtrans = new QVT2Alloy(qtrans.getModelParameter(),allsigs,qtrans);
+		QVT2Alloy qvtrans = new QVT2Alloy(qtrans.getModelParameter(),statesigs,modelsigs,qtrans);
 		Expr qvtfact = Sig.NONE.no();
 		Map<String,Expr> qvtfacts = qvtrans.getFact();
 		for (String e : qvtfacts.keySet()){
@@ -275,12 +288,20 @@ public class Echo {
 		options.solver = A4Options.SatSolver.SAT4J;
 		options.noOverflow = true;
 		
-		System.out.println("** Processing Alloy command: "+args[0]+" "+qtrans.getName()+" on the direction of "+target+".");
+		System.out.println("** Processing Alloy command: "+args[0]+" "+qtrans.getName()+" on the direction of "+targetfile+".");
 
 		Expr commandfact;
 		if (check) commandfact = (modelfact.and(qvtfact));		 
 		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
 		int intscope = 1;
+		
+		List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
+		for (String x : statesigs.keySet()){
+			allsigs.addAll(statesigs.get(x));
+			allsigs.addAll(modelsigs.get(x));
+			allsigs.addAll(instsigs.get(x));			
+		}
+			
 		
 		System.out.println("Final command fact: "+(commandfact));
 		System.out.println("Final sigs: "+(allsigs)+"\n");

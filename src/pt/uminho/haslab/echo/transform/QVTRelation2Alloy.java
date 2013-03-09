@@ -1,8 +1,10 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
@@ -25,6 +27,7 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class QVTRelation2Alloy {
 
@@ -38,7 +41,8 @@ public class QVTRelation2Alloy {
 	private Set<Decl> decls = new HashSet<Decl>();
 		
 	// the alloy signatures of each metamodel
-	private List<Sig> modelsigs = new ArrayList<Sig>();
+	private Map<String,List<PrimSig>> statesigs = new HashMap<String,List<PrimSig>>();
+	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
 	
 	// separated target and source domains
 	private RelationDomain targetdomain;
@@ -53,8 +57,9 @@ public class QVTRelation2Alloy {
 	// the Alloy expression rising from this relations
 	final Expr fact;
 
-	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTRelation2Alloy (TypedModel target, Relation rel, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
+		this.statesigs = statesigs;
 		this.qvt = qvt;
 		this.rel = rel;
 		this.target = target;
@@ -66,8 +71,9 @@ public class QVTRelation2Alloy {
 	}
 	
 	// this one takes a list of declarations as an extra argument: used with relation calls, since some variables are already quantified
-	public QVTRelation2Alloy (TypedModel target, Relation rel, List<Sig> modelsigs, Transformation qvt, Set<Decl> prevdecls) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTRelation2Alloy (TypedModel target, Relation rel, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Transformation qvt, Set<Decl> prevdecls) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
+		this.statesigs = statesigs;
 		this.qvt = qvt;
 		this.rel = rel;
 		this.target = target;
@@ -98,7 +104,7 @@ public class QVTRelation2Alloy {
 		Expr fact,sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
 
 		// calculates the target expression
-		OCL2Alloy ocltrans = new OCL2Alloy(target,modelsigs,decls,qvt);
+		OCL2Alloy ocltrans = new OCL2Alloy(target,statesigs,modelsigs,decls,qvt);
 		try {
 			if (rel.getWhere() != null)
 				for (Predicate predicate : rel.getWhere().getPredicate()) {
@@ -195,7 +201,7 @@ public class QVTRelation2Alloy {
 
 	// calls OCL2Alloy on the domain pattern
 	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		OCL2Alloy ocltrans = new OCL2Alloy(target,modelsigs,decls,qvt);
+		OCL2Alloy ocltrans = new OCL2Alloy(target,statesigs,modelsigs,decls,qvt);
 
 		DomainPattern pattern = domain.getPattern();
 		ObjectTemplateExp temp = (ObjectTemplateExp) pattern.getTemplateExpression(); 

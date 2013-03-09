@@ -1,8 +1,9 @@
 package pt.uminho.haslab.echo.transform;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
@@ -33,23 +34,27 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class OCL2Alloy {
 
-	private List<Sig> sigs = new ArrayList<Sig>();
+	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
+	private Map<String,List<PrimSig>> statesigs = new HashMap<String,List<PrimSig>>();
 	private TypedModel target = null;
 	private Set<Decl> vardecls;
 	private Transformation qvt = null;
 
-	public OCL2Alloy(TypedModel target, List<Sig> modelsigs, Set<Decl> vardecls, Transformation qvt) {
+	public OCL2Alloy(TypedModel target, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls, Transformation qvt) {
 		this.qvt = qvt;
-		this.sigs = modelsigs;
+		this.modelsigs = modelsigs;
+		this.statesigs = statesigs;
 		this.target = target;
 		this.vardecls = vardecls;
 	}
 	
-	public OCL2Alloy(List<Sig> modelsigs, Set<Decl> vardecls) {
-		this.sigs = modelsigs;
+	public OCL2Alloy(Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
+		this.modelsigs = modelsigs;
+		this.statesigs = statesigs;
 		this.vardecls = vardecls;
 	}
 	
@@ -87,7 +92,7 @@ public class OCL2Alloy {
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 			Expr localfield = null;
-			localfield = AlloyUtil.localStateAttribute(prop, sigs);
+			localfield = AlloyUtil.localStateAttribute(prop, statesigs, modelsigs);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
@@ -129,7 +134,7 @@ public class OCL2Alloy {
 	
 	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		if (qvt == null || target == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
-		QVTRelation2Alloy trans = new QVTRelation2Alloy (target, expr.getReferredRelation(), sigs, qvt, vardecls);
+		QVTRelation2Alloy trans = new QVTRelation2Alloy (target, expr.getReferredRelation(), statesigs, modelsigs, qvt, vardecls);
 		return trans.getFact();
 	}
 
@@ -150,7 +155,7 @@ public class OCL2Alloy {
 		List<Variable> variterator = expr.getIterator();
 		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure.","OCL2Alloy",variterator);
 
-		Decl d = variableListToExpr(new HashSet<Variable>(variterator),sigs).iterator().next();
+		Decl d = variableListToExpr(new HashSet<Variable>(variterator),modelsigs).iterator().next();
 
 		vardecls.add(d);
 		Expr src = oclExprToAlloy(expr.getSource());
@@ -198,7 +203,7 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
 
-		res = oclExprToAlloy(expr.getSource()).join(AlloyUtil.localStateAttribute(expr.getReferredProperty(), sigs));
+		res = oclExprToAlloy(expr.getSource()).join(AlloyUtil.localStateAttribute(expr.getReferredProperty(), statesigs, modelsigs));
 		
 		return res;
 	}
@@ -265,9 +270,9 @@ public class OCL2Alloy {
 
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	public static Sig.Field propertyToField (Property prop, List<Sig> sigs) {
+	public static Sig.Field propertyToField (Property prop, Map<String,List<Sig>> modelsigs) {
 		String mdl = prop.getOwningType().getPackage().getName();
-		
+		List<Sig> sigs = modelsigs.get(mdl);
 		Sig sig = null;
 		for (Sig s : sigs)
 			if (s.toString().equals(AlloyUtil.pckPrefix(mdl,prop.getOwningType().getName()))) sig = s;
@@ -282,10 +287,12 @@ public class OCL2Alloy {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-		public static Set<Decl> variableListToExpr (Set<? extends VariableDeclaration> ovars, List<Sig> sigs) throws ErrorTransform, ErrorAlloy {
+		public static Set<Decl> variableListToExpr (Set<? extends VariableDeclaration> ovars, Map<String,List<Sig>> modelsigs) throws ErrorTransform, ErrorAlloy {
 			Set<Decl> avars = new HashSet<Decl>();
 			for (VariableDeclaration ovar : ovars) {
 				Expr range = Sig.NONE;
+				String mdl = ovar.getType().getPackage().getName();
+				List<Sig> sigs = modelsigs.get(mdl);
 				String type = ovar.getType().getName();
 				if (type.equals("String")) range = Sig.STRING;
 				else 
