@@ -324,7 +324,7 @@ public class Echo {
 				// enforce and check mode are run and check commands respectively
 				cmd = new Command(check, 5, intscope, -1, commandfact);
 				// increases the target signatures' scopes
-				targetscopes = AlloyUtil.incrementScope(targetscopes);
+				targetscopes = AlloyUtil.incrementScopes(targetscopes);
 				cmd = cmd.change(targetscopes);
 				
 				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);				

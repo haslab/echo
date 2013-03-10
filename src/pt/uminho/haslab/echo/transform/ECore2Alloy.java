@@ -177,7 +177,7 @@ public class ECore2Alloy {
 				mapSigState.put(res,statefield);
 				mapClassSig.put(ec, res);
 				// all atoms must belong to a state
-				Expr stateatoms = AlloyUtil.sigRest(res).equal(statefield.join(state));
+				Expr stateatoms = res.equal(statefield.join(state));
 				res.addFact(stateatoms);
 				processAttributes(ec.getEAttributes(),res);
 				sigList.add(res);

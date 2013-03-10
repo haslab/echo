@@ -99,20 +99,31 @@ public class AlloyUtil {
 		Map<String,CommandScope> scopes = new HashMap<String,CommandScope>();
 		
 		for (PrimSig sig : sigs) {
-			String type = sig.parent.toString();
-			CommandScope scope = scopes.get(type);
-			if (scope == null)
-				try { scope = new CommandScope(sig.parent, false, 1);}
-				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-			else 
-				try { scope = new CommandScope(sig.parent, false, scope.startingScope+1);}
-				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-			scopes.put(type, scope);
-		}
-		
+			incrementScope(scopes,sig.parent);
+			Sig up = sig.parent.parent;
+			while (up != Sig.UNIV && up != null){
+				incrementScope(scopes,up);
+				up = (up instanceof PrimSig)?((PrimSig)up).parent:null;
+			}
+		}		
+		System.out.println(scopes.values());
 		return ConstList.make(scopes.values());
 	}
-	public static ConstList<CommandScope> incrementScope (List<CommandScope> scopes) throws ErrorSyntax  {
+	
+	private static void incrementScope (Map<String,CommandScope> scopes, Sig sig) throws ErrorAlloy  {
+		String type = sig.toString();
+		CommandScope scope = scopes.get(type);
+		if (scope == null)
+			try { scope = new CommandScope(sig, false, 1);}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
+		else 
+			try { scope = new CommandScope(sig, false, scope.startingScope+1);}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
+		scopes.put(type, scope);
+	
+	}
+	
+	public static ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
 		List<CommandScope> list = new ArrayList<CommandScope>();
 		
 		for (CommandScope scope : scopes)
@@ -121,18 +132,4 @@ public class AlloyUtil {
 		return ConstList.make(list);
 	}
 	
-	public static Expr sigRest (PrimSig sig) throws ErrorAlloy {
-		try {
-			System.out.println("REST: "+sig.label+" parent "+sig.parent+" descendent "+sig.children());
-		} catch (Err e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		Expr res = sig;
-		try{
-		for (Sig x : sig.descendents())
-			res = res.minus(x);
-		}catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-		return res;
-	}
 }
