@@ -121,5 +121,18 @@ public class AlloyUtil {
 		return ConstList.make(list);
 	}
 	
-	
+	public static Expr sigRest (PrimSig sig) throws ErrorAlloy {
+		try {
+			System.out.println("REST: "+sig.label+" parent "+sig.parent+" descendent "+sig.children());
+		} catch (Err e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		Expr res = sig;
+		try{
+		for (Sig x : sig.descendents())
+			res = res.minus(x);
+		}catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
+		return res;
+	}
 }

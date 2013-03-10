@@ -177,9 +177,9 @@ public class ECore2Alloy {
 				mapSigState.put(res,statefield);
 				mapClassSig.put(ec, res);
 				// all atoms must belong to a state
-				Expr stateatoms = res.equal(statefield.join(state));
+				Expr stateatoms = AlloyUtil.sigRest(res).equal(statefield.join(state));
 				res.addFact(stateatoms);
-				processAttributes(ec.getEAllAttributes(),res);
+				processAttributes(ec.getEAttributes(),res);
 				sigList.add(res);
 			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",res);}	
 		}
@@ -240,7 +240,8 @@ public class ECore2Alloy {
 				trgsig.addFact(fact);
 			}
 			Expr parState = mapSigState.get(srcsig);
-			Expr sTypeState = mapSigState.get(trgsig);		
+			Expr sTypeState = mapSigState.get(trgsig);
+			// BUG IS HERE
 			srcsig.addFact(field.join(s.get()).in(parState.join(s.get()).product(sTypeState.join(s.get()))).forAll(state.decl));
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",srcsig);}
 		
@@ -340,7 +341,7 @@ public class ECore2Alloy {
 		
 		for(EClass e: classList)
 		{
-			processReferences(e.getEAllReferences(),mapClassSig.get(e));
+			processReferences(e.getEReferences(),mapClassSig.get(e));
 			processEAnnotations(e.getEAnnotations(),e,mapClassSig.get(e));
 		}
 		return sigList;

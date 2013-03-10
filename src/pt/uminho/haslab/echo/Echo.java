@@ -212,13 +212,13 @@ public class Echo {
 			ECore2Alloy mmtrans = new ECore2Alloy(pck,stateinstances.get(0));
 			modelsigs.put(name,mmtrans.getSigList());
 			
-			/*System.out.println("Metamodel signatures: "+sigList);
-			for (Sig sig : sigList)
-					System.out.println(sig.attributes);
-			for(Sig s:sigList) {
+
+			for(Sig s:mmtrans.getSigList()) {
 				System.out.println("Factos de " + s + "  :");
-				for(Expr f : s.getFacts())
-					System.out.println(f); }*/
+				for(Expr f : s.getFields()) System.out.println(f); 
+				for(Expr f : s.getFacts()) System.out.println(f); 
+				System.out.println(((PrimSig)s).parent);
+			}
 			
 			List<PrimSig> modelinstsig = new ArrayList<PrimSig>();
 					
@@ -260,8 +260,8 @@ public class Echo {
 		if (qtrans == null) throw new Error ("Empty transformation.");
 
 		System.out.println("** Processing QVT transformation "+qtrans.getName()+".");
-		System.out.println("* "+statesigs);
-		System.out.println("* "+modelsigs);
+		//System.out.println("* "+statesigs);
+		//System.out.println("* "+modelsigs);
 
 		QVT2Alloy qvtrans = new QVT2Alloy(qtrans.getModelParameter(),statesigs,modelsigs,qtrans);
 		Expr qvtfact = Sig.NONE.no();
@@ -270,7 +270,6 @@ public class Echo {
 			qvtfact = AlloyUtil.cleanAnd(qvtfact, qvtfacts.get(e));
 			System.out.println(e +": "+qvtfacts.get(e));
 		}
-		
 				
 		System.out.println("QVT final: "+qvtfact);
 		System.out.println("");		
@@ -290,9 +289,9 @@ public class Echo {
 		
 		System.out.println("** Processing Alloy command: "+args[0]+" "+qtrans.getName()+" on the direction of "+targetfile+".");
 
-		Expr commandfact;
-		if (check) commandfact = (modelfact.and(qvtfact));		 
-		else commandfact = (modelfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
+		Expr commandfact = modelfact;
+		//if (check) commandfact = (commandfact.and(qvtfact));		 
+		//else commandfact = (commandfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
 		int intscope = 1;
 		
 		List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
@@ -301,14 +300,13 @@ public class Echo {
 			allsigs.addAll(modelsigs.get(x));
 			allsigs.addAll(instsigs.get(x));			
 		}
-			
 		
 		System.out.println("Final command fact: "+(commandfact));
 		System.out.println("Final sigs: "+(allsigs)+"\n");
 
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(check, 0, 5, intscope, commandfact);
+		Command cmd = new Command(check, 5, 5, intscope, commandfact);
 
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		
@@ -324,7 +322,7 @@ public class Echo {
 				// calculates integer bitwidth
 				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 				// enforce and check mode are run and check commands respectively
-				cmd = new Command(check, 0, intscope, -1, commandfact);
+				cmd = new Command(check, 5, intscope, -1, commandfact);
 				// increases the target signatures' scopes
 				targetscopes = AlloyUtil.incrementScope(targetscopes);
 				cmd = cmd.change(targetscopes);

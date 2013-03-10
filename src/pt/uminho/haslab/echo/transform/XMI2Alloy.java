@@ -145,7 +145,14 @@ public class XMI2Alloy {
 		
 		siblings = siblings.plus(res);
 		mapContent.put(fieldState,siblings);
-		
+		PrimSig up = parent.parent;
+		while (up != Sig.UNIV && up != null){
+			Expr fieldStateup = mapSigState.get(up);
+			Expr siblingsup = mapContent.get(fieldStateup);			
+			siblingsup = siblingsup.plus(res);
+			mapContent.put(fieldStateup,siblingsup);
+			up = up.parent;
+		}
 		mapObjSig.put(it, res);
 		sigList.add(res);
 		Expr mappedExpr;
