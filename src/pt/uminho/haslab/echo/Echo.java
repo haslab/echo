@@ -290,8 +290,8 @@ public class Echo {
 		System.out.println("** Processing Alloy command: "+args[0]+" "+qtrans.getName()+" on the direction of "+targetfile+".");
 
 		Expr commandfact = modelfact;
-		//if (check) commandfact = (commandfact.and(qvtfact));		 
-		//else commandfact = (commandfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
+		if (check) commandfact = (commandfact.and(qvtfact));		 
+		else commandfact = (commandfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
 		int intscope = 1;
 		
 		List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
