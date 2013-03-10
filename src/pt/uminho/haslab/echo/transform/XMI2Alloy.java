@@ -104,19 +104,25 @@ public class XMI2Alloy {
 		}
 	}
 	
+	private PrimSig handleRef(EObject obj) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	{
+		PrimSig ref;
+		
+		ref = mapObjSig.get(obj);
+		
+		if(ref == null) ref=makeSigList(obj);
+
+		return ref;
+	}
+	
 	private Expr handleRef(EList<?> eG) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		Expr res=null;
 		PrimSig ref;
 		
 		for(Object o: eG)
-			if(o instanceof EObject)
-			{
-				EObject obj = (EObject) o;
-				ref = mapObjSig.get(obj);
-				
-				if(ref == null) ref=makeSigList(obj);
-				
+			if(o instanceof EObject){
+				ref = handleRef((EObject) o);
 				if(res==null) res = ref;
 				else res = res.plus(ref);
 			}else throw new ErrorTransform("Invalid reference.","XMI2Alloy",o);
@@ -161,12 +167,10 @@ public class XMI2Alloy {
 		{
 			field = mapSfField.get(sf);
 			eG = it.eGet(sf);
-			if(eG instanceof EList<?>)
-			{
-				//System.out.println("Handling reference " + sf.getName());
-				if(!((EList<?>) eG).isEmpty())
-				{
-					if (sf instanceof EReference) {
+			if (sf instanceof EReference) {
+				if(eG instanceof EList<?>) {
+					//System.out.println("Handling reference " + sf.getName());
+					if(!((EList<?>) eG).isEmpty()) {
 						EReference op = ((EReference) sf).getEOpposite();
 						if (op == null || (op != null && !op.isContainment())){				
 							aux = handleRef((EList<?>) eG);
@@ -174,10 +178,18 @@ public class XMI2Alloy {
 							mappedExpr = mappedExpr.plus(res.product(aux));
 							mapContent.put(field, mappedExpr);	}	
 					}
-				}
-			}
-			else if(sf instanceof EAttribute && eG != null)
+				} else if(eG instanceof EObject) {
+					EReference op = ((EReference) sf).getEOpposite();
+					if (op == null || (op != null && !op.isContainment())){				
+						aux = handleRef((EObject) eG);
+						mappedExpr = mapContent.get(field);
+						mappedExpr = mappedExpr.plus(res.product(aux));
+						mapContent.put(field, mappedExpr);	}	
+				} else if (eG == null) {} 
+				else throw new ErrorUnsupported("EReference type not supported: "+eG, "XMI2Alloy");
+			} else if(sf instanceof EAttribute && eG != null)
 				handleAttr(eG,res,field);
+			else throw new ErrorUnsupported("Structural feature not supported: "+sf, "XMI2Alloy");
 		}
 		return res;
 	}
