@@ -1,0 +1,26 @@
+import hsm : 'HSM.ecore'::HSM;
+import nhsm : 'NHSM.ecore'::NHSM;
+
+transformation uml2rdbms (hm : hsm, nm : nhsm) {
+
+  top relation S2S { 
+    n: String; 
+    domain hm s1:State { 
+      name=n} {s1.owner->isEmpty() };
+    domain nm s2:State { 
+      name=n };
+  }
+
+  top relation T2T { 
+    n: String; s,t, trg1, src1 : HSM::State; trg2, src2 : NHSM::State;
+    domain hm t1:Transition { 
+      target = trg1, source = src1};
+    domain nm t2:Transition { 
+      target = trg2, source = src2};
+ 	where { s.owner->isEmpty() and (s = src1 or src1->closure(owner)->includes(s)) and S2S(s,src2) and
+    	t.owner->isEmpty() and (t = trg1 or trg1->closure(owner)->includes(t)) and S2S(t,trg2); }
+    
+  }
+
+
+}

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="NHSM" nsURI="http://fatbit.uminho.pt/echo/examples/hsm2nhsm/"
-    nsPrefix="echo.examples.hsm2nhsm.NHSM">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmi:id="NHSM" name="NHSM" nsURI="NHSM" nsPrefix="nhsm">
   <eClassifiers xsi:type="ecore:EClass" name="StateMachine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="states" upperBound="-1"
         eType="#//State" containment="true"/>
@@ -16,6 +15,5 @@
         eType="#//State"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
         eType="#//State"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="annotation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
 </ecore:EPackage>
