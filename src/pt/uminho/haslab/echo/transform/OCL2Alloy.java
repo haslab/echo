@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.transform;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +32,7 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
@@ -135,7 +138,23 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		if (qvt == null || target == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
 		QVTRelation2Alloy trans = new QVTRelation2Alloy (target, expr.getReferredRelation(), statesigs, modelsigs, qvt, vardecls);
-		return trans.getFact();
+		List<OCLExpression> vars = expr.getArgument();
+		List<Expr> avars = new ArrayList<Expr>();
+		
+		
+		// To fix: at the moment, the order of the arguments is random
+		for (OCLExpression var : vars){
+			Expr avar = oclExprToAlloy(var);
+			avars.add(avar);
+			System.out.println(avar.type());
+		}
+		for (Decl var : trans.getFunc().decls){
+			System.out.println(var.expr);
+		}
+		
+		Expr res = ExprCall.make(null, null, trans.getFunc(), avars, (long) .1);
+		//Expr res = trans.getFact();
+		return res;
 	}
 
 	public Expr oclExprToAlloy (IfExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
@@ -155,7 +174,7 @@ public class OCL2Alloy {
 		List<Variable> variterator = expr.getIterator();
 		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure.","OCL2Alloy",variterator);
 
-		Decl d = variableListToExpr(new HashSet<Variable>(variterator),modelsigs).iterator().next();
+		Decl d = variableListToExpr(new HashSet<Variable>(variterator),modelsigs,true).iterator().next();
 
 		vardecls.add(d);
 		Expr src = oclExprToAlloy(expr.getSource());
@@ -287,8 +306,9 @@ public class OCL2Alloy {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-		public static Set<Decl> variableListToExpr (Set<? extends VariableDeclaration> ovars, Map<String,List<Sig>> modelsigs) throws ErrorTransform, ErrorAlloy {
-			Set<Decl> avars = new HashSet<Decl>();
+		public static Collection<Decl> variableListToExpr (Collection<? extends VariableDeclaration> ovars, Map<String,List<Sig>> modelsigs, boolean set) throws ErrorTransform, ErrorAlloy {
+			Collection<Decl> avars = set?(new HashSet<Decl>()):(new ArrayList<Decl>());
+			
 			for (VariableDeclaration ovar : ovars) {
 				Expr range = Sig.NONE;
 				String mdl = ovar.getType().getPackage().getName();

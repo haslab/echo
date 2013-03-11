@@ -306,7 +306,7 @@ public class Echo {
 
 		System.out.println("** Running Alloy.");
 		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(check, 5, 5, intscope, commandfact);
+		Command cmd = new Command(check, 0, intscope, -1, commandfact);
 
 		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
 		
@@ -322,7 +322,7 @@ public class Echo {
 				// calculates integer bitwidth
 				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 				// enforce and check mode are run and check commands respectively
-				cmd = new Command(check, 5, intscope, -1, commandfact);
+				cmd = new Command(check, 0, intscope, -1, commandfact);
 				// increases the target signatures' scopes
 				targetscopes = AlloyUtil.incrementScopes(targetscopes);
 				cmd = cmd.change(targetscopes);

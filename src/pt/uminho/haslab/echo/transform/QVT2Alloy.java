@@ -27,10 +27,11 @@ public class QVT2Alloy {
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else {
 				if (((Relation) rel).isIsTopLevel()) {
-					for (TypedModel mdl : mdls) {
+					//for (TypedModel mdl : mdls) {
+						TypedModel mdl = mdls.get(0);
 						QVTRelation2Alloy trans = new QVTRelation2Alloy(mdl,(Relation) rel,statesigs,modelsigs,qvt);
 						fact.put(rel.getName()+"_"+mdl.getName(),trans.getFact());
-					}
+					//}
 				}
 			}
 		}

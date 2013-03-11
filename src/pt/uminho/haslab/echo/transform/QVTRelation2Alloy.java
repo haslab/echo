@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
@@ -38,8 +40,13 @@ public class QVTRelation2Alloy {
 	// variables occuring in target domain and where constraint, but not in the when constraint or source domains
 	private Set<Decl> alloytargetvars = new HashSet<Decl>();
 	// Declarations of quantified variables; needed for respective variable occurrences (union of the above)
+	private List<Decl> alloyrootvars = new ArrayList<Decl>();
+	// Declarations of quantified variables; needed for respective variable occurrences (union of the above)
 	private Set<Decl> decls = new HashSet<Decl>();
-		
+	
+	private List<VariableDeclaration> rootvariables = new ArrayList<VariableDeclaration>();
+
+	
 	// the alloy signatures of each metamodel
 	private Map<String,List<PrimSig>> statesigs = new HashMap<String,List<PrimSig>>();
 	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
@@ -56,6 +63,7 @@ public class QVTRelation2Alloy {
 
 	// the Alloy expression rising from this relations
 	final Expr fact;
+	final Func func;
 
 	public QVTRelation2Alloy (TypedModel target, Relation rel, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
@@ -66,8 +74,13 @@ public class QVTRelation2Alloy {
 		
 		initDomains ();
 		initVariableDeclarationLists(true);
-		
+
+		func = null;
+
 		fact = calculateFact();
+		//try {func = new Func(null,"aa",alloyrootvars,null,fact); }
+		//catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
+
 	}
 	
 	// this one takes a list of declarations as an extra argument: used with relation calls, since some variables are already quantified
@@ -80,12 +93,13 @@ public class QVTRelation2Alloy {
 		
 		initDomains ();
 		
-		decls.addAll(prevdecls);
+		//decls.addAll(prevdecls);
 		
 		initVariableDeclarationLists(false);
 		
 		fact = calculateFact();
-		
+		try {func = new Func(null,"aa",alloyrootvars,null,fact); }
+		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
 	}
 	
 	// separating target domain from the rest
@@ -94,8 +108,11 @@ public class QVTRelation2Alloy {
 			// "Domains" of QVT Relations must be "RelationDomains"
 			if (!(dom instanceof RelationDomain)) 
 				throw new ErrorTransform("Not a domain relation.","QVTRelation2Alloy",dom);
-			else if (dom.getTypedModel().equals(target)) targetdomain = (RelationDomain) dom;
-			else sourcedomains.add((RelationDomain) dom);
+			else {
+				rootvariables.add(((RelationDomain) dom).getRootVariable());
+				if (dom.getTypedModel().equals(target)) targetdomain = (RelationDomain) dom;
+				else sourcedomains.add((RelationDomain) dom);
+			}
 		}
 	}
 	// calculates the final fact
@@ -148,7 +165,6 @@ public class QVTRelation2Alloy {
 		Set<VariableDeclaration> whenvariables = new HashSet<VariableDeclaration>();
 		Set<VariableDeclaration> sourcevariables = new HashSet<VariableDeclaration>();
 		Set<VariableDeclaration> targetvariables = new HashSet<VariableDeclaration>();
-		Set<VariableDeclaration> rootvariables = new HashSet<VariableDeclaration>();
 		
 		if (rel.getWhen() != null)
 			for (Predicate predicate : rel.getWhen().getPredicate()) {
@@ -159,14 +175,12 @@ public class QVTRelation2Alloy {
 		for (RelationDomain dom : sourcedomains) {
 			temp = dom.getPattern().getTemplateExpression();
 			sourcevariables.addAll(OCLUtil.variablesOCLExpression(temp));
-			rootvariables.add(dom.getRootVariable());
 		}
 		sourcevariables.removeAll(whenvariables);
 		
 		temp = targetdomain.getPattern().getTemplateExpression();
 		// No support for CollectionTemplateExp
 		targetvariables.addAll(OCLUtil.variablesOCLExpression(temp));
-		rootvariables.add(targetdomain.getRootVariable());
 		if (rel.getWhere() != null)
 			for (Predicate predicate : rel.getWhere().getPredicate()) {
 				OCLExpression oclwhere = predicate.getConditionExpression();
@@ -182,19 +196,22 @@ public class QVTRelation2Alloy {
 		}
 		
 		// calculates the source variables declarations (quantifications)
-		alloysourcevars = OCL2Alloy.variableListToExpr(sourcevariables,modelsigs);
+		alloysourcevars = (Set<Decl>) OCL2Alloy.variableListToExpr(sourcevariables,modelsigs,true);
 		decls.addAll(alloysourcevars);
 		// calculates the when variables declarations (quantifications)
-		alloywhenvars = OCL2Alloy.variableListToExpr(whenvariables,modelsigs);
+		alloywhenvars =  (Set<Decl>) OCL2Alloy.variableListToExpr(whenvariables,modelsigs,true);
 		decls.addAll(alloywhenvars);
 		// calculates the target variables declarations (quantifications)
-		alloytargetvars = OCL2Alloy.variableListToExpr(targetvariables,modelsigs);
+		alloytargetvars = (Set<Decl>) OCL2Alloy.variableListToExpr(targetvariables,modelsigs,true);
 		decls.addAll(alloytargetvars);
-		
-		//System.out.println(rel.getName()+" Target variables: "+targetvariables);
-		//System.out.println(rel.getName()+" Source variables: "+sourcevariables);
-		//System.out.println(rel.getName()+" When variables: "+whenvariables);
-		//System.out.println(rel.getName()+" Root variables: "+rootvariables);
+		// calculates the target variables declarations (quantifications)
+		alloyrootvars = (List<Decl>) OCL2Alloy.variableListToExpr(rootvariables,modelsigs,false);
+	    if (!top) decls.addAll(alloyrootvars);
+
+		System.out.println(rel.getName()+" Target variables: "+targetvariables);
+		System.out.println(rel.getName()+" Source variables: "+sourcevariables);
+		System.out.println(rel.getName()+" When variables: "+whenvariables);
+		System.out.println(rel.getName()+" Root variables: "+rootvariables);
 
 		
 	}
@@ -211,5 +228,8 @@ public class QVTRelation2Alloy {
 	
 	public Expr getFact() {
 		return fact;
+	}
+	public Func getFunc() {
+		return func;
 	}
 }
