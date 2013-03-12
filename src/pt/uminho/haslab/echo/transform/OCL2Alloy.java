@@ -19,7 +19,6 @@ import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 import org.eclipse.ocl.examples.pivot.VariableExp;
 import org.eclipse.ocl.examples.pivot.IfExp;
 import org.eclipse.ocl.examples.pivot.PropertyCallExp;
-import org.eclipse.qvtd.pivot.qvtbase.Transformation;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
@@ -42,22 +41,20 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 public class OCL2Alloy {
 
 	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
-	private Map<String,List<PrimSig>> statesigs = new HashMap<String,List<PrimSig>>();
-	private TypedModel target = null;
+	private Map<String,PrimSig> stateinstancesigs = new HashMap<String,PrimSig>();
+	private TypedModel modelvar = null;
 	private Set<Decl> vardecls;
-	private Transformation qvt = null;
 
-	public OCL2Alloy(TypedModel target, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls, Transformation qvt) {
-		this.qvt = qvt;
+	public OCL2Alloy(TypedModel modelvar, Map<String,PrimSig> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
 		this.modelsigs = modelsigs;
-		this.statesigs = statesigs;
-		this.target = target;
+		this.stateinstancesigs = stateinstancesigs;
+		this.modelvar = modelvar;
 		this.vardecls = vardecls;
 	}
 	
-	public OCL2Alloy(Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
+	public OCL2Alloy(Map<String,PrimSig> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
 		this.modelsigs = modelsigs;
-		this.statesigs = statesigs;
+		this.stateinstancesigs = stateinstancesigs;
 		this.vardecls = vardecls;
 	}
 	
@@ -88,6 +85,7 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr result = Sig.NONE.no();
 		
+		
 		for (PropertyTemplateItem part: temp.getPart()) {
 			// calculates OCL expression
 			OCLExpression value = part.getValue();
@@ -95,7 +93,7 @@ public class OCL2Alloy {
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 			Expr localfield = null;
-			localfield = AlloyUtil.localStateAttribute(prop, statesigs, modelsigs);
+			localfield = AlloyUtil.localStateAttribute(prop, stateinstancesigs.get(modelvar.getName()), modelsigs);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
@@ -136,24 +134,17 @@ public class OCL2Alloy {
 	}
 	
 	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		if (qvt == null || target == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
-		QVTRelation2Alloy trans = new QVTRelation2Alloy (target, expr.getReferredRelation(), statesigs, modelsigs, qvt, vardecls);
+		if (modelvar == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
+		QVTRelation2Alloy trans = new QVTRelation2Alloy (modelvar, expr.getReferredRelation(), stateinstancesigs, modelsigs, vardecls);
 		List<OCLExpression> vars = expr.getArgument();
 		List<Expr> avars = new ArrayList<Expr>();
 		
-		
-		// To fix: at the moment, the order of the arguments is random
 		for (OCLExpression var : vars){
 			Expr avar = oclExprToAlloy(var);
 			avars.add(avar);
-			System.out.println(avar.type());
-		}
-		for (Decl var : trans.getFunc().decls){
-			System.out.println(var.expr);
 		}
 		
 		Expr res = ExprCall.make(null, null, trans.getFunc(), avars, (long) .1);
-		//Expr res = trans.getFact();
 		return res;
 	}
 
@@ -221,8 +212,11 @@ public class OCL2Alloy {
 	
 	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
-
-		res = oclExprToAlloy(expr.getSource()).join(AlloyUtil.localStateAttribute(expr.getReferredProperty(), statesigs, modelsigs));
+		String mdl = expr.getReferredProperty().getOwningType().getPackage().getName();
+		PrimSig sig = stateinstancesigs.get(mdl);
+		if (sig == null) throw new ErrorTransform("State sig "+mdl+" not found.","OCL2Alloy");
+		Expr aux = AlloyUtil.localStateAttribute(expr.getReferredProperty(), sig, modelsigs);
+		res = oclExprToAlloy(expr.getSource()).join(aux);
 		
 		return res;
 	}

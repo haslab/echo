@@ -1,7 +1,6 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +11,6 @@ import org.eclipse.ocl.examples.pivot.OCLExpression;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 import org.eclipse.qvtd.pivot.qvtbase.Domain;
 import org.eclipse.qvtd.pivot.qvtbase.Predicate;
-import org.eclipse.qvtd.pivot.qvtbase.Transformation;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.DomainPattern;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
@@ -48,7 +46,7 @@ public class QVTRelation2Alloy {
 
 	
 	// the alloy signatures of each metamodel
-	private Map<String,List<PrimSig>> statesigs = new HashMap<String,List<PrimSig>>();
+	private Map<String,PrimSig> statesigs = new HashMap<String,PrimSig>();
 	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
 	
 	// separated target and source domains
@@ -56,49 +54,41 @@ public class QVTRelation2Alloy {
 	private List<RelationDomain> sourcedomains = new ArrayList<RelationDomain>();
 	// the QVT relation being transformed
 	private Relation rel;
-	// the QVT transformation being applied
-	private Transformation qvt;
 	// tue target metamodel
-	private TypedModel target;
+	private TypedModel direction;
 
 	// the Alloy expression rising from this relations
 	final Expr fact;
 	final Func func;
 
-	public QVTRelation2Alloy (TypedModel target, Relation rel, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTRelation2Alloy (TypedModel direction, Relation rel, Map<String,PrimSig> statesigs, Map<String,List<Sig>> modelsigs) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
 		this.statesigs = statesigs;
-		this.qvt = qvt;
 		this.rel = rel;
-		this.target = target;
+		this.direction = direction;
 		
 		initDomains ();
 		initVariableDeclarationLists(true);
 
 		func = null;
-
 		fact = calculateFact();
 		//try {func = new Func(null,"aa",alloyrootvars,null,fact); }
 		//catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
-
 	}
 	
 	// this one takes a list of declarations as an extra argument: used with relation calls, since some variables are already quantified
-	public QVTRelation2Alloy (TypedModel target, Relation rel, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs, Transformation qvt, Set<Decl> prevdecls) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTRelation2Alloy (TypedModel direction, Relation rel, Map<String,PrimSig> statesigs, Map<String,List<Sig>> modelsigs, Set<Decl> prevdecls) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
 		this.statesigs = statesigs;
-		this.qvt = qvt;
 		this.rel = rel;
-		this.target = target;
+		this.direction = direction;
 		
 		initDomains ();
-		
 		//decls.addAll(prevdecls);
-		
 		initVariableDeclarationLists(false);
 		
 		fact = calculateFact();
-		try {func = new Func(null,"aa",alloyrootvars,null,fact); }
+		try {func = new Func(null,rel.getName(),alloyrootvars,null,fact); }
 		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
 	}
 	
@@ -110,7 +100,7 @@ public class QVTRelation2Alloy {
 				throw new ErrorTransform("Not a domain relation.","QVTRelation2Alloy",dom);
 			else {
 				rootvariables.add(((RelationDomain) dom).getRootVariable());
-				if (dom.getTypedModel().equals(target)) targetdomain = (RelationDomain) dom;
+				if (dom.getTypedModel().equals(direction)) targetdomain = (RelationDomain) dom;
 				else sourcedomains.add((RelationDomain) dom);
 			}
 		}
@@ -121,13 +111,14 @@ public class QVTRelation2Alloy {
 		Expr fact,sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
 
 		// calculates the target expression
-		OCL2Alloy ocltrans = new OCL2Alloy(target,statesigs,modelsigs,decls,qvt);
 		try {
-			if (rel.getWhere() != null)
+			if (rel.getWhere() != null){
+				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
 				for (Predicate predicate : rel.getWhere().getPredicate()) {
 					OCLExpression oclwhere = predicate.getConditionExpression();
 					whereexpr = AlloyUtil.cleanAnd(whereexpr,ocltrans.oclExprToAlloy(oclwhere));
 				}
+			}
 			targetexpr = AlloyUtil.cleanAnd(patternToExpr(targetdomain),whereexpr);
 			for (Decl d : alloytargetvars)
 				targetexpr = targetexpr.forSome(d);
@@ -143,6 +134,7 @@ public class QVTRelation2Alloy {
 			
 			// calculates the when expression
 			if (rel.getWhen() != null){
+				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
 				for (Predicate predicate : rel.getWhen().getPredicate()) {
 					OCLExpression oclwhen = predicate.getConditionExpression();
 					whenexpr = AlloyUtil.cleanAnd(whenexpr,ocltrans.oclExprToAlloy(oclwhen));
@@ -208,17 +200,17 @@ public class QVTRelation2Alloy {
 		alloyrootvars = (List<Decl>) OCL2Alloy.variableListToExpr(rootvariables,modelsigs,false);
 	    if (!top) decls.addAll(alloyrootvars);
 
-		System.out.println(rel.getName()+" Target variables: "+targetvariables);
+		/*System.out.println(rel.getName()+" Target variables: "+targetvariables);
 		System.out.println(rel.getName()+" Source variables: "+sourcevariables);
 		System.out.println(rel.getName()+" When variables: "+whenvariables);
-		System.out.println(rel.getName()+" Root variables: "+rootvariables);
+		System.out.println(rel.getName()+" Root variables: "+rootvariables);*/
 
 		
 	}
 
 	// calls OCL2Alloy on the domain pattern
 	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		OCL2Alloy ocltrans = new OCL2Alloy(target,statesigs,modelsigs,decls,qvt);
+		OCL2Alloy ocltrans = new OCL2Alloy(domain.getTypedModel(),statesigs,modelsigs,decls);
 
 		DomainPattern pattern = domain.getPattern();
 		ObjectTemplateExp temp = (ObjectTemplateExp) pattern.getTemplateExpression(); 

@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.ocl.examples.pivot.Package;
 import org.eclipse.ocl.examples.pivot.Property;
+import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
@@ -33,39 +36,52 @@ public class AlloyUtil {
     	STATE = s;
     }
 	
-    // creates state variables for a particular metamodel, extensions of STATE
-    // if metamodel is target, two instances are created
-	public static List<PrimSig> createStateSig(String sig, int n, boolean target) throws ErrorAlloy {
-		List<PrimSig> sigs = new ArrayList<PrimSig>();
+	public static Map<String,PrimSig> createStateSig(List<TypedModel> mdls) throws ErrorAlloy, ErrorTransform {
+		Map<String,PrimSig> sigs = new HashMap<String,PrimSig>();
 		PrimSig s = null;
-		try {
-			s = new PrimSig(sig,STATE,Attr.ABSTRACT);
-			sigs.add(s);
-			for (int i = 1; i <= n; i++) {
-				PrimSig s1 = new PrimSig(sig+i,s,Attr.ONE);
-				sigs.add(s1);
-			}
-			if (target) {
-				PrimSig s2 = new PrimSig(sig+"\'",s,Attr.ONE);
-				sigs.add(s2);
-			}
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
+		for (TypedModel mdl : mdls){
+			EList<Package> pcks = mdl.getUsedPackage();
+			if (pcks.size() != 1) throw new ErrorTransform("Invalid model variables.","AlloyUtil",pcks);
+			try {
+				s = new PrimSig(pcks.get(0).getName(),STATE,Attr.ABSTRACT);
+				sigs.put(s.label, s);
+			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
+		}
 		return sigs;
+	}
+	
+	public static Map<String,PrimSig> createStateInstSig(Map<String,PrimSig> mdlsigs, List<TypedModel> mdls) throws ErrorAlloy, ErrorTransform {
+		Map<String,PrimSig> sigs = new HashMap<String,PrimSig>();
+		PrimSig s = null;
+		for (TypedModel mdl : mdls){
+			EList<Package> pcks = mdl.getUsedPackage();
+			if (pcks.size() != 1) throw new ErrorTransform("Invalid model variables.","AlloyUtil",pcks);
+			String mm = pcks.get(0).getName();
+			try {
+				s = new PrimSig(mdl.getName(),mdlsigs.get(mm),Attr.ONE);
+				sigs.put(s.label, s);
+			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
+		}
+		return sigs;
+	}
+	
+	public static PrimSig createTargetState(Map<String,PrimSig> sigs, String target) throws ErrorAlloy{
+		PrimSig trg = null;
+		PrimSig sig = sigs.get(target);
+		try{
+			trg = new PrimSig(targetName(target),sig.parent,Attr.ONE);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",sig); }
+		return trg;
+	}
+	
+	public static String targetName(String target) {
+		return "Trg";
 	}
 	
 	
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, Map<String,List<PrimSig>> statesigs, Map<String,List<Sig>> modelsigs) throws ErrorAlloy, ErrorTransform{
-		String mdl = prop.getOwningType().getPackage().getName();
-		List<PrimSig> sigs = statesigs.get(mdl);
-		PrimSig statesig = null;
-		//ERROOO!!!
-		for (Sig sig : sigs)
-			if (sig.toString().equals(mdl+"\'") || (sig.toString().equals(mdl) && statesig == null))
-				statesig = (PrimSig) sig;
-		
-		if (statesig == null) throw new ErrorTransform("State sig not found.","AlloyUtil",mdl);
+	public static Expr localStateAttribute(Property prop, PrimSig statesig, Map<String,List<Sig>> modelsigs) throws ErrorAlloy, ErrorTransform{
 		Expr exp = OCL2Alloy.propertyToField(prop,modelsigs);
 		return exp.join(statesig);
 	}
