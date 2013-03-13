@@ -1,13 +1,18 @@
 package pt.uminho.haslab.echo;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Scanner;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -70,7 +75,6 @@ public class Echo {
 	// execution direction
 	private static String target;
 
-	
 	// the qvt transformation being processed
 	private static RelationalTransformation qvttrans;
 	// the model arguments of the qvt transformation
@@ -90,7 +94,6 @@ public class Echo {
 	private static Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
 	// the instance signatures (a set for each instance)
 	private static Map<String,List<PrimSig>> instsigs = new HashMap<String,List<PrimSig>>();
-
 	
 
 	private static Map<String,ECore2Alloy> mmtranses = new HashMap<String,ECore2Alloy>();
@@ -131,7 +134,7 @@ public class Echo {
 		return load_resource.getContents().get(0);
 	}
 		
-	private static RelationalTransformation getTransformation(String qvtFile) throws Exception {
+	private static RelationalTransformation getTransformation(Map<String,String> packpaths) throws Exception {
 		CS2PivotResourceAdapter adapter = null;
 
 	//	OCLstdlib.install();
@@ -141,7 +144,21 @@ public class Echo {
 		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
 		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		
-		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI(qvtFile), true);
+		Scanner scan = new Scanner(new File(qvtpath));
+		String qvtcontent = scan.useDelimiter("\\Z").next();
+		scan.close();
+		 
+		File qvtaux = new File("aux.qvtr");
+		qvtaux.createNewFile();
+		FileWriter out = new FileWriter(qvtaux, true);
+	    BufferedWriter fbw = new BufferedWriter(out);
+	    for (Entry<String,String> mdl : packpaths.entrySet())
+	    	fbw.write("import "+mdl.getKey()+" : \'"+mdl.getValue()+"\'::"+mdl.getKey()+";\n\n");
+        fbw.write(qvtcontent);
+        fbw.close();
+        
+		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("aux.qvtr"), true);
+        qvtaux.delete();
 
 		String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "Error parsing QVT.", "\n\t");
 		if (message != null) throw new ErrorParser (message,"QVT Parser");
@@ -182,19 +199,26 @@ public class Echo {
 		// install the OCL standard library
 		OCLstdlib.install();
 		
-		qvttrans = getTransformation(qvtpath);
+		Map<String,String> packagepaths = new HashMap<String,String>();
+		for(int i = 3; i<args.length; i++){
+			EPackage paux = (EPackage) loadObjectFromEcore(args[i]);
+			metamodels.put(paux.getName(),paux);
+			packagepaths.put(paux.getName(), args[i]);
+			i++;
+		}
+		
+		qvttrans = getTransformation(packagepaths);
 		if (qvttrans == null) throw new Error ("Empty transformation.");
 		qvttransargs = qvttrans.getModelParameter();
 
 		// parsing models/instances
 		// in order to the number of the qvt-transformation arguments
-		int mdlcounter = 3;
+
+		int instcounter = 4;
 		for (TypedModel modelarg : qvttransargs) {
-			EPackage paux; EObject iaux;
-			paux = (EPackage) loadObjectFromEcore(args[mdlcounter++]);
-			metamodels.put(paux.getName(),paux);
-			iaux = loadModelInstance(args[mdlcounter++],paux);
+			EObject iaux = loadModelInstance(args[instcounter],metamodels.get(modelarg.getUsedPackage().get(0).getName()));
 			instances.put(modelarg.getName(),iaux);
+			instcounter = instcounter+2;
 		}
 		
 		System.out.println("** Processing metamodels.");
@@ -290,13 +314,13 @@ public class Echo {
 			allsigs.addAll(modelsigs.get(x));
 		}
 		allsigs.add(trgsig);
-		for(Sig s: allsigs) {
+		/*for(Sig s: allsigs) {
 			System.out.println(s.toString() + " : "+((PrimSig) s).parent.toString()+" ("+s.attributes+")");
 			for (Field f : s.getFields())
 				System.out.println(f);
 			for (Expr e : s.getFacts())
 				System.out.println(e);
-		}
+		}*/
 
 		
 		System.out.println("Final command fact: "+(commandfact));
