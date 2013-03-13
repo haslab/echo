@@ -1,13 +1,11 @@
 package pt.uminho.haslab.echo.transform;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EAttribute;
@@ -44,7 +42,7 @@ public class ECore2Alloy {
 
 	private Map<String,PrimSig> mapClassSig = new HashMap<String,PrimSig>();
 	private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
-	private Map<Entry<String,String>,Entry<EStructuralFeature,Field>> mapSfField = new HashMap<Entry<String,String>,Entry<EStructuralFeature,Field>>();
+	private Map<EStructuralFeature,Field> mapSfField = new HashMap<EStructuralFeature,Field>();
 	private Map<PrimSig,Expr> mapSigState = new HashMap<PrimSig,Expr>();
 	private final EPackage pack;
 	private final PrimSig state;
@@ -74,7 +72,7 @@ public class ECore2Alloy {
 		return state;
 	}
 	
-	public Map<Entry<String,String>,Entry<EStructuralFeature,Field>> getMapSfField()
+	public Map<EStructuralFeature,Field> getMapSfField()
 	{
 		//return new HashMap<EStructuralFeature,Expr>(mapSfField);
 		return mapSfField;
@@ -122,7 +120,7 @@ public class ECore2Alloy {
 				{
 					PrimSig sigType = mapClassSig.get(attr.getEType());
 					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),sigType.product(state));
-					addEStructuralFeatureField(attr,field);
+					mapSfField.put(attr,field);
 					fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(sigType);
 					fact = fact.in(bound);
@@ -131,11 +129,11 @@ public class ECore2Alloy {
 				}else if(attr.getEType().getName().equals("EBoolean"))
 				{
 					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),state.setOf());
-					addEStructuralFeatureField(attr,field);					
+					mapSfField.put(attr,field);					
 				}else if(attr.getEType().getName().equals("EString"))
 				{
 					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.STRING.product(state));
-					addEStructuralFeatureField(attr,field);
+					mapSfField.put(attr,field);
 					fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.STRING);
 					fact = fact.in(bound);
@@ -144,7 +142,7 @@ public class ECore2Alloy {
 				}else if(attr.getEType().getName().equals("EInt"))
 				{
 					field = ec.addField(AlloyUtil.pckPrefix(pack.getName(),attr.getName()),Sig.SIGINT.product(state));
-					addEStructuralFeatureField(attr,field);
+					mapSfField.put(attr,field);
 					fact = field.join(state.decl.get());
 					Expr bound = mapSigState.get(ec).join(state.decl.get()).any_arrow_one(Sig.SIGINT);
 					fact = fact.in(bound);
@@ -176,7 +174,7 @@ public class ECore2Alloy {
 				if(ec.isAbstract())
 					res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent,Attr.ABSTRACT);
 				else res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent);
-				Field statefield = res.addField(AlloyUtil.pckPrefix(pack.getName(),ec.getName()).toLowerCase(),state.setOf());
+				Field statefield = res.addField(AlloyUtil.stateFieldName(pack,ec),state.setOf());
 				mapSigState.put(res,statefield);
 				mapClassSig.put(ec.getName(), res);
 				// all atoms must belong to a state
@@ -200,21 +198,20 @@ public class ECore2Alloy {
 		Field field;
 		try{field = srcsig.addField(AlloyUtil.pckPrefix(pack.getName(),r.getName()),trgsig.product(state));}
 		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",srcsig);}
-		addEStructuralFeatureField(r,field);
+		mapSfField.put(r,field);
 		// processing opposite references
 		EReference op = r.getEOpposite();
 		Decl s = state.decl;
 		if(op!=null) {
-			//System.out.println("Looking for "+op.getName()+" on "+mapSfField.keySet());
-			Entry<EStructuralFeature, Field> opField = mapSfField.get(new SimpleEntry<String,String>(op.getEContainingClass().getName(),op.getName()));
+			Field opField = mapSfField.get(op);
 			if(opField != null)
-				try{srcsig.addFact(field.join(s.get()).equal(opField.getValue().join(s.get()).transpose()).forAll(state.decl));}
+				try{srcsig.addFact(field.join(s.get()).equal(opField.join(s.get()).transpose()).forAll(state.decl));}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy");}
 		}
 		// processing multiplicities
 		Expr fact;
 		try{
-			Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("x");
+			Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("src_");
 			if (r.getLowerBound() == 1 && r.getUpperBound() == 1) {
 				fact = (d.get()).join(field.join(s.get())).one().forAll(s,d);
 				srcsig.addFact(fact);	
@@ -237,7 +234,7 @@ public class ECore2Alloy {
 				srcsig.addFact(fact);
 			}
 			
-			d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("x");
+			d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("trg_");
 			if(r.isContainment()){
 				fact = ((field.join(s.get())).join(d.get())).one().forAll(s,d);
 				trgsig.addFact(fact);
@@ -252,12 +249,15 @@ public class ECore2Alloy {
 	}
 
 
-	private void processEAnnotations(List<EAnnotation> lAnn, EObject obj,PrimSig sig) throws ParserException, ErrorTransform, ErrorAlloy, ErrorUnsupported, Err
-	{
+	private void processEAnnotations(List<EAnnotation> lAnn, EObject obj,PrimSig sig) throws ParserException, ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Set<Decl> sd = new HashSet<Decl>();
-		Decl self = sig.oneOf("self");
-		sd.add(self);
-		sd.add(state.decl);
+		Decl self = null;
+		try{
+			self = sig.oneOf("self");
+			sd.add(self);
+			sd.add(state.decl);
+		} catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",sig);}
+
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		OCLHelper helper = ocl.createOCLHelper(obj);
 		ExpressionInOCL invariant;
@@ -269,12 +269,15 @@ public class ECore2Alloy {
 		OCL2Alloy converter = new OCL2Alloy(m2,m1,sd);
 		for(EAnnotation ea : lAnn)
 			if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
-				for(String sExpr: ea.getDetails().values())
-				{
-					invariant = helper.createInvariant(sExpr);
-					Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self, state.decl);
-					sig.addFact(oclalloy);
-				}
+				try{
+					for(String sExpr: ea.getDetails().values())
+					{
+						invariant = helper.createInvariant(sExpr);
+						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self, state.decl);
+						sig.addFact(oclalloy);
+					}
+				} catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",sig);}
+
 	}
 	
 	private List<Sig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err
@@ -356,18 +359,12 @@ public class ECore2Alloy {
 			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
 			result = result.iplus(aux);
 		}
-		for (Entry<EStructuralFeature,Field> ee : mapSfField.values()) {
-			Expr e = ee.getValue();
+		for (Field e : mapSfField.values()) {
 			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
 			result = result.iplus(aux);
 		}
 		return result;
 	}
-	
-	private void addEStructuralFeatureField(EStructuralFeature sf, Field field){
-		Entry<String,String> key = new SimpleEntry<String,String>(sf.getEContainingClass().getName(),sf.getName());
-		mapSfField.put(key,new SimpleEntry<EStructuralFeature,Field>(sf,field));
-	}
-	
+
 }
 

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.ocl.examples.pivot.Package;
 import org.eclipse.ocl.examples.pivot.Property;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
@@ -31,7 +33,7 @@ public class AlloyUtil {
     public static final PrimSig STATE;
     static{
     	PrimSig s = null;
-    	try {s = new PrimSig("State",Attr.ABSTRACT);}
+    	try {s = new PrimSig("State_",Attr.ABSTRACT);}
     	catch (Err a){}
     	STATE = s;
     }
@@ -75,7 +77,7 @@ public class AlloyUtil {
 	}
 	
 	public static String targetName(String target) {
-		return "Trg";
+		return target+"_new_";
 	}
 	
 	
@@ -86,11 +88,13 @@ public class AlloyUtil {
 		return exp.join(statesig);
 	}
 	
-	public static Expr localStateSig(PrimSig sig, Expr var) throws ErrorTransform{
+	public static Expr localStateSig(PrimSig sig, Expr var) throws ErrorTransform, ErrorAlloy{
 		Expr exp = null;
+		
 		for (Field field : sig.getFields()) {
-			if ((field.label.toUpperCase()).equals(sig.label.toUpperCase()))
-					exp = field;
+			if (field.label.endsWith("_") && field.label.substring(0, field.label.length()-1).equals(sig.label) ){	
+				exp = field;
+			}
 		}
 		if (exp == null) throw new ErrorTransform ("State field not found.","AlloyUtil",exp);
 		
@@ -102,6 +106,10 @@ public class AlloyUtil {
 	// methods used to append prefixes to expressions
 	public static String pckPrefix (String mdl, String str) {
 		return (mdl + "_" + str);
+	}
+
+	public static String stateFieldName (EPackage pck, EClass cls) {
+		return pck.getName() +"_"+ cls.getName() +"_";
 	}
 	
 	// ignores first parameter if "no none" or "true"

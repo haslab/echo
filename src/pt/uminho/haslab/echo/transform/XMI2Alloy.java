@@ -3,8 +3,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.AbstractMap.SimpleEntry;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
@@ -33,7 +31,7 @@ public class XMI2Alloy {
 	public final EObject eObj;
 	private final PrimSig state;
 	private final Map<String,PrimSig> mapClassSig;
-	private final Map<Entry<String,String>,Entry<EStructuralFeature,Field>> mapSfField;
+	private final Map<EStructuralFeature,Field> mapSfField;
 	private final Map<EEnumLiteral,PrimSig> mapLitSig;
 	private final Map<PrimSig, Expr> mapSigState;
 
@@ -71,13 +69,12 @@ public class XMI2Alloy {
 	{
 		for(Expr f: mapSigState.values()) {
 			mapContent.put(f,Sig.NONE);}
-		for(Entry<EStructuralFeature,Field> sfe: mapSfField.values()){
-			EStructuralFeature sf = sfe.getKey();
+		for(EStructuralFeature sf: mapSfField.keySet()){
 			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
 			else if(sf.getEType().getName().equals("EBoolean"))
-				mapContent.put(getEStructuralFeatureExpr(sf),Sig.NONE);
+				mapContent.put(mapSfField.get(sf),Sig.NONE);
 			else
-				mapContent.put(getEStructuralFeatureExpr(sf),Sig.NONE.product(Sig.NONE));}
+				mapContent.put(mapSfField.get(sf),Sig.NONE.product(Sig.NONE));}
 	}
 
 	
@@ -167,7 +164,7 @@ public class XMI2Alloy {
 		List<EStructuralFeature> sfList = it.eClass().getEAllStructuralFeatures();
 		for(EStructuralFeature sf: sfList)
 		{
-			field = getEStructuralFeatureExpr(sf);
+			field = mapSfField.get(sf);
 			eG = it.eGet(sf);
 			if (sf instanceof EReference) {
 				if(eG instanceof EList<?>) {
@@ -228,10 +225,6 @@ public class XMI2Alloy {
 			mapContent.put(field, manos);
 		}else throw new ErrorUnsupported("Primitive type for attribute not supported.","XMI2Alloy",obj.toString());
 	}
-	
-	private Field getEStructuralFeatureExpr(EStructuralFeature sf){
-		Entry<String,String> key = new SimpleEntry<String,String>(sf.getEContainingClass().getName(),sf.getName());
-		return mapSfField.get(key).getValue();
-	}
+
 	
 }
