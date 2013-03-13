@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.ocl.examples.pivot.Package;
 import org.eclipse.ocl.examples.pivot.Property;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
+import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
@@ -111,6 +112,11 @@ public class AlloyUtil {
 	public static String stateFieldName (EPackage pck, EClass cls) {
 		return pck.getName() +"_"+ cls.getName() +"_";
 	}
+	
+	public static String relationFieldName (Relation rel, TypedModel dir) {
+		return rel.getName() +"_"+dir.getName()+"_";
+	}
+	
 	
 	// ignores first parameter if "no none" or "true"
 	public static Expr cleanAnd (Expr e, Expr f) {

@@ -221,13 +221,12 @@ public class QVTRelation2Alloy {
 			Sig s = (Sig) alloyrootvars.get(0).expr.type().toExpr();
 			Field field = null;
 			for (Field f : s.getFields()) {
-				if (f.label.equals(rel.getName().toLowerCase()+"_"+direction.getName()))
+				if (f.label.equals(AlloyUtil.relationFieldName(rel,direction)))
 					field = f;
 			}
 			if (field == null) {
-				field = s.addField(rel.getName().toLowerCase()+"_"+direction.getName(), type.setOf());
+				field = s.addField(AlloyUtil.relationFieldName(rel,direction), type.setOf());
 				s.addFact(field.equal(fact.comprehensionOver(alloyrootvars.get(0), alloyrootvars.get(1))));
-				System.out.println("DEBUG: "+field.equal(fact.comprehensionOver(alloyrootvars.get(0), alloyrootvars.get(1))));
 			}
 			return field;
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}

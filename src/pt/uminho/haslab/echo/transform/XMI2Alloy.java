@@ -139,7 +139,7 @@ public class XMI2Alloy {
 		PrimSig parent = mapClassSig.get(it.eClass().getName());
 		//System.out.println("Object instances of "+parent);
 		PrimSig res;
-		try {res = new PrimSig(pre + counter++, parent, Attr.ONE);}
+		try {res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);}
 		catch (Err a) {throw new ErrorAlloy(a.getMessage(),"XMI2Alloy",parent);}
 		
 		/*listSiblings = mapContents.get(parent);
