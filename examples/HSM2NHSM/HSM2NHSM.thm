@@ -3,65 +3,69 @@
 
 <view>
 
-<projection> <type name="State"/> </projection>
+<projection> <type name="State_"/> </projection>
 
 <defaultnode/>
 
 <defaultedge/>
 
 <node>
-   <type name="0"/>
-   <type name="1"/>
-   <type name="2"/>
-   <type name="3"/>
-   <type name="4"/>
-   <type name="5"/>
-   <type name="6"/>
-   <type name="7"/>
+   <type name="hm"/>
+   <type name="hm_new_"/>
    <type name="HSM"/>
    <type name="HSM&apos;"/>
-   <type name="HSM1"/>
    <type name="HSM_CompositeState"/>
+   <type name="HSM_CompositeState_2"/>
+   <type name="HSM_State_1"/>
+   <type name="HSM_State_3"/>
+   <type name="HSM_State_6"/>
+   <type name="HSM_State_7"/>
+   <type name="HSM_StateMachine_0"/>
+   <type name="HSM_StateMachine_5"/>
+   <type name="HSM_Transition_4"/>
+   <type name="HSM_Transition_8"/>
+   <type name="HSM_Transition_9"/>
    <type name="Int"/>
-   <type name="NHSM"/>
-   <type name="NHSM1"/>
-   <type name="State"/>
+   <type name="nm"/>
+   <type name="State_"/>
    <type name="String"/>
    <type name="univ"/>
    <type name="seq/Int"/>
-   <set name="hsm_compositestate" type="HSM_CompositeState"/>
-   <set name="hsm_state" type="HSM_State"/>
-   <set name="hsm_statemachine" type="HSM_StateMachine"/>
-   <set name="hsm_transition" type="HSM_Transition"/>
-   <set name="nhsm_state" type="NHSM_State"/>
-   <set name="nhsm_statemachine" type="NHSM_StateMachine"/>
-   <set name="nhsm_transition" type="NHSM_Transition"/>
+   <set name="HSM_CompositeState_" type="HSM_CompositeState"/>
+   <set name="HSM_State_" type="HSM_State"/>
+   <set name="HSM_StateMachine_" type="HSM_StateMachine"/>
+   <set name="HSM_Transition_" type="HSM_Transition"/>
 </node>
 
 <node color="Green">
    <type name="HSM_Transition"/>
-   <type name="NHSM_Transition"/>
 </node>
 
 <node shape="Ellipse" color="Blue">
    <type name="HSM_State"/>
-   <type name="NHSM_State"/>
 </node>
 
 <node visible="no" shape="Trapezoid" color="Gray">
    <type name="HSM_StateMachine"/>
-   <type name="NHSM_StateMachine"/>
 </node>
 
 <edge layout="yes">
    <relation name="HSM_owner"> <type name="HSM_State"/> <type name="HSM_CompositeState"/> </relation>
 </edge>
 
+<edge visible="no">
+   <relation name="State2State_nm_"> <type name="HSM_State"/> <type name="HSM_State"/> </relation>
+</edge>
+
+<edge visible="no" attribute="no">
+   <relation name="State2State_hm_"> <type name="HSM_State"/> <type name="HSM_State"/> </relation>
+</edge>
+
 <edge visible="no" attribute="yes">
+   <relation name="HSM_CompositeState_"> <type name="HSM_CompositeState"/> <type name="HSM&apos;"/> </relation>
    <relation name="HSM_name"> <type name="HSM_State"/> <type name="String"/> </relation>
-   <relation name="HSM_states"> <type name="HSM_StateMachine"/> <type name="HSM_State"/> </relation>
-   <relation name="NHSM_name"> <type name="NHSM_State"/> <type name="String"/> </relation>
-   <relation name="NHSM_states"> <type name="NHSM_StateMachine"/> <type name="NHSM_State"/> </relation>
+   <relation name="HSM_StateMachine_"> <type name="HSM_StateMachine"/> <type name="HSM&apos;"/> </relation>
+   <relation name="HSM_Transition_"> <type name="HSM_Transition"/> <type name="HSM&apos;"/> </relation>
 </edge>
 
 </view>

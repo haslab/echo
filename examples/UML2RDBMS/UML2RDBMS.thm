@@ -3,40 +3,41 @@
 
 <view>
 
-<projection> <type name="State"/> </projection>
+<projection> <type name="State_"/> </projection>
 
 <defaultnode/>
 
 <defaultedge/>
 
 <node>
-   <type name="0"/>
-   <type name="1"/>
-   <type name="10"/>
-   <type name="11"/>
-   <type name="2"/>
-   <type name="3"/>
-   <type name="4"/>
-   <type name="5"/>
-   <type name="6"/>
-   <type name="7"/>
-   <type name="8"/>
-   <type name="9"/>
    <type name="Int"/>
    <type name="RDBMS"/>
-   <type name="State"/>
+   <type name="rdbms"/>
+   <type name="RDBMS_Column_10_"/>
+   <type name="RDBMS_Column_11_"/>
+   <type name="RDBMS_Column_8_"/>
+   <type name="RDBMS_Column_9_"/>
+   <type name="RDBMS_Scheme_6_"/>
+   <type name="RDBMS_Table_7_"/>
+   <type name="State_"/>
    <type name="String"/>
    <type name="UML"/>
-   <type name="UML1"/>
-   <type name="UML2"/>
+   <type name="uml"/>
+   <type name="UML_Attribute_2_"/>
+   <type name="UML_Attribute_3_"/>
+   <type name="UML_Attribute_5_"/>
+   <type name="UML_Class_1_"/>
+   <type name="UML_Class_4_"/>
+   <type name="uml_new_"/>
+   <type name="UML_Package_0_"/>
    <type name="univ"/>
    <type name="seq/Int"/>
-   <set name="rdbms_column" type="RDBMS_Column"/>
-   <set name="rdbms_scheme" type="RDBMS_Scheme"/>
-   <set name="rdbms_table" type="RDBMS_Table"/>
-   <set name="uml_attribute" type="UML_Attribute"/>
-   <set name="uml_class" type="UML_Class"/>
-   <set name="uml_package" type="UML_Package"/>
+   <set name="RDBMS_Column_" type="RDBMS_Column"/>
+   <set name="RDBMS_Scheme_" type="RDBMS_Scheme"/>
+   <set name="RDBMS_Table_" type="RDBMS_Table"/>
+   <set name="UML_Attribute_" type="UML_Attribute"/>
+   <set name="UML_Class_" type="UML_Class"/>
+   <set name="UML_Package_" type="UML_Package"/>
    <set name="UML_persistent" type="UML_Class"/>
 </node>
 
@@ -62,6 +63,13 @@
 </edge>
 
 <edge visible="no">
+   <relation name="A2C_rdbms_"> <type name="UML_Class"/> <type name="RDBMS_Table"/> </relation>
+   <relation name="P2S_rdbms_"> <type name="UML_Package"/> <type name="RDBMS_Scheme"/> </relation>
+   <relation name="P2S_uml_"> <type name="UML_Package"/> <type name="RDBMS_Scheme"/> </relation>
+</edge>
+
+<edge visible="no" attribute="no">
+   <relation name="A2C_uml_"> <type name="UML_Class"/> <type name="RDBMS_Table"/> </relation>
    <relation name="UML_classes"> <type name="UML_Package"/> <type name="UML_Class"/> </relation>
    <relation name="UML_sub"> <type name="UML_Class"/> <type name="UML_Class"/> </relation>
 </edge>
@@ -70,7 +78,6 @@
    <relation name="RDBMS_name"> <type name="RDBMS_Column"/> <type name="String"/> </relation>
    <relation name="RDBMS_name"> <type name="RDBMS_Scheme"/> <type name="String"/> </relation>
    <relation name="RDBMS_name"> <type name="RDBMS_Table"/> <type name="String"/> </relation>
-   <relation name="RDBMS_tables"> <type name="RDBMS_Scheme"/> <type name="RDBMS_Table"/> </relation>
    <relation name="UML_name"> <type name="UML_Attribute"/> <type name="String"/> </relation>
    <relation name="UML_name"> <type name="UML_Class"/> <type name="String"/> </relation>
    <relation name="UML_name"> <type name="UML_Package"/> <type name="String"/> </relation>
