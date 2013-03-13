@@ -1,13 +1,10 @@
-import uml : 'UML.ecore'::UML;
-import rdbms : 'RDBMS.ecore'::RDBMS;
-
-transformation uml2rdbms (uml : uml, rdbms : rdbms) {
+transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
 
   top relation P2S { 
     pn: String; 
-    domain uml p:Package { 
+    domain uml pt:Package { 
       name=pn };
-    domain rdbms s:Scheme { 
+    domain rdbms st:Scheme { 
       name=pn };
   }
 
