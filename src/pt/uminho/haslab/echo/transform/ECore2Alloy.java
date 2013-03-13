@@ -44,7 +44,7 @@ public class ECore2Alloy {
 	private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
 	private Map<EStructuralFeature,Field> mapSfField = new HashMap<EStructuralFeature,Field>();
 	private Map<PrimSig,Expr> mapSigState = new HashMap<PrimSig,Expr>();
-	private final EPackage pack;
+	public final EPackage pack;
 	private final PrimSig state;
 	private List<Sig> sigList;
 	
@@ -55,6 +55,7 @@ public class ECore2Alloy {
 		
 		//System.out.println(mapSfField.keySet());
 	}
+	
 	
 	public Map<PrimSig,Expr> getMapSigState()
 	{
