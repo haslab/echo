@@ -65,28 +65,6 @@ public class Alloy2XMI {
 
 
 	
-	/*private Object createObject(Expr ex, EClassifier ec) throws Err
-	{
-		if (ec instanceof EClass)
-			return createObject(ex,(EClass) ec);
-		else if(ec instanceof EEnum)
-			return createObject(ex,(EEnum) ec);
-		else if (ec instanceof EDataType)
-			return createObject(ex,(EDataType) ec);
-		else return null;
-	}
-	
-	
-	private Object createObject(Expr ex, EDataType eDT) {
-		
-		return null;
-	}
-	
-	private EObject createObject(Expr ex, EEnum eEnum) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	*/
 
 	
 	
@@ -126,15 +104,7 @@ public class Alloy2XMI {
 			{
 				ref = (EReference) sf;
 				ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
-				if (ref.getUpperBound() == 1 && ref.getLowerBound()==1)
-				{
-					itExpr = mapAtoms.get(ts.iterator().next().atom(0));
-					itObj = (EObject) mapExprObj.get(itExpr);
-					if(itObj == null)
-						itObj = createObject(itExpr,ref.getEReferenceType());
-					obj.eSet(sf, itObj);
-				}
-				else
+				if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
 				{
 					itList = new BasicEList<EObject>();
 					for(A4Tuple t : ts)
@@ -146,6 +116,14 @@ public class Alloy2XMI {
 						itList.add(itObj);
 					}
 					obj.eSet(sf, itList);
+				}
+				else if (ts.size()> 0)
+				{
+					itExpr = mapAtoms.get(ts.iterator().next().atom(0));
+					itObj = (EObject) mapExprObj.get(itExpr);
+					if(itObj == null)
+						itObj = createObject(itExpr,ref.getEReferenceType());
+					obj.eSet(sf, itObj);
 				}
 			}
 			else
