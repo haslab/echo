@@ -25,8 +25,8 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class QVTRelation2Alloy {
@@ -59,7 +59,7 @@ public class QVTRelation2Alloy {
 
 	// the Alloy expression rising from this relations
 	final Expr fact;
-	final Func func;
+	final Field field;
 
 	public QVTRelation2Alloy (TypedModel direction, Relation rel, Map<String,PrimSig> statesigs, Map<String,List<Sig>> modelsigs) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.modelsigs = modelsigs;
@@ -70,10 +70,8 @@ public class QVTRelation2Alloy {
 		initDomains ();
 		initVariableDeclarationLists(true);
 
-		func = null;
+		field = null;
 		fact = calculateFact();
-		//try {func = new Func(null,"aa",alloyrootvars,null,fact); }
-		//catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
 	}
 	
 	// this one takes a list of declarations as an extra argument: used with relation calls, since some variables are already quantified
@@ -84,16 +82,14 @@ public class QVTRelation2Alloy {
 		this.direction = direction;
 		
 		initDomains ();
-		//decls.addAll(prevdecls);
 		initVariableDeclarationLists(false);
 		
 		fact = calculateFact();
-		try {func = new Func(null,rel.getName(),alloyrootvars,null,fact); }
-		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
+		field = addRelationFields();
 	}
 	
 	// separating target domain from the rest
-	private void initDomains () throws ErrorTransform {
+	private void initDomains () throws ErrorTransform, ErrorAlloy {
 		for (Domain dom : rel.getDomain()) {
 			// "Domains" of QVT Relations must be "RelationDomains"
 			if (!(dom instanceof RelationDomain)) 
@@ -218,10 +214,30 @@ public class QVTRelation2Alloy {
 		return ocltrans.oclExprToAlloy(temp);
 	}
 	
+	private Field addRelationFields() throws ErrorAlloy{
+		// only supporting one: generalize
+		try {
+			Expr type = alloyrootvars.get(1).expr.type().toExpr();
+			Sig s = (Sig) alloyrootvars.get(0).expr.type().toExpr();
+			Field field = null;
+			for (Field f : s.getFields()) {
+				if (f.label.equals(rel.getName().toLowerCase()+"_"+direction.getName()))
+					field = f;
+			}
+			if (field == null) {
+				field = s.addField(rel.getName().toLowerCase()+"_"+direction.getName(), type.setOf());
+				s.addFact(field.equal(fact.comprehensionOver(alloyrootvars.get(0), alloyrootvars.get(1))));
+				System.out.println("DEBUG: "+field.equal(fact.comprehensionOver(alloyrootvars.get(0), alloyrootvars.get(1))));
+			}
+			return field;
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
+
+	}
+	
 	public Expr getFact() {
 		return fact;
 	}
-	public Func getFunc() {
-		return func;
+	public Field getField() {
+		return field;
 	}
 }

@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -314,13 +313,7 @@ public class Echo {
 			allsigs.addAll(modelsigs.get(x));
 		}
 		allsigs.add(trgsig);
-		/*for(Sig s: allsigs) {
-			System.out.println(s.toString() + " : "+((PrimSig) s).parent.toString()+" ("+s.attributes+")");
-			for (Field f : s.getFields())
-				System.out.println(f);
-			for (Expr e : s.getFacts())
-				System.out.println(e);
-		}*/
+		print(allsigs);
 
 		
 		System.out.println("Final command fact: "+(commandfact));
@@ -369,5 +362,14 @@ public class Echo {
 		}
 	}
 	
+	public static void print(List<Sig> allsigs){
+		for(Sig s: allsigs) {
+			System.out.println(s.toString() + " : "+((PrimSig) s).parent.toString()+" ("+s.attributes+")");
+			for (Field f : s.getFields())
+				System.out.println(f + " : " + f.type());
+			for (Expr e : s.getFacts())
+				System.out.println(e);
+		}
+	}
 }
 

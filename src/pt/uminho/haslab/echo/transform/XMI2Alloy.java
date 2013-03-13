@@ -234,10 +234,4 @@ public class XMI2Alloy {
 		return mapSfField.get(key).getValue();
 	}
 	
-	
-	public void print()
-	{
-		System.out.println(eObj);
-		System.out.println("TODO");
-	}
 }

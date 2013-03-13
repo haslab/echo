@@ -55,7 +55,7 @@ public class ECore2Alloy {
 		pack = p;
 		sigList = makeSigList();
 		
-		System.out.println(mapSfField.keySet());
+		//System.out.println(mapSfField.keySet());
 	}
 	
 	public Map<PrimSig,Expr> getMapSigState()
@@ -205,7 +205,7 @@ public class ECore2Alloy {
 		EReference op = r.getEOpposite();
 		Decl s = state.decl;
 		if(op!=null) {
-			System.out.println("Looking for "+op.getName()+" on "+mapSfField.keySet());
+			//System.out.println("Looking for "+op.getName()+" on "+mapSfField.keySet());
 			Entry<EStructuralFeature, Field> opField = mapSfField.get(new SimpleEntry<String,String>(op.getEContainingClass().getName(),op.getName()));
 			if(opField != null)
 				try{srcsig.addFact(field.join(s.get()).equal(opField.getValue().join(s.get()).transpose()).forAll(state.decl));}

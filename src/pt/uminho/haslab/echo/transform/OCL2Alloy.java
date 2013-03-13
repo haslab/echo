@@ -31,7 +31,6 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
@@ -139,12 +138,18 @@ public class OCL2Alloy {
 		List<OCLExpression> vars = expr.getArgument();
 		List<Expr> avars = new ArrayList<Expr>();
 		
+		Expr res = trans.getField();
 		for (OCLExpression var : vars){
 			Expr avar = oclExprToAlloy(var);
 			avars.add(avar);
 		}
 		
-		Expr res = ExprCall.make(null, null, trans.getFunc(), avars, (long) .1);
+		Expr insig = avars.get(avars.size()-1);
+		avars.remove(insig);
+		for (Expr avar : avars)
+		  res = avar.join(res);
+		res = insig.in(res);
+		
 		return res;
 	}
 
