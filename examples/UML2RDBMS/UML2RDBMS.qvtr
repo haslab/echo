@@ -2,10 +2,10 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
 
 	top relation P2S { 
 		pn: String; 
-			domain uml pt:Package { 
-				name=pn };
-    		domain rdbms st:Scheme { 
-      			name=pn };
+		domain uml pt:Package { 
+			name=pn };
+    	domain rdbms st:Scheme { 
+      		name=pn };
   	}
 
 	top relation C2T { 

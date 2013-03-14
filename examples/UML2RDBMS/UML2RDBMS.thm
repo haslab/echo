@@ -13,21 +13,15 @@
    <type name="Int"/>
    <type name="RDBMS"/>
    <type name="rdbms"/>
-   <type name="RDBMS_Column_10_"/>
-   <type name="RDBMS_Column_11_"/>
-   <type name="RDBMS_Column_8_"/>
-   <type name="RDBMS_Column_9_"/>
-   <type name="RDBMS_Scheme_6_"/>
-   <type name="RDBMS_Table_7_"/>
+   <type name="RDBMS_Column_3_"/>
+   <type name="RDBMS_Column_4_"/>
+   <type name="RDBMS_Column_5_"/>
+   <type name="RDBMS_Column_6_"/>
+   <type name="RDBMS_Scheme_1_"/>
+   <type name="RDBMS_Table_2_"/>
    <type name="State_"/>
-   <type name="String"/>
    <type name="UML"/>
    <type name="uml"/>
-   <type name="UML_Attribute_2_"/>
-   <type name="UML_Attribute_3_"/>
-   <type name="UML_Attribute_5_"/>
-   <type name="UML_Class_1_"/>
-   <type name="UML_Class_4_"/>
    <type name="uml_new_"/>
    <type name="UML_Package_0_"/>
    <type name="univ"/>
@@ -38,27 +32,48 @@
    <set name="UML_Attribute_" type="UML_Attribute"/>
    <set name="UML_Class_" type="UML_Class"/>
    <set name="UML_Package_" type="UML_Package"/>
-   <set name="UML_persistent" type="UML_Class"/>
 </node>
 
-<node color="Blue">
+<node hideunconnected="no" color="Blue">
    <type name="RDBMS_Table"/>
    <type name="UML_Class"/>
 </node>
 
-<node shape="Ellipse" color="Green">
+<node hideunconnected="no" shape="Ellipse" color="Green">
    <type name="RDBMS_Column"/>
    <type name="UML_Attribute"/>
 </node>
 
-<node shape="Trapezoid" color="Gray">
+<node hideunconnected="no" shape="Trapezoid" color="Gray">
    <type name="RDBMS_Scheme"/>
    <type name="UML_Package"/>
 </node>
 
-<edge layout="yes">
-   <relation name="RDBMS_scheme"> <type name="RDBMS_Table"/> <type name="RDBMS_Scheme"/> </relation>
+<node label="persistent">
+   <set name="UML_persistent" type="UML_Class"/>
+</node>
+
+<node visible="no">
+   <type name="String"/>
+</node>
+
+<edge label="attributes">
+   <relation name="UML_attributes"> <type name="UML_Class"/> <type name="UML_Attribute"/> </relation>
+</edge>
+
+<edge label="columns">
+   <relation name="RDBMS_columns"> <type name="RDBMS_Table"/> <type name="RDBMS_Column"/> </relation>
+</edge>
+
+<edge layout="yes" label="namespace">
    <relation name="UML_namespace"> <type name="UML_Class"/> <type name="UML_Package"/> </relation>
+</edge>
+
+<edge layout="yes" label="scheme">
+   <relation name="RDBMS_scheme"> <type name="RDBMS_Table"/> <type name="RDBMS_Scheme"/> </relation>
+</edge>
+
+<edge layout="yes" label="super">
    <relation name="UML_super"> <type name="UML_Class"/> <type name="UML_Class"/> </relation>
 </edge>
 
@@ -70,17 +85,27 @@
 
 <edge visible="no" attribute="no">
    <relation name="A2C_uml_"> <type name="UML_Class"/> <type name="RDBMS_Table"/> </relation>
+</edge>
+
+<edge visible="no" attribute="no" label="classes">
    <relation name="UML_classes"> <type name="UML_Package"/> <type name="UML_Class"/> </relation>
+</edge>
+
+<edge visible="no" attribute="no" label="sub">
    <relation name="UML_sub"> <type name="UML_Class"/> <type name="UML_Class"/> </relation>
 </edge>
 
-<edge visible="no" attribute="yes">
+<edge visible="no" attribute="yes" label="name">
    <relation name="RDBMS_name"> <type name="RDBMS_Column"/> <type name="String"/> </relation>
    <relation name="RDBMS_name"> <type name="RDBMS_Scheme"/> <type name="String"/> </relation>
    <relation name="RDBMS_name"> <type name="RDBMS_Table"/> <type name="String"/> </relation>
    <relation name="UML_name"> <type name="UML_Attribute"/> <type name="String"/> </relation>
    <relation name="UML_name"> <type name="UML_Class"/> <type name="String"/> </relation>
    <relation name="UML_name"> <type name="UML_Package"/> <type name="String"/> </relation>
+</edge>
+
+<edge visible="no" label="tables">
+   <relation name="RDBMS_tables"> <type name="RDBMS_Scheme"/> <type name="RDBMS_Table"/> </relation>
 </edge>
 
 </view>
