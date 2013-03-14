@@ -35,23 +35,22 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class OCL2Alloy {
 
 	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
-	private Map<String,PrimSig> stateinstancesigs = new HashMap<String,PrimSig>();
-	private TypedModel modelvar = null;
+	private Map<String,Expr> stateinstancesigs = new HashMap<String,Expr>();
+	private TypedModel modelvar;
 	private Set<Decl> vardecls;
 
-	public OCL2Alloy(TypedModel modelvar, Map<String,PrimSig> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
+	public OCL2Alloy(TypedModel modelvar, Map<String,Expr> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
 		this.modelsigs = modelsigs;
 		this.stateinstancesigs = stateinstancesigs;
 		this.modelvar = modelvar;
 		this.vardecls = vardecls;
 	}
 	
-	public OCL2Alloy(Map<String,PrimSig> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
+	public OCL2Alloy(Map<String,Expr> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
 		this.modelsigs = modelsigs;
 		this.stateinstancesigs = stateinstancesigs;
 		this.vardecls = vardecls;
@@ -134,7 +133,7 @@ public class OCL2Alloy {
 	
 	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		if (modelvar == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
-		QVTRelation2Alloy trans = new QVTRelation2Alloy (modelvar, expr.getReferredRelation(), stateinstancesigs, modelsigs, vardecls);
+		QVTRelation2Alloy trans = new QVTRelation2Alloy (expr.getReferredRelation(), modelvar, false, stateinstancesigs, modelsigs);
 		List<OCLExpression> vars = expr.getArgument();
 		List<Expr> avars = new ArrayList<Expr>();
 		
@@ -170,7 +169,7 @@ public class OCL2Alloy {
 		List<Variable> variterator = expr.getIterator();
 		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure.","OCL2Alloy",variterator);
 
-		Decl d = variableListToExpr(new HashSet<Variable>(variterator),modelsigs,true).iterator().next();
+		Decl d = variableListToExpr(new HashSet<Variable>(variterator),modelsigs,true,stateinstancesigs).iterator().next();
 
 		vardecls.add(d);
 		Expr src = oclExprToAlloy(expr.getSource());
@@ -218,7 +217,7 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
 		String mdl = expr.getReferredProperty().getOwningType().getPackage().getName();
-		PrimSig sig = stateinstancesigs.get(mdl);
+		Expr sig = stateinstancesigs.get(mdl);
 		if (sig == null) throw new ErrorTransform("State sig "+mdl+" not found.","OCL2Alloy");
 		Expr aux = AlloyUtil.localStateAttribute(expr.getReferredProperty(), sig, modelsigs);
 		res = oclExprToAlloy(expr.getSource()).join(aux);
@@ -305,24 +304,29 @@ public class OCL2Alloy {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-		public static Collection<Decl> variableListToExpr (Collection<? extends VariableDeclaration> ovars, Map<String,List<Sig>> modelsigs, boolean set) throws ErrorTransform, ErrorAlloy {
+		public static Collection<Decl> variableListToExpr (Collection<? extends VariableDeclaration> ovars, Map<String,List<Sig>> modelsigs, boolean set, Map<String,Expr> statesigs) throws ErrorTransform, ErrorAlloy {
 			Collection<Decl> avars = set?(new HashSet<Decl>()):(new ArrayList<Decl>());
 			
 			for (VariableDeclaration ovar : ovars) {
-				Expr range = Sig.NONE;
+				Sig range = Sig.NONE;
 				String mdl = ovar.getType().getPackage().getName();
+				Expr state = statesigs.get(mdl);
 				List<Sig> sigs = modelsigs.get(mdl);
 				String type = ovar.getType().getName();
-				if (type.equals("String")) range = Sig.STRING;
-				else 
-					for (Sig s : sigs)
-						if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
-			
-				if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs,"AlloyUtil",ovar);
-				Decl d;
-				try { d = range.oneOf(ovar.getName()); }
-				catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",range);}
-				avars.add(d);
+				try {
+					if (type.equals("String")) {
+					range = Sig.STRING;
+					avars.add(range.oneOf(ovar.getName()));
+					}
+					else  {
+						for (Sig s : sigs)
+							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
+				
+						if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs,"AlloyUtil",ovar);
+						Decl d = AlloyUtil.localStateSig(range,state).oneOf(ovar.getName()); 
+						avars.add(d);
+					}
+				} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",range);}
 			}
 			return avars;
 		}

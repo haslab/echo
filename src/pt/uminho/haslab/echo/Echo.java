@@ -255,7 +255,7 @@ public class Echo {
 			if (istarget&&!check) { 
 				deltaexpr = (mmtrans.getDeltaExpr(trgsig,state));
 				System.out.println("Delta function: "+deltaexpr);
-				targetscopes = AlloyUtil.createScope(insttrans.getSigList());
+				targetscopes = AlloyUtil.createScope(insttrans.getSigList(),mmtrans.getSigList());
 				System.out.println("Scope: "+targetscopes);
 			}
 
@@ -272,9 +272,9 @@ public class Echo {
 		System.out.println("* "+modelsigs);
 		System.out.println("* "+instsigs);
 		
-		Map<String,PrimSig> sigaux = new HashMap<String, PrimSig>(stateinstancesigs);
+		Map<String,Expr> sigaux = new HashMap<String, Expr>(stateinstancesigs);
 		sigaux.putAll(statesigs);
-		sigaux.put(target, trgsig);
+		AlloyUtil.insertTargetState(sigaux, target, trgsig);
 		QVT2Alloy qvtrans = new QVT2Alloy(sigaux,modelsigs,qvttrans);
 		Expr qvtfact = Sig.NONE.no();
 		Map<String,Expr> qvtfacts = qvtrans.getFact();
@@ -297,7 +297,7 @@ public class Echo {
 		options.solver = A4Options.SatSolver.SAT4J;
 		options.noOverflow = true;
 
-		int intscope = 1, delta = 0;
+		int intscope = 2, delta = 0;
 
 		Expr commandfact = instancefact;
 		if (check) commandfact = (commandfact.and(qvtfact));		 
@@ -313,7 +313,7 @@ public class Echo {
 			allsigs.addAll(modelsigs.get(x));
 		}
 		allsigs.add(trgsig);
-		print(allsigs);
+		//print(allsigs);
 
 		
 		System.out.println("Final command fact: "+(commandfact));

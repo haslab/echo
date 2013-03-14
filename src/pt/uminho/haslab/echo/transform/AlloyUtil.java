@@ -77,6 +77,21 @@ public class AlloyUtil {
 		return trg;
 	}
 	
+	public static void insertTargetState(Map<String,Expr> sigs, String target, PrimSig trg) throws ErrorAlloy{
+		PrimSig source = (PrimSig) sigs.get(target);
+		PrimSig sourcemdl = source.parent;
+		Expr sourcemdlnosource = null;
+		try{
+		for (Sig s : sourcemdl.descendents())
+			if (!s.label.equals(target)) 
+				if (sourcemdlnosource != null) sourcemdlnosource = sourcemdlnosource.plus(s);
+				else sourcemdlnosource = s;
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",trg); }
+		sigs.put(target, trg);
+		sigs.put(sourcemdl.label, sourcemdlnosource);
+		System.out.println(sigs);
+	}
+	
 	public static String targetName(String target) {
 		return target+"_new_";
 	}
@@ -84,12 +99,12 @@ public class AlloyUtil {
 	
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, PrimSig statesig, Map<String,List<Sig>> modelsigs) throws ErrorAlloy, ErrorTransform{
+	public static Expr localStateAttribute(Property prop, Expr statesig, Map<String,List<Sig>> modelsigs) throws ErrorAlloy, ErrorTransform{
 		Expr exp = OCL2Alloy.propertyToField(prop,modelsigs);
 		return exp.join(statesig);
 	}
 	
-	public static Expr localStateSig(PrimSig sig, Expr var) throws ErrorTransform, ErrorAlloy{
+	public static Expr localStateSig(Sig sig, Expr var) throws ErrorTransform, ErrorAlloy{
 		Expr exp = null;
 		
 		for (Field field : sig.getFields()) {
@@ -97,7 +112,7 @@ public class AlloyUtil {
 				exp = field;
 			}
 		}
-		if (exp == null) throw new ErrorTransform ("State field not found.","AlloyUtil",exp);
+		if (exp == null) throw new ErrorTransform ("State field not found.","AlloyUtil",sig);
 		
 		return exp.join(var);
 	}
@@ -125,10 +140,10 @@ public class AlloyUtil {
 		else return e.and(f);
 	}
 	
-	public static ConstList<CommandScope> createScope (List<PrimSig> sigs) throws ErrorAlloy {
+	public static ConstList<CommandScope> createScope (List<PrimSig> instsigs, List<Sig> modelsigs) throws ErrorAlloy {
 		Map<String,CommandScope> scopes = new HashMap<String,CommandScope>();
 		
-		for (PrimSig sig : sigs) {
+		for (PrimSig sig : instsigs) {
 			incrementScope(scopes,sig.parent);
 			Sig up = sig.parent.parent;
 			while (up != Sig.UNIV && up != null){
@@ -136,6 +151,11 @@ public class AlloyUtil {
 				up = (up instanceof PrimSig)?((PrimSig)up).parent:null;
 			}
 		}		
+		for (Sig sig : modelsigs){
+			if (scopes.get(sig.label)==null)
+				try { scopes.put(sig.label,new CommandScope(sig, false, 0));}
+				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
+		}
 		System.out.println(scopes.values());
 		return ConstList.make(scopes.values());
 	}

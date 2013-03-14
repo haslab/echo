@@ -264,7 +264,7 @@ public class ECore2Alloy {
 		List<Sig> l1 = new ArrayList<Sig>(sigList);
 		Map<String,List<Sig>> m1 = new HashMap<String,List<Sig>>();
 		m1.put(pack.getName(), l1);
-		Map<String,PrimSig> m2 = new HashMap<String,PrimSig>();
+		Map<String,Expr> m2 = new HashMap<String,Expr>();
 		m2.put(pack.getName(), state);
 		OCL2Alloy converter = new OCL2Alloy(m2,m1,sd);
 		for(EAnnotation ea : lAnn)
