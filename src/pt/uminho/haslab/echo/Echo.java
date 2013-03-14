@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+import javax.swing.SwingUtilities;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
@@ -356,22 +358,24 @@ public class Echo {
 			VizGUI viz = new VizGUI(true, "", null);
 			String theme = (qvtpath).replace(".qvtr", ".thm");
 		
-			while (sol.satisfiable()) {		
+			boolean end = false;
+			while (sol.satisfiable()&&!end) {		
 				System.out.println("Instance found for delta "+delta+".");
 				sol.writeXML("alloy_output.xml");
 		        // opens the visualizer with the resulting model
 				viz.loadXML("alloy_output.xml", true);
 				if (new File(theme).isFile()) viz.loadThemeFile(theme);
-				
 				//saving the result
 				saveEObject(new Alloy2XMI(sol,trgIns,trgMM,trgsig).getModel());
-				
-				
-				in.readLine(); 
-				sol = sol.next();
+
+				System.out.println("Search another instance? (y)");
+				String input = in.readLine(); 
+				if (input.equals("y")) sol = sol.next();
+				else end = true;
 			}
 			in.close();
-			System.out.println("No more instances for delta "+delta+".");
+			if (!end) System.out.println("No more instances for delta "+delta+".");
+			SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();
 		}
 	}
 	
