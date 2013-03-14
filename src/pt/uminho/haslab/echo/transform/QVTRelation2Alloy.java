@@ -30,38 +30,42 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class QVTRelation2Alloy {
 
-	/** The Alloy declarations of the variables occurring in the when constraint
-	 * if non-top QVT relation, does not contain root variables*/
-	private Set<Decl> alloywhenvars = new HashSet<Decl>();
-	/** The Alloy declarations of the variables occurring in the source domain but not in the when constraint
-	 * if non-top QVT relation, does not contain root variables*/
-	private Set<Decl> alloysourcevars = new HashSet<Decl>();
-	/** The Alloy declarations of the variables occurring in the target domain and where constraint but not in the source domains and the when constraint constraint
-	 * if non-top QVT relation, does not contain root variables*/
-	private Set<Decl> alloytargetvars = new HashSet<Decl>();
-	/** The Alloy declarations of the root variables
-	 * null if top QVT relation */
-	private List<Decl> alloyrootvars = new ArrayList<Decl>();
-	/** The Alloy declarations of all variables (union of the previous sets) */ 
-	private Set<Decl> decls = new HashSet<Decl>();
-	
-	private List<VariableDeclaration> rootvariables = new ArrayList<VariableDeclaration>();
-
-	
-	/** the alloy signatures of each metamodel */
-	private Map<String,Expr> statesigs = new HashMap<String,Expr>();
-	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
-	
-	/** separated target and source domains*/
-	private RelationDomain targetdomain;
-	private List<RelationDomain> sourcedomains = new ArrayList<RelationDomain>();
 	/** the QVT relation being transformed*/
 	private Relation rel;
-	/** tue target metamodel*/
+	/** the direction of the QVT relation*/
 	private TypedModel direction;
+	/** whether the QVT relation is top or not*/
+	private boolean top;
+	/** the Alloy state signatures of the instances*/
+	private Map<String,Expr> statesigs = new HashMap<String,Expr>();
+	/** the Alloy signatures of the metamodels*/
+	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
+	
+	/** the root variables of the QVT relation being translated*/
+	private List<VariableDeclaration> rootvariables = new ArrayList<VariableDeclaration>();
+	/** the target relation domain */
+	private RelationDomain targetdomain;
+	/** the source relation domains */
+	private List<RelationDomain> sourcedomains = new ArrayList<RelationDomain>();
 
-	/** the Alloy expression rising from this relations*/
+	/** the Alloy declarations of the variables occurring in the when constraint
+	 * if non-top QVT relation, does not contain root variables*/
+	private Set<Decl> alloywhenvars = new HashSet<Decl>();
+	/** the Alloy declarations of the variables occurring in the source domain but not in the when constraint
+	 * if non-top QVT relation, does not contain root variables*/
+	private Set<Decl> alloysourcevars = new HashSet<Decl>();
+	/** the Alloy declarations of the variables occurring in the target domain and where constraint but not in the source domains and the when constraint constraint
+	 * if non-top QVT relation, does not contain root variables*/
+	private Set<Decl> alloytargetvars = new HashSet<Decl>();
+	/** the Alloy declarations of the root variables
+	 * null if top QVT relation */
+	private List<Decl> alloyrootvars = new ArrayList<Decl>();
+	/** the Alloy declarations of all variables (union of the previous sets) */ 
+	private Set<Decl> decls = new HashSet<Decl>();
+	
+	/** the Alloy expression rising from this QVT relation*/
 	final Expr fact;
+	/** the Alloy field representing the this QVT relation (null if top QVT relation)*/
 	final Field field;
 	
 	/** Constructs a new QVT to Alloy translator for top QVT relations
@@ -80,8 +84,9 @@ public class QVTRelation2Alloy {
 		this.statesigs = statesigs;
 		this.rel = rel;
 		this.direction = direction;
+		this.top = top;
 		initDomains();
-		initVariableDeclarationLists(top);
+		initVariableDeclarationLists();
 		fact = calculateFact();
 		field = top?null:addRelationFields();
 	}
@@ -153,7 +158,7 @@ public class QVTRelation2Alloy {
 	}
 	
 	// separates source from target variables (eventually also when and where variables)
-	private void initVariableDeclarationLists(boolean top) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	private void initVariableDeclarationLists() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		TemplateExp temp;
 		Set<VariableDeclaration> whenvariables = new HashSet<VariableDeclaration>();
 		Set<VariableDeclaration> sourcevariables = new HashSet<VariableDeclaration>();
