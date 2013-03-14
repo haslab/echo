@@ -1,0 +1,18 @@
+transformation NonTopEnforce (m1 : TwoLayerMM , m2 : TwoLayerMM) {
+
+	top relation R {
+  		n : String;
+  		firstchild : TwoLayerMM::MEchild;
+  		secondchild : TwoLayerMM::MEchild;
+  		enforce domain m1 me1:MEtop {name = n, child = firstchild};
+  		enforce domain m2 me2:MEtop {name = n, child = secondchild};
+  		where { S(firstchild,secondchild); }
+  	}
+	
+	relation S {
+ 		n : String;
+  		enforce domain m1 me1:MEchild {name = n};
+  		enforce domain m2 me2:MEchild {name = n};
+  	}
+  		
+ }

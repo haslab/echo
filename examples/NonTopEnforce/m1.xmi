@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<twolayer:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:twolayer="TwoLayerMM"
+    xsi:schemaLocation="TwoLayerMM TwoLayerMM#HSM">
+  <metops name="n"
+      child="//@mechildren.2 //@mechildren.0 //@mechildren.1"/>
+  <mechildren
+      name="child1"/>
+  <mechildren
+      name="child2"/>
+  <mechildren
+      name="child3"/>
+</twolayer:Container>

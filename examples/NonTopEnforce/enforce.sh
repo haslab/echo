@@ -1,0 +1,1 @@
+java -cp "../../bin/:../../lib/*" pt.uminho.haslab.echo.Echo enforce NonTopEnforce.qvtr m2 TwoLayerMM.ecore m1.xmi TwoLayerMM.ecore m2.xmi

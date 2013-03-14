@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<projection> <type name="State_"/> </projection>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Int"/>
+   <type name="m1"/>
+   <type name="m2"/>
+   <type name="m2_new_"/>
+   <type name="State_"/>
+   <type name="TwoLayerMM"/>
+   <type name="TwoLayerMM&apos;"/>
+   <type name="TwoLayerMM_Container_0_"/>
+   <type name="TwoLayerMM_Container_5_"/>
+   <type name="TwoLayerMM_MEchild_2_"/>
+   <type name="TwoLayerMM_MEchild_3_"/>
+   <type name="TwoLayerMM_MEchild_4_"/>
+   <type name="TwoLayerMM_MEtop_1_"/>
+   <type name="univ"/>
+   <type name="seq/Int"/>
+   <set name="TwoLayerMM_Container_" type="TwoLayerMM_Container"/>
+   <set name="TwoLayerMM_MEchild_" type="TwoLayerMM_MEchild"/>
+   <set name="TwoLayerMM_MEtop_" type="TwoLayerMM_MEtop"/>
+</node>
+
+<node color="Blue">
+   <type name="TwoLayerMM_MEchild"/>
+</node>
+
+<node shape="Ellipse" color="Green">
+   <type name="TwoLayerMM_MEtop"/>
+</node>
+
+<node visible="no">
+   <type name="TwoLayerMM_Container"/>
+</node>
+
+<node visible="no" hideunconnected="yes">
+   <type name="String"/>
+</node>
+
+<edge label="child">
+   <relation name="TwoLayerMM_child"> <type name="TwoLayerMM_MEtop"/> <type name="TwoLayerMM_MEchild"/> </relation>
+</edge>
+
+<edge visible="no">
+   <relation name="S_m1_"> <type name="TwoLayerMM_MEchild"/> <type name="TwoLayerMM_MEchild"/> </relation>
+   <relation name="S_m2_"> <type name="TwoLayerMM_MEchild"/> <type name="TwoLayerMM_MEchild"/> </relation>
+</edge>
+
+<edge visible="no" attribute="yes" label="name">
+   <relation name="TwoLayerMM_name"> <type name="TwoLayerMM_MEchild"/> <type name="String"/> </relation>
+   <relation name="TwoLayerMM_name"> <type name="TwoLayerMM_MEtop"/> <type name="String"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
