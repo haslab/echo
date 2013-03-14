@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.BasicExtendedMetaData;
 import org.eclipse.emf.ecore.util.ExtendedMetaData;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
@@ -45,6 +47,7 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 
 import com.google.inject.Injector;
 
+import pt.uminho.haslab.echo.transform.Alloy2XMI;
 import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.QVT2Alloy;
 import pt.uminho.haslab.echo.transform.XMI2Alloy;
@@ -242,6 +245,9 @@ public class Echo {
 		System.out.println("Model signatures: "+modelsigs);
 		Expr deltaexpr = Sig.NONE.no(),instancefact = Sig.NONE.no();
 
+		ECore2Alloy trgMM = null;
+		XMI2Alloy trgIns = null;
+		
 		for (TypedModel modelarg: qvttransargs) {
 			String name = modelarg.getName();
 			String mdl = modelarg.getUsedPackage().get(0).getName();
@@ -257,6 +263,8 @@ public class Echo {
 				System.out.println("Delta function: "+deltaexpr);
 				targetscopes = AlloyUtil.createScope(insttrans.getSigList(),mmtrans.getSigList());
 				System.out.println("Scope: "+targetscopes);
+				trgIns = insttrans;
+				trgMM = mmtrans;
 			}
 
 			instsigs.put(name,insttrans.getSigList());
@@ -354,12 +362,39 @@ public class Echo {
 		        // opens the visualizer with the resulting model
 				viz.loadXML("alloy_output.xml", true);
 				if (new File(theme).isFile()) viz.loadThemeFile(theme);
+				
+				//saving the result
+				saveEObject(new Alloy2XMI(sol,trgIns,trgMM,trgsig).getModel());
+				
+				
 				in.readLine(); 
 				sol = sol.next();
 			}
 			in.close();
 			System.out.println("No more instances for delta "+delta+".");
 		}
+	}
+	
+	public static void saveEObject(EObject obj)
+	{
+		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
+		    "*", new  XMIResourceFactoryImpl());
+
+		Resource resource = resourceSet.createResource(URI.createURI("./result.xmi"));
+		resource.getContents().add(obj);
+
+		/*
+		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
+		* xsi:schemaLocation attribute in the document
+		*/
+		Map<Object,Object> options = new HashMap<Object,Object>();
+		options.put(XMIResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+		try{
+		     resource.save(options);
+		   }catch (IOException e) {
+		     e.printStackTrace();
+		   }
 	}
 	
 	public static void print(List<Sig> allsigs){
