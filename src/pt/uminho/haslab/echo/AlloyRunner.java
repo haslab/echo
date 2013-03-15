@@ -44,7 +44,7 @@ public class AlloyRunner {
 	/** the Alloy reporter*/
 	private A4Reporter rep;
 	/** the Alloy visualizer used to present instances */
-	private VizGUI viz;
+	private VizGUI viz = null;
 
 	/** Constructs a new Alloy Runner, that runs QVT transformations.
 	 * 
@@ -71,7 +71,6 @@ public class AlloyRunner {
 		options = new A4Options();
 		options.solver = A4Options.SatSolver.SAT4J;
 		options.noOverflow = true;
-		viz = new VizGUI(true, "", null);
 	}
 
 	/** Runs a QVT enforcement command for the current delta.
@@ -104,7 +103,8 @@ public class AlloyRunner {
 		if (!sol.satisfiable()) throw new ErrorAlloy ("Solution not satisfiable.","AlloyRunner");
 		try{
 			sol.writeXML("alloy_output.xml");
-			viz.loadXML("alloy_output.xml", true);
+			if (viz == null) viz = new VizGUI(true, "alloy_output.xml", null);
+			else viz.loadXML("alloy_output.xml", true);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
 		String theme = (path).replace(".qvtr", ".thm");
 		if (new File(theme).isFile()) viz.loadThemeFile(theme);		

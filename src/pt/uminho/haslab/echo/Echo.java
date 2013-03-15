@@ -317,18 +317,19 @@ public class Echo {
 				alloyrunner.enforce();			
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
-			String end = "";
-			while (alloyrunner.getSolution().satisfiable()&&!end.equals("y")) {		
+			String end = "y";
+			while (alloyrunner.getSolution().satisfiable()&&end.equals("y")) {		
 				System.out.println("Instance found for delta "+alloyrunner.getDelta()+".");
 				alloyrunner.show();
 				saveEObject(new Alloy2XMI(alloyrunner.getSolution(),trgIns,trgMM,trgsig).getModel());
 				System.out.println("Search another instance? (y)");
+				alloyrunner.nextInstance();
 				end = in.readLine(); 
 			}
 			in.close();
-			if (!end.equals("y")) System.out.println("No more instances for delta "+alloyrunner.getDelta()+".");
+			alloyrunner.closeViz();
+			if (end.equals("y")) System.out.println("No more instances for delta "+alloyrunner.getDelta()+".");
 		}
-		alloyrunner.closeViz();
 	}
 	
 	public static void saveEObject(EObject obj)
