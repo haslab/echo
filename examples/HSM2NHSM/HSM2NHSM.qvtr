@@ -1,4 +1,4 @@
-transformation uml2rdbms (hm : HSM, nm : HSM) {
+transformation hsm2nhsm (hm : HSM, nm : HSM) {
 
 	top relation State2State { 
     	n: String; 
