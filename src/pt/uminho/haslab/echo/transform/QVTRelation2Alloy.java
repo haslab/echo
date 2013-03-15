@@ -30,18 +30,18 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class QVTRelation2Alloy {
 
-	/** the QVT relation being transformed*/
+	/** the QVT Relation being transformed*/
 	private Relation rel;
-	/** the direction of the QVT relation*/
+	/** the direction of the QVT Relation*/
 	private TypedModel direction;
-	/** whether the QVT relation is top or not*/
+	/** whether the QVT Relation is top or not*/
 	private boolean top;
 	/** the Alloy state signatures of the instances*/
 	private Map<String,Expr> statesigs = new HashMap<String,Expr>();
 	/** the Alloy signatures of the metamodels*/
 	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
 	
-	/** the root variables of the QVT relation being translated*/
+	/** the root variables of the QVT Relation being translated*/
 	private List<VariableDeclaration> rootvariables = new ArrayList<VariableDeclaration>();
 	/** the target relation domain */
 	private RelationDomain targetdomain;
@@ -49,29 +49,31 @@ public class QVTRelation2Alloy {
 	private List<RelationDomain> sourcedomains = new ArrayList<RelationDomain>();
 
 	/** the Alloy declarations of the variables occurring in the when constraint
-	 * if non-top QVT relation, does not contain root variables*/
+	 * if non-top QVT Relation, does not contain root variables*/
 	private Set<Decl> alloywhenvars = new HashSet<Decl>();
 	/** the Alloy declarations of the variables occurring in the source domain but not in the when constraint
-	 * if non-top QVT relation, does not contain root variables*/
+	 * if non-top QVT Relation, does not contain root variables*/
 	private Set<Decl> alloysourcevars = new HashSet<Decl>();
 	/** the Alloy declarations of the variables occurring in the target domain and where constraint but not in the source domains and the when constraint constraint
-	 * if non-top QVT relation, does not contain root variables*/
+	 * if non-top QVT Relation, does not contain root variables*/
 	private Set<Decl> alloytargetvars = new HashSet<Decl>();
 	/** the Alloy declarations of the root variables
-	 * null if top QVT relation */
+	 * null if top QVT Relation */
 	private List<Decl> alloyrootvars = new ArrayList<Decl>();
 	/** the Alloy declarations of all variables (union of the previous sets) */ 
 	private Set<Decl> decls = new HashSet<Decl>();
 	
-	/** the Alloy expression rising from this QVT relation*/
+	/** the Alloy expression rising from this QVT Relation*/
 	final Expr fact;
-	/** the Alloy field representing the this QVT relation (null if top QVT relation)*/
+	/** the Alloy field representing the this QVT Relation (null if top QVT Relation)*/
 	final Field field;
 	
-	/** Constructs a new QVT to Alloy translator for top QVT relations
-	 * @param rel the QVT relation being translated
+	/** Constructs a new QVT Relation to Alloy translator.
+	 * Translates a QVT Relation (top or non top) to Alloy in a given direction.
+	 * 
+	 * @param rel the QVT Relation being translated
 	 * @param direction the target direction of the transformation
-	 * @param top whether the QVT relation is top or not
+	 * @param top whether the QVT Relation is top or not
 	 * @param statesigs maps transformation arguments (or metamodels) to the respective Alloy singleton signature (or abstract signature)
 	 * @param modelsigs maps metamodels to the set of Alloy signatures
 	 * 
@@ -105,9 +107,10 @@ public class QVTRelation2Alloy {
 			}
 	}
 	
-	/** Calculates the Alloy expression denoting the QVT relation
+	/** Calculates the Alloy expression denoting the QVT Relation.
+	 * Takes the shape "forall whenvars : when => (forall sourcevars : sourcedomain => (exists targetvars+wherevars : targetdomain && where))"
 	 * 
-	 * @return the Alloy Expr representing the QVT relation
+	 * @return the Alloy expression representing the QVT Relation
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
 	 * @throws ErrorUnsupported
@@ -116,7 +119,6 @@ public class QVTRelation2Alloy {
 
 		Expr fact,sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
 
-		// calculates the target expression
 		try {
 			if (rel.getWhere() != null){
 				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
@@ -129,16 +131,13 @@ public class QVTRelation2Alloy {
 			for (Decl d : alloytargetvars)
 				targetexpr = targetexpr.forSome(d);
 			
-			// calculates the source expression
 			for (RelationDomain dom : sourcedomains) 
 				sourceexpr = AlloyUtil.cleanAnd(sourceexpr,patternToExpr(dom));
 			
-			// calculates the source => target expression
 			fact = (sourceexpr.implies(targetexpr));
 			for (Decl d : alloysourcevars)
 				fact = fact.forAll(d);	
 			
-			// calculates the when expression
 			if (rel.getWhen() != null){
 				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
 				for (Predicate predicate : rel.getWhen().getPredicate()) {
@@ -146,7 +145,6 @@ public class QVTRelation2Alloy {
 					whenexpr = AlloyUtil.cleanAnd(whenexpr,ocltrans.oclExprToAlloy(oclwhen));
 				}
 	
-				// calculates the when => source => target expression
 				fact = (whenexpr.implies(fact));	
 				for (Decl d : alloywhenvars)
 					fact = fact.forAll(d);
@@ -157,7 +155,13 @@ public class QVTRelation2Alloy {
 		return fact;
 	}
 	
-	// separates source from target variables (eventually also when and where variables)
+	/** Initializes the variable lists and generates the respective Alloy declarations.
+	 * 
+	 * @throws ErrorTransform
+	 * @throws ErrorAlloy
+	 * @throws ErrorUnsupported
+	 * @todo Support fom <code>CollectionTemplateExp</code>
+	 */
 	private void initVariableDeclarationLists() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		TemplateExp temp;
 		Set<VariableDeclaration> whenvariables = new HashSet<VariableDeclaration>();
@@ -177,7 +181,6 @@ public class QVTRelation2Alloy {
 		sourcevariables.removeAll(whenvariables);
 		
 		temp = targetdomain.getPattern().getTemplateExpression();
-		// No support for CollectionTemplateExp
 		targetvariables.addAll(OCLUtil.variablesOCLExpression(temp));
 		if (rel.getWhere() != null)
 			for (Predicate predicate : rel.getWhere().getPredicate()) {
@@ -193,21 +196,24 @@ public class QVTRelation2Alloy {
 			sourcevariables.removeAll(rootvariables);
 		}
 		
-		// calculates the source variables declarations (quantifications)
 		alloysourcevars = (Set<Decl>) OCL2Alloy.variableListToExpr(sourcevariables,modelsigs,true,statesigs);
 		decls.addAll(alloysourcevars);
-		// calculates the when variables declarations (quantifications)
 		alloywhenvars =  (Set<Decl>) OCL2Alloy.variableListToExpr(whenvariables,modelsigs,true,statesigs);
 		decls.addAll(alloywhenvars);
-		// calculates the target variables declarations (quantifications)
 		alloytargetvars = (Set<Decl>) OCL2Alloy.variableListToExpr(targetvariables,modelsigs,true,statesigs);
 		decls.addAll(alloytargetvars);
-		// calculates the target variables declarations (quantifications)
 		alloyrootvars = (List<Decl>) OCL2Alloy.variableListToExpr(rootvariables,modelsigs,false,statesigs);
 	    if (!top) decls.addAll(alloyrootvars);
 	}
 
-	// calls OCL2Alloy on the domain pattern
+	/** Translates a {@code RelationDomain} to the correspondent Alloy expression through {@code OCL2Alloy} translator.
+	 * 
+	 * @param domain The {@code RelationDomain} to be translated
+	 * @return the Alloy expression representing {@code domain}
+	 * @throws ErrorTransform
+	 * @throws ErrorAlloy
+	 * @throws ErrorUnsupported
+	 */
 	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		OCL2Alloy ocltrans = new OCL2Alloy(domain.getTypedModel(),statesigs,modelsigs,decls);
 
@@ -217,8 +223,14 @@ public class QVTRelation2Alloy {
 		return ocltrans.oclExprToAlloy(temp);
 	}
 	
+	/** Generates the QVT Relation field.
+	 * 
+	 * @return the Alloy field for this QVT Relation
+	 * @throws ErrorAlloy
+	 * @throws ErrorTransform
+	 * @todo Support for n models
+	 */
 	private Field addRelationFields() throws ErrorAlloy, ErrorTransform{
-		// only supporting one: generalize
 		try {
 			Sig type = (Sig) alloyrootvars.get(1).expr.type().toExpr();
 			Sig s = (Sig) alloyrootvars.get(0).expr.type().toExpr();
@@ -236,9 +248,18 @@ public class QVTRelation2Alloy {
 
 	}
 	
+	/** Returns the Alloy fact corresponding to this QVT Relation
+	 * 
+	 * @return this.fact
+	 */
 	public Expr getFact() {
 		return fact;
 	}
+
+	/** Returns the Alloy field corresponding to this QVT Relation
+	 * 
+	 * @return this.field
+	 */
 	public Field getField() {
 		return field;
 	}

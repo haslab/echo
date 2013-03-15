@@ -26,6 +26,7 @@ import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
@@ -48,7 +49,7 @@ public class ECore2Alloy {
 	private final PrimSig state;
 	private List<Sig> sigList;
 	
-	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err{
+	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		state = statesig;
 		pack = p;
 		sigList = makeSigList();
@@ -188,12 +189,12 @@ public class ECore2Alloy {
 		return res;
 	}
 	
-	private void processReferences(List<EReference> eAllReferences, PrimSig parent) throws ErrorAlloy, ErrorTransform, ParserException, ErrorUnsupported {
+	private void processReferences(List<EReference> eAllReferences, PrimSig parent) throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
 		for(EReference r : eAllReferences)
 			processReference(r,parent);
 	}
 
-	private void processReference(EReference r, PrimSig srcsig) throws ErrorAlloy, ErrorTransform, ParserException, ErrorUnsupported {
+	private void processReference(EReference r, PrimSig srcsig) throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
 		EClass type = r.getEReferenceType();
 		PrimSig trgsig = mapClassSig.get(type.getName());
 		Field field;
@@ -250,7 +251,7 @@ public class ECore2Alloy {
 	}
 
 
-	private void processEAnnotations(List<EAnnotation> lAnn, EObject obj,PrimSig sig) throws ParserException, ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	private void processEAnnotations(List<EAnnotation> lAnn, EObject obj,PrimSig sig) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, ErrorParser {
 		Set<Decl> sd = new HashSet<Decl>();
 		Decl self = null;
 		try{
@@ -277,11 +278,12 @@ public class ECore2Alloy {
 						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self, state.decl);
 						sig.addFact(oclalloy);
 					}
-				} catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",sig);}
+				} catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",sig);} 
+				  catch (ParserException e) { throw new ErrorParser("Error parsing OCL constraint on the metamodel","ECore2Alloy");}
 
 	}
 	
-	private List<Sig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err
+	private List<Sig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
 	{
 		List<EClassifier> list = pack.getEClassifiers();
 		List<EClass> classList = new LinkedList<EClass>();
@@ -333,7 +335,7 @@ public class ECore2Alloy {
 		return sigList;
 	}
 	
-	private List<Sig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ParserException, Err
+	private List<Sig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
 	{
 		LinkedList<EClass> list = new LinkedList<EClass>(classList);
 		EClass ec = list.poll();

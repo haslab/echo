@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
-import javax.swing.SwingUtilities;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
@@ -51,24 +49,17 @@ import com.google.inject.Injector;
 
 import pt.uminho.haslab.echo.transform.Alloy2XMI;
 import pt.uminho.haslab.echo.transform.AlloyUtil;
-import pt.uminho.haslab.echo.transform.QVT2Alloy;
+import pt.uminho.haslab.echo.transform.QVTTransformation2Alloy;
 import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
 
-import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
-import edu.mit.csail.sdg.alloy4.ErrorWarning;
-import edu.mit.csail.sdg.alloy4compiler.ast.Command;
+import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
-import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 public class Echo {
 	
@@ -132,13 +123,12 @@ public class Echo {
 		    extendedMetaData);
 
 		// Create empty resource with the given URI
-		Resource load_resource = load_resourceSet.getResource(URI
-				.createURI(uri), true);
+		Resource load_resource = load_resourceSet.getResource(URI.createURI(uri), true);
 		
 		return load_resource.getContents().get(0);
 	}
 		
-	private static RelationalTransformation getTransformation(Map<String,String> packpaths) throws Exception {
+	private static RelationalTransformation getTransformation(Map<String,String> packpaths) throws ErrorParser {
 		CS2PivotResourceAdapter adapter = null;
 
 	//	OCLstdlib.install();
@@ -148,36 +138,39 @@ public class Echo {
 		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
 		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		
-		Scanner scan = new Scanner(new File(qvtpath));
-		String qvtcontent = scan.useDelimiter("\\Z").next();
-		scan.close();
-		 
-		File qvtaux = new File("aux.qvtr");
-		qvtaux.createNewFile();
-		FileWriter out = new FileWriter(qvtaux, true);
-	    BufferedWriter fbw = new BufferedWriter(out);
-	    for (Entry<String,String> mdl : packpaths.entrySet())
-	    	fbw.write("import "+mdl.getKey()+" : \'"+mdl.getValue()+"\'::"+mdl.getKey()+";\n\n");
-        fbw.write(qvtcontent);
-        fbw.close();
-        
-		BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("aux.qvtr"), true);
-        qvtaux.delete();
+		try{
+			Scanner scan = new Scanner(new File(qvtpath));
+			String qvtcontent = scan.useDelimiter("\\Z").next();
+			scan.close();
+			File qvtaux = new File("aux.qvtr");
+			qvtaux.createNewFile();
+			FileWriter out = new FileWriter(qvtaux, true);
+		    BufferedWriter fbw = new BufferedWriter(out);
+		    for (Entry<String,String> mdl : packpaths.entrySet())
+		    	fbw.write("import "+mdl.getKey()+" : \'"+mdl.getValue()+"\'::"+mdl.getKey()+";\n\n");
+	        fbw.write(qvtcontent);
+	        fbw.close();
 
-		String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "Error parsing QVT.", "\n\t");
-		if (message != null) throw new ErrorParser (message,"QVT Parser");
+			BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("aux.qvtr"), true);
+	        qvtaux.delete();
 		
-		adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
-		Resource pivotResource = adapter.getPivotResource(xtextResource);
-				
-		RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
-		RelationalTransformation rt = (RelationalTransformation) rm.eContents().get(0);
-		return rt;
+			String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "Error parsing QVT.", "\n\t");
+			if (message != null) throw new ErrorParser (message,"QVT Parser");
+			
+			adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
+			Resource pivotResource = adapter.getPivotResource(xtextResource);
+					
+			RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
+			RelationalTransformation rt = (RelationalTransformation) rm.eContents().get(0);
+			return rt;
+		} catch (Exception e) { throw new ErrorParser ("QVT file +"+qvtpath+" not found.","QVT Parser");}
+
 	}
 	
-	public static void main(String[] args) throws Exception{
-		if (args.length != 7) throw new Error ("Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
-												"E.g. \"check UML2RDBMS.qvt UML UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"");
+	public static void main(String[] args) throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, Err, IOException{
+		if (args.length != 7) throw new ErrorParser ("Echo","Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
+												"E.g. \"check UML2RDBMS.qvt uml UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"\n" +
+												"For more information visit http://github.com/haslab/echo.");
 		qvtpath = args[1];
 		target = args[2];
 
@@ -229,7 +222,8 @@ public class Echo {
 
 		statesigs = AlloyUtil.createStateSig(qvttransargs);
 		stateinstancesigs = AlloyUtil.createStateInstSig(statesigs, qvttransargs);
-		PrimSig trgsig = AlloyUtil.createTargetState(stateinstancesigs,target);
+		PrimSig trgsig = null;
+		if (!check) trgsig = AlloyUtil.createTargetState(stateinstancesigs,target);
 		System.out.println("State signatures: "+stateinstancesigs.values());
 
 		for (String name : statesigs.keySet()) {
@@ -284,8 +278,8 @@ public class Echo {
 		
 		Map<String,Expr> sigaux = new HashMap<String, Expr>(stateinstancesigs);
 		sigaux.putAll(statesigs);
-		AlloyUtil.insertTargetState(sigaux, target, trgsig);
-		QVT2Alloy qvtrans = new QVT2Alloy(sigaux,modelsigs,qvttrans);
+		if (!check) AlloyUtil.insertTargetState(sigaux, target, trgsig);
+		QVTTransformation2Alloy qvtrans = new QVTTransformation2Alloy(sigaux,modelsigs,qvttrans);
 		Expr qvtfact = Sig.NONE.no();
 		Map<String,Expr> qvtfacts = qvtrans.getFact();
 		for (String e : qvtfacts.keySet()){
@@ -295,24 +289,6 @@ public class Echo {
 		
 		System.out.println("** Processing Alloy command: "+args[0]+" "+qvttrans.getName()+" on the direction of "+target+".");
 
-		// starting Alloy
-		A4Reporter rep = new A4Reporter() {
-			// For example, here we choose to display each "warning" by printing it to System.out
-			@Override public void warning(ErrorWarning msg) {
-			System.out.print("Relevance Warning:\n"+(msg.toString().trim())+"\n\n");
-			System.out.flush();
-			}
-		};
-		A4Options options = new A4Options();
-		options.solver = A4Options.SatSolver.SAT4J;
-		options.noOverflow = true;
-
-		int intscope = 2, delta = 0;
-
-		Expr commandfact = instancefact;
-		if (check) commandfact = (commandfact.and(qvtfact));		 
-		else commandfact = (commandfact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(delta)));		
-		
 		List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
 		for (String x : instsigs.keySet()){
 			allsigs.add(stateinstancesigs.get(x));
@@ -322,61 +298,37 @@ public class Echo {
 			allsigs.add(statesigs.get(x));
 			allsigs.addAll(modelsigs.get(x));
 		}
-		allsigs.add(trgsig);
-		//print(allsigs);
+		if (!check) allsigs.add(trgsig);
 
-		
-		System.out.println("Final command fact: "+(commandfact));
+		System.out.println("Final command fact: "+(instancefact.and(qvtfact)));
 		System.out.println("Final sigs: "+(allsigs)+"\n");
-
 		System.out.println("** Running Alloy.");
-		// enforce and check mode are run and check commands respectively
-		Command cmd = new Command(check, 0, intscope, -1, commandfact);
-
-		A4Solution sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);
+		
+		AlloyRunner alloyrunner = new AlloyRunner(allsigs,instancefact.and(qvtfact),deltaexpr,targetscopes,qvtpath);
 		
 		if (check) {
-			if (sol.satisfiable()) System.out.println("Instance found. Models consistent.");
+			alloyrunner.check();
+			if (alloyrunner.getSolution().satisfiable()) System.out.println("Instance found. Models consistent.");
 			else System.out.println("Instance not found. Models inconsistent.");
 		} else {
-			while (!sol.satisfiable()) {
-				System.out.println("No instance found for delta "+delta+" ("+targetscopes+", int "+intscope+").");
-
-				commandfact = (instancefact.and(qvtfact)).and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));
-
-				// calculates integer bitwidth
-				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
-				// enforce and check mode are run and check commands respectively
-				cmd = new Command(check, 0, intscope, -1, commandfact);
-				// increases the target signatures' scopes
-				targetscopes = AlloyUtil.incrementScopes(targetscopes);
-				cmd = cmd.change(targetscopes);
-				
-				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);				
+			alloyrunner.enforce();
+			while (!alloyrunner.getSolution().satisfiable()) {
+				System.out.println("No instance found for delta "+alloyrunner.getDelta()+" ("+targetscopes+", int "+alloyrunner.getIntScope()+").");
+				alloyrunner.enforce();			
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
-			VizGUI viz = new VizGUI(true, "", null);
-			String theme = (qvtpath).replace(".qvtr", ".thm");
-		
-			boolean end = false;
-			while (sol.satisfiable()&&!end) {		
-				System.out.println("Instance found for delta "+delta+".");
-				sol.writeXML("alloy_output.xml");
-		        // opens the visualizer with the resulting model
-				viz.loadXML("alloy_output.xml", true);
-				if (new File(theme).isFile()) viz.loadThemeFile(theme);
-				//saving the result
-				saveEObject(new Alloy2XMI(sol,trgIns,trgMM,trgsig).getModel());
-
+			String end = "";
+			while (alloyrunner.getSolution().satisfiable()&&!end.equals("y")) {		
+				System.out.println("Instance found for delta "+alloyrunner.getDelta()+".");
+				alloyrunner.show();
+				saveEObject(new Alloy2XMI(alloyrunner.getSolution(),trgIns,trgMM,trgsig).getModel());
 				System.out.println("Search another instance? (y)");
-				String input = in.readLine(); 
-				if (input.equals("y")) sol = sol.next();
-				else end = true;
+				end = in.readLine(); 
 			}
 			in.close();
-			if (!end) System.out.println("No more instances for delta "+delta+".");
-			SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();
+			if (!end.equals("y")) System.out.println("No more instances for delta "+alloyrunner.getDelta()+".");
 		}
+		alloyrunner.closeViz();
 	}
 	
 	public static void saveEObject(EObject obj)
