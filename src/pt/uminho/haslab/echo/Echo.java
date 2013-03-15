@@ -293,6 +293,10 @@ public class Echo {
 		}
 		if (!check) allsigs.add(trgsig);
 
+		//EObject trgCopy = EcoreUtils.copy(trgIns.eObj);
+		
+		
+		
 		AlloyRunner alloyrunner = new AlloyRunner(allsigs,instancefact.and(qvtfact),deltaexpr,targetscopes,qvtpath);
 		
 		if (check) {
@@ -300,6 +304,14 @@ public class Echo {
 			if (alloyrunner.getSolution().satisfiable()) System.out.println("Instance found. Models consistent.");
 			else System.out.println("Instance not found. Models inconsistent.");
 		} else {
+			
+			String oldPath = trgIns.eObj.eResource().getURI().toString();
+			StringBuilder sb = new StringBuilder(oldPath);
+			sb.insert(sb.length()-4,".old");
+			saveEObject(trgIns.eObj,sb.toString());
+			
+			System.out.println("** Backup file created: " +  sb);
+			
 			alloyrunner.enforce();
 			while (!alloyrunner.getSolution().satisfiable()) {
 				System.out.println("No instance found for delta "+alloyrunner.getDelta()+" (for "+targetscopes+", int "+alloyrunner.getIntScope()+").");
@@ -310,7 +322,7 @@ public class Echo {
 			while (alloyrunner.getSolution().satisfiable()&&end.equals("y")) {		
 				System.out.println("Instance found for delta "+alloyrunner.getDelta()+".");
 				alloyrunner.show();
-				saveEObject(new Alloy2XMI(alloyrunner.getSolution(),trgIns,trgMM,trgsig).getModel());
+				saveEObject(new Alloy2XMI(alloyrunner.getSolution(),trgIns,trgMM,trgsig).getModel(),oldPath);
 				System.out.println("Search another instance? (y)");
 				alloyrunner.nextInstance();
 				end = in.readLine(); 
@@ -321,13 +333,13 @@ public class Echo {
 		}
 	}
 	
-	public static void saveEObject(EObject obj)
+	public static void saveEObject(EObject obj,String path)
 	{
 		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
 		    "*", new  XMIResourceFactoryImpl());
 
-		Resource resource = resourceSet.createResource(URI.createURI("./result.xmi"));
+		Resource resource = resourceSet.createResource(URI.createURI(path));
 		resource.getContents().add(obj);
 
 		/*
