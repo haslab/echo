@@ -90,7 +90,8 @@ public class Echo {
 	// the instance signatures (a set for each instance)
 	private static Map<String,List<PrimSig>> instsigs = new HashMap<String,List<PrimSig>>();
 	
-
+	private static Expr instancefact = Sig.NONE.no();
+	
 	private static Map<String,ECore2Alloy> mmtranses = new HashMap<String,ECore2Alloy>();
 	
 	private static EObject loadModelInstance(String argURI,EPackage p) {
@@ -218,32 +219,28 @@ public class Echo {
 			instcounter = instcounter+2;
 		}
 		
-		System.out.println("** Processing metamodels.");
+		System.out.println("\n** Processing metamodels.");
 
 		statesigs = AlloyUtil.createStateSig(qvttransargs);
 		stateinstancesigs = AlloyUtil.createStateInstSig(statesigs, qvttransargs);
 		PrimSig trgsig = null;
 		if (!check) trgsig = AlloyUtil.createTargetState(stateinstancesigs,target);
-		System.out.println("State signatures: "+stateinstancesigs.values());
+		System.out.println("State signatures: "+stateinstancesigs.values() +", "+stateinstancesigs.values() +", "+trgsig);
 
 		for (String name : statesigs.keySet()) {
 			EPackage epck = metamodels.get(name);
 			ECore2Alloy mmtrans = new ECore2Alloy(epck,statesigs.get(name));
 			modelsigs.put(name,mmtrans.getSigList());
 			mmtranses.put(name,mmtrans);
-			/*for(Sig s:mmtrans.getSigList()) {
-				System.out.println("Factos de " + s + "  :");
-				for(Expr f : s.getFields()) System.out.println(f); 
-				for(Expr f : s.getFacts()) System.out.println(f); 
-				System.out.println(((PrimSig)s).parent);
-			}*/			
 		}		
 		System.out.println("Model signatures: "+modelsigs);
-		Expr deltaexpr = Sig.NONE.no(),instancefact = Sig.NONE.no();
+		Expr deltaexpr = Sig.NONE.no();
 
 		ECore2Alloy trgMM = null;
 		XMI2Alloy trgIns = null;
 		
+		System.out.println("\n** Processing Instances.");
+
 		for (TypedModel modelarg: qvttransargs) {
 			String name = modelarg.getName();
 			String mdl = modelarg.getUsedPackage().get(0).getName();
@@ -258,7 +255,7 @@ public class Echo {
 				deltaexpr = (mmtrans.getDeltaExpr(trgsig,state));
 				System.out.println("Delta function: "+deltaexpr);
 				targetscopes = AlloyUtil.createScope(insttrans.getSigList(),mmtrans.getSigList());
-				System.out.println("Scope: "+targetscopes);
+				System.out.println("Initial scope: "+targetscopes);
 				trgIns = insttrans;
 				trgMM = mmtrans;
 			}
@@ -270,11 +267,7 @@ public class Echo {
 			System.out.println("Instance facts: "+insttrans.getFact());
 		}
 
-		System.out.println("** Processing QVT transformation "+qvttrans.getName()+".");
-		System.out.println("* "+stateinstancesigs);
-		System.out.println("* "+statesigs);
-		System.out.println("* "+modelsigs);
-		System.out.println("* "+instsigs);
+		System.out.println("\n** Processing QVT transformation "+qvttrans.getName()+".");
 		
 		Map<String,Expr> sigaux = new HashMap<String, Expr>(stateinstancesigs);
 		sigaux.putAll(statesigs);
@@ -287,7 +280,7 @@ public class Echo {
 			System.out.println(e +": "+qvtfacts.get(e));
 		}	
 		
-		System.out.println("** Processing Alloy command: "+args[0]+" "+qvttrans.getName()+" on the direction of "+target+".");
+		System.out.println("\n** Running Alloy command: "+args[0]+" "+qvttrans.getName()+" on the direction of "+target+".");
 
 		List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
 		for (String x : instsigs.keySet()){
@@ -300,10 +293,6 @@ public class Echo {
 		}
 		if (!check) allsigs.add(trgsig);
 
-		System.out.println("Final command fact: "+(instancefact.and(qvtfact)));
-		System.out.println("Final sigs: "+(allsigs)+"\n");
-		System.out.println("** Running Alloy.");
-		
 		AlloyRunner alloyrunner = new AlloyRunner(allsigs,instancefact.and(qvtfact),deltaexpr,targetscopes,qvtpath);
 		
 		if (check) {
@@ -313,7 +302,7 @@ public class Echo {
 		} else {
 			alloyrunner.enforce();
 			while (!alloyrunner.getSolution().satisfiable()) {
-				System.out.println("No instance found for delta "+alloyrunner.getDelta()+" ("+targetscopes+", int "+alloyrunner.getIntScope()+").");
+				System.out.println("No instance found for delta "+alloyrunner.getDelta()+" (for "+targetscopes+", int "+alloyrunner.getIntScope()+").");
 				alloyrunner.enforce();			
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
@@ -354,14 +343,27 @@ public class Echo {
 		   }
 	}
 	
-	public static void print(List<Sig> allsigs){
-		for(Sig s: allsigs) {
-			System.out.println(s.toString() + " : "+((PrimSig) s).parent.toString()+" ("+s.attributes+")");
-			for (Field f : s.getFields())
-				System.out.println(f + " : " + f.type());
-			for (Expr e : s.getFacts())
-				System.out.println(e);
+	public static void print(){
+		System.out.println("** States ");
+		System.out.println("* Abstract state signatures: "+statesigs);
+		System.out.println("* Instance state signatures: "+stateinstancesigs);
+		System.out.println("** Models ");
+		for(String m: modelsigs.keySet()){
+			System.out.println("* Signatures for model "+m);
+			for(Sig s: modelsigs.get(m)) {
+				System.out.println(s.toString() + " : "+((PrimSig) s).parent.toString()+" ("+s.attributes+")");
+				System.out.println("Fields of "+s);
+				for (Field f : s.getFields())
+					System.out.println(f + " : " + f.type());
+				System.out.println("Facts of "+s);
+				for (Expr e : s.getFacts())
+					System.out.println(e);
+			}
 		}
+		System.out.println("** Instances ");
+		System.out.println("* Instance signatures: "+instsigs.values());
+		System.out.println("* Instance fact: "+instancefact);
+
 	}
 }
 
