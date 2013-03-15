@@ -12,5 +12,7 @@
   <children
       name="child3"/>
   <tops name="N"
-      child="//@children.0 //@children.1 //@children.2"/>
+      child="//@children.0 //@children.1"/>
+  <tops name="N"
+      child="//@children.2"/>
 </twolayer:Container>
