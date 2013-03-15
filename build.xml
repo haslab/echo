@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project echo">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="./echo.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="pt.uminho.haslab.echo.Echo"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="./bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/alloy4.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/com.google.guava_10.0.1.v201203051515.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/com.google.inject_3.0.0.v201203062045.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/javax.inject_1.0.0.v20091030.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.antlr.runtime_3.2.0.v201101311130.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.apache.log4j_1.2.15.v201012070815.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.emf.common_2.8.0.v20120911-0500.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.emf.ecore_2.8.1.v20120911-0500.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.emf.ecore.xmi_2.8.0.v20120911-0500.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.emf.edit_2.8.0.v20120917-0436.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.emf.mapping.ecore2xml_2.7.0.v20120917-0436.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.common_1.1.0.v20130204-1305.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.examples.common_3.2.100.v20130128-2037.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.examples.domain_3.3.0.v20130120-2133.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.examples.library_3.3.0.v20130131-0707.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.examples.pivot_3.3.0.v20130202-2000.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.examples.xtext.base_3.3.0.v20130201-1825.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.examples.xtext.essentialocl_3.3.0.v20130202-2005.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.ocl.examples.xtext.oclinecore_3.3.0.v20130131-0707.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.osgi_3.8.1.v20120830-144521.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.uml2.common_1.7.0.v20120913-1441.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.uml2.types_1.0.0.v20120913-1441.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.uml2.uml_4.0.1.v20120913-1441.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.uml2.uml.profile.l2_1.0.1.v20120913-1441.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.uml2.uml.profile.l3_1.0.1.v20120913-1441.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.uml2.uml.resources_4.0.1.v20120913-1441.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.xtext_2.4.0.v201302051002.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.xtext.util_2.4.0.v201302051002.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.qvtd.pivot.qvtbase_0.10.0.v20130213-1457.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.qvtd.pivot.qvtrelation_0.10.0.v20130213-1457.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.qvtd.pivot.qvttemplate_0.10.0.v20130213-1457.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.qvtd.xtext.qvtrelation_0.10.0.v20130306-2210.jar"/>
+        </jar>
+    </target>
+</project>
