@@ -97,7 +97,10 @@ public class Alloy2XMI {
 					
 				}
 				else if(att.getEType().getName().equals("EInt"))
-					;
+				{
+					ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
+					obj.eSet(sf,Integer.parseInt(ts.iterator().next().atom(0)));
+				}
 				else
 					;
 			}else if( sf instanceof EReference)

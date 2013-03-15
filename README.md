@@ -29,3 +29,5 @@ Folder [examples](examples) contains QVT-R implementations of some typical bidir
 * [Alcino Cunha] (http://di.uminho.pt/~mac)
 * Tiago Guimarães 
 * [Nuno Macedo] (http://alfa.di.uminho.pt/~nfmmacedo)
+
+The contributors are members of the [HASLab](haslab.di.uminho.pt) - High-Assurance Software Laboratory at University of Minho.
