@@ -22,6 +22,7 @@ For more information about how the tool is implemented please read the paper [Im
 
 ```
 git clone git://github.com/haslab/echo.git
+cd echo
 git checkout v0.1
 ```
 * Compile the java source files into an executable jar by running `make.sh`:
