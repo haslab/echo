@@ -53,8 +53,6 @@ public class ECore2Alloy {
 		state = statesig;
 		pack = p;
 		sigList = makeSigList();
-		
-		//System.out.println(mapSfField.keySet());
 	}
 	
 	

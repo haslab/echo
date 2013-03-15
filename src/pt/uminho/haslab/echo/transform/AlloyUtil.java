@@ -89,7 +89,6 @@ public class AlloyUtil {
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",trg); }
 		sigs.put(target, trg);
 		sigs.put(sourcemdl.label, sourcemdlnosource);
-		System.out.println(sigs);
 	}
 	
 	public static String targetName(String target) {
@@ -156,7 +155,6 @@ public class AlloyUtil {
 				try { scopes.put(sig.label,new CommandScope(sig, false, 0));}
 				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
 		}
-		System.out.println(scopes.values());
 		return ConstList.make(scopes.values());
 	}
 	

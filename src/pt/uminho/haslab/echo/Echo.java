@@ -164,7 +164,7 @@ public class Echo {
 			RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
 			RelationalTransformation rt = (RelationalTransformation) rm.eContents().get(0);
 			return rt;
-		} catch (Exception e) { throw new ErrorParser ("QVT file +"+qvtpath+" not found.","QVT Parser");}
+		} catch (Exception e) { throw new ErrorParser (e.getMessage(),"QVT Parser");}
 
 	}
 	

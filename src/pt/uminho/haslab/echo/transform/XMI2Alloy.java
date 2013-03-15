@@ -59,7 +59,6 @@ public class XMI2Alloy {
 		initContent();
 		makeSigList(eObj);
 		makeFactExpr();
-		//System.out.println("Singleton sigs: " + sigList.toString());
 	}
 	
 
@@ -95,9 +94,6 @@ public class XMI2Alloy {
 		
 		for(Expr f: mapContent.keySet())
 		{
-			/*System.out.println("fe: " + factExpr);
-			System.out.println("f: " + f);
-			System.out.println("mcf: " + mapContent.get(f));*/
 			if (!f.toString().equals("String"))
 				factExpr = factExpr.and(f.join(state).equal(mapContent.get(f)));
 		}
@@ -137,7 +133,6 @@ public class XMI2Alloy {
 		Expr aux = null;
 		Object eG;
 		PrimSig parent = mapClassSig.get(it.eClass().getName());
-		//System.out.println("Object instances of "+parent);
 		PrimSig res;
 		try {res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);}
 		catch (Err a) {throw new ErrorAlloy(a.getMessage(),"XMI2Alloy",parent);}
@@ -168,7 +163,6 @@ public class XMI2Alloy {
 			eG = it.eGet(sf);
 			if (sf instanceof EReference) {
 				if(eG instanceof EList<?>) {
-					//System.out.println("Handling reference " + sf.getName());
 					if(!((EList<?>) eG).isEmpty()) {
 						EReference op = ((EReference) sf).getEOpposite();
 						if (op == null || (op != null && !op.isContainment())){				
@@ -196,7 +190,6 @@ public class XMI2Alloy {
 	
 	private void handleAttr(Object obj, Sig it, Expr field) throws ErrorUnsupported
 	{
-		//System.out.println("Object instance attribute: "+ obj);
 		Expr manos = mapContent.get(field);
 		if(obj instanceof Boolean)
 		{

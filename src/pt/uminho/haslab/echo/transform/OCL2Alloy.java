@@ -44,10 +44,8 @@ public class OCL2Alloy {
 	private Set<Decl> vardecls;
 
 	public OCL2Alloy(TypedModel modelvar, Map<String,Expr> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
-		this.modelsigs = modelsigs;
-		this.stateinstancesigs = stateinstancesigs;
-		this.modelvar = modelvar;
-		this.vardecls = vardecls;
+		this (stateinstancesigs,modelsigs,vardecls);
+		this.modelvar = modelvar;		
 	}
 	
 	public OCL2Alloy(Map<String,Expr> stateinstancesigs, Map<String,List<Sig>> modelsigs, Set<Decl> vardecls) {
