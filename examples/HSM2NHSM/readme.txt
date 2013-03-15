@@ -1,0 +1,1 @@
+The HSM2NHSM transformation specifies the collapse/expansion of state diagrams, and is based on the running example from the paper "JTL: a bidirectional and change propagating transformation language" by Antonio Cicchetti, Davide Di Ruscio, Romina Eramo and Alfonso Pierantonio.

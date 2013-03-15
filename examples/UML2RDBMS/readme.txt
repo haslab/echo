@@ -1,0 +1,1 @@
+The UML2RDBMS transformation is a simplified version of the classical object-relational mapping, between class diagrams and database schemes, used as a running example in the QVT standard.

@@ -1,0 +1,1 @@
+The NonTopEnforce transformation is based on the running example from the paper "Enforcing QVT-R with mu-calculus and games" by Julian Bradfield and Perdita Stevens, and can be used to compare the Echo semantics with that of the QVT standard.
