@@ -1,7 +1,11 @@
 # Echo
 ====================
 Echo if a bidirectional model transformation tool for the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) transformation language, based on the [Alloy](http://alloy.mit.edu) model finder and built over the Eclipse Modeling Framework.
-It can be used to check if instances of ECore models are consistent and, if not, update one of them to restore consistency. It has the following features:
+It can be used to check if instances of ECore models are consistent and, if not, update one of them to restore consistency. 
+
+Features
+--------------------
+Echo has the following features:
 
 * Implements the checking semantics from the QVT-R standard;
 * Implements the principle of least-change, returning all instances closest to the original;
