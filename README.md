@@ -12,6 +12,19 @@ It can be used to check if instances of ECore models are consistent and, if not,
 
 For more information about how the tool is implemented please read the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf), recently accepted for publication at [FASE'13](http://www.etaps.org/2013/fase13).
 
+## Installing
+
+* Checkout the latest stable version (v0.1) from the git repository:
+```
+git clone git://github.com/haslab/echo.git
+git tag
+```
+* Compile the java source files into an executable jar by running `make.sh`:
+```
+./make.sh
+```
+This will create the `echo.jar` file on the project root.
+
 ## Running
 
 At the moment, Echo is available through an executable jar. The basic syntax is
