@@ -21,7 +21,7 @@ For more information about how the tool is implemented please read the paper [Im
 * Checkout the latest stable version (v0.1) from the git repository:
 
 ```
-git clone git://github.com/haslab/echo.git
+git clone https://github.com/haslab/echo.git
 cd echo
 git checkout v0.1
 ```
