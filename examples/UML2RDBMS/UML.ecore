@@ -39,9 +39,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="namespace" lowerBound="1"
         eType="#//Package" eOpposite="#//Package/classes"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="super" upperBound="-1"
-        eType="#//Class" eOpposite="#//Class/sub"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="sub" upperBound="-1" eType="#//Class"
-        eOpposite="#//Class/super"/>
+        eType="#//Class"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
     <eOperations name="setName">

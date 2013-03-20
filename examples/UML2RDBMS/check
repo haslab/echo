@@ -1,1 +1,1 @@
-java -cp "../../bin/:../../lib/*" pt.uminho.haslab.echo.Echo check UML2RDBMS.qvtr uml UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi
+java -jar ../../bin/echo.jar -check -q UML2RDBMS.qvtr -m UML.ecore RDBMS.ecore -i 1PersistentPackage.xmi 1PersistentScheme.xmi
