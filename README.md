@@ -10,7 +10,7 @@ It can be used to check if instances of ECore models are consistent and, if not,
 * Support for both "enforce" and "checkonly" modes;
 * Support for OCL constraints over the models.
 
-*Check mode* verifies if two models are consistent according to the given QVT-R relation.
+*Check mode* verifies if two models are consistent according to the given QVT-R specification.
 
 *Enforce mode* updates the target instance to one of the closest consistent states. Echo presents all possible instances as Alloy models, which are translated back to xmi once the usar chooses the desired one. To measure the distance between instances, Alloy models are seen as graphs, and the graph edit distance is calculated (which counts node and edge deletions and creations).
 
