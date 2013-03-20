@@ -1,1 +1,1 @@
-java -jar ../../echo.jar check NonTopEnforce.qvtr m2 TwoLayer.ecore m1.xmi TwoLayer.ecore m3.xmi
+java -jar ../../echo.jar -check -q NonTopEnforce.qvtr -m TwoLayer.ecore -i m1.xmi m3.xmi
