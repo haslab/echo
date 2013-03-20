@@ -41,6 +41,7 @@
             <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.qvtd.pivot.qvtrelation_0.10.0.v20130213-1457.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.qvtd.pivot.qvttemplate_0.10.0.v20130213-1457.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="./lib/org.eclipse.qvtd.xtext.qvtrelation_0.10.0.v20130306-2210.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/commons-cli-1.2.jar"/>
         </jar>
     </target>
 </project>
