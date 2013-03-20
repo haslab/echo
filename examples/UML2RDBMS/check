@@ -1,1 +1,1 @@
-java -jar ../../bin/echo.jar -check -q UML2RDBMS.qvtr -m UML.ecore RDBMS.ecore -i 1PersistentPackage.xmi 1PersistentScheme.xmi
+java -jar ../../echo.jar -check -q UML2RDBMS.qvtr -m UML.ecore RDBMS.ecore -i 1PersistentPackage.xmi 1PersistentScheme.xmi
