@@ -1,1 +1,1 @@
-java -cp "../../bin/:../../lib/*" pt.uminho.haslab.echo.Echo check HSM2NHSM.qvtr hm HSM.ecore HStateMachine.xmi HSM.ecore HStateMachineN.xmi
+java -jar ../../echo.jar -check -q HSM2NHSM.qvtr -m HSM.ecore -i HStateMachine.xmi HStateMachineN.xmi
