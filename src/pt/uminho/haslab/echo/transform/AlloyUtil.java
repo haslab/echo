@@ -22,8 +22,10 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
@@ -178,6 +180,30 @@ public class AlloyUtil {
 			list.add(new CommandScope(scope.sig, false, scope.startingScope+1));
 
 		return ConstList.make(list);
+	}
+	
+	public static List<Decl> ordDecls (List<Decl> decls){
+		List<Decl> res = new ArrayList<Decl>();
+		int last = decls.size()+1;
+		while (last > decls.size() && decls.size() != 1)
+			last = decls.size();
+			for (int i = 0; i<decls.size(); i++) {
+				boolean safe = true;
+				for (int j = 0; j<decls.size(); j++)
+					if (decls.get(i).expr.hasVar((ExprVar)(decls.get(j)).get())) {
+						safe = false;
+					}
+				if (safe) {
+					res.add(decls.get(i));
+					decls.remove(i);
+				}
+			}
+		if (decls.size()==1){
+			res.add(decls.get(0));
+			decls.remove(0);
+		}
+		
+		return res;
 	}
 	
 }

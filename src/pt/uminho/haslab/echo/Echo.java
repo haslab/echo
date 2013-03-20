@@ -63,23 +63,17 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class Echo {
 	
+	private static EchoOptions options;
+	
 	// target scopes (only these need be increased)
 	private static ConstList<CommandScope> targetscopes;
-	// qvt file path
-	private static String qvtpath;
-	// execution direction
-	private static String target;
 
 	// the qvt transformation being processed
 	private static RelationalTransformation qvttrans;
-	// the model arguments of the qvt transformation
-	private static List<TypedModel> qvttransargs;
 	// the transformation metamodels (package name, epackage)
 	private static Map<String,EPackage> metamodels = new HashMap<String,EPackage>();
 	// the transformation instances (qvt argument name, eobject)
 	private static Map<String,EObject> instances = new HashMap<String,EObject>();
-	// running mode (check vs. enforce)
-	private static Boolean check;
 	
 	// the state model signatures (one for each metamodel)
 	private static Map<String,PrimSig> statesigs;
@@ -140,7 +134,7 @@ public class Echo {
 		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		
 		try{
-			Scanner scan = new Scanner(new File(qvtpath));
+			Scanner scan = new Scanner(new File(options.getQVTPath()));
 			String qvtcontent = scan.useDelimiter("\\Z").next();
 			scan.close();
 			File qvtaux = new File("aux.qvtr");
@@ -168,18 +162,8 @@ public class Echo {
 
 	}
 	
-	public static void main(String[] args) throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, Err, IOException{
-		if (args.length != 7) throw new ErrorParser ("Echo","Wrong number of arguments: [mode] [qvt] [direction] [mm1] [inst1] [mm2] [inst2]\n" +
-												"E.g. \"check UML2RDBMS.qvt uml UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi\"\n" +
-												"For more information visit http://github.com/haslab/echo.");
-		qvtpath = args[1];
-		target = args[2];
-
-		if (args[0].equals("check")) check = true;
-		else if (args[0].equals("enforce")) check = false;
-		else throw new ErrorParser ("Invalid running mode: should be \"check\" or \"enforce\"","Command Parser");
-
-		System.out.println("** Parsing input files.");
+	public static void main(String[] args) throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, Err, IOException {	
+		
 
 		// ocl starter
 		// register Pivot globally (resourceSet == null)
@@ -196,66 +180,78 @@ public class Echo {
 		OCLinEcoreStandaloneSetup.doSetup();
 		// install the OCL standard library
 		OCLstdlib.install();
-		
+
 		Map<String,String> packagepaths = new HashMap<String,String>();
-		for(int i = 3; i<args.length; i++){
-			EPackage paux = (EPackage) loadObjectFromEcore(args[i]);
-			metamodels.put(paux.getName(),paux);
-			packagepaths.put(paux.getName(), args[i]);
-			i++;
+
+		try {
+			options = new EchoOptions(args);
+			if (options.isHelp()) {
+				options.printHelp();
+				return;
+			}
+		} catch (ErrorParser e) { 
+			System.out.println("Error parsing CLI: "+e.getMessage());
+			options.printHelp();
+			return;
 		}
+		
+		if (options.isVerbose()) System.out.println("** Parsing input files.");
+
+		for (String path : options.getModels()) {
+   			EPackage paux = (EPackage) loadObjectFromEcore(path);
+   			metamodels.put(paux.getName(),paux);
+		    packagepaths.put(paux.getName(), path);
+	    }
 		
 		qvttrans = getTransformation(packagepaths);
 		if (qvttrans == null) throw new Error ("Empty transformation.");
-		qvttransargs = qvttrans.getModelParameter();
 
-		// parsing models/instances
-		// in order to the number of the qvt-transformation arguments
 
-		int instcounter = 4;
-		for (TypedModel modelarg : qvttransargs) {
-			EObject iaux = loadModelInstance(args[instcounter],metamodels.get(modelarg.getUsedPackage().get(0).getName()));
-			instances.put(modelarg.getName(),iaux);
-			instcounter = instcounter+2;
+		int i = 0;
+		for (TypedModel mdl : qvttrans.getModelParameter()) {
+			if (options.isVerbose()) System.out.println(mdl.getName() +" : "+options.getInstances()[i]);
+
+			EObject iaux = loadModelInstance(options.getInstances()[i++],metamodels.get(mdl.getUsedPackage().get(0).getName()));
+			instances.put(mdl.getName(),iaux);	
 		}
 		
-		System.out.println("\n** Processing metamodels.");
 
-		statesigs = AlloyUtil.createStateSig(qvttransargs);
-		stateinstancesigs = AlloyUtil.createStateInstSig(statesigs, qvttransargs);
+		if (options.isVerbose()) System.out.println("\n** Processing metamodels.");
+
+		statesigs = AlloyUtil.createStateSig(qvttrans.getModelParameter());
+		stateinstancesigs = AlloyUtil.createStateInstSig(statesigs, qvttrans.getModelParameter());
 		PrimSig trgsig = null;
-		if (!check) trgsig = AlloyUtil.createTargetState(stateinstancesigs,target);
-		System.out.println("State signatures: "+stateinstancesigs.values() +", "+stateinstancesigs.values() +", "+trgsig);
+		if (!options.isCheck()) trgsig = AlloyUtil.createTargetState(stateinstancesigs,options.getDirection());
+		if (options.isVerbose()) System.out.println("State signatures: "+statesigs +", "+stateinstancesigs +", "+trgsig);
 
-		for (String name : statesigs.keySet()) {
-			EPackage epck = metamodels.get(name);
-			ECore2Alloy mmtrans = new ECore2Alloy(epck,statesigs.get(name));
-			modelsigs.put(name,mmtrans.getSigList());
-			mmtranses.put(name,mmtrans);
+		for (EPackage epck : metamodels.values()) {
+			ECore2Alloy mmtrans = new ECore2Alloy(epck,statesigs.get(epck.getName()));
+			modelsigs.put(epck.getName(),mmtrans.getSigList());
+			mmtranses.put(epck.getName(),mmtrans);
 		}		
-		System.out.println("Model signatures: "+modelsigs);
+		if (options.isVerbose()) System.out.println("Model signatures: "+modelsigs);
 		Expr deltaexpr = Sig.NONE.no();
 
 		ECore2Alloy trgMM = null;
 		XMI2Alloy trgIns = null;
 		
-		System.out.println("\n** Processing Instances.");
+		if (options.isVerbose()) System.out.println("\n** Processing Instances.");
 
-		for (TypedModel modelarg: qvttransargs) {
+		for (TypedModel modelarg: qvttrans.getModelParameter()) {
 			String name = modelarg.getName();
 			String mdl = modelarg.getUsedPackage().get(0).getName();
 			PrimSig state = stateinstancesigs.get(name);
-			boolean istarget = name.equals(target);
+			boolean istarget = name.equals(options.getDirection());
 			ECore2Alloy mmtrans = mmtranses.get(mdl);
 			
 			EObject instmodel = instances.get(name);
 			XMI2Alloy insttrans = new XMI2Alloy(instmodel,mmtrans,"",state);
 			// only the target needs the delta function and scopes, and only if enforce mode
-			if (istarget&&!check) { 
+			if (istarget&&!options.isCheck()) { 
 				deltaexpr = (mmtrans.getDeltaExpr(trgsig,state));
-				System.out.println("Delta function: "+deltaexpr);
+				if (options.isVerbose()) System.out.println("Delta function: "+deltaexpr);
 				targetscopes = AlloyUtil.createScope(insttrans.getSigList(),mmtrans.getSigList());
-				System.out.println("Initial scope: "+targetscopes);
+				if (options.isVerbose()) System.out.println("Initial scope: "+targetscopes);
 				trgIns = insttrans;
 				trgMM = mmtrans;
 			}
@@ -263,24 +259,24 @@ public class Echo {
 			instsigs.put(name,insttrans.getSigList());
 			instancefact = AlloyUtil.cleanAnd(instancefact,insttrans.getFact());
 			
-			System.out.println("Instance signatures: "+insttrans.getSigList());
-			System.out.println("Instance facts: "+insttrans.getFact());
+			if (options.isVerbose()) System.out.println("Instance signatures: "+insttrans.getSigList());
+			if (options.isVerbose()) System.out.println("Instance facts: "+insttrans.getFact());
 		}
 
-		System.out.println("\n** Processing QVT transformation "+qvttrans.getName()+".");
+		if (options.isVerbose()) System.out.println("\n** Processing QVT transformation "+qvttrans.getName()+".");
 		
 		Map<String,Expr> sigaux = new HashMap<String, Expr>(stateinstancesigs);
 		sigaux.putAll(statesigs);
-		if (!check) AlloyUtil.insertTargetState(sigaux, target, trgsig);
+		if (!options.isCheck()) AlloyUtil.insertTargetState(sigaux, options.getDirection(), trgsig);
 		QVTTransformation2Alloy qvtrans = new QVTTransformation2Alloy(sigaux,modelsigs,qvttrans);
 		Expr qvtfact = Sig.NONE.no();
 		Map<String,Expr> qvtfacts = qvtrans.getFact();
 		for (String e : qvtfacts.keySet()){
 			qvtfact = AlloyUtil.cleanAnd(qvtfact, qvtfacts.get(e));
-			System.out.println(e +": "+qvtfacts.get(e));
+			if (options.isVerbose()) System.out.println(e +": "+qvtfacts.get(e));
 		}	
 		
-		System.out.println("\n** Running Alloy command: "+args[0]+" "+qvttrans.getName()+" on the direction of "+target+".");
+		System.out.println("Running Alloy command: "+(options.isCheck()?"check.":("enforce "+qvttrans.getName()+" on the direction of "+options.getDirection()+".")));
 
 		List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
 		for (String x : instsigs.keySet()){
@@ -291,15 +287,13 @@ public class Echo {
 			allsigs.add(statesigs.get(x));
 			allsigs.addAll(modelsigs.get(x));
 		}
-		if (!check) allsigs.add(trgsig);
+		if (!options.isCheck()) allsigs.add(trgsig);
 
 		//EObject trgCopy = EcoreUtils.copy(trgIns.eObj);
 		
+		AlloyRunner alloyrunner = new AlloyRunner(allsigs,instancefact.and(qvtfact),deltaexpr,targetscopes,options);
 		
-		
-		AlloyRunner alloyrunner = new AlloyRunner(allsigs,instancefact.and(qvtfact),deltaexpr,targetscopes,qvtpath);
-		
-		if (check) {
+		if (options.isCheck()) {
 			alloyrunner.check();
 			if (alloyrunner.getSolution().satisfiable()) System.out.println("Instance found. Models consistent.");
 			else System.out.println("Instance not found. Models inconsistent.");
@@ -310,11 +304,11 @@ public class Echo {
 			sb.insert(sb.length()-4,".old");
 			saveEObject(trgIns.eObj,sb.toString());
 			
-			System.out.println("** Backup file created: " +  sb);
+			if (options.isVerbose()) System.out.println("** Backup file created: " +  sb);
 			
 			alloyrunner.enforce();
 			while (!alloyrunner.getSolution().satisfiable()) {
-				System.out.println("No instance found for delta "+alloyrunner.getDelta()+" (for "+targetscopes+", int "+alloyrunner.getIntScope()+").");
+				System.out.println("No instance found for delta "+alloyrunner.getDelta()+((options.isVerbose())?(" (for "+alloyrunner.getScopes()+", int "+alloyrunner.getIntScope()+")."):""));
 				alloyrunner.enforce();			
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 

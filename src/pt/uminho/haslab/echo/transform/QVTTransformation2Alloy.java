@@ -35,11 +35,12 @@ public class QVTTransformation2Alloy {
 	public QVTTransformation2Alloy (Map<String,Expr> statesigs, Map<String,List<Sig>> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		for (Rule rel : qvt.getRule())
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
-			else if (((Relation) rel).isIsTopLevel())
+			else if (((Relation) rel).isIsTopLevel()) {
 				for (TypedModel mdl : qvt.getModelParameter()) {
 					QVTRelation2Alloy trans = new QVTRelation2Alloy((Relation) rel,mdl,true,statesigs,modelsigs);
 					fact.put(rel.getName()+"_"+mdl.getName(),trans.getFact());
 				}
+			}
 	}
 	
 	/** Returns the Alloy fact corresponding to this QVT Transformation

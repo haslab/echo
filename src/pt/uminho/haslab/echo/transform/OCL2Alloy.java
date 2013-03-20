@@ -206,8 +206,6 @@ public class OCL2Alloy {
 		}
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
 		vardecls.remove(d);
-
-		//System.out.println("Iterator: "+d+", "+src+", "+bdy+", "+expr.getReferredIteration().getName()+": "+res);
 		
 		return res;
 	}

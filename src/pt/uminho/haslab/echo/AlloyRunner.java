@@ -35,12 +35,12 @@ public class AlloyRunner {
 	private int intscope = 2;
 	/** the current signature scopes for the target model */
 	private ConstList<CommandScope> targetscopes;
-	/** the path of the transformation */
-	private String path;
+	/** the echo options */
+	private EchoOptions eoptions;
 	/** the Alloy solution */
 	private A4Solution sol;
 	/** the Alloy command options*/
-	private A4Options options;
+	private A4Options aoptions;
 	/** the Alloy reporter*/
 	private A4Reporter rep;
 	/** the Alloy visualizer used to present instances */
@@ -54,12 +54,12 @@ public class AlloyRunner {
 	 * @param targetscopes the signature scopes for the target model
 	 * @param path the path of the transformation
 	 */
-	public AlloyRunner (List<Sig> allsigs, Expr modelfact, Expr deltaexpr, ConstList<CommandScope> targetscopes, String path) {
+	public AlloyRunner (List<Sig> allsigs, Expr modelfact, Expr deltaexpr, ConstList<CommandScope> targetscopes, EchoOptions eoptions) {
 		this.allsigs = allsigs;
 		this.modelfact = modelfact;
 		this.deltaexpr = deltaexpr;
 		this.targetscopes = targetscopes;
-		this.path = path;
+		this.eoptions = eoptions;
 		
 		rep = new A4Reporter() {
 			@Override public void warning(ErrorWarning msg) {
@@ -68,24 +68,27 @@ public class AlloyRunner {
 			}
 		};
 		
-		options = new A4Options();
-		options.solver = A4Options.SatSolver.SAT4J;
-		options.noOverflow = true;
+		aoptions = new A4Options();
+		aoptions.solver = A4Options.SatSolver.SAT4J;
+		aoptions.noOverflow = true;
 	}
 
 	/** Runs a QVT enforcement command for the current delta.
-	 * @throws ErrorAlloy */
-	public void enforce() throws ErrorAlloy {
-		finalfact = modelfact.and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));	
-		if (delta == 0) intscope = 2;
-		else intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
-
-		try {
-			Command cmd = new Command(false, 0, intscope, -1, finalfact);
-			targetscopes = AlloyUtil.incrementScopes(targetscopes);
-			cmd = cmd.change(targetscopes);
-			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);	
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
+	 * @throws ErrorAlloy 
+	 * @throws ErrorParser */
+	public void enforce() throws ErrorAlloy, ErrorParser {
+		if (delta < eoptions.getMaxDelta().intValue()) {
+			finalfact = modelfact.and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));	
+			if (delta == 0) intscope = 2;
+			else intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
+	
+			try {
+				Command cmd = new Command(false, 0, intscope, -1, finalfact);
+				targetscopes = AlloyUtil.incrementScopes(targetscopes);
+				cmd = cmd.change(targetscopes);
+				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
+			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
+		} else throw new ErrorAlloy ("Maximum delta reached.","AlloyRunner");
 	}
 	
 	/** Runs a QVT checking command.
@@ -94,7 +97,7 @@ public class AlloyRunner {
 		finalfact = modelfact;	
 		try {
 			Command cmd = new Command(true, 0, intscope, -1, finalfact);
-			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, options);	
+			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
 	}
 	
@@ -106,7 +109,7 @@ public class AlloyRunner {
 			if (viz == null) viz = new VizGUI(true, "alloy_output.xml", null);
 			else viz.loadXML("alloy_output.xml", true);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
-		String theme = (path).replace(".qvtr", ".thm");
+		String theme = (eoptions.getQVTPath()).replace(".qvtr", ".thm");
 		if (new File(theme).isFile()) viz.loadThemeFile(theme);		
 	}
 	
@@ -121,6 +124,7 @@ public class AlloyRunner {
 	/** Closes the visualizer.*/
 	public void closeViz() {
 		SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();
+		new File("alloy_output.xml").delete();
 	}
 	
 	/** Returns the Alloy solution.
@@ -153,5 +157,13 @@ public class AlloyRunner {
 	 */
 	public Expr getFact() {
 		return finalfact;
+	}	
+	
+	/** Returns the target scopes.
+	 * 
+	 * @return this.targetscopes
+	 */
+	public ConstList<CommandScope> getScopes() {
+		return targetscopes;
 	}	
 }

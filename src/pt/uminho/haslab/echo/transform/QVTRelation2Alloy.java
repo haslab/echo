@@ -1,10 +1,13 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Set;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
@@ -25,6 +28,10 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
@@ -64,9 +71,9 @@ public class QVTRelation2Alloy {
 	private Set<Decl> decls = new HashSet<Decl>();
 	
 	/** the Alloy expression rising from this QVT Relation*/
-	final Expr fact;
+	private Expr fact;
 	/** the Alloy field representing the this QVT Relation (null if top QVT Relation)*/
-	final Field field;
+	private Field field;
 	
 	/** Constructs a new QVT Relation to Alloy translator.
 	 * Translates a QVT Relation (top or non top) to Alloy in a given direction.
@@ -89,7 +96,8 @@ public class QVTRelation2Alloy {
 		this.top = top;
 		initDomains();
 		initVariableDeclarationLists();
-		fact = calculateFact();
+		calculateFact();
+		//fact = trading(fact);
 		field = top?null:addRelationFields();
 	}
 	
@@ -115,10 +123,10 @@ public class QVTRelation2Alloy {
 	 * @throws ErrorTransform
 	 * @throws ErrorUnsupported
 	 */
-	private Expr calculateFact() throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
+	private void calculateFact() throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
 
 		Expr fact,sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
-
+		Decl[] arraydecl;
 		try {
 			if (rel.getWhere() != null){
 				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
@@ -128,15 +136,23 @@ public class QVTRelation2Alloy {
 				}
 			}
 			targetexpr = AlloyUtil.cleanAnd(patternToExpr(targetdomain),whereexpr);
-			for (Decl d : alloytargetvars)
-				targetexpr = targetexpr.forSome(d);
-			
+			if (alloytargetvars.size() == 1)
+				targetexpr = targetexpr.forSome(alloytargetvars.iterator().next());	
+			else if (alloytargetvars.size() > 1) {
+				arraydecl = (Decl[]) alloytargetvars.toArray(new Decl[alloytargetvars.size()]);
+				targetexpr = targetexpr.forSome(arraydecl[0],Arrays.copyOfRange(arraydecl, 1, arraydecl.length));	
+			}
+
 			for (RelationDomain dom : sourcedomains) 
 				sourceexpr = AlloyUtil.cleanAnd(sourceexpr,patternToExpr(dom));
-			
 			fact = (sourceexpr.implies(targetexpr));
-			for (Decl d : alloysourcevars)
-				fact = fact.forAll(d);	
+			
+			if (alloysourcevars.size() == 1)
+				fact = fact.forAll(alloysourcevars.iterator().next());	
+			else if (alloysourcevars.size() > 1) {
+				arraydecl = (Decl[]) alloysourcevars.toArray(new Decl[alloysourcevars.size()]);
+				fact = fact.forAll(arraydecl[0],Arrays.copyOfRange(arraydecl, 1, arraydecl.length));	
+			}
 			
 			if (rel.getWhen() != null){
 				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
@@ -152,7 +168,7 @@ public class QVTRelation2Alloy {
 			
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",sourceexpr);}
 		
-		return fact;
+		this.fact = fact;
 	}
 	
 	/** Initializes the variable lists and generates the respective Alloy declarations.
@@ -245,7 +261,82 @@ public class QVTRelation2Alloy {
 			}
 			return field;
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
+	}
+	
+	private Expr trading(Expr expr){
+		Expr res = expr;
+		Expr ebody = null;
+		List<Decl> aux = new ArrayList<Decl>();
+		if (expr instanceof ExprQt){
+			ebody = trading(((ExprQt) expr).sub);
+			if (((ExprQt) expr).op.equals(ExprQt.Op.ALL) && (ebody instanceof ExprBinary) && 
+					((ExprBinary)ebody).op.equals(ExprBinary.Op.IMPLIES)) {
+				Expr abody = ((ExprBinary)ebody).left;
+				for (Decl d : ((ExprQt) expr).decls) {
+					if (d.names.size()==1){
+						Entry<List<Expr>,Expr> es = findTrades(d.get(),abody);
+						System.out.println(d.get() +" cast to "+es.getKey());
+						if (es.getKey().size() > 0) {
+							d = new Decl(null,null,null,d.names,es.getKey().get(0));
+							abody = es.getValue();
+						} 
+						aux.add(d);
+						ebody = ExprBinary.Op.IMPLIES.make(null, null, abody, ((ExprBinary)ebody).right);
+					}
+				}
+				aux = AlloyUtil.ordDecls(aux);
+				res = ((ExprQt) expr).op.make(null, null,aux, ebody);
+			} else if (((ExprQt) expr).op.equals(ExprQt.Op.SOME)) {
+				for (Decl d : ((ExprQt) expr).decls) {
+					if (d.names.size()==1){
+						Entry<List<Expr>,Expr> es = findTrades(d.get(),ebody);
+						if (es.getKey().size() > 0) {
+							d = new Decl(null,null,null,d.names,es.getKey().get(0));
+							ebody = es.getValue();
+						} 
+						aux.add(d);
+					}
+				}
+				//aux = AlloyUtil.ordDecls(aux);
+				res = ((ExprQt) expr).op.make(null, null,aux, ebody);
+			}
+		} else if (expr instanceof ExprBinary){
+			res = ((ExprBinary)expr).op.make(null, null, trading(((ExprBinary) expr).left),trading(((ExprBinary) expr).right));			
+		}
 
+		
+		return res;
+	}
+	
+	private Entry<List<Expr>,Expr> findTrades(ExprHasName v, Expr e){
+		List<Expr> resl = new ArrayList<Expr>();
+		Expr rese = e;
+		if (e instanceof ExprBinary){
+			if (((ExprBinary)e).op.equals(ExprBinary.Op.IN)){
+				Expr inleft = ((ExprBinary)e).left;
+				Expr inright = ((ExprBinary)e).right;				
+				if (inleft.isSame(v)) {
+					resl.add(inright);
+					rese = Sig.NONE.no();
+				}else if (inright instanceof ExprBinary && ((ExprBinary)inright).op.equals(ExprBinary.Op.JOIN) ) {
+					if (((ExprBinary) inright).left.isSame(v)) {
+						resl.add((((ExprBinary) inright).right).join(inleft));
+						rese = Sig.NONE.no();
+					}
+				}
+			
+			} 
+		} else if ((e instanceof ExprList) && ((ExprList)e).op.equals(ExprList.Op.AND)) {
+			List<Expr> exps = new ArrayList<Expr>();
+			for (Expr arg : ((ExprList) e).args) {
+				Entry<List<Expr>,Expr> auxr = findTrades(v,arg);
+				resl.addAll(auxr.getKey());
+				exps.add(auxr.getValue());
+			}
+			rese = ExprList.make(null, null, ExprList.Op.AND, exps);
+		}
+		return new SimpleEntry<List<Expr>,Expr>(resl,rese);
+		
 	}
 	
 	/** Returns the Alloy fact corresponding to this QVT Relation
