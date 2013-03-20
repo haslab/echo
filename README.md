@@ -10,7 +10,7 @@ It can be used to check if instances of ECore models are consistent and, if not,
 * Support for both "enforce" and "checkonly" modes;
 * Support for OCL constraints over the models.
 
-*Check mode* verifies if two models are consistent according to the given QVT Relation.
+*Check mode* verifies if two models are consistent according to the given QVT-R relation.
 
 *Enforce mode* updates the target instance to one of the closest consistent states. Echo presents all possible instances as Alloy models, which are translated back to xmi once the usar chooses the desired one. To measure the distance between instances, Alloy models are seen as graphs, and the graph edit distance is calculated (which counts node and edge deletions and creations).
 
@@ -36,9 +36,10 @@ This will create the `echo.jar` file in the project's root directory.
 
 At the moment, Echo is available through an executable jar. The basic syntax is
 ```sh
-java -jar echo.jar [mode] [qvt] [direction] [metamodel1] [instance1] [metamodel2] [instance2]
+java -jar echo.jar -check -q <qvtr> -m <models>... i <instances>...
+java -jar echo.jar -enforce <direction> -q <qvtr> -m <models>... i <instances>...
 ```
-Direction should be `enforce` or `check`. Metamodels should be presented in ECore, while instances should be xmi files conforming to the respective metamodels.
+for checkonly and enforce mode respectively. Metamodels should be presented in ECore, while instances should be xmi files conforming to the respective metamodels and presented in the order defined by the QVT-R transformation.
 
 ## Examples
 
