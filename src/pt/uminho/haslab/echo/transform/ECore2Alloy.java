@@ -41,9 +41,14 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class ECore2Alloy {
 
+	/** maps class names into respective Alloy signature */
 	private Map<String,PrimSig> mapClassSig = new HashMap<String,PrimSig>();
-	private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
+	/** maps a structural feature into the respective Alloy field */
 	private Map<EStructuralFeature,Field> mapSfField = new HashMap<EStructuralFeature,Field>();
+	/** maps a signature name into its respective class */
+	private Map<String,EClass> mapClassClass = new HashMap<String,EClass>();
+	
+	private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
 	private Map<PrimSig,Expr> mapSigState = new HashMap<PrimSig,Expr>();
 	public final EPackage pack;
 	private final PrimSig state;
@@ -83,6 +88,13 @@ public class ECore2Alloy {
 		//return new HashMap<EClassifier,PrimSig>(mapClassSig);
 		return mapClassSig;
 	}
+	
+	public Map<String,EClass> getMapClassClass()
+	{
+		//return new HashMap<EClassifier,PrimSig>(mapClassSig);
+		return mapClassClass;
+	}
+	
 	
 	public List<Sig> getSigList()
 	{
@@ -158,7 +170,7 @@ public class ECore2Alloy {
 	
 	private PrimSig makeSig(EClass ec) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
-		PrimSig res = mapClassSig.get(ec);
+		PrimSig res = mapClassSig.get(ec.getName());
 		if(res == null) {
 			try {
 				PrimSig parent = null;
@@ -171,9 +183,12 @@ public class ECore2Alloy {
 					parent = mapClassSig.get(superTypes.get(0).getName());
 					if(parent == null) throw new ErrorTransform("Parent class not found.","ECore2Alloy",superTypes);	
 				}
+				String signame = AlloyUtil.pckPrefix(pack.getName(),ec.getName());
 				if(ec.isAbstract())
-					res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent,Attr.ABSTRACT);
-				else res = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),ec.getName()),parent);
+					res = new PrimSig(signame,parent,Attr.ABSTRACT);
+				else res = new PrimSig(signame,parent);
+				mapClassClass.put(signame,ec);
+
 				Field statefield = res.addField(AlloyUtil.stateFieldName(pack,ec),state.setOf());
 				mapSigState.put(res,statefield);
 				mapClassSig.put(ec.getName(), res);

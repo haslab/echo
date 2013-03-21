@@ -19,6 +19,10 @@ public class EchoOptions extends Options{
 	public EchoOptions (String[] args) throws ErrorParser {	
 		super();
 
+		this.addOption(OptionBuilder
+				.withDescription("do not overwrite the original xmi")
+				.withLongOpt("nooverwrite")
+				.create("o"));
 		
 		this.addOption(OptionBuilder
 				.withDescription("checkonly mode")
@@ -96,6 +100,10 @@ public class EchoOptions extends Options{
 
 	public boolean isHelp() {
 		return cmd.hasOption("h");
+	}
+	
+	public boolean isOverwrite() {
+		return !cmd.hasOption("o");
 	}
 		
 	public String getDirection() {

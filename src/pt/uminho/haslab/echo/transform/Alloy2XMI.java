@@ -18,6 +18,7 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
@@ -31,6 +32,7 @@ public class Alloy2XMI {
 	private final A4Solution sol;
 	private final Expr state;
 	private final Map<EStructuralFeature,Field> mapSfField;
+	private final Map<String,EClass> mapClassClass;
 	private final EFactory eFactory;
 	
 	private Map<String,Expr> mapAtoms;
@@ -40,6 +42,7 @@ public class Alloy2XMI {
 	public Alloy2XMI(A4Solution sol, XMI2Alloy modelInfo,ECore2Alloy metaInfo,Expr state) throws Err
 	{
 		mapSfField = metaInfo.getMapSfField();
+		mapClassClass = metaInfo.getMapClassClass();
 		this.sol = sol;
 		eFactory = metaInfo.pack.getEFactoryInstance();
 		this.state = state;
@@ -68,7 +71,7 @@ public class Alloy2XMI {
 
 	
 	
-	//TODO : Aridade das relações, não sei se esta será a maneira correcta.
+	//TODO : Aridade das rela����es, n��o sei se esta ser�� a maneira correcta.
 	
 	private EObject createObject(Expr ex, EClass ec) throws Err
 	{
@@ -115,7 +118,7 @@ public class Alloy2XMI {
 						itExpr = mapAtoms.get(t.atom(0));
 						itObj = (EObject) mapExprObj.get(itExpr);
 						if(itObj == null)
-							itObj = createObject(itExpr,ref.getEReferenceType());
+							itObj = createObject(itExpr,mapClassClass.get(((PrimSig)((ExprVar)itExpr).type().toExpr()).parent.label));
 						itList.add(itObj);
 					}
 					obj.eSet(sf, itList);
@@ -125,7 +128,7 @@ public class Alloy2XMI {
 					itExpr = mapAtoms.get(ts.iterator().next().atom(0));
 					itObj = (EObject) mapExprObj.get(itExpr);
 					if(itObj == null)
-						itObj = createObject(itExpr,ref.getEReferenceType());
+						itObj = createObject(itExpr,mapClassClass.get(((PrimSig)((ExprVar)itExpr).type().toExpr()).parent.label));
 					obj.eSet(sf, itObj);
 				}
 			}

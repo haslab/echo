@@ -316,7 +316,10 @@ public class Echo {
 			while (alloyrunner.getSolution().satisfiable()&&end.equals("y")) {		
 				System.out.println("Instance found for delta "+alloyrunner.getDelta()+".");
 				alloyrunner.show();
-				saveEObject(new Alloy2XMI(alloyrunner.getSolution(),trgIns,trgMM,trgsig).getModel(),oldPath);
+				if(options.isOverwrite()) {
+					Alloy2XMI a2x = new Alloy2XMI(alloyrunner.getSolution(),trgIns,trgMM,trgsig);
+					saveEObject(a2x.getModel(),oldPath);
+				}
 				System.out.println("Search another instance? (y)");
 				alloyrunner.nextInstance();
 				end = in.readLine(); 
