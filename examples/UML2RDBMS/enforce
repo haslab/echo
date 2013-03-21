@@ -1,1 +1,1 @@
-java -jar ../../echo.jar -enforce uml -q UML2RDBMS.qvtr -m UML.ecore RDBMS.ecore -i 1PersistentPackage.xmi 1PersistentScheme.xmi
+java -jar ../../echo.jar -enforce hm -q HSM2NHSM.qvtr -m HSM.ecore -i HStateMachine.xmi HStateMachineN.xmi

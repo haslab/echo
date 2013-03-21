@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
-<hsm:StateMachine
-    xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:hsm="HSM"
-    xsi:schemaLocation="HSM HSM.ecore#HSM">
-  <states name="Child"
-      owner="//@states.2"/>
+<hsm:StateMachine xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:hsm="HSM" xsi:schemaLocation="HSM HSM.ecore#HSM">
+  <states xsi:type="hsm:CompositeState" name="A"/>
+  <states name="Child" owner="//@states.0"/>
   <states name="B"/>
-  <states xsi:type="hsm:CompositeState"
-      name="A"/>
-  <transitions
-      source="//@states.0"
-      target="//@states.1"/>
 </hsm:StateMachine>

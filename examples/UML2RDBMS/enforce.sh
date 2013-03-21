@@ -1,1 +1,0 @@
-java -cp "../../bin/:../../lib/*" pt.uminho.haslab.echo.Echo enforce UML2RDBMS.qvtr uml UML.ecore PackageExample.xmi RDBMS.ecore SchemeExample.xmi
