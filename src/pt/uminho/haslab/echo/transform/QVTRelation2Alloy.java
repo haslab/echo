@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Set;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
@@ -24,14 +22,13 @@ import org.eclipse.qvtd.pivot.qvttemplate.TemplateExp;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.emf.OCLUtil;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
@@ -97,7 +94,10 @@ public class QVTRelation2Alloy {
 		initDomains();
 		initVariableDeclarationLists();
 		calculateFact();
-		//fact = trading(fact);
+		AlloyOptimizations opt = new AlloyOptimizations();
+		System.out.println("Pre-trade "+fact);
+		fact = opt.trading(fact);
+		System.out.println("Pos-trade "+fact);
 		field = top?null:addRelationFields();
 	}
 	
@@ -263,81 +263,7 @@ public class QVTRelation2Alloy {
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
 	}
 	
-	private Expr trading(Expr expr){
-		Expr res = expr;
-		Expr ebody = null;
-		List<Decl> aux = new ArrayList<Decl>();
-		if (expr instanceof ExprQt){
-			ebody = trading(((ExprQt) expr).sub);
-			if (((ExprQt) expr).op.equals(ExprQt.Op.ALL) && (ebody instanceof ExprBinary) && 
-					((ExprBinary)ebody).op.equals(ExprBinary.Op.IMPLIES)) {
-				Expr abody = ((ExprBinary)ebody).left;
-				for (Decl d : ((ExprQt) expr).decls) {
-					if (d.names.size()==1){
-						Entry<List<Expr>,Expr> es = findTrades(d.get(),abody);
-						System.out.println(d.get() +" cast to "+es.getKey());
-						if (es.getKey().size() > 0) {
-							d = new Decl(null,null,null,d.names,es.getKey().get(0));
-							abody = es.getValue();
-						} 
-						aux.add(d);
-						ebody = ExprBinary.Op.IMPLIES.make(null, null, abody, ((ExprBinary)ebody).right);
-					}
-				}
-				aux = AlloyUtil.ordDecls(aux);
-				res = ((ExprQt) expr).op.make(null, null,aux, ebody);
-			} else if (((ExprQt) expr).op.equals(ExprQt.Op.SOME)) {
-				for (Decl d : ((ExprQt) expr).decls) {
-					if (d.names.size()==1){
-						Entry<List<Expr>,Expr> es = findTrades(d.get(),ebody);
-						if (es.getKey().size() > 0) {
-							d = new Decl(null,null,null,d.names,es.getKey().get(0));
-							ebody = es.getValue();
-						} 
-						aux.add(d);
-					}
-				}
-				//aux = AlloyUtil.ordDecls(aux);
-				res = ((ExprQt) expr).op.make(null, null,aux, ebody);
-			}
-		} else if (expr instanceof ExprBinary){
-			res = ((ExprBinary)expr).op.make(null, null, trading(((ExprBinary) expr).left),trading(((ExprBinary) expr).right));			
-		}
 
-		
-		return res;
-	}
-	
-	private Entry<List<Expr>,Expr> findTrades(ExprHasName v, Expr e){
-		List<Expr> resl = new ArrayList<Expr>();
-		Expr rese = e;
-		if (e instanceof ExprBinary){
-			if (((ExprBinary)e).op.equals(ExprBinary.Op.IN)){
-				Expr inleft = ((ExprBinary)e).left;
-				Expr inright = ((ExprBinary)e).right;				
-				if (inleft.isSame(v)) {
-					resl.add(inright);
-					rese = Sig.NONE.no();
-				}else if (inright instanceof ExprBinary && ((ExprBinary)inright).op.equals(ExprBinary.Op.JOIN) ) {
-					if (((ExprBinary) inright).left.isSame(v)) {
-						resl.add((((ExprBinary) inright).right).join(inleft));
-						rese = Sig.NONE.no();
-					}
-				}
-			
-			} 
-		} else if ((e instanceof ExprList) && ((ExprList)e).op.equals(ExprList.Op.AND)) {
-			List<Expr> exps = new ArrayList<Expr>();
-			for (Expr arg : ((ExprList) e).args) {
-				Entry<List<Expr>,Expr> auxr = findTrades(v,arg);
-				resl.addAll(auxr.getKey());
-				exps.add(auxr.getValue());
-			}
-			rese = ExprList.make(null, null, ExprList.Op.AND, exps);
-		}
-		return new SimpleEntry<List<Expr>,Expr>(resl,rese);
-		
-	}
 	
 	/** Returns the Alloy fact corresponding to this QVT Relation
 	 * 

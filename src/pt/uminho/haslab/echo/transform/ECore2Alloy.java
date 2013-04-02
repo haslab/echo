@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,10 +26,14 @@ import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
@@ -39,37 +44,30 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
+
+
 public class ECore2Alloy {
 
 	/** maps class names into respective Alloy signature */
 	private Map<String,PrimSig> mapClassSig = new HashMap<String,PrimSig>();
 	/** maps a structural feature into the respective Alloy field */
-	private Map<EStructuralFeature,Field> mapSfField = new HashMap<EStructuralFeature,Field>();
+	private BiMap<EStructuralFeature,Field> mapSfField;
 	/** maps a signature name into its respective class */
 	private Map<String,EClass> mapClassClass = new HashMap<String,EClass>();
-	
+	/** maps a literal into its Alloy signature */
 	private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
-	private Map<PrimSig,Expr> mapSigState = new HashMap<PrimSig,Expr>();
-	public final EPackage pack;
+	/** maps a signature into its state field */
+	private Map<PrimSig,Field> mapSigState = new HashMap<PrimSig,Field>();
+
+	private final EPackage pack;
 	private final PrimSig state;
 	private List<Sig> sigList;
 	
 	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+		mapSfField = HashBiMap.create();
 		state = statesig;
 		pack = p;
 		sigList = makeSigList();
-	}
-	
-	
-	public Map<PrimSig,Expr> getMapSigState()
-	{
-		//return new HashMap<PrimSig,Expr>(mapSigState);
-		return mapSigState;
-	}
-	
-	public Map<EEnumLiteral,PrimSig> getMapLitSig()
-	{
-		return mapLitSig;
 	}
 	
 	public PrimSig getState()
@@ -77,29 +75,61 @@ public class ECore2Alloy {
 		return state;
 	}
 	
-	public Map<EStructuralFeature,Field> getMapSfField()
+	public EPackage getEPackage(){
+		return pack;
+	}
+	/** Given a StructuralFeature, returns the respective Alloy field created by the translator
+	 * 
+	 * @param f the desired StructuralFeature
+	 * @return the matching Alloy field
+	 */
+	public Field getFieldFromSFeature(EStructuralFeature f)
 	{
-		//return new HashMap<EStructuralFeature,Expr>(mapSfField);
-		return mapSfField;
+		return mapSfField.get(f);
 	}
 	
-	public Map<String,PrimSig> getMapClassSig()
+	public EStructuralFeature getSFeatureFromField(Field f)
 	{
-		//return new HashMap<EClassifier,PrimSig>(mapClassSig);
-		return mapClassSig;
+		return mapSfField.inverse().get(f);
 	}
 	
-	public Map<String,EClass> getMapClassClass()
+	public Set<EStructuralFeature> getSFeatures()
 	{
-		//return new HashMap<EClassifier,PrimSig>(mapClassSig);
-		return mapClassClass;
+		return mapSfField.keySet();
 	}
-	
+
+	public EClass getEClassFromSig(PrimSig s)
+	{
+		return mapClassClass.get(s.label);
+	}
+
+	public PrimSig getSigFromEClass(EClass c)
+	{
+		return mapClassSig.get(c.getName());
+	}
+
+	public Field getStateFieldFromSig(PrimSig s)
+	{
+		return mapSigState.get(s);
+	}
+
+	public Collection<Field> getStateFields()
+	{
+		return mapSigState.values();
+	}
+
+	public PrimSig getSigFromEEnumLiteral(EEnumLiteral e)
+	{
+		return mapLitSig.get(e);
+	}
+
 	
 	public List<Sig> getSigList()
 	{
 		return new ArrayList<Sig>(sigList);
 	}
+	
+	
 	/*
 	private void processAttribute(EAttribute attr,PrimSig ec) throws Err
 	{
@@ -218,7 +248,7 @@ public class ECore2Alloy {
 		EReference op = r.getEOpposite();
 		Decl s = state.decl;
 		if(op!=null) {
-			Field opField = mapSfField.get(op);
+			Field opField = getFieldFromSFeature(op);
 			if(opField != null)
 				try{srcsig.addFact(field.join(s.get()).equal(opField.join(s.get()).transpose()).forAll(state.decl));}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy");}

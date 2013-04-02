@@ -37,6 +37,7 @@ public class QVTTransformation2Alloy {
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else if (((Relation) rel).isIsTopLevel()) {
 				for (TypedModel mdl : qvt.getModelParameter()) {
+					//TypedModel mdl = qvt.getModelParameter().get(0);
 					QVTRelation2Alloy trans = new QVTRelation2Alloy((Relation) rel,mdl,true,statesigs,modelsigs);
 					fact.put(rel.getName()+"_"+mdl.getName(),trans.getFact());
 				}

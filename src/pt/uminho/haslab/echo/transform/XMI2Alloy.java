@@ -27,13 +27,8 @@ public class XMI2Alloy {
 	
 	private static int counter = 0;
 	
-	private final String pre;
-	public final EObject eObj;
+	private final EObject eObj;
 	private final PrimSig state;
-	private final Map<String,PrimSig> mapClassSig;
-	private final Map<EStructuralFeature,Field> mapSfField;
-	private final Map<EEnumLiteral,PrimSig> mapLitSig;
-	private final Map<PrimSig, Expr> mapSigState;
 
 	private Map<Expr,Expr> mapContent = new HashMap<Expr,Expr>();	
 	
@@ -41,39 +36,37 @@ public class XMI2Alloy {
 	private List<PrimSig> sigList = new ArrayList<PrimSig>();
 	private Expr factExpr = null; 
 	
+	private final ECore2Alloy e2a;
 	
-	public Map<EObject,Sig> getMapObjSig()
+	public XMI2Alloy(EObject obj,ECore2Alloy t, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
-		return new HashMap<EObject,Sig>(mapObjSig);
-	}
-	
-	public XMI2Alloy(EObject obj,ECore2Alloy t,String prefix, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
-	{
-		pre = prefix;
 		eObj = obj;
-		mapClassSig = t.getMapClassSig();
-		mapSfField = t.getMapSfField();
-		mapSigState = t.getMapSigState();
-		mapLitSig = t.getMapLitSig();
+		e2a = t;
 		state = stateSig;
 		initContent();
 		makeSigList(eObj);
 		makeFactExpr();
 	}
 	
+	public PrimSig getSigFromEObject(EObject o) {
+		return mapObjSig.get(o);
+	}
 
+	public EObject getRootEObject(){
+		return eObj;
+	}
 	
 	// initializes relations to n-ary none
 	private void initContent()
 	{
-		for(Expr f: mapSigState.values()) {
+		for(Expr f: e2a.getStateFields()) {
 			mapContent.put(f,Sig.NONE);}
-		for(EStructuralFeature sf: mapSfField.keySet()){
+		for(EStructuralFeature sf: e2a.getSFeatures()){
 			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
 			else if(sf.getEType().getName().equals("EBoolean"))
-				mapContent.put(mapSfField.get(sf),Sig.NONE);
+				mapContent.put(e2a.getFieldFromSFeature(sf),Sig.NONE);
 			else
-				mapContent.put(mapSfField.get(sf),Sig.NONE.product(Sig.NONE));}
+				mapContent.put(e2a.getFieldFromSFeature(sf),Sig.NONE.product(Sig.NONE));}
 	}
 
 	
@@ -132,7 +125,7 @@ public class XMI2Alloy {
 		//List<Sig> listSiblings;
 		Expr aux = null;
 		Object eG;
-		PrimSig parent = mapClassSig.get(it.eClass().getName());
+		PrimSig parent = e2a.getSigFromEClass(it.eClass());
 		PrimSig res;
 		try {res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);}
 		catch (Err a) {throw new ErrorAlloy(a.getMessage(),"XMI2Alloy",parent);}
@@ -140,14 +133,14 @@ public class XMI2Alloy {
 		/*listSiblings = mapContents.get(parent);
 		listSiblings.add(res);*/
 		
-		fieldState = mapSigState.get(parent);
+		fieldState = e2a.getStateFieldFromSig(parent);
 		siblings = mapContent.get(fieldState);
 
 		siblings = siblings.plus(res);
 		mapContent.put(fieldState,siblings);
 		PrimSig up = parent.parent;
 		while (up != Sig.UNIV && up != null){
-			Expr fieldStateup = mapSigState.get(up);
+			Expr fieldStateup = e2a.getStateFieldFromSig(up);
 			Expr siblingsup = mapContent.get(fieldStateup);			
 			siblingsup = siblingsup.plus(res);
 			mapContent.put(fieldStateup,siblingsup);
@@ -159,7 +152,7 @@ public class XMI2Alloy {
 		List<EStructuralFeature> sfList = it.eClass().getEAllStructuralFeatures();
 		for(EStructuralFeature sf: sfList)
 		{
-			field = mapSfField.get(sf);
+			field = e2a.getFieldFromSFeature(sf);
 			eG = it.eGet(sf);
 			if (sf instanceof EReference) {
 				if(eG instanceof EList<?>) {
@@ -202,7 +195,7 @@ public class XMI2Alloy {
 			}
 		}else if(obj instanceof EEnumLiteral)
 		{
-			manos = manos.plus(it.product(mapLitSig.get((EEnumLiteral)obj)));
+			manos = manos.plus(it.product(e2a.getSigFromEEnumLiteral((EEnumLiteral)obj)));
 			mapContent.put(field, manos);
 		}else if(obj instanceof String)
 		{
