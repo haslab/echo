@@ -30,28 +30,32 @@
    <set name="TwoLayer_Top_" type="TwoLayer_Top"/>
 </node>
 
-<node color="Blue">
+<node color="Blue" label="Top">
    <type name="TwoLayer_Top"/>
 </node>
 
-<node shape="Ellipse" color="Green">
+<node shape="Ellipse" color="Green" label="Child">
    <type name="TwoLayer_Child"/>
-</node>
-
-<node visible="no">
-   <type name="TwoLayer_Container"/>
 </node>
 
 <node visible="no" hideunconnected="yes">
    <type name="String"/>
 </node>
 
+<node visible="no" label="Container">
+   <type name="TwoLayer_Container"/>
+</node>
+
+<edge label="child">
+   <relation name="TwoLayer_child"> <type name="TwoLayer_Top"/> <type name="TwoLayer_Child"/> </relation>
+</edge>
+
 <edge visible="no">
    <relation name="S_m1_"> <type name="TwoLayer_Child"/> <type name="TwoLayer_Child"/> </relation>
    <relation name="S_m2_"> <type name="TwoLayer_Child"/> <type name="TwoLayer_Child"/> </relation>
 </edge>
 
-<edge visible="no" attribute="yes">
+<edge visible="no" attribute="yes" label="name">
    <relation name="TwoLayer_name"> <type name="TwoLayer_Child"/> <type name="String"/> </relation>
    <relation name="TwoLayer_name"> <type name="TwoLayer_Top"/> <type name="String"/> </relation>
 </edge>

@@ -13,22 +13,17 @@
    <type name="Int"/>
    <type name="RDBMS"/>
    <type name="rdbms"/>
-   <type name="RDBMS_Column_3_"/>
-   <type name="RDBMS_Column_4_"/>
-   <type name="RDBMS_Column_5_"/>
-   <type name="RDBMS_Column_6_"/>
-   <type name="RDBMS_Scheme_1_"/>
-   <type name="RDBMS_Table_2_"/>
    <type name="State_"/>
    <type name="UML"/>
    <type name="uml"/>
+   <type name="UML_Attribute_2_"/>
+   <type name="UML_Attribute_4_"/>
+   <type name="UML_Class_1_"/>
+   <type name="UML_Class_3_"/>
    <type name="uml_new_"/>
    <type name="UML_Package_0_"/>
    <type name="univ"/>
    <type name="seq/Int"/>
-   <set name="RDBMS_Column_" type="RDBMS_Column"/>
-   <set name="RDBMS_Scheme_" type="RDBMS_Scheme"/>
-   <set name="RDBMS_Table_" type="RDBMS_Table"/>
    <set name="UML_Attribute_" type="UML_Attribute"/>
    <set name="UML_Class_" type="UML_Class"/>
    <set name="UML_Package_" type="UML_Package"/>
@@ -49,8 +44,34 @@
    <type name="UML_Package"/>
 </node>
 
+<node label="Column_7_">
+   <type name="RDBMS_Column_7_"/>
+</node>
+
+<node label="Column_8_">
+   <type name="RDBMS_Column_8_"/>
+</node>
+
+<node label="Column_9_">
+   <type name="RDBMS_Column_9_"/>
+</node>
+
+<node label="Scheme_5_">
+   <type name="RDBMS_Scheme_5_"/>
+</node>
+
+<node label="Table_6_">
+   <type name="RDBMS_Table_6_"/>
+</node>
+
 <node label="persistent">
    <set name="UML_persistent" type="UML_Class"/>
+</node>
+
+<node showlabel="no">
+   <set name="RDBMS_Column_" type="RDBMS_Column"/>
+   <set name="RDBMS_Scheme_" type="RDBMS_Scheme"/>
+   <set name="RDBMS_Table_" type="RDBMS_Table"/>
 </node>
 
 <node visible="no">
@@ -89,10 +110,6 @@
 
 <edge visible="no" attribute="no" label="classes">
    <relation name="UML_classes"> <type name="UML_Package"/> <type name="UML_Class"/> </relation>
-</edge>
-
-<edge visible="no" attribute="no" label="sub">
-   <relation name="UML_sub"> <type name="UML_Class"/> <type name="UML_Class"/> </relation>
 </edge>
 
 <edge visible="no" attribute="yes" label="name">

@@ -7,7 +7,4 @@
     xsi:schemaLocation="HSM HSM.ecore#HSM">
   <states name="A"/>
   <states name="B"/>
-  <transitions
-      source="//@states.0"
-      target="//@states.1"/>
 </hsm:StateMachine>

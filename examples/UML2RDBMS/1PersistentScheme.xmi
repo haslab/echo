@@ -5,15 +5,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:rdbms="RDBMS"
     xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
-    name="Company">
-  <tables name="Employee">
+    name="Top">
+  <tables name="B">
     <columns
-        name="Name"/>
+        name="b"/>
     <columns
-        name="Age"/>
+        name="a"/>
     <columns
-        name="Project"/>
-    <columns
-        name="New"/>
+        name="x"/>
   </tables>
 </rdbms:Scheme>

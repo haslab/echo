@@ -47,8 +47,10 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 
 import com.google.inject.Injector;
 
+import pt.uminho.haslab.echo.alloy.AlloyRunner;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.transform.Alloy2XMI;
-import pt.uminho.haslab.echo.transform.AlloyUtil;
 import pt.uminho.haslab.echo.transform.QVTTransformation2Alloy;
 import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import pt.uminho.haslab.echo.transform.ECore2Alloy;
@@ -64,16 +66,14 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 public class Echo {
 	
 	private static EchoOptions options;
+	private static EMFParser parser = new EMFParser();
 	
+
 	// target scopes (only these need be increased)
 	private static ConstList<CommandScope> targetscopes;
 
 	// the qvt transformation being processed
 	private static RelationalTransformation qvttrans;
-	// the transformation metamodels (package name, epackage)
-	private static Map<String,EPackage> metamodels = new HashMap<String,EPackage>();
-	// the transformation instances (qvt argument name, eobject)
-	private static Map<String,EObject> instances = new HashMap<String,EObject>();
 	
 	// the state model signatures (one for each metamodel)
 	private static Map<String,PrimSig> statesigs;
@@ -88,79 +88,7 @@ public class Echo {
 	
 	private static Map<String,ECore2Alloy> mmtranses = new HashMap<String,ECore2Alloy>();
 	
-	private static EObject loadModelInstance(String argURI,EPackage p) {
 
-		ResourceSet load_resourceSet = new ResourceSetImpl();
-
-		// Register XML Factory implementation to handle files with any extension
-		load_resourceSet.getResourceFactoryRegistry()
-				.getExtensionToFactoryMap().put("*",
-						new XMIResourceFactoryImpl());
-
-		load_resourceSet.getPackageRegistry().put(p.getNsURI(),p);
-
-		// Create empty resource with the given URI
-		Resource load_resource = load_resourceSet.getResource(URI
-				.createURI(argURI), true);
-		return load_resource.getContents().get(0);
-	}
-	
-	private static EObject loadObjectFromEcore(String uri)
-	{
-		ResourceSet load_resourceSet = new ResourceSetImpl();
-
-		// Register XML Factory implementation to handle files with ecore extension
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(
-			    "ecore", new EcoreResourceFactoryImpl());
-		
-		final ExtendedMetaData extendedMetaData = new BasicExtendedMetaData(load_resourceSet.getPackageRegistry());
-		load_resourceSet.getLoadOptions().put(XMLResource.OPTION_EXTENDED_META_DATA,
-		    extendedMetaData);
-
-		// Create empty resource with the given URI
-		Resource load_resource = load_resourceSet.getResource(URI.createURI(uri), true);
-		
-		return load_resource.getContents().get(0);
-	}
-		
-	private static RelationalTransformation getTransformation(Map<String,String> packpaths) throws ErrorParser {
-		CS2PivotResourceAdapter adapter = null;
-
-	//	OCLstdlib.install();
-		QVTrelationStandaloneSetup.doSetup();
-		
-		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
-		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
-		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
-		
-		try{
-			Scanner scan = new Scanner(new File(options.getQVTPath()));
-			String qvtcontent = scan.useDelimiter("\\Z").next();
-			scan.close();
-			File qvtaux = new File("aux.qvtr");
-			qvtaux.createNewFile();
-			FileWriter out = new FileWriter(qvtaux, true);
-		    BufferedWriter fbw = new BufferedWriter(out);
-		    for (Entry<String,String> mdl : packpaths.entrySet())
-		    	fbw.write("import "+mdl.getKey()+" : \'"+mdl.getValue()+"\'::"+mdl.getKey()+";\n\n");
-	        fbw.write(qvtcontent);
-	        fbw.close();
-
-			BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("aux.qvtr"), true);
-	        qvtaux.delete();
-		
-			String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "Error parsing QVT.", "\n\t");
-			if (message != null) throw new ErrorParser (message,"QVT Parser");
-			
-			adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
-			Resource pivotResource = adapter.getPivotResource(xtextResource);
-					
-			RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
-			RelationalTransformation rt = (RelationalTransformation) rm.eContents().get(0);
-			return rt;
-		} catch (Exception e) { throw new ErrorParser (e.getMessage(),"QVT Parser");}
-
-	}
 	
 	public static void main(String[] args) throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, Err, IOException {	
 		
@@ -177,11 +105,11 @@ public class Echo {
 		EValidator.ValidationDelegate.Registry.INSTANCE.put(oclDelegateURI,
 		    new OCLValidationDelegateFactory.Global());
 
+		
 		OCLinEcoreStandaloneSetup.doSetup();
 		// install the OCL standard library
 		OCLstdlib.install();
 
-		Map<String,String> packagepaths = new HashMap<String,String>();
 
 		try {
 			options = new EchoOptions(args);
@@ -197,24 +125,20 @@ public class Echo {
 		
 		if (options.isVerbose()) System.out.println("** Parsing input files.");
 
-		for (String path : options.getModels()) {
-   			EPackage paux = (EPackage) loadObjectFromEcore(path);
-   			metamodels.put(paux.getName(),paux);
-		    packagepaths.put(paux.getName(), path);
-	    }
+		for (String path : options.getModels())
+			parser.loadPackage(path);
 		
-		qvttrans = getTransformation(packagepaths);
-		if (qvttrans == null) throw new Error ("Empty transformation.");
-
-
-		int i = 0;
-		for (TypedModel mdl : qvttrans.getModelParameter()) {
-			if (options.isVerbose()) System.out.println(mdl.getName() +" : "+options.getInstances()[i]);
-
-			EObject iaux = loadModelInstance(options.getInstances()[i++],metamodels.get(mdl.getUsedPackage().get(0).getName()));
-			instances.put(mdl.getName(),iaux);	
+		
+		if (!options.isConformance()){
+			qvttrans = parser.loadQVT(options.getQVTPath());
+			if (qvttrans == null) throw new Error ("Empty transformation.");
+		
+			int i = 0;
+			for (TypedModel mdl : qvttrans.getModelParameter()) {
+				if (options.isVerbose()) System.out.println(mdl.getName() +" : "+options.getInstances()[i]);
+				parser.loadObject(options.getInstances()[i++],mdl.getName());
+			}
 		}
-		
 
 		if (options.isVerbose()) System.out.println("\n** Processing metamodels.");
 
@@ -224,7 +148,7 @@ public class Echo {
 		if (!options.isCheck()) trgsig = AlloyUtil.createTargetState(stateinstancesigs,options.getDirection());
 		if (options.isVerbose()) System.out.println("State signatures: "+statesigs +", "+stateinstancesigs +", "+trgsig);
 
-		for (EPackage epck : metamodels.values()) {
+		for (EPackage epck : parser.getPackages()) {
 			ECore2Alloy mmtrans = new ECore2Alloy(epck,statesigs.get(epck.getName()));
 			modelsigs.put(epck.getName(),mmtrans.getSigList());
 			mmtranses.put(epck.getName(),mmtrans);
@@ -244,8 +168,8 @@ public class Echo {
 			boolean istarget = name.equals(options.getDirection());
 			ECore2Alloy mmtrans = mmtranses.get(mdl);
 			
-			EObject instmodel = instances.get(name);
-			XMI2Alloy insttrans = new XMI2Alloy(instmodel,mmtrans,"",state);
+			EObject instmodel = parser.getObjectVar(name);
+			XMI2Alloy insttrans = new XMI2Alloy(instmodel,mmtrans,state);
 			// only the target needs the delta function and scopes, and only if enforce mode
 			if (istarget&&!options.isCheck()) { 
 				deltaexpr = (mmtrans.getDeltaExpr(trgsig,state));
@@ -299,10 +223,10 @@ public class Echo {
 			else System.out.println("Instance not found. Models inconsistent.");
 		} else {
 			
-			String oldPath = trgIns.eObj.eResource().getURI().toString();
+			String oldPath = trgIns.getRootEObject().eResource().getURI().toString();
 			StringBuilder sb = new StringBuilder(oldPath);
 			sb.insert(sb.length()-4,".old");
-			saveEObject(trgIns.eObj,sb.toString());
+			saveEObject(trgIns.getRootEObject(),sb.toString());
 			
 			if (options.isVerbose()) System.out.println("** Backup file created: " +  sb);
 			

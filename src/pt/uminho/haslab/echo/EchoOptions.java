@@ -14,7 +14,6 @@ public class EchoOptions extends Options{
 	
 	CommandLine cmd;
 
-
 	@SuppressWarnings("static-access")
 	public EchoOptions (String[] args) throws ErrorParser {	
 		super();
@@ -43,10 +42,15 @@ public class EchoOptions extends Options{
 		
 		this.addOption(OptionBuilder.withArgName("path")
 				.hasArg()
-				.isRequired(true)
+				.isRequired(false)
 				.withDescription("the QVT-R transformation file")
 				.withLongOpt("qvtr")
 				.create("q"));
+	
+		this.addOption(OptionBuilder.isRequired(false)
+				.withDescription("model conformance testing mode")
+				.withLongOpt("conformance")
+				.create("t"));
 	
 		this.addOption(OptionBuilder.withDescription("prints this message")
 				.withLongOpt("help")
@@ -96,6 +100,10 @@ public class EchoOptions extends Options{
 	
 	public boolean isCheck() {
 		return cmd.hasOption("c");
+	}
+
+	public boolean isConformance() {
+		return cmd.hasOption("t");
 	}
 
 	public boolean isHelp() {
