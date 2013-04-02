@@ -27,6 +27,7 @@ import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
@@ -236,8 +237,14 @@ public class OCL2Alloy {
 			res = src.equal(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("and"))
 			res = src.and(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
-		else if (expr.getReferredOperation().getName().equals("or"))
-			res = src.or(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("or")) {
+			try{
+				res = closure2Reflexive(expr.getArgument().get(0),expr.getSource());
+			}
+			catch (Error a) {
+				res = src.or(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			}
+		}
 		else if (expr.getReferredOperation().getName().equals("implies"))
 			res = src.implies(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("<"))
@@ -327,5 +334,54 @@ public class OCL2Alloy {
 			return avars;
 		}
 
+		/**
+		 * Tries to convert an OCL transitive closure into an Alloy reflexive closure
+		 * @param x
+		 * @param y
+		 * @return
+		 * @throws ErrorTransform
+		 * @throws ErrorAlloy
+		 * @throws ErrorUnsupported
+		 */
+		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+			Expr res = Sig.NONE.no();
+			OperationCallExp a = null,b = null;
+			if (((OperationCallExp)x).getReferredOperation().getName().equals("includes") && 
+					((OperationCallExp)y).getReferredOperation().getName().equals("=")) {
+				a = (OperationCallExp) x;
+				b = (OperationCallExp) y;
+			} else if (((OperationCallExp)y).getReferredOperation().getName().equals("includes") && 
+					((OperationCallExp)x).getReferredOperation().getName().equals("=")) {
+				a = (OperationCallExp) y;
+				b = (OperationCallExp) x;
+			} else throw new Error();
+			
+			IteratorExp it = (IteratorExp) a.getSource();
+			OperationCallExp itsrc = (OperationCallExp) it.getSource();
+
+			VariableExp a1 = ((VariableExp) itsrc.getSource());
+			VariableExp a2 = ((VariableExp) a.getArgument().get(0));
+			VariableExp b1 = ((VariableExp) b.getSource());
+			VariableExp b2 = ((VariableExp) b.getArgument().get(0));
+			if((a2.getReferredVariable().equals(b1.getReferredVariable()) && 
+					a1.getReferredVariable().equals(b2.getReferredVariable())) || 
+					(a2.getReferredVariable().equals(b2.getReferredVariable()) && 
+					a1.getReferredVariable().equals(b1.getReferredVariable()))) {
+				Decl d = variableListToExpr(new HashSet<Variable>(it.getIterator()),modelsigs,true,stateinstancesigs).iterator().next();
+				try{
+					vardecls.add(d);
+					Expr bdy = oclExprToAlloy(it.getBody());
+					Decl dd = bdy.oneOf("2_");
+					res = res.comprehensionOver(d,dd);
+				} catch (Err e) {vardecls.remove(d); throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",res);}
+				Expr v1 = oclExprToAlloy(a1);
+				Expr v2 = oclExprToAlloy(a2);
+				res = v2.in(v1.join(res.reflexiveClosure()));
+				vardecls.remove(d);
+			}
+				
+			return res;
+		}
+		
 
 }
