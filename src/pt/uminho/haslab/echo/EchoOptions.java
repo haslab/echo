@@ -89,7 +89,6 @@ public class EchoOptions extends Options{
 			cmd = parser.parse(this, args);
 			if (isQVT() && !(isCheck() || isEnforce())) throw new Exception();
 			if (isCheck() && isEnforce()) throw new Exception();
-			if (isQVT() && isConformance()) throw new Exception();
 		} catch (Exception e) {
 			if (this.isHelp()) {}
 			else throw new ErrorParser(e.getMessage(),"CLI Parser");

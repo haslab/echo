@@ -2,10 +2,8 @@ package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
@@ -25,7 +23,6 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.emf.OCLUtil;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -93,8 +90,8 @@ public class QVTRelation2Alloy {
 		initDomains();
 		initVariableDeclarationLists();
 		calculateFact();
-		AlloyOptimizations opt = new AlloyOptimizations();
-		System.out.println("Pre-trade "+fact);
+		//AlloyOptimizations opt = new AlloyOptimizations();
+		//System.out.println("Pre-trade "+fact);
 		//fact = opt.trading(fact);
 		//System.out.println("Pos-trade "+fact);
 		field = top?null:addRelationFields();

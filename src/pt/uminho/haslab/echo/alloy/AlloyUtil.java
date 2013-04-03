@@ -1,31 +1,23 @@
 package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.ocl.examples.pivot.Package;
 import org.eclipse.ocl.examples.pivot.Property;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.transform.ECore2Alloy;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
 import pt.uminho.haslab.echo.transform.OCL2Alloy;
-
-
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
-import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -37,13 +29,9 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class AlloyUtil {
 
-	
-	
 	public static String targetName(String target) {
 		return target+"_new_";
 	}
-	
-	
 	
 	// composes an expression with the respective state variable
 	public static Expr localStateAttribute(Property prop, Expr statesig, EMF2Alloy translator) throws ErrorAlloy, ErrorTransform{
@@ -63,8 +51,6 @@ public class AlloyUtil {
 		
 		return exp.join(var);
 	}
-	
-
 	
 	// methods used to append prefixes to expressions
 	public static String pckPrefix (String mdl, String str) {

@@ -63,7 +63,10 @@ public class AlloyRunner {
 		this.targetscopes = translator.getTargetScopes();
 		
 		allsigs.addAll(translator.getModelSigs());
-		allsigs.addAll(translator.getModelStateSigs());
+		for (Expr s : translator.getModelStateSigs()){
+			System.out.println(s);
+			allsigs.add((Sig) s);
+			}
 		allsigs.addAll(translator.getInstanceSigs());
 		allsigs.addAll(translator.getInstanceStateSigs());
 		
@@ -136,8 +139,10 @@ public class AlloyRunner {
 			if (viz == null) viz = new VizGUI(true, "alloy_output.xml", null);
 			else viz.loadXML("alloy_output.xml", true);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
-		String theme = (eoptions.getQVTPath()).replace(".qvtr", ".thm");
-		if (new File(theme).isFile()) viz.loadThemeFile(theme);		
+		if (eoptions.isQVT()) {
+			String theme = (eoptions.getQVTPath()).replace(".qvtr", ".thm");
+			if (new File(theme).isFile()) viz.loadThemeFile(theme);		
+		}
 	}
 	
 	/** Calculates the next Alloy solution.

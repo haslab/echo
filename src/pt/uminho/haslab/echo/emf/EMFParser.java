@@ -162,8 +162,8 @@ public class EMFParser {
 	}
 
 	public String getInstanceArgName(String uri) {
-		String res = argpaths.get(uri);
-		if (res == null) res = uri;
+		String res = uri;
+		if (argpaths != null) res = argpaths.get(uri);
 		return res;
 	}
 

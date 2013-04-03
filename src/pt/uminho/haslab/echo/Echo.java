@@ -5,14 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
 import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
@@ -58,7 +56,7 @@ public class Echo {
 		if (options.isVerbose()) System.out.println("Instance signatures: "+translator.getInstanceSigs());
 		if (options.isVerbose()) System.out.println("Instance facts: "+translator.getInstanceFact());
 		
-		if (!options.isConformance()) {
+		if (options.isQVT()) {
 			if (options.isVerbose()) System.out.println("\n** Processing QVT transformation "+parser.getTransformation().getName()+".");
 			translator.translateQVT();
 			System.out.println("Running Alloy command: "+(options.isCheck()?"check.":("enforce "+parser.getTransformation().getName()+" on the direction of "+options.getDirection()+".")));
@@ -74,14 +72,16 @@ public class Echo {
 			alloyrunner.conforms();
 			if (alloyrunner.getSolution().satisfiable()) {
 				System.out.println("Instance found. Models consistent.");
-				alloyrunner.show();
 			}
-			else System.out.println("Instance not found. Models inconsistent.");
-		} else if (options.isCheck()) {
+			else {
+				System.out.println("Instance not found. Models inconsistent.");
+				return;
+			}
+		} if (options.isCheck()) {
 			alloyrunner.check();
 			if (alloyrunner.getSolution().satisfiable()) System.out.println("Instance found. Models consistent.");
 			else System.out.println("Instance not found. Models inconsistent.");
-		} else {
+		} else if (options.isEnforce()) {
 			alloyrunner.enforce();
 			while (!alloyrunner.getSolution().satisfiable()) {
 				System.out.println("No instance found for delta "+alloyrunner.getDelta()+((options.isVerbose())?(" (for "+alloyrunner.getScopes()+", int "+alloyrunner.getIntScope()+")."):""));
