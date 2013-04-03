@@ -44,8 +44,8 @@ for checkonly and enforce mode respectively. Metamodels should be presented in E
 
 Additional options include:
 ```
--d, --delta <nat>           maximum delta for the new generated instance
--o, --nooverwrite           do not overwrite the original instance xmi with the generated target
+-d, --delta <nat>           maximum delta between the original and the new generated instances
+-o, --nooverwrite           do not overwrite the original instance xmi with the newly generated
 -t, --conformance           test if instances conform to the models before applying qvt
 ```
 
