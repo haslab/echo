@@ -43,15 +43,15 @@ java -jar echo.jar -enforce <direction> -q <qvtr> -m <models>... -i <instances>.
 for checkonly and enforce mode respectively. Metamodels should be presented in ECore, while instances should be xmi files conforming to the respective metamodels and presented in the order defined by the QVT-R transformation.
 
 Additional options include:
-```sh
--d, --delta <nat>           maximum delta for the new instance
+```
+-d, --delta <nat>           maximum delta for the new generated instance
 -o, --nooverwrite           do not overwrite the original instance xmi with the generated target
 -t, --conformance           test if instances conform to the models before applying qvt
 ```
 
 Echo can also simply be run to check if the instances conform to the models as:
 ```sh
-java -jar -conforms -m <models>... -i <instances>...
+java -jar -t -m <models>... -i <instances>...
 ```
 
 ## Examples
