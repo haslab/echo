@@ -44,8 +44,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-
-
 public class ECore2Alloy {
 
 	/** maps class names into respective Alloy signature */
@@ -61,7 +59,7 @@ public class ECore2Alloy {
 
 	private final EPackage pack;
 	private final PrimSig state;
-	private List<Sig> sigList;
+	private List<PrimSig> sigList;
 	
 	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		mapSfField = HashBiMap.create();
@@ -124,9 +122,9 @@ public class ECore2Alloy {
 	}
 
 	
-	public List<Sig> getSigList()
+	public List<PrimSig> getSigList()
 	{
-		return new ArrayList<Sig>(sigList);
+		return new ArrayList<PrimSig>(sigList);
 	}
 	
 	
@@ -306,9 +304,8 @@ public class ECore2Alloy {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		OCLHelper helper = ocl.createOCLHelper(obj);
 		ExpressionInOCL invariant;
-		List<Sig> l1 = new ArrayList<Sig>(sigList);
-		Map<String,List<Sig>> m1 = new HashMap<String,List<Sig>>();
-		m1.put(pack.getName(), l1);
+		Map<String,ECore2Alloy> m1 = new HashMap<String,ECore2Alloy>();
+		m1.put(pack.getName(), this);
 		Map<String,Expr> m2 = new HashMap<String,Expr>();
 		m2.put(pack.getName(), state);
 		OCL2Alloy converter = new OCL2Alloy(m2,m1,sd);
@@ -322,17 +319,17 @@ public class ECore2Alloy {
 						sig.addFact(oclalloy);
 					}
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",sig);} 
-				  catch (ParserException e) { throw new ErrorParser("Error parsing OCL constraint on the metamodel","ECore2Alloy");}
+				  catch (ParserException e) { throw new ErrorParser(e.getMessage(),"ECore2Alloy");}
 
 	}
 	
-	private List<Sig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
+	private List<PrimSig> makeSigList () throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
 	{
 		List<EClassifier> list = pack.getEClassifiers();
 		List<EClass> classList = new LinkedList<EClass>();
 		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
-		sigList = new ArrayList<Sig>();
+		sigList = new ArrayList<PrimSig>();
 		
 		for(EClassifier e: list)
 		{
@@ -363,7 +360,7 @@ public class ECore2Alloy {
 		}
 	} 
 	
-	private List<Sig> processEEnum(List<EEnum> list) throws ErrorAlloy 
+	private List<PrimSig> processEEnum(List<EEnum> list) throws ErrorAlloy 
 	{
 		PrimSig enumSig = null;
 		for(EEnum en: list)
@@ -378,7 +375,7 @@ public class ECore2Alloy {
 		return sigList;
 	}
 	
-	private List<Sig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
+	private List<PrimSig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
 	{
 		LinkedList<EClass> list = new LinkedList<EClass>(classList);
 		EClass ec = list.poll();

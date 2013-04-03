@@ -1,12 +1,15 @@
 package pt.uminho.haslab.echo.alloy;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.SwingUtilities;
 
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.transform.EMF2Alloy;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -23,22 +26,17 @@ import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 public class AlloyRunner {
 	
-	/** the fact representing the model (instances + QVT)*/
-	private Expr modelfact;
-	/** the delta expression for the target model*/
-	private Expr deltaexpr;
 	/** the final command fact (model + delta)*/
 	private Expr finalfact;
 	/** all the Alloy signatures of the model*/
-	private List<Sig> allsigs;
+	private List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
 	/** the current delta value*/
 	private int delta = -1;	
 	/** the current int bitwidth*/
 	private int intscope = 2;
-	/** the current signature scopes for the target model */
-	private ConstList<CommandScope> targetscopes;
 	/** the echo options */
 	private EchoOptions eoptions;
+	private EMF2Alloy translator;
 	/** the Alloy solution */
 	private A4Solution sol;
 	/** the Alloy command options*/
@@ -48,6 +46,8 @@ public class AlloyRunner {
 	/** the Alloy visualizer used to present instances */
 	private VizGUI viz = null;
 
+	private ConstList<CommandScope> targetscopes;
+
 	/** Constructs a new Alloy Runner, that runs QVT transformations.
 	 * 
 	 * @param allsigs all the Alloy signatures of the model
@@ -56,12 +56,18 @@ public class AlloyRunner {
 	 * @param targetscopes the signature scopes for the target model
 	 * @param path the path of the transformation
 	 */
-	public AlloyRunner (List<Sig> allsigs, Expr modelfact, Expr deltaexpr, ConstList<CommandScope> targetscopes, EchoOptions eoptions) {
-		this.allsigs = allsigs;
-		this.modelfact = modelfact;
-		this.deltaexpr = deltaexpr;
-		this.targetscopes = targetscopes;
+	public AlloyRunner (EMF2Alloy translator, EchoOptions eoptions) {
+		
 		this.eoptions = eoptions;
+		this.translator = translator;
+		this.targetscopes = translator.getTargetScopes();
+		
+		allsigs.addAll(translator.getModelsSignatures());
+		allsigs.addAll(translator.getStateSignatures());
+		allsigs.addAll(translator.getInstanceSignatures());
+		allsigs.addAll(translator.getInstanceStateSignatures());
+		
+		if (eoptions.isEnforce()) allsigs.add(translator.getTargetSig());
 		
 		rep = new A4Reporter() {
 			@Override public void warning(ErrorWarning msg) {
@@ -87,7 +93,7 @@ public class AlloyRunner {
 	 * @throws ErrorParser */
 	public void enforce() throws ErrorAlloy, ErrorParser {
 		if (delta < eoptions.getMaxDelta().intValue()) {
-			finalfact = modelfact.and(deltaexpr.equal(ExprConstant.makeNUMBER(++delta)));	
+			finalfact = translator.getInstanceFact().and(translator.getQVTFact()).and(translator.getDeltaFact().equal(ExprConstant.makeNUMBER(++delta)));	
 			if (delta == 0) intscope = 2;
 			else intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 	
@@ -103,12 +109,24 @@ public class AlloyRunner {
 	/** Runs a QVT checking command.
 	 * @throws ErrorAlloy */
 	public void check() throws ErrorAlloy {
-		finalfact = modelfact;	
+		finalfact = translator.getInstanceFact().and(translator.getQVTFact());	
 		try {
 			Command cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
 	}
+	
+	/** Tests conformity
+	 * @throws ErrorAlloy */
+	public void conforms() throws ErrorAlloy {
+		finalfact = translator.getInstanceFact();
+		System.out.println(allsigs);
+		try {
+			Command cmd = new Command(true, 0, intscope, -1, finalfact);
+			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
+	}
+	
 	
 	/** Opens the Alloy visualizer and presents the current solution.*/
 	public void show() throws ErrorAlloy {

@@ -38,12 +38,13 @@ public class QVTRelation2Alloy {
 	private Relation rel;
 	/** the direction of the QVT Relation*/
 	private TypedModel direction;
-	/** whether the QVT Relation is top or not*/
+	/** whether the QVT Relation is being called at top level or not
+	 * this is not the same as being a top relation */
 	private boolean top;
 	/** the Alloy state signatures of the instances*/
 	private Map<String,Expr> statesigs = new HashMap<String,Expr>();
 	/** the Alloy signatures of the metamodels*/
-	private Map<String,List<Sig>> modelsigs = new HashMap<String,List<Sig>>();
+	private Map<String,ECore2Alloy> mmtranses = new HashMap<String,ECore2Alloy>();
 	
 	/** the root variables of the QVT Relation being translated*/
 	private List<VariableDeclaration> rootvariables = new ArrayList<VariableDeclaration>();
@@ -85,12 +86,13 @@ public class QVTRelation2Alloy {
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 */
-	public QVTRelation2Alloy (Relation rel, TypedModel direction, boolean top, Map<String,Expr> statesigs, Map<String,List<Sig>> modelsigs) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		this.modelsigs = modelsigs;
+	public QVTRelation2Alloy (Relation rel, TypedModel direction, boolean top, Map<String,Expr> statesigs, Map<String,ECore2Alloy> mmtranses) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		this.mmtranses = mmtranses;
 		this.statesigs = statesigs;
 		this.rel = rel;
 		this.direction = direction;
 		this.top = top;
+		
 		initDomains();
 		initVariableDeclarationLists();
 		calculateFact();
@@ -129,7 +131,7 @@ public class QVTRelation2Alloy {
 		Decl[] arraydecl;
 		try {
 			if (rel.getWhere() != null){
-				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
+				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,mmtranses,decls);
 				for (Predicate predicate : rel.getWhere().getPredicate()) {
 					OCLExpression oclwhere = predicate.getConditionExpression();
 					whereexpr = AlloyUtil.cleanAnd(whereexpr,ocltrans.oclExprToAlloy(oclwhere));
@@ -155,7 +157,7 @@ public class QVTRelation2Alloy {
 			}
 			
 			if (rel.getWhen() != null){
-				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,modelsigs,decls);
+				OCL2Alloy ocltrans = new OCL2Alloy(direction,statesigs,mmtranses,decls);
 				for (Predicate predicate : rel.getWhen().getPredicate()) {
 					OCLExpression oclwhen = predicate.getConditionExpression();
 					whenexpr = AlloyUtil.cleanAnd(whenexpr,ocltrans.oclExprToAlloy(oclwhen));
@@ -212,13 +214,13 @@ public class QVTRelation2Alloy {
 			sourcevariables.removeAll(rootvariables);
 		}
 		
-		alloysourcevars = (Set<Decl>) OCL2Alloy.variableListToExpr(sourcevariables,modelsigs,true,statesigs);
+		alloysourcevars = (Set<Decl>) OCL2Alloy.variableListToExpr(sourcevariables,mmtranses,true,statesigs);
 		decls.addAll(alloysourcevars);
-		alloywhenvars =  (Set<Decl>) OCL2Alloy.variableListToExpr(whenvariables,modelsigs,true,statesigs);
+		alloywhenvars =  (Set<Decl>) OCL2Alloy.variableListToExpr(whenvariables,mmtranses,true,statesigs);
 		decls.addAll(alloywhenvars);
-		alloytargetvars = (Set<Decl>) OCL2Alloy.variableListToExpr(targetvariables,modelsigs,true,statesigs);
+		alloytargetvars = (Set<Decl>) OCL2Alloy.variableListToExpr(targetvariables,mmtranses,true,statesigs);
 		decls.addAll(alloytargetvars);
-		alloyrootvars = (List<Decl>) OCL2Alloy.variableListToExpr(rootvariables,modelsigs,false,statesigs);
+		alloyrootvars = (List<Decl>) OCL2Alloy.variableListToExpr(rootvariables,mmtranses,false,statesigs);
 	    if (!top) decls.addAll(alloyrootvars);
 	}
 
@@ -231,7 +233,7 @@ public class QVTRelation2Alloy {
 	 * @throws ErrorUnsupported
 	 */
 	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		OCL2Alloy ocltrans = new OCL2Alloy(domain.getTypedModel(),statesigs,modelsigs,decls);
+		OCL2Alloy ocltrans = new OCL2Alloy(domain.getTypedModel(),statesigs,mmtranses,decls);
 
 		DomainPattern pattern = domain.getPattern();
 		ObjectTemplateExp temp = (ObjectTemplateExp) pattern.getTemplateExpression(); 

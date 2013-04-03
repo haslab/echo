@@ -1,7 +1,6 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
@@ -14,7 +13,6 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class QVTTransformation2Alloy {
 
@@ -32,13 +30,13 @@ public class QVTTransformation2Alloy {
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 */
-	public QVTTransformation2Alloy (Map<String,Expr> statesigs, Map<String,List<Sig>> modelsigs, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTTransformation2Alloy (Map<String,Expr> statesigs, Map<String,ECore2Alloy> mmtranses, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		for (Rule rel : qvt.getRule())
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else if (((Relation) rel).isIsTopLevel()) {
 				for (TypedModel mdl : qvt.getModelParameter()) {
 					//TypedModel mdl = qvt.getModelParameter().get(0);
-					QVTRelation2Alloy trans = new QVTRelation2Alloy((Relation) rel,mdl,true,statesigs,modelsigs);
+					QVTRelation2Alloy trans = new QVTRelation2Alloy((Relation) rel,mdl,true,statesigs,mmtranses);
 					fact.put(rel.getName()+"_"+mdl.getName(),trans.getFact());
 				}
 			}

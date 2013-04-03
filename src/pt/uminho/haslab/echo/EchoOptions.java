@@ -102,6 +102,10 @@ public class EchoOptions extends Options{
 		return cmd.hasOption("c");
 	}
 
+	public boolean isEnforce() {
+		return cmd.hasOption("e");
+	}
+
 	public boolean isConformance() {
 		return cmd.hasOption("t");
 	}

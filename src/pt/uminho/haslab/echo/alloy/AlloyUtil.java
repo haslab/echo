@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.transform.ECore2Alloy;
 import pt.uminho.haslab.echo.transform.OCL2Alloy;
 
 
@@ -42,14 +44,12 @@ public class AlloyUtil {
     	STATE = s;
     }
 	
-	public static Map<String,PrimSig> createStateSig(List<TypedModel> mdls) throws ErrorAlloy, ErrorTransform {
+	public static Map<String,PrimSig> createStateSig(Collection<EPackage> mdls, boolean abs) throws ErrorAlloy, ErrorTransform {
 		Map<String,PrimSig> sigs = new HashMap<String,PrimSig>();
 		PrimSig s = null;
-		for (TypedModel mdl : mdls){
-			EList<Package> pcks = mdl.getUsedPackage();
-			if (pcks.size() != 1) throw new ErrorTransform("Invalid model variables.","AlloyUtil",pcks);
+		for (EPackage mdl : mdls){
 			try {
-				s = new PrimSig(pcks.get(0).getName(),STATE,Attr.ABSTRACT);
+				s = new PrimSig(mdl.getName(),STATE,abs?Attr.ABSTRACT:Attr.ONE);
 				sigs.put(s.label, s);
 			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
 		}
@@ -85,7 +85,7 @@ public class AlloyUtil {
 		PrimSig sourcemdl = source.parent;
 		Expr sourcemdlnosource = null;
 		try{
-		for (Sig s : sourcemdl.descendents())
+		for (PrimSig s : sourcemdl.descendents())
 			if (!s.label.equals(target)) 
 				if (sourcemdlnosource != null) sourcemdlnosource = sourcemdlnosource.plus(s);
 				else sourcemdlnosource = s;
@@ -101,8 +101,8 @@ public class AlloyUtil {
 	
 	
 	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, Expr statesig, Map<String,List<Sig>> modelsigs) throws ErrorAlloy, ErrorTransform{
-		Expr exp = OCL2Alloy.propertyToField(prop,modelsigs);
+	public static Expr localStateAttribute(Property prop, Expr statesig, Map<String,ECore2Alloy> mmtranses) throws ErrorAlloy, ErrorTransform{
+		Expr exp = OCL2Alloy.propertyToField(prop,mmtranses);
 		return exp.join(statesig);
 	}
 	
@@ -142,15 +142,15 @@ public class AlloyUtil {
 		else return e.and(f);
 	}
 	
-	public static ConstList<CommandScope> createScope (List<PrimSig> instsigs, List<Sig> modelsigs) throws ErrorAlloy {
+	public static ConstList<CommandScope> createScope (List<PrimSig> instsigs, List<PrimSig> modelsigs) throws ErrorAlloy {
 		Map<String,CommandScope> scopes = new HashMap<String,CommandScope>();
 		
 		for (PrimSig sig : instsigs) {
 			incrementScope(scopes,sig.parent);
-			Sig up = sig.parent.parent;
+			PrimSig up = sig.parent.parent;
 			while (up != Sig.UNIV && up != null){
 				incrementScope(scopes,up);
-				up = (up instanceof PrimSig)?((PrimSig)up).parent:null;
+				up = up.parent;
 			}
 		}		
 		for (Sig sig : modelsigs){
