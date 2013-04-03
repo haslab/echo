@@ -49,21 +49,27 @@ public class Echo {
 		if (options.isVerbose()) System.out.println("State signatures: "+translator.getModelStateSigs() +", "+translator.getInstanceStateSigs() +", "+translator.getTargetStateSig());
 
 		translator.translateModels();
-		if (options.isVerbose()) System.out.println("Model signatures: ");
-		if (options.isVerbose()) System.out.println("\n** Processing Instances.");
-
+		if (options.isVerbose()) {
+			System.out.println("Model signatures: ");
+			System.out.println("\n** Processing Instances.");
+		}
+		
 		translator.translateInstances();
-		if (options.isVerbose()) System.out.println("Instance signatures: "+translator.getInstanceSigs());
-		if (options.isVerbose()) System.out.println("Instance facts: "+translator.getInstanceFact());
+		if (options.isVerbose()) {
+			System.out.println("Instance signatures: "+translator.getInstanceSigs());
+			System.out.println("Instance facts: "+translator.getInstanceFact());
+		}
 		
 		if (options.isQVT()) {
 			if (options.isVerbose()) System.out.println("\n** Processing QVT transformation "+parser.getTransformation().getName()+".");
 			translator.translateQVT();
 			System.out.println("Running Alloy command: "+(options.isCheck()?"check.":("enforce "+parser.getTransformation().getName()+" on the direction of "+options.getDirection()+".")));
 
-			if (options.isVerbose()) System.out.println("Delta function: "+translator.getDeltaFact());
-			if (options.isVerbose()) System.out.println("Initial scope: "+translator.getTargetScopes());
-			if (options.isVerbose()) System.out.println("QVT facts: "+translator.getQVTFact());
+			if (options.isVerbose()) {
+				System.out.println("Delta function: "+translator.getDeltaFact());
+				System.out.println("Initial scope: "+translator.getTargetScopes());
+				System.out.println("QVT facts: "+translator.getQVTFact());
+			}
 		}
 		
 		AlloyRunner alloyrunner = new AlloyRunner(translator,options);

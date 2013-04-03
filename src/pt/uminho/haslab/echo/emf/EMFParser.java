@@ -105,6 +105,7 @@ public class EMFParser {
 		for (String uri : options.getModels()) {
 			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
 			EPackage res = (EPackage) load_resource.getContents().get(0);
+			
 			resourceSet.getPackageRegistry().put(res.getNsURI(),res);
 			metamodels.put(uri,res);
 		}
@@ -198,15 +199,15 @@ public class EMFParser {
 		StringBuilder sb = new StringBuilder(oldPath);
 		sb.insert(sb.length()-4,".old");
 
-		Resource resource = resourceSet.createResource(URI.createURI(sb.toString()));
+		XMIResource resource = (XMIResource) resourceSet.createResource(URI.createURI(sb.toString()));
 		resource.getContents().add(getObjectFromUri(dir));
-
+		
 		/*
 		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
 		* xsi:schemaLocation attribute in the document
 		*/
 		Map<Object,Object> options = new HashMap<Object,Object>();
-		options.put(XMIResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+		options.put(XMIResource.SCHEMA_LOCATION, "aaa");
 		try{
 			resource.save(options);
 		}catch (IOException e) {
