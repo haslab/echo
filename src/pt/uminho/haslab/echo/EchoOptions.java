@@ -60,14 +60,14 @@ public class EchoOptions extends Options{
 				.withValueSeparator(' ')
 				.withLongOpt("instances")
 				.hasArgs()
-				.isRequired(true)
+				.isRequired(false)
 				.withDescription("instances of the transformation (should be in the same order as the QVT-R tranformation's arguments)")
 				.create("i"));
 		this.addOption(OptionBuilder.withArgName("paths")
 				.withValueSeparator(' ')
 				.withLongOpt("models")
 				.hasArgs()
-				.isRequired(true)
+				.isRequired(false)
 				.withDescription("the metamodels of the instances being transformed")
 				.create("m"));
 		
@@ -87,6 +87,7 @@ public class EchoOptions extends Options{
 		CommandLineParser parser = new PosixParser();
 		try {
 			cmd = parser.parse(this, args);
+			if (getModels() == null || getInstances() == null) throw new Exception();
 			if (isQVT() && !(isCheck() || isEnforce())) throw new Exception();
 			if (isCheck() && isEnforce()) throw new Exception();
 		} catch (Exception e) {
