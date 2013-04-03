@@ -8,7 +8,8 @@ It can be used to check if instances of ECore models are consistent and, if not,
 * Implements the checking semantics from the QVT-R standard;
 * Implements the principle of least-change, returning all instances closest to the original;
 * Support for both "enforce" and "checkonly" modes;
-* Support for OCL constraints over the models.
+* Support for OCL constraints over the models;
+* Support for instance conformance testing.
 
 *Check mode* verifies if two models are consistent according to the given QVT-R specification.
 
@@ -40,6 +41,18 @@ java -jar echo.jar -check -q <qvtr> -m <models>... -i <instances>...
 java -jar echo.jar -enforce <direction> -q <qvtr> -m <models>... -i <instances>...
 ```
 for checkonly and enforce mode respectively. Metamodels should be presented in ECore, while instances should be xmi files conforming to the respective metamodels and presented in the order defined by the QVT-R transformation.
+
+Additional options include:
+```sh
+-d, --delta <nat>           maximum delta for the new instance
+-o, --nooverwrite           do not overwrite the original instance xmi with the generated target
+-t, --conformance           test if instances conform to the models before applying qvt
+```
+
+Echo can also simply be run to check if the instances conform to the models as:
+```sh
+java -jar -conforms -m <models>... -i <instances>...
+```
 
 ## Examples
 
