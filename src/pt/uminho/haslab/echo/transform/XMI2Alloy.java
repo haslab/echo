@@ -1,15 +1,22 @@
 package pt.uminho.haslab.echo.transform;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
@@ -22,6 +29,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 
 public class XMI2Alloy {
 	
@@ -210,6 +218,30 @@ public class XMI2Alloy {
 			manos = manos.plus(it.product(str));
 			mapContent.put(field, manos);
 		}else throw new ErrorUnsupported("Primitive type for attribute not supported.","XMI2Alloy",obj.toString());
+	}
+	
+	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig state) throws Err {
+		Alloy2XMI a2x = new Alloy2XMI(sol,this,e2a,state);
+		
+		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
+		    "*", new  XMIResourceFactoryImpl());
+
+		Resource resource = resourceSet.createResource(URI.createURI(uri));
+		resource.getContents().add(a2x.getModel());
+
+		/*
+		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
+		* xsi:schemaLocation attribute in the document
+		*/
+		Map<Object,Object> options = new HashMap<Object,Object>();
+		options.put(XMIResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+		try{
+		     resource.save(options);
+		   }catch (IOException e) {
+		     e.printStackTrace();
+		   }
+		
 	}
 
 	

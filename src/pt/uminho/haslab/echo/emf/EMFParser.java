@@ -4,18 +4,16 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Map.Entry;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.EValidator;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -25,10 +23,6 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.ocl.examples.pivot.delegate.OCLDelegateDomain;
-import org.eclipse.ocl.examples.pivot.delegate.OCLInvocationDelegateFactory;
-import org.eclipse.ocl.examples.pivot.delegate.OCLSettingDelegateFactory;
-import org.eclipse.ocl.examples.pivot.delegate.OCLValidationDelegateFactory;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
@@ -40,25 +34,31 @@ import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 
+import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorParser;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.inject.Injector;
 
 public class EMFParser {
 
-	
+	/** the Echo CLI options */
+	private EchoOptions options;
+	/** the ECore resource set */
 	private ResourceSet resourceSet = new ResourceSetImpl();
 
-	// the transformation metamodels (package name, epackage)
+	/** the loaded metamodels */
 	private Map<String,EPackage> metamodels = new HashMap<String,EPackage>();
-	// the transformation instances (qvt argument name, eobject)
+	/** the loaded instances (key is the XMI file uri) */
 	private Map<String,EObject> instances = new HashMap<String,EObject>();
-
-	private Map<String,String> packagepaths = new HashMap<String,String>();
-	
+	/** the loaded QVT-R transformation */
 	private RelationalTransformation rt;
+	/** maps the XMI instance paths into the QVT-R argument names (if any)  */
+	private BiMap<String,String> argpaths;
 
-	public EMFParser(){
+	
+	public EMFParser(EchoOptions options){
 		/*
 		// register Pivot globally
 		org.eclipse.ocl.examples.pivot.OCL.initialize(resourceSet);
@@ -82,40 +82,37 @@ public class EMFParser {
 
 		// Register XML Factory implementation to handle files with any extension
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*",new XMIResourceFactoryImpl());
+	
+		this.options = options;
 	}
 	
-	public EObject loadObject(String argURI, String var) {
-		// Create empty resource with the given URI
-		Resource load_resource = resourceSet.getResource(URI.createURI(argURI), true);
-		EObject res = load_resource.getContents().get(0);
-		instances.put(var,res);	
-
-		return res;
+	/**
+	 * Loads the EObjects from the CLI arguments
+	 */
+	public void loadObjects() {
+		for (int i = 0; i<options.getInstances().length; i++) {
+			String uri = options.getInstances()[i];
+			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
+			EObject res = load_resource.getContents().get(0);
+			instances.put(uri,res);
+		}
 	}
 
-	public EObject loadObject(String argURI) {
-		// Create empty resource with the given URI
-		Resource load_resource = resourceSet.getResource(URI.createURI(argURI), true);
-		EObject res = load_resource.getContents().get(0);
-		instances.put(instances.size()+"",res);	
-
-		return res;
-	}
-
-	public EPackage loadPackage(String uri)
-	{
-		// Create empty resource with the given URI
-		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
-		EPackage res = (EPackage) load_resource.getContents().get(0);
-		resourceSet.getPackageRegistry().put(res.getNsURI(),res);
-
-		metamodels.put(res.getName(),res);
-	    packagepaths.put(res.getName(), uri);
-	    return res;
-
+	/**
+	 * Loads the EPackages from the CLI arguments
+	 */
+	public void loadPackages() {
+		for (String uri : options.getModels()) {
+			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
+			EPackage res = (EPackage) load_resource.getContents().get(0);
+			resourceSet.getPackageRegistry().put(res.getNsURI(),res);
+			metamodels.put(uri,res);
+		}
 	}
 	
-	
+	/**
+	 * Loads the QVT specification from the CLI argument
+	 */
 	public RelationalTransformation loadQVT(String uri) throws ErrorParser {
 		CS2PivotResourceAdapter adapter = null;
 
@@ -133,9 +130,10 @@ public class EMFParser {
 			qvtaux.createNewFile();
 			FileWriter out = new FileWriter(qvtaux, true);
 		    BufferedWriter fbw = new BufferedWriter(out);
-		    for (Entry<String,String> mdl : packagepaths.entrySet())
-		    	fbw.write("import "+mdl.getKey()+" : \'"+mdl.getValue()+"\'::"+mdl.getKey()+";\n\n");
-	        fbw.write(qvtcontent);
+		    for (String u: metamodels.keySet())
+		    	fbw.write("import "+metamodels.get(u).getName()+" : \'"+u+"\'::"+metamodels.get(u).getName()+";\n\n");
+
+		    fbw.write(qvtcontent);
 	        fbw.close();
 
 			BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("aux.qvtr"), true);
@@ -149,6 +147,11 @@ public class EMFParser {
 					
 			RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
 			rt = (RelationalTransformation) rm.eContents().get(0);
+			
+			argpaths = HashBiMap.create();
+			for (int i = 0; i < rt.getModelParameter().size(); i++)
+				argpaths.put(options.getInstances()[i],rt.getModelParameter().get(i).getName());				
+			
 			return rt;
 		} catch (Exception e) { throw new ErrorParser (e.getMessage(),"QVT Parser");}
 		
@@ -158,28 +161,45 @@ public class EMFParser {
 		return rt;
 	}
 
+	public String getInstanceArgName(String uri) {
+		String res = argpaths.get(uri);
+		if (res == null) res = uri;
+		return res;
+	}
+
+	public String getInstanceUri(String arg) {
+		String res = argpaths.inverse().get(arg);
+		return res;
+	}
+
 	public Collection<EPackage> getPackages(){
 		return metamodels.values();
 	}
-	public Collection<EObject> getObjects(){
-		return instances.values();
-	}
-	public Collection<String> getInstanceVars(){
-		return instances.keySet();
+	public List<EObject> getObjects(){
+		List<EObject> res = new ArrayList<EObject>();
+		for (String s : options.getInstances())
+			res.add(instances.get(s));
+		return res;
 	}
 
-
-	public EObject getObjectVar(String var){
-		return instances.get(var);
+	public EObject getObjectFromUri(String uri){
+		return instances.get(uri);
 	}
+
+	public EObject getObjectFromArg(String arg){
+		return instances.get(argpaths.inverse().get(arg));
+	}
+
 	
-	public String backUpTarget(String dir){
-		String oldPath = getObjectVar(dir).eResource().getURI().toString();
+	public String backUpTarget(){
+		String dir = getInstanceUri(options.getDirection());
+
+		String oldPath = getObjectFromUri(dir).eResource().getURI().toString();
 		StringBuilder sb = new StringBuilder(oldPath);
 		sb.insert(sb.length()-4,".old");
 
 		Resource resource = resourceSet.createResource(URI.createURI(sb.toString()));
-		resource.getContents().add(getObjectVar(dir));
+		resource.getContents().add(getObjectFromUri(dir));
 
 		/*
 		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 

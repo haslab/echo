@@ -86,8 +86,11 @@ public class EchoOptions extends Options{
 		
 		CommandLineParser parser = new PosixParser();
 		try {
-			cmd = parser.parse( this, args);
-		} catch (ParseException e) {
+			cmd = parser.parse(this, args);
+			if (isQVT() && !(isCheck() || isEnforce())) throw new Exception();
+			if (isCheck() && isEnforce()) throw new Exception();
+			if (isQVT() && isConformance()) throw new Exception();
+		} catch (Exception e) {
 			if (this.isHelp()) {}
 			else throw new ErrorParser(e.getMessage(),"CLI Parser");
 		}
@@ -108,6 +111,10 @@ public class EchoOptions extends Options{
 
 	public boolean isConformance() {
 		return cmd.hasOption("t");
+	}
+
+	public boolean isQVT() {
+		return cmd.hasOption("q");
 	}
 
 	public boolean isHelp() {

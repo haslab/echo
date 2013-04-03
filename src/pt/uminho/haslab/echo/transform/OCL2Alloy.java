@@ -40,20 +40,18 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class OCL2Alloy {
 
-	private Map<String,ECore2Alloy> mmtranses = new HashMap<String,ECore2Alloy>();
-	private Map<String,Expr> stateinstancesigs = new HashMap<String,Expr>();
 	private TypedModel modelvar;
+	private EMF2Alloy translator;
 	private Set<Decl> vardecls;
 
-	public OCL2Alloy(TypedModel modelvar, Map<String,Expr> stateinstancesigs, Map<String,ECore2Alloy> mmtranses, Set<Decl> vardecls) {
-		this (stateinstancesigs,mmtranses,vardecls);
+	public OCL2Alloy(TypedModel modelvar, EMF2Alloy translator, Set<Decl> vardecls) {
+		this (translator,vardecls);
 		this.modelvar = modelvar;		
 	}
 	
-	public OCL2Alloy(Map<String,Expr> stateinstancesigs, Map<String,ECore2Alloy> mmtranses, Set<Decl> vardecls) {
-		this.mmtranses = mmtranses;
-		this.stateinstancesigs = stateinstancesigs;
+	public OCL2Alloy(EMF2Alloy translator, Set<Decl> vardecls) {
 		this.vardecls = vardecls;
+		this.translator = translator;
 	}
 	
 	public Expr oclExprToAlloy (VariableExp expr) throws ErrorTransform {
@@ -91,7 +89,7 @@ public class OCL2Alloy {
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 			Expr localfield = null;
-			localfield = AlloyUtil.localStateAttribute(prop, stateinstancesigs.get(modelvar.getName()), mmtranses);
+			localfield = AlloyUtil.localStateAttribute(prop, translator.getInstanceStateSigFromArg(modelvar.getName()), translator);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
@@ -133,7 +131,7 @@ public class OCL2Alloy {
 	
 	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		if (modelvar == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
-		QVTRelation2Alloy trans = new QVTRelation2Alloy (expr.getReferredRelation(), modelvar, false, stateinstancesigs, mmtranses);
+		QVTRelation2Alloy trans = new QVTRelation2Alloy (expr.getReferredRelation(), modelvar, false, translator);
 		List<OCLExpression> vars = expr.getArgument();
 		List<Expr> avars = new ArrayList<Expr>();
 		
@@ -169,7 +167,7 @@ public class OCL2Alloy {
 		List<Variable> variterator = expr.getIterator();
 		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure.","OCL2Alloy",variterator);
 
-		Decl d = variableListToExpr(new HashSet<Variable>(variterator),mmtranses,true,stateinstancesigs).iterator().next();
+		Decl d = variableListToExpr(new HashSet<Variable>(variterator),true,translator).iterator().next();
 
 		vardecls.add(d);
 		Expr src = oclExprToAlloy(expr.getSource());
@@ -215,9 +213,9 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
 		String mdl = expr.getReferredProperty().getOwningType().getPackage().getName();
-		Expr sig = stateinstancesigs.get(mdl);
+		PrimSig sig = translator.getModelStateSig(mdl);
 		if (sig == null) throw new ErrorTransform("State sig "+mdl+" not found.","OCL2Alloy");
-		Expr aux = AlloyUtil.localStateAttribute(expr.getReferredProperty(), sig, mmtranses);
+		Expr aux = AlloyUtil.localStateAttribute(expr.getReferredProperty(), sig, translator);
 		res = oclExprToAlloy(expr.getSource()).join(aux);
 		
 		return res;
@@ -291,9 +289,9 @@ public class OCL2Alloy {
 
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	public static Sig.Field propertyToField (Property prop, Map<String,ECore2Alloy> mmtranses) {
+	public static Sig.Field propertyToField (Property prop, EMF2Alloy translator) {
 		String mdl = prop.getOwningType().getPackage().getName();
-		List<PrimSig> sigs = mmtranses.get(mdl).getSigList();
+		List<PrimSig> sigs = translator.getModelSigs(mdl);
 		Sig sig = null;
 		for (PrimSig s : sigs)
 			if (s.toString().equals(AlloyUtil.pckPrefix(mdl,prop.getOwningType().getName()))) sig = s;
@@ -308,14 +306,13 @@ public class OCL2Alloy {
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-		public static Collection<Decl> variableListToExpr (Collection<? extends VariableDeclaration> ovars, Map<String,ECore2Alloy> mmtranses, boolean set, Map<String,Expr> statesigs) throws ErrorTransform, ErrorAlloy {
+		public static Collection<Decl> variableListToExpr (Collection<? extends VariableDeclaration> ovars, boolean set, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy {
 			Collection<Decl> avars = set?(new HashSet<Decl>()):(new ArrayList<Decl>());
 			
 			for (VariableDeclaration ovar : ovars) {
 				Sig range = Sig.NONE;
 				String mdl = ovar.getType().getPackage().getName();
-				Expr state = statesigs.get(mdl);
-				System.out.println(mmtranses + ", "+mdl +" , "+ovar);
+				Expr state = translator.getModelStateSig(mdl);
 
 				String type = ovar.getType().getName();
 				try {
@@ -324,7 +321,7 @@ public class OCL2Alloy {
 					avars.add(range.oneOf(ovar.getName()));
 					}
 					else  {
-						List<PrimSig> sigs = mmtranses.get(mdl).getSigList();
+						List<PrimSig> sigs = translator.getModelSigs(mdl);
 						for (Sig s : sigs)
 							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
 				
@@ -370,7 +367,7 @@ public class OCL2Alloy {
 					a1.getReferredVariable().equals(b2.getReferredVariable())) || 
 					(a2.getReferredVariable().equals(b2.getReferredVariable()) && 
 					a1.getReferredVariable().equals(b1.getReferredVariable()))) {
-				Decl d = variableListToExpr(new HashSet<Variable>(it.getIterator()),mmtranses,true,stateinstancesigs).iterator().next();
+				Decl d = variableListToExpr(new HashSet<Variable>(it.getIterator()),true,translator).iterator().next();
 				try{
 					vardecls.add(d);
 					Expr bdy = oclExprToAlloy(it.getBody());

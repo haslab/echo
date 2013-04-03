@@ -30,13 +30,13 @@ public class QVTTransformation2Alloy {
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 */
-	public QVTTransformation2Alloy (Map<String,Expr> statesigs, Map<String,ECore2Alloy> mmtranses, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTTransformation2Alloy (EMF2Alloy translator, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		for (Rule rel : qvt.getRule())
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else if (((Relation) rel).isIsTopLevel()) {
 				for (TypedModel mdl : qvt.getModelParameter()) {
 					//TypedModel mdl = qvt.getModelParameter().get(0);
-					QVTRelation2Alloy trans = new QVTRelation2Alloy((Relation) rel,mdl,true,statesigs,mmtranses);
+					QVTRelation2Alloy trans = new QVTRelation2Alloy((Relation) rel,mdl,true,translator);
 					fact.put(rel.getName()+"_"+mdl.getName(),trans.getFact());
 				}
 			}

@@ -29,7 +29,7 @@ public class AlloyRunner {
 	/** the final command fact (model + delta)*/
 	private Expr finalfact;
 	/** all the Alloy signatures of the model*/
-	private List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(AlloyUtil.STATE));
+	private List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(EMF2Alloy.STATE));
 	/** the current delta value*/
 	private int delta = -1;	
 	/** the current int bitwidth*/
@@ -62,12 +62,12 @@ public class AlloyRunner {
 		this.translator = translator;
 		this.targetscopes = translator.getTargetScopes();
 		
-		allsigs.addAll(translator.getModelsSignatures());
-		allsigs.addAll(translator.getStateSignatures());
-		allsigs.addAll(translator.getInstanceSignatures());
-		allsigs.addAll(translator.getInstanceStateSignatures());
+		allsigs.addAll(translator.getModelSigs());
+		allsigs.addAll(translator.getModelStateSigs());
+		allsigs.addAll(translator.getInstanceSigs());
+		allsigs.addAll(translator.getInstanceStateSigs());
 		
-		if (eoptions.isEnforce()) allsigs.add(translator.getTargetSig());
+		if (eoptions.isEnforce()) allsigs.add(translator.getTargetStateSig());
 		
 		rep = new A4Reporter() {
 			@Override public void warning(ErrorWarning msg) {

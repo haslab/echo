@@ -61,10 +61,16 @@ public class ECore2Alloy {
 	private final PrimSig state;
 	private List<PrimSig> sigList;
 	
-	public ECore2Alloy(EPackage p, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+	private EMF2Alloy translator;
+	
+	public ECore2Alloy(EPackage p, PrimSig statesig, EMF2Alloy translator) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		mapSfField = HashBiMap.create();
+		this.translator = translator;
 		state = statesig;
 		pack = p;
+	}
+	
+	public void translate() throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser{
 		sigList = makeSigList();
 	}
 	
@@ -304,11 +310,7 @@ public class ECore2Alloy {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		OCLHelper helper = ocl.createOCLHelper(obj);
 		ExpressionInOCL invariant;
-		Map<String,ECore2Alloy> m1 = new HashMap<String,ECore2Alloy>();
-		m1.put(pack.getName(), this);
-		Map<String,Expr> m2 = new HashMap<String,Expr>();
-		m2.put(pack.getName(), state);
-		OCL2Alloy converter = new OCL2Alloy(m2,m1,sd);
+		OCL2Alloy converter = new OCL2Alloy(translator,sd);
 		for(EAnnotation ea : lAnn)
 			if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
 				try{

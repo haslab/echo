@@ -19,7 +19,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 public class Echo {
 	
 	private static EchoOptions options;
-	private static EMFParser parser = new EMFParser();
+	private static EMFParser parser;
 	private static EMF2Alloy translator;
 	
 	public static void main(String[] args) throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, Err, IOException {	
@@ -38,39 +38,34 @@ public class Echo {
 		
 		if (options.isVerbose()) System.out.println("** Parsing input files.");
 
-		for (String path : options.getModels())
-			parser.loadPackage(path);
+		parser = new EMFParser(options);
+		parser.loadPackages();
 		
-		if (!options.isConformance()){
-			parser.loadQVT(options.getQVTPath());
-			if (parser.getTransformation() == null) throw new Error ("Empty transformation.");
-		
-			int i = 0;
-			for (TypedModel mdl : parser.getTransformation().getModelParameter()) {
-				if (options.isVerbose()) System.out.println(mdl.getName() +" : "+options.getInstances()[i]);
-				parser.loadObject(options.getInstances()[i++],mdl.getName());
-			}
-		} else {
-			for (String uri : options.getInstances())
-				parser.loadObject(uri);
-		}
+		if (options.isQVT()) parser.loadQVT(options.getQVTPath());
+
+		parser.loadObjects();
 
 		if (options.isVerbose()) System.out.println("\n** Processing metamodels.");
 
 		translator = new EMF2Alloy(parser,options);
-		if (options.isVerbose()) System.out.println("State signatures: "+translator.getStateSignatures() +", "+translator.getInstanceStateSignatures() +", "+translator.getTargetSig());
+		if (options.isVerbose()) System.out.println("State signatures: "+translator.getModelStateSigs() +", "+translator.getInstanceStateSigs() +", "+translator.getTargetStateSig());
 
-		translator.translateMetaModels();
+		translator.translateModels();
 		if (options.isVerbose()) System.out.println("Model signatures: ");
 		if (options.isVerbose()) System.out.println("\n** Processing Instances.");
 
 		translator.translateInstances();
+		if (options.isVerbose()) System.out.println("Instance signatures: "+translator.getInstanceSigs());
+		if (options.isVerbose()) System.out.println("Instance facts: "+translator.getInstanceFact());
 		
-
 		if (!options.isConformance()) {
 			if (options.isVerbose()) System.out.println("\n** Processing QVT transformation "+parser.getTransformation().getName()+".");
 			translator.translateQVT();
 			System.out.println("Running Alloy command: "+(options.isCheck()?"check.":("enforce "+parser.getTransformation().getName()+" on the direction of "+options.getDirection()+".")));
+
+			if (options.isVerbose()) System.out.println("Delta function: "+translator.getDeltaFact());
+			if (options.isVerbose()) System.out.println("Initial scope: "+translator.getTargetScopes());
+			if (options.isVerbose()) System.out.println("QVT facts: "+translator.getQVTFact());
 		}
 		
 		AlloyRunner alloyrunner = new AlloyRunner(translator,options);
@@ -98,9 +93,9 @@ public class Echo {
 				System.out.println("Instance found for delta "+alloyrunner.getDelta()+".");
 				alloyrunner.show();
 				if(options.isOverwrite()) {
-					String sb = parser.backUpTarget(options.getDirection());
+					String sb = parser.backUpTarget();
 					if (options.isVerbose()) System.out.println("** Backup file created: " + sb);
-					translator.writeInstance(alloyrunner.getSolution());
+					translator.writeTargetInstance(alloyrunner.getSolution());
 				}
 				System.out.println("Search another instance? (y)");
 				alloyrunner.nextInstance();
@@ -115,13 +110,13 @@ public class Echo {
 	
 	public static void print(){
 		System.out.println("** States ");
-		System.out.println("* Abstract state signatures: "+translator.getStateSignatures());
-		System.out.println("* Instance state signatures: "+translator.getInstanceStateSignatures());
+		System.out.println("* Abstract state signatures: "+translator.getModelStateSigs());
+		System.out.println("* Instance state signatures: "+translator.getInstanceStateSigs());
 		System.out.println("** Models ");
 		for(EPackage m: parser.getPackages()){
 			System.out.println("* Signatures for model "+m.getName());
-			for(Sig s: translator.getModelSignatures(m.getName())) {
-				System.out.println(s.toString() + " : "+((PrimSig) s).parent.toString()+" ("+s.attributes+")");
+			for(PrimSig s: translator.getModelSigs(m.getName())) {
+				System.out.println(s.toString() + " : "+s.parent.toString()+" ("+s.attributes+")");
 				System.out.println("Fields of "+s);
 				for (Field f : s.getFields())
 					System.out.println(f + " : " + f.type());
@@ -131,7 +126,7 @@ public class Echo {
 			}
 		}
 		System.out.println("** Instances ");
-		System.out.println("* Instance signatures: "+translator.getInstanceSignatures());
+		System.out.println("* Instance signatures: "+translator.getInstanceSigs());
 		System.out.println("* Instance fact: "+translator.getInstanceFact());
 
 	}
