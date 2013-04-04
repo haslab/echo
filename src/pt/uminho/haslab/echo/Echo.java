@@ -35,15 +35,19 @@ public class Echo {
 		}
 		
 		if (options.isVerbose()) System.out.println("** Parsing input files.");
-
-		parser = new EMFParser(options);
-		parser.loadPackages();
+		long time = System.currentTimeMillis();
+		long totaltime = time;
 		
+		parser = new EMFParser(options);
+		parser.loadModels();
 		if (options.isQVT()) parser.loadQVT(options.getQVTPath());
+		parser.loadInstances();
+		
+		if (options.isVerbose()) System.out.println("Files parsed ("+(System.currentTimeMillis()-time)+"ms).");
 
-		parser.loadObjects();
-
-		if (options.isVerbose()) System.out.println("\n** Processing metamodels.");
+		if (options.isVerbose()) System.out.println("** Processing metamodels.");
+		totaltime = totaltime + time;
+		time = System.currentTimeMillis();
 
 		translator = new EMF2Alloy(parser,options);
 		if (options.isVerbose()) System.out.println("State signatures: "+translator.getModelStateSigs() +", "+translator.getInstanceStateSigs() +", "+translator.getTargetStateSig());
@@ -51,7 +55,7 @@ public class Echo {
 		translator.translateModels();
 		if (options.isVerbose()) {
 			System.out.println("Model signatures: ");
-			System.out.println("\n** Processing Instances.");
+			System.out.println("** Processing Instances.");
 		}
 		
 		translator.translateInstances();
@@ -61,8 +65,11 @@ public class Echo {
 		}
 		
 		if (options.isQVT()) {
-			if (options.isVerbose()) System.out.println("\n** Processing QVT transformation "+parser.getTransformation().getName()+".");
+			if (options.isVerbose()) System.out.println("** Processing QVT transformation "+parser.getTransformation().getName()+".");
 			translator.translateQVT();
+
+			if (options.isVerbose()) System.out.println("Alloy model generated ("+(System.currentTimeMillis()-time)+"ms).");
+
 			System.out.println("Running Alloy command: "+(options.isCheck()?"check.":("enforce "+parser.getTransformation().getName()+" on the direction of "+options.getDirection()+".")));
 
 			if (options.isVerbose()) {
@@ -72,31 +79,37 @@ public class Echo {
 			}
 		}
 		
+		
 		AlloyRunner alloyrunner = new AlloyRunner(translator,options);
 		
 		if (options.isConformance()) {
+			totaltime = totaltime + time;
+			time = System.currentTimeMillis();
 			alloyrunner.conforms();
-			if (alloyrunner.getSolution().satisfiable()) {
-				System.out.println("Instance found. Models consistent.");
-			}
+			if (alloyrunner.getSolution().satisfiable())
+				System.out.println("Instances conform to the models ("+(System.currentTimeMillis()-time)+"ms).");
 			else {
-				System.out.println("Instance not found. Models inconsistent.");
+				System.out.println("Instances do not conform to the models ("+(System.currentTimeMillis()-time)+"ms).");
 				return;
 			}
 		} if (options.isCheck()) {
+			totaltime = totaltime + time;
+			time = System.currentTimeMillis();
 			alloyrunner.check();
-			if (alloyrunner.getSolution().satisfiable()) System.out.println("Instance found. Models consistent.");
-			else System.out.println("Instance not found. Models inconsistent.");
+			if (alloyrunner.getSolution().satisfiable()) System.out.println("Instances consistent ("+(System.currentTimeMillis()-time)+"ms).");
+			else System.out.println("Instances inconsistent ("+(System.currentTimeMillis()-time)+"ms).");
 		} else if (options.isEnforce()) {
+			totaltime = totaltime + time;
+			time = System.currentTimeMillis();
 			alloyrunner.enforce();
 			while (!alloyrunner.getSolution().satisfiable()) {
-				System.out.println("No instance found for delta "+alloyrunner.getDelta()+((options.isVerbose())?(" (for "+alloyrunner.getScopes()+", int "+alloyrunner.getIntScope()+")."):""));
+				System.out.println("No instance found for delta "+alloyrunner.getDelta()+((options.isVerbose())?(" (for "+alloyrunner.getScopes()+", int "+alloyrunner.getIntScope()+")"):"")+" ("+(System.currentTimeMillis()-time)+"ms).");
 				alloyrunner.enforce();			
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			String end = "y";
 			while (alloyrunner.getSolution().satisfiable()&&end.equals("y")) {		
-				System.out.println("Instance found for delta "+alloyrunner.getDelta()+".");
+				System.out.println("Instance found for delta "+alloyrunner.getDelta()+" ("+(System.currentTimeMillis()-time)+"ms).");
 				alloyrunner.show();
 				if(options.isOverwrite()) {
 					String sb = parser.backUpTarget();

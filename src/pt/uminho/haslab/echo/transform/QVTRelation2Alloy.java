@@ -90,7 +90,7 @@ public class QVTRelation2Alloy {
 		initDomains();
 		initVariableDeclarationLists();
 		calculateFact();
-		AlloyOptimizations opt = new AlloyOptimizations();
+		AlloyOptimizations opt = new AlloyOptimizations(translator);
 		//System.out.println("Pre-trade "+fact);
 		fact = opt.trading(fact);
 		//System.out.println("Pos-trade "+fact);

@@ -8,15 +8,8 @@ import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
-import edu.mit.csail.sdg.alloy4.ConstList;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
-import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -24,6 +17,24 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.emf.EMFParser;
+import edu.mit.csail.sdg.alloy4.ConstList;
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
+import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprLet;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 
 public class EMF2Alloy {
 
@@ -230,5 +241,51 @@ public class EMF2Alloy {
 	public PrimSig getInstanceStateSigFromArg (String arg){
 		return inststatesigs.get(parser.getInstanceUri(arg));
 	}
-		
+
+	public ECore2Alloy getModelTranslator (String mdl) {
+		return modeltrads.get(mdl);
+	}
+
+
+	/**
+	 * returns true is able to determine determinism;
+	 * false otherwise
+	 * @param exp
+	 * @return
+	 * @throws Err 
+	 */
+	public Boolean isFunctional(Expr e) throws Err {
+		IsFunctionalQuery q = new IsFunctionalQuery();
+		return q.visitThis(e);
+	}
+	
+	private final class IsFunctionalQuery extends VisitQuery<Boolean> {
+
+		IsFunctionalQuery() {}
+		@Override public final Boolean visit(ExprQt x) throws Err { return false; };
+		@Override public final Boolean visit(ExprBinary x) throws Err { 
+			switch (x.op) {
+				case JOIN : 
+					return (visitThis(x.right) && visitThis(x.left));
+				default : return false;
+			}
+		};
+        @Override public final Boolean visit(ExprCall x) { return false; };
+        @Override public final Boolean visit(ExprList x) { return false; };
+        @Override public final Boolean visit(ExprConstant x) { return false; };
+        @Override public final Boolean visit(ExprITE x) { return false; };
+        @Override public final Boolean visit(ExprLet x) { return false; };
+        @Override public final Boolean visit(ExprUnary x) { return false; };
+        @Override public final Boolean visit(ExprVar x) { return true; };
+        @Override public final Boolean visit(Sig x) { 
+        	return x.attributes.contains(Attr.ONE);
+        };
+        @Override public final Boolean visit(Sig.Field x) { 
+        	ECore2Alloy e2a = modeltrads.get(x.label.split("_")[0]);
+        	if (e2a == null) return false;
+        	EStructuralFeature sf = e2a.getSFeatureFromField(x);
+        	if (sf == null) return false;
+        	return (sf.getLowerBound() == 1 && sf.getUpperBound() == 1);
+       };
+	}
 }

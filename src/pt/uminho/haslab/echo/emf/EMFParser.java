@@ -89,7 +89,7 @@ public class EMFParser {
 	/**
 	 * Loads the EObjects from the CLI arguments
 	 */
-	public void loadObjects() {
+	public void loadInstances() {
 		for (int i = 0; i<options.getInstances().length; i++) {
 			String uri = options.getInstances()[i];
 			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
@@ -101,7 +101,7 @@ public class EMFParser {
 	/**
 	 * Loads the EPackages from the CLI arguments
 	 */
-	public void loadPackages() {
+	public void loadModels() {
 		for (String uri : options.getModels()) {
 			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
 			EPackage res = (EPackage) load_resource.getContents().get(0);
@@ -201,6 +201,7 @@ public class EMFParser {
 
 		XMIResource resource = (XMIResource) resourceSet.createResource(URI.createURI(sb.toString()));
 		resource.getContents().add(getObjectFromUri(dir));
+
 		
 		/*
 		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
