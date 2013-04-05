@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -35,7 +36,7 @@ public class Alloy2XMI {
 	private final XMI2Alloy x2a;
 	private Map<String,Expr> mapAtoms;
 	
-	public Alloy2XMI(A4Solution sol, XMI2Alloy modelInfo,ECore2Alloy metaInfo,Expr state) throws Err
+	public Alloy2XMI(A4Solution sol, XMI2Alloy modelInfo,ECore2Alloy metaInfo,Expr state) throws ErrorAlloy 
 	{
 		e2a = metaInfo;
 		x2a = modelInfo;
@@ -64,7 +65,7 @@ public class Alloy2XMI {
 	
 	//TODO : Aridade das relações, não sei se esta será a maneira correcta.
 	
-	private EObject createObject(Expr ex, EClass ec) throws Err
+	private EObject createObject(Expr ex, EClass ec) throws ErrorAlloy
 	{
 		EObject obj = eFactory.create(ec);
 		mapExprObj.put(ex, obj);
@@ -75,58 +76,60 @@ public class Alloy2XMI {
 		EReference ref;
 		EList<EObject> itList;
 		for(EStructuralFeature sf: ec.getEAllStructuralFeatures())
-		{
-			field = e2a.getFieldFromSFeature(sf);
-			if(sf instanceof EAttribute)
-			{
-				att = (EAttribute) sf;
-				if(att.getEType().getName().equals("EBoolean"))
+		{	
+			try {
+				field = e2a.getFieldFromSFeature(sf);
+				if(sf instanceof EAttribute)
 				{
-					obj.eSet(sf,sol.eval(ex.in(field.join(state))));
-				}
-				else if(att.getEType().getName().equals("EString"))
-				{
-					ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
-					obj.eSet(sf, ts.iterator().next().atom(0));
-					
-				}
-				else if(att.getEType().getName().equals("EInt"))
-				{
-					ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
-					obj.eSet(sf,Integer.parseInt(ts.iterator().next().atom(0)));
-				}
-				else
-					;
-			}else if( sf instanceof EReference)
-			{
-				ref = (EReference) sf;
-				ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
-				if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
-				{
-					itList = new BasicEList<EObject>();
-					for(A4Tuple t : ts)
+					att = (EAttribute) sf;
+					if(att.getEType().getName().equals("EBoolean"))
 					{
-						itExpr = mapAtoms.get(t.atom(0));
+						obj.eSet(sf,sol.eval(ex.in(field.join(state))));
+					}
+					else if(att.getEType().getName().equals("EString"))
+					{
+						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
+						obj.eSet(sf, ts.iterator().next().atom(0));
+						
+					}
+					else if(att.getEType().getName().equals("EInt"))
+					{
+						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
+						obj.eSet(sf,Integer.parseInt(ts.iterator().next().atom(0)));
+					}
+					else
+						;
+				}else if( sf instanceof EReference)
+				{
+					ref = (EReference) sf;
+					ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
+					if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
+					{
+						itList = new BasicEList<EObject>();
+						for(A4Tuple t : ts)
+						{
+							itExpr = mapAtoms.get(t.atom(0));
+							itObj = (EObject) mapExprObj.get(itExpr);
+							if(itObj == null)
+								itObj = createObject(itExpr,e2a.getEClassFromSig(((PrimSig)((ExprVar)itExpr).type().toExpr()).parent));
+							itList.add(itObj);
+						}
+						obj.eSet(sf, itList);
+					}
+					else if (ts.size()> 0)
+					{
+						itExpr = mapAtoms.get(ts.iterator().next().atom(0));
 						itObj = (EObject) mapExprObj.get(itExpr);
 						if(itObj == null)
 							itObj = createObject(itExpr,e2a.getEClassFromSig(((PrimSig)((ExprVar)itExpr).type().toExpr()).parent));
-						itList.add(itObj);
+						obj.eSet(sf, itObj);
 					}
-					obj.eSet(sf, itList);
 				}
-				else if (ts.size()> 0)
+				else
 				{
-					itExpr = mapAtoms.get(ts.iterator().next().atom(0));
-					itObj = (EObject) mapExprObj.get(itExpr);
-					if(itObj == null)
-						itObj = createObject(itExpr,e2a.getEClassFromSig(((PrimSig)((ExprVar)itExpr).type().toExpr()).parent));
-					obj.eSet(sf, itObj);
+					;
 				}
-			}
-			else
-			{
-				;
-			}
+			} catch (Err a) {throw new ErrorAlloy ("","");}
 		}
 		
 		

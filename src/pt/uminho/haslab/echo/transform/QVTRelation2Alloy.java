@@ -91,9 +91,10 @@ public class QVTRelation2Alloy {
 		initVariableDeclarationLists();
 		calculateFact();
 		AlloyOptimizations opt = new AlloyOptimizations(translator);
-		//System.out.println("Pre-trade "+fact);
 		fact = opt.trading(fact);
-		//System.out.println("Pos-trade "+fact);
+		//System.out.println("Pre-onepoint "+fact);
+		fact = opt.onePoint(fact);
+		//System.out.println("Pos-onepoint "+fact);
 		field = top?null:addRelationFields();
 	}
 	

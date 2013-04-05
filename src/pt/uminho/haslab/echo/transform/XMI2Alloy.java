@@ -220,7 +220,7 @@ public class XMI2Alloy {
 		}else throw new ErrorUnsupported("Primitive type for attribute not supported.","XMI2Alloy",obj.toString());
 	}
 	
-	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig state) throws Err {
+	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig state) throws ErrorAlloy {
 		Alloy2XMI a2x = new Alloy2XMI(sol,this,e2a,state);
 		
 		ResourceSet resourceSet = new ResourceSetImpl();
