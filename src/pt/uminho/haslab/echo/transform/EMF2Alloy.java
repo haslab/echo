@@ -40,9 +40,9 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 public class EMF2Alloy {
 
 	/** the parsed EMF resources */
-	private EMFParser parser;
+	public final EMFParser parser;
 	/** the echo run options */
-	private EchoOptions options;
+	public final EchoOptions options;
 
 	/** maps metamodels to the respective state signatures (should be "abstract")*/
 	private Map<String,Expr> modelstatesigs = new HashMap<String,Expr>();
@@ -114,6 +114,7 @@ public class EMF2Alloy {
 		String name = parser.getInstanceUri(options.getDirection());
 		PrimSig back = inststatesigs.get(name);
 		if (options.isEnforce()) {
+			createTargetStateSig();
 			ECore2Alloy mmtrans =  modeltrads.get(back.parent.label);
 			deltaexpr = mmtrans.getDeltaExpr(targetstatesig,back);
 			targetscopes = AlloyUtil.createScope(insttrads.get(name).getSigList(),mmtrans.getSigList());

@@ -75,26 +75,27 @@ public class Echo {
 		
 		AlloyRunner alloyrunner = new AlloyRunner(translator,options);
 		
+		boolean conforms = true;
 		if (options.isConformance()) {
 			alloyrunner.conforms();
 			timer.setTime("Conforms");
-			if (alloyrunner.getSolution().satisfiable())
+			conforms = alloyrunner.getSolution().satisfiable();
+			if (conforms)
 				printer.printForce("Instances conform to the models ("+timer.getTime("Conforms")+"ms).");
-			else {
+			else
 				printer.printForce("Instances do not conform to the models ("+timer.getTime("Conforms")+"ms).");
-				return;
-			}
-		} if (options.isCheck()) {
+		} if (options.isCheck() && conforms) {
 			alloyrunner.check();
 			timer.setTime("Check");
 			if (alloyrunner.getSolution().satisfiable()) printer.printForce("Instances consistent ("+timer.getTime("Check")+"ms).");
 			else printer.printForce("Instances inconsistent ("+timer.getTime("Check")+"ms).");
-		} else if (options.isEnforce()) {
+		} else if (options.isEnforce() && conforms) {
 			alloyrunner.enforce();
 			timer.setTime("Enforce");
 			while (!alloyrunner.getSolution().satisfiable()) {
 				printer.printForce("No instance found for delta "+alloyrunner.getDelta()+((options.isVerbose())?(" (for "+alloyrunner.getScopes()+", int "+alloyrunner.getIntScope()+")"):"")+" ("+timer.getTime("Enforce")+"ms).");
 				alloyrunner.enforce();			
+				timer.setTime("Enforce");
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			String end = "y";
@@ -114,6 +115,7 @@ public class Echo {
 			alloyrunner.closeViz();
 			if (end.equals("y")) printer.printForce("No more instances for delta "+alloyrunner.getDelta()+".");
 		}
+		printer.printForce("Bye ("+timer.getTotalTime()+"ms).");
 	}
 }
 

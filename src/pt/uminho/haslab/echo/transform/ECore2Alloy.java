@@ -28,7 +28,6 @@ import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -40,17 +39,8 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprLet;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 

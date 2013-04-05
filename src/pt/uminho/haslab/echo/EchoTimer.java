@@ -27,9 +27,17 @@ public class EchoTimer {
 		return times.get(p).longValue();
 	}
 	
-	/** Return total running time */
+	/** Returns total running time */
 	public long getTime() {
 		return System.currentTimeMillis() - startTime;
 	}
-	
+
+	/** Returns total stages time */
+	public long getTotalTime() {
+		long res = 0;
+		for (BigInteger t : times.values())
+			res = res + t.longValue();
+		return res;
+	}
+
 }

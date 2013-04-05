@@ -20,8 +20,8 @@ public class EchoOptions extends Options{
 
 		this.addOption(OptionBuilder
 				.withDescription("do not overwrite the original xmi")
-				.withLongOpt("nooverwrite")
-				.create("o"));
+				.withLongOpt("no-overwrite")
+				.create());
 		
 		this.addOption(OptionBuilder
 				.withDescription("checkonly mode")
@@ -48,34 +48,30 @@ public class EchoOptions extends Options{
 				.create("q"));
 	
 		this.addOption(OptionBuilder.isRequired(false)
-				.withDescription("model conformance testing mode")
+				.withDescription("test if the instances conform to the models")
 				.withLongOpt("conformance")
 				.create("t"));
 	
 		this.addOption(OptionBuilder.withDescription("prints this message")
 				.withLongOpt("help")
-				.create("h"));
+				.create());
 	
 		this.addOption(OptionBuilder.withArgName("paths")
 				.withValueSeparator(' ')
 				.withLongOpt("instances")
 				.hasArgs()
 				.isRequired(false)
-				.withDescription("instances of the transformation (should be in the same order as the QVT-R tranformation's arguments)")
+				.withDescription("instance files (should be in the same order as the QVT-R tranformation's arguments)")
 				.create("i"));
+		
 		this.addOption(OptionBuilder.withArgName("paths")
 				.withValueSeparator(' ')
 				.withLongOpt("models")
 				.hasArgs()
 				.isRequired(false)
-				.withDescription("the metamodels of the instances being transformed")
+				.withDescription("model files")
 				.create("m"));
 		
-		this.addOption(OptionBuilder
-				.withDescription("checkonly mode")
-				.withLongOpt("check")
-				.create("c"));
-
 		this.addOption(OptionBuilder
 				.hasArg()
 				.withArgName("nat")
@@ -83,6 +79,11 @@ public class EchoOptions extends Options{
 				.withLongOpt("delta")
 				.withType(Integer.class)
 				.create("d"));
+		
+		this.addOption(OptionBuilder
+				.withDescription("surpress optimitazions")
+				.withLongOpt("no-optimizations")
+				.create("o"));
 		
 		CommandLineParser parser = new PosixParser();
 		try {
@@ -122,8 +123,13 @@ public class EchoOptions extends Options{
 	}
 	
 	public boolean isOverwrite() {
+		return !cmd.hasOption("no-overwrite");
+	}
+	
+	public boolean isOptimize() {
 		return !cmd.hasOption("o");
 	}
+		
 		
 	public String getDirection() {
 		return cmd.getOptionValue("e");
