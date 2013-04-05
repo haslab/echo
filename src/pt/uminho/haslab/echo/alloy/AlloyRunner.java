@@ -64,7 +64,7 @@ public class AlloyRunner {
 		
 		allsigs.addAll(translator.getModelSigs());
 		for (Expr s : translator.getModelStateSigs()){
-			System.out.println(s);
+			//System.out.println(s);
 			allsigs.add((Sig) s);
 			}
 		allsigs.addAll(translator.getInstanceSigs());
@@ -77,13 +77,6 @@ public class AlloyRunner {
 				System.out.print("Relevance Warning:\n"+(msg.toString().trim())+"\n\n");
 				System.out.flush();
 			}
-			@Override public void resultSAT(Object command, long solvingTime,Object solution) {
-				System.out.println(solvingTime);
-			}
-			@Override public void resultUNSAT(Object command, long solvingTime,Object solution) {
-				System.out.println(solvingTime);
-			}
-
 		};
 		
 		aoptions = new A4Options();
@@ -123,7 +116,7 @@ public class AlloyRunner {
 	 * @throws ErrorAlloy */
 	public void conforms() throws ErrorAlloy {
 		finalfact = translator.getInstanceFact();
-		System.out.println(allsigs);
+		//System.out.println(allsigs);
 		try {
 			Command cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	

@@ -17,13 +17,22 @@ import pt.uminho.haslab.echo.transform.EMF2Alloy;
 import pt.uminho.haslab.echo.transform.OCL2Alloy;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprLet;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
@@ -153,5 +162,84 @@ public class AlloyUtil {
 		if (exp.isSame(ExprConstant.TRUE)) return true;
 		return false;
 	}
+	
+	public static Expr replace(Expr in, Expr find, Expr replace) throws Err {
+		Replacer replacer = new Replacer(find, replace);
+		return replacer.visitThis(in);
+	}
+	
+	private static class Replacer extends VisitQuery<Expr> {
+		
+		Expr find, replace;
+		
+		Replacer (Expr find, Expr replace) {
+			this.find = find;
+			this.replace = replace;
+		}
+		
+        @Override public final Expr visit(ExprQt x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		List<Decl> decls = new ArrayList<Decl>();
+        		Expr sub = visitThis(x.sub);
+        		for (Decl d : x.decls) {
+        			Expr expr = visitThis(d.expr);
+        			decls.add(new Decl(null,null,null,d.names,expr));
+        		}
+
+           	    return x.op.make(null, null, decls, sub); 
+        	}
+        };		
+        @Override public final Expr visit(ExprBinary x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		Expr left = visitThis(x.left);
+           		Expr right = visitThis(x.right);
+           	    return x.op.make(null, null, left, right); 
+        	}
+        };
+        @Override public final Expr visit(ExprCall x) throws Err { 
+        	throw new ErrorFatal("");
+        };
+        @Override public final Expr visit(ExprList x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		List<Expr> args = new ArrayList<Expr>();
+        		for (Expr arg : x.args)
+        			args.add(visitThis(arg));
+           	    return ExprList.make(null, null, x.op, args); 
+        	}
+        };
+        @Override public final Expr visit(ExprConstant x) { 
+        	if (x.isSame(find)) return replace;
+        	else return x;
+        };
+        @Override public final Expr visit(ExprITE x) throws Err {         	
+        	throw new ErrorFatal("");
+        };
+        @Override public final Expr visit(ExprLet x) throws Err { 
+        	throw new ErrorFatal("");
+        };
+        @Override public final Expr visit(ExprUnary x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		Expr sub = visitThis(x.sub);
+        		return x.op.make(null, sub); 
+        	}
+        };
+        @Override public final Expr visit(ExprVar x) { 
+        	if (x.isSame(find)) return replace;
+        	else return x;
+        };
+        @Override public final Expr visit(Sig x) {       
+        	if (x.isSame(find)) return replace;
+        	else return x; 
+        };
+        @Override public final Expr visit(Sig.Field x) { 
+        	if (x.isSame(find)) return replace;
+        	else return x; 
+        };
+
+      }
 	
 }
