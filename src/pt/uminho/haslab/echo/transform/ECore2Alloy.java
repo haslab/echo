@@ -110,9 +110,7 @@ public class ECore2Alloy {
 	
 	public EStructuralFeature getSFeatureFromName(String ref, String cla)
 	{
-		System.out.println(ref + " on " + cla);
 		EClass eclass = mapClassClass.get(cla);
-		System.out.println(mapClassClass);
 		return eclass.getEStructuralFeature(ref);
 	}
 	
@@ -279,7 +277,6 @@ public class ECore2Alloy {
 			EReference op = r.getEOpposite();
 			if(op!=null) {
 				Field opField = getFieldFromSFeature(op);
-				System.out.println("HI "+srcsig+" "+op.getName()+" "+opField);
 				if(opField != null)
 					try{srcsig.addFact(field.join(s.get()).equal(opField.join(s.get()).transpose()).forAll(state.decl));}
 					catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy");}

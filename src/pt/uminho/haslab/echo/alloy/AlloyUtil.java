@@ -83,21 +83,20 @@ public class AlloyUtil {
 		return ConstList.make(scopes);
 	}
 	
-	public static ConstList<CommandScope> createScopeFromSigs (List<PrimSig> instsigs) throws ErrorAlloy {
+	public static ConstList<CommandScope> createScopeFromSigs (List<PrimSig> modelsigs, Map<String,List<PrimSig>> instsigs) throws ErrorAlloy {
 		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
-		
-		for (PrimSig sig : instsigs) {
-			if (scopes.get(sig.parent) == null) scopes.put(sig.parent, 1);
-			else scopes.put(sig.parent, scopes.get(sig.parent) + 1);
 
-			PrimSig up = sig.parent.parent;
+		for (PrimSig sig : modelsigs) {
+			int count = instsigs.get(sig.label)==null?0:instsigs.get(sig.label).size();
+			if (scopes.get(sig) == null) scopes.put(sig, count);
+			else scopes.put(sig, scopes.get(sig) + count);
+			PrimSig up = sig.parent;
 			while (up != Sig.UNIV && up != null){
-				if (scopes.get(sig.parent) == null) scopes.put(up, 1);
-				else scopes.put(sig.parent, scopes.get(up) + 1);
+				if (scopes.get(up) == null) scopes.put(up, count);
+				else scopes.put(up, scopes.get(up) + count);
 				up = up.parent;
 			}
-		}		
-
+		}
 		return createScope(scopes, false);
 	}
 	

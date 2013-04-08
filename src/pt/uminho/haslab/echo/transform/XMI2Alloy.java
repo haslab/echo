@@ -41,7 +41,7 @@ public class XMI2Alloy {
 	private Map<Expr,Expr> mapContent = new HashMap<Expr,Expr>();	
 	
 	private Map<EObject,PrimSig> mapObjSig = new HashMap<EObject,PrimSig>();
-	private List<PrimSig> sigList = new ArrayList<PrimSig>();
+	private Map<String,List<PrimSig>> sigList = new HashMap<String,List<PrimSig>>();
 	private Expr factExpr = null; 
 	
 	public final ECore2Alloy translator;
@@ -58,6 +58,10 @@ public class XMI2Alloy {
 	
 	public PrimSig getSigFromEObject(EObject o) {
 		return mapObjSig.get(o);
+	}
+
+	public List<PrimSig> getSigsFromSig(String s) {
+		return sigList.get(s);
 	}
 
 	public EObject getRootEObject(){
@@ -80,9 +84,17 @@ public class XMI2Alloy {
 	
 	public List<PrimSig> getSigList()
 	{
-		return sigList;
+		List<PrimSig> res = new ArrayList<PrimSig>();
+		for (List<PrimSig> sigs : sigList.values())
+			res.addAll(sigs);
+		return res;
 	}
-	
+
+	public Map<String,List<PrimSig>> getSigMap()
+	{
+		return new HashMap<String,List<PrimSig>>(sigList);
+	}
+
 	public Expr getFact()
 	{
 		return factExpr;
@@ -155,7 +167,8 @@ public class XMI2Alloy {
 			up = up.parent;
 		}
 		mapObjSig.put(it, res);
-		sigList.add(res);
+		if (sigList.get(parent.label) == null) sigList.put(parent.label, new ArrayList<PrimSig>());
+		sigList.get(parent.label).add(res);
 		Expr mappedExpr;
 		List<EStructuralFeature> sfList = it.eClass().getEAllStructuralFeatures();
 		for(EStructuralFeature sf: sfList)
@@ -181,7 +194,8 @@ public class XMI2Alloy {
 						mapContent.put(field, mappedExpr);	}	
 				} else if (eG == null) {} 
 				else throw new ErrorUnsupported("EReference type not supported: "+eG, "XMI2Alloy");
-			} else if(sf instanceof EAttribute && eG != null)
+			} 
+			else if(sf instanceof EAttribute)
 				handleAttr(eG,res,field);
 			else throw new ErrorUnsupported("Structural feature not supported: "+sf, "XMI2Alloy");
 		}

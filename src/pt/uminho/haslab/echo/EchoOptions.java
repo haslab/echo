@@ -24,6 +24,11 @@ public class EchoOptions extends Options{
 		super();
 
 		this.addOption(OptionBuilder
+				.withDescription("generate new QVT consistent target instance")
+				.withLongOpt("new")
+				.create("n"));
+		
+		this.addOption(OptionBuilder
 				.withDescription("do not overwrite the original xmi")
 				.withLongOpt("no-overwrite")
 				.create());
@@ -152,7 +157,11 @@ public class EchoOptions extends Options{
 	public boolean isOverwrite() {
 		return !cmd.hasOption("no-overwrite");
 	}
-	
+
+	public boolean isNew() {
+		return cmd.hasOption("new");
+	}
+
 	public boolean isOptimize() {
 		return !cmd.hasOption("o");
 	}

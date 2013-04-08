@@ -114,7 +114,7 @@ public class Echo {
 			printer.printForce("Instance found for delta "+alloyrunner.getDelta()+" ("+timer.getTime("Enforce")+"ms).");
 		}
 		if ((options.isEnforce() || options.isGenerate()) && alloyrunner.getSolution().satisfiable()) {
-			if (options.isEnforce()) {
+			if (options.isEnforce() && !options.isNew()) {
 				String sb = parser.backUpTarget();
 				printer.print("Backup file created: " + sb);	
 			}

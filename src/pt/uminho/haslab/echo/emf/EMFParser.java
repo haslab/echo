@@ -28,6 +28,7 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
+import org.eclipse.ocl.examples.pivot.Package;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
 import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
 import org.eclipse.ocl.examples.xtext.oclinecore.OCLinEcoreStandaloneSetup;
@@ -59,6 +60,7 @@ public class EMFParser {
 	private RelationalTransformation transformation;
 	/** maps the XMI instance paths into the QVT-R argument names (if any)  */
 	private BiMap<String,String> argpaths;
+	private BiMap<String,String> modelpaths;
 
 	
 	public EMFParser(EchoOptions options){
@@ -105,12 +107,15 @@ public class EMFParser {
 	 * Loads the EPackages from the CLI arguments
 	 */
 	public void loadModels() {
+		modelpaths = HashBiMap.create();
+
 		for (String uri : options.getModels()) {
 			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
 			EPackage res = (EPackage) load_resource.getContents().get(0);
 			
 			resourceSet.getPackageRegistry().put(res.getNsURI(),res);
-			models.put(uri,res);			
+			models.put(uri,res);	
+			modelpaths.put(uri, res.getName());
 		}
 	}
 	
@@ -151,10 +156,24 @@ public class EMFParser {
 					
 			RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
 			transformation = (RelationalTransformation) rm.eContents().get(0);
-			
 			argpaths = HashBiMap.create();
-			for (int i = 0; i < transformation.getModelParameter().size(); i++)
-				argpaths.put(options.getInstances()[i],transformation.getModelParameter().get(i).getName());				
+			int j = 0;
+			for (int i = 0; i < transformation.getModelParameter().size(); i++){
+				String arg = transformation.getModelParameter().get(i).getName();
+				if (options.isNew() && arg.equals(options.getDirection())) {
+					String uri = "New.xmi";
+					Package mdl = transformation.getModelParameter(options.getDirection()).getUsedPackage().get(0);
+					String mdluri = modelpaths.inverse().get(mdl.getName());
+					EPackage pck = models.get(mdluri);
+					Resource resource = resourceSet.createResource(URI.createURI(uri));
+					EObject obj = pck.getEFactoryInstance().create(getTopObject(mdluri).get(0));
+					resource.getContents().add(obj);
+					argpaths.put(uri, arg);
+					instances.put(uri, obj);
+				}
+				else argpaths.put(options.getInstances()[j++],arg);	
+			}
+
 			
 			return transformation;
 		} catch (Exception e) { throw new ErrorParser (e.getMessage(),"QVT Parser");}
@@ -176,14 +195,15 @@ public class EMFParser {
 		return res;
 	}
 
+
 	public Collection<EPackage> getModels(){
 		return models.values();
 	}
 	
 	public List<EObject> getInstances(){
 		List<EObject> res = new ArrayList<EObject>();
-		for (String s : options.getInstances())
-			res.add(instances.get(s));
+		for (EObject s : instances.values())
+			res.add(s);
 		return res;
 	}
 

@@ -107,13 +107,12 @@ public class EMF2Alloy {
 
 	/** Translates XMI instances to the respective Alloy specs */
 	public void translateInstances() throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		for (String name: options.getInstances()) {
-			String mdl = parser.getInstanceFromUri(name).eClass().getEPackage().getName();
-			PrimSig state = inststatesigs.get(name);
+		for (EObject obj: parser.getInstances()) {
+			String mdl = obj.eClass().getEPackage().getName();
+			PrimSig state = inststatesigs.get(obj.eResource().getURI().toString());
 			ECore2Alloy mmtrans = modeltrads.get(mdl);			
-			EObject instmodel = parser.getInstanceFromUri(name);
-			XMI2Alloy insttrans = new XMI2Alloy(instmodel,mmtrans,state);
-			insttrads.put(name,insttrans);
+			XMI2Alloy insttrans = new XMI2Alloy(obj,mmtrans,state);
+			insttrads.put(obj.eResource().getURI().toString(),insttrans);
 			instancefact = AlloyUtil.cleanAnd(instancefact,insttrans.getFact());
 		}
 	}
@@ -165,8 +164,9 @@ public class EMF2Alloy {
 	
     /** Creates the instances singleton state signatures */
 	private void createInstanceStateSigs() throws ErrorAlloy, ErrorTransform {
-		for (String uri : options.getInstances()){
-			String pck = parser.getInstanceFromUri(uri).eClass().getEPackage().getName();
+		for (EObject obj : parser.getInstances()){
+			String uri = obj.eResource().getURI().toString();
+			String pck = obj.eClass().getEPackage().getName();
 			try {
 				String name = parser.getInstanceArgName(uri);
 				PrimSig s = new PrimSig(name,(PrimSig) modelstatesigs.get(pck),Attr.ONE);
@@ -186,7 +186,14 @@ public class EMF2Alloy {
 	public void createScopes() throws ErrorAlloy {
 		if (options.isQVT()) {
 			String trg = parser.getInstanceUri(options.getDirection());
-			scopes = AlloyUtil.createScopeFromSigs(insttrads.get(trg).getSigList());
+			XMI2Alloy i2a = insttrads.get(trg);
+			if (i2a != null) {
+				List<PrimSig> modelsigs = i2a.translator.getSigList();
+				scopes = AlloyUtil.createScopeFromSigs(modelsigs, i2a.getSigMap());
+			} else {
+				List<PrimSig> modelsigs = modeltrads.get(targetstatesig.parent.label).getSigList();
+				scopes = AlloyUtil.createScopeFromSigs(modelsigs, new HashMap<String,List<PrimSig>>());	
+			}
 		} else if (options.isGenerate()) {
 			Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
 			for (Entry<String,String> cla : options.getScopes().keySet()) {
@@ -197,7 +204,6 @@ public class EMF2Alloy {
 			for (Expr sig : modelstatesigs.values())
 				sc.put((PrimSig) sig,1);
 			sc.put(Sig.STRING, options.getSize());
-			System.out.println("SCOPE "+sc);
 			scopes = AlloyUtil.createScope(sc,true);
 		}
 
