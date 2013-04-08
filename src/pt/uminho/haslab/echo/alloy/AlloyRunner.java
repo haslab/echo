@@ -3,12 +3,19 @@ package pt.uminho.haslab.echo.alloy;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.SwingUtilities;
+
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.transform.ECore2Alloy;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
@@ -22,7 +29,13 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+import edu.mit.csail.sdg.alloy4graph.DotColor;
+import edu.mit.csail.sdg.alloy4graph.DotShape;
+import edu.mit.csail.sdg.alloy4viz.AlloyRelation;
+import edu.mit.csail.sdg.alloy4viz.AlloySet;
+import edu.mit.csail.sdg.alloy4viz.AlloyType;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
+import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class AlloyRunner {
 	
@@ -142,11 +155,59 @@ public class AlloyRunner {
 			sol.writeXML("alloy_output.xml");
 			if (viz == null) viz = new VizGUI(true, "alloy_output.xml", null);
 			else viz.loadXML("alloy_output.xml", true);
+			generateTheme();			
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
 		if (eoptions.isQVT()) {
 			String theme = (eoptions.getQVTPath()).replace(".qvtr", ".thm");
 			if (new File(theme).isFile()) viz.loadThemeFile(theme);		
 		}
+	}
+	
+	public void generateTheme() {
+		VizState vizstate = viz.getVizState();
+		List<DotColor> availablecolors = new ArrayList<DotColor>(Arrays.asList(DotColor.values()));
+		for (AlloyType t : vizstate.getCurrentModel().getTypes()){
+			String label = vizstate.label.get(t);
+			if (label.split("_").length == 2) {
+				System.out.println(label);
+				vizstate.label.put(t, label.split("_")[1]);
+				vizstate.hideUnconnected.put(t, true);
+				vizstate.nodeColor.put(t, availablecolors.get(0));
+				availablecolors.remove(0);
+			} else if (label.split("_").length == 1) {
+				if (t.getName().equals("State_")) {
+					vizstate.project(t);
+				}
+				if (t.getName().equals("String") || t.getName().equals("Int"))
+					vizstate.nodeVisible.put(t, false);
+			}
+		}
+		for (AlloySet t : vizstate.getCurrentModel().getSets()){
+			String label = vizstate.label.get(t);
+			if (label.split("_").length == 2) {
+				vizstate.label.put(t, label.split("_")[1]);
+				if (label.endsWith("_")) vizstate.showAsLabel.put(t, false);
+			}
+		}
+		for (AlloyRelation t : vizstate.getCurrentModel().getRelations()){
+			String label = vizstate.label.get(t);
+			if (label.split("_").length == 2) {
+				String pck = label.split("_")[0];
+				String ref = label.split("_")[1];
+				AlloyType sig = t.getTypes().get(0);
+				String cla = sig.getName().split("_")[1];
+				
+				ECore2Alloy e2a = translator.getModelTranslator(pck);
+				EStructuralFeature sf = e2a.getSFeatureFromName(ref, cla);
+				if (sf instanceof EAttribute) {
+					vizstate.edgeVisible.put(t, false);
+					vizstate.attribute.put(t, true);
+				}
+				vizstate.label.put(t, ref);
+			}
+			
+		}
+		viz.doShowViz();
 	}
 	
 	/** Calculates the next Alloy solution.
