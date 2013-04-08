@@ -157,10 +157,10 @@ public class AlloyRunner {
 			else viz.loadXML("alloy_output.xml", true);
 			generateTheme();			
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
-		if (eoptions.isQVT()) {
+		/*if (eoptions.isQVT()) {
 			String theme = (eoptions.getQVTPath()).replace(".qvtr", ".thm");
 			if (new File(theme).isFile()) viz.loadThemeFile(theme);		
-		}
+		}*/
 	}
 	
 	public void generateTheme() {
@@ -169,7 +169,6 @@ public class AlloyRunner {
 		for (AlloyType t : vizstate.getCurrentModel().getTypes()){
 			String label = vizstate.label.get(t);
 			if (label.split("_").length == 2) {
-				System.out.println(label);
 				vizstate.label.put(t, label.split("_")[1]);
 				vizstate.hideUnconnected.put(t, true);
 				vizstate.nodeColor.put(t, availablecolors.get(0));
@@ -180,7 +179,10 @@ public class AlloyRunner {
 				}
 				if (t.getName().equals("String") || t.getName().equals("Int"))
 					vizstate.nodeVisible.put(t, false);
+			} else if (label.split("_").length == 3) {
+				vizstate.label.put(t, label.split("_")[1] + label.split("_")[2]);
 			}
+				
 		}
 		for (AlloySet t : vizstate.getCurrentModel().getSets()){
 			String label = vizstate.label.get(t);
@@ -196,14 +198,18 @@ public class AlloyRunner {
 				String ref = label.split("_")[1];
 				AlloyType sig = t.getTypes().get(0);
 				String cla = sig.getName().split("_")[1];
-				
 				ECore2Alloy e2a = translator.getModelTranslator(pck);
-				EStructuralFeature sf = e2a.getSFeatureFromName(ref, cla);
-				if (sf instanceof EAttribute) {
+				if (e2a != null) {
+					EStructuralFeature sf = e2a.getSFeatureFromName(ref, cla);
+					if (sf instanceof EAttribute) {
+						vizstate.edgeVisible.put(t, false);
+						vizstate.attribute.put(t, true);
+					}
+					vizstate.label.put(t, ref);
+				} else {
 					vizstate.edgeVisible.put(t, false);
-					vizstate.attribute.put(t, true);
+					vizstate.attribute.put(t, false);
 				}
-				vizstate.label.put(t, ref);
 			}
 			
 		}
