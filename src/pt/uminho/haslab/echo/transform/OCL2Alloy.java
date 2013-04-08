@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
 import org.eclipse.ocl.examples.pivot.IfExp;
 import org.eclipse.ocl.examples.pivot.IteratorExp;
@@ -37,8 +38,9 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class OCL2Alloy {
 
+	private final EMF2Alloy translator;
+
 	private TypedModel modelvar;
-	private EMF2Alloy translator;
 	private Set<Decl> vardecls;
 
 	public OCL2Alloy(TypedModel modelvar, EMF2Alloy translator, Set<Decl> vardecls) {
@@ -78,15 +80,13 @@ public class OCL2Alloy {
 	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr result = Sig.NONE.no();
 		
-		
 		for (PropertyTemplateItem part: temp.getPart()) {
 			// calculates OCL expression
 			OCLExpression value = part.getValue();
 			Expr ocl = this.oclExprToAlloy(value);
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
-			Expr localfield = null;
-			localfield = AlloyUtil.localStateAttribute(prop, translator.getInstanceStateSigFromArg(modelvar.getName()), translator);
+			Expr localfield = propertyToField(prop, translator);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
@@ -209,12 +209,8 @@ public class OCL2Alloy {
 	
 	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
-		String mdl = expr.getReferredProperty().getOwningType().getPackage().getName();
-		Expr sig = translator.getModelStateSig(mdl);
-		if (sig == null) throw new ErrorTransform("State sig "+mdl+" not found.","OCL2Alloy");
-		Expr aux = AlloyUtil.localStateAttribute(expr.getReferredProperty(), sig, translator);
-		res = oclExprToAlloy(expr.getSource()).join(aux);
-		
+		Expr aux = propertyToField(expr.getReferredProperty(), translator);
+		res = oclExprToAlloy(expr.getSource()).join(aux);	
 		return res;
 	}
 	
@@ -286,18 +282,25 @@ public class OCL2Alloy {
 
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	public static Sig.Field propertyToField (Property prop, EMF2Alloy translator) {
+	public Expr propertyToField (Property prop, EMF2Alloy translator) {
 		String mdl = prop.getOwningType().getPackage().getName();
-		List<PrimSig> sigs = translator.getModelSigs(mdl);
-		Sig sig = null;
-		for (PrimSig s : sigs)
-			if (s.toString().equals(AlloyUtil.pckPrefix(mdl,prop.getOwningType().getName()))) sig = s;
-		if (sig == null) throw new Error ("Sig not found: "+AlloyUtil.pckPrefix(mdl,prop.getOwningType().getName()));
-
-		Sig.Field exp = null;
-		for (Sig.Field field : sig.getFields())
-			if ((field.label).equals(AlloyUtil.pckPrefix(mdl,prop.getName())))
-				exp = field;
+		ECore2Alloy e2a = translator.getModelTranslator(mdl);
+		EStructuralFeature sf;
+		Expr exp;
+		Expr statesig;
+		if (modelvar != null)
+			statesig = translator.getInstanceStateSigFromArg(modelvar.getName());
+		else
+			statesig = translator.getModelStateSig(mdl);
+		if (prop.getOpposite() != null && prop.getOpposite().isComposite() && translator.options.isOptimize()) {
+			sf = e2a.getSFeatureFromName(prop.getOpposite().getName(),prop.getOpposite().getOwningType().getName());
+			exp = (e2a.getFieldFromSFeature(sf).join(statesig)).transpose();			
+		}
+		else {
+			sf = e2a.getSFeatureFromName(prop.getName(),prop.getOwningType().getName());
+			exp = (e2a.getFieldFromSFeature(sf).join(statesig));			
+		}
+		System.out.println("DEBUG "+exp);
 		if (exp == null) throw new Error ("Field not found: "+AlloyUtil.pckPrefix(mdl,prop.getName()));
 		return exp;
 	}

@@ -27,7 +27,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 public class AlloyOptimizations {
 
-	private EMF2Alloy translator;
+	private final EMF2Alloy translator;
 
 	public AlloyOptimizations (EMF2Alloy translator) {
 		this.translator = translator;

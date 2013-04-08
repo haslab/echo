@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import kodkod.engine.config.Options;
+
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EDataType;
@@ -47,7 +49,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 public class ECore2Alloy {
 
 	/** maps class names into respective Alloy signature */
-	private Map<String,PrimSig> mapClassSig = new HashMap<String,PrimSig>();
+	private BiMap<EClass,PrimSig> mapClassSig;
 	/** maps a structural feature into the respective Alloy field */
 	private BiMap<EStructuralFeature,Field> mapSfField;
 	/** maps a signature name into its respective class */
@@ -61,10 +63,11 @@ public class ECore2Alloy {
 	private final PrimSig state;
 	private List<PrimSig> sigList;
 	
-	private EMF2Alloy translator;
+	private final EMF2Alloy translator;
 	
 	public ECore2Alloy(EPackage p, PrimSig statesig, EMF2Alloy translator) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		mapSfField = HashBiMap.create();
+		mapClassSig = HashBiMap.create();
 		this.translator = translator;
 		state = statesig;
 		pack = p;
@@ -97,19 +100,33 @@ public class ECore2Alloy {
 		return mapSfField.inverse().get(f);
 	}
 	
+	public EStructuralFeature getSFeatureFromName(String ref, String cla)
+	{
+		System.out.println(ref + " on " + cla);
+		EClass eclass = mapClassClass.get(cla);
+		System.out.println(mapClassClass);
+		return eclass.getEStructuralFeature(ref);
+	}
+	
 	public Set<EStructuralFeature> getSFeatures()
 	{
 		return mapSfField.keySet();
 	}
 
+
+	public EClass getEClassFromName(String s)
+	{
+		return mapClassClass.get(s);
+	}
+
 	public EClass getEClassFromSig(PrimSig s)
 	{
-		return mapClassClass.get(s.label);
+		return mapClassSig.inverse().get(s);
 	}
 
 	public PrimSig getSigFromEClass(EClass c)
 	{
-		return mapClassSig.get(c.getName());
+		return mapClassSig.get(c);
 	}
 
 	public Field getStateFieldFromSig(PrimSig s)
@@ -204,7 +221,7 @@ public class ECore2Alloy {
 	
 	private PrimSig makeSig(EClass ec) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
-		PrimSig res = mapClassSig.get(ec.getName());
+		PrimSig res = mapClassSig.get(ec);
 		if(res == null) {
 			try {
 				PrimSig parent = null;
@@ -214,18 +231,18 @@ public class ECore2Alloy {
 				if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed.","ECore2Alloy",ec);
 				if(!superTypes.isEmpty())
 				{
-					parent = mapClassSig.get(superTypes.get(0).getName());
+					parent = mapClassSig.get(superTypes.get(0));
 					if(parent == null) throw new ErrorTransform("Parent class not found.","ECore2Alloy",superTypes);	
 				}
 				String signame = AlloyUtil.pckPrefix(pack.getName(),ec.getName());
 				if(ec.isAbstract())
 					res = new PrimSig(signame,parent,Attr.ABSTRACT);
 				else res = new PrimSig(signame,parent);
-				mapClassClass.put(signame,ec);
-
+				
 				Field statefield = res.addField(AlloyUtil.stateFieldName(pack,ec),state.setOf());
 				mapSigState.put(res,statefield);
-				mapClassSig.put(ec.getName(), res);
+				mapClassSig.put(ec, res);
+				mapClassClass.put(ec.getName(), ec);
 				// all atoms must belong to a state
 				Expr stateatoms = res.equal(statefield.join(state));
 				res.addFact(stateatoms);
@@ -242,59 +259,60 @@ public class ECore2Alloy {
 	}
 
 	private void processReference(EReference r, PrimSig srcsig) throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
-		EClass type = r.getEReferenceType();
-		PrimSig trgsig = mapClassSig.get(type.getName());
-		Field field;
-		try{field = srcsig.addField(AlloyUtil.pckPrefix(pack.getName(),r.getName()),trgsig.product(state));}
-		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",srcsig);}
-		mapSfField.put(r,field);
-		// processing opposite references
-		EReference op = r.getEOpposite();
-		Decl s = state.decl;
-		if(op!=null) {
-			Field opField = getFieldFromSFeature(op);
-			if(opField != null)
-				try{srcsig.addFact(field.join(s.get()).equal(opField.join(s.get()).transpose()).forAll(state.decl));}
-				catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy");}
+		if(!(r.getEOpposite() != null && r.getEOpposite().isContainment() && translator.options.isOptimize())) {
+			EClass type = r.getEReferenceType();
+			PrimSig trgsig = mapClassSig.get(type);
+			Field field;
+			try{field = srcsig.addField(AlloyUtil.pckPrefix(pack.getName(),r.getName()),trgsig.product(state));}
+			catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",srcsig);}
+			mapSfField.put(r,field);
+			Decl s = state.decl;
+			// processing opposite references
+			EReference op = r.getEOpposite();
+			if(op!=null) {
+				Field opField = getFieldFromSFeature(op);
+				System.out.println("HI "+srcsig+" "+op.getName()+" "+opField);
+				if(opField != null)
+					try{srcsig.addFact(field.join(s.get()).equal(opField.join(s.get()).transpose()).forAll(state.decl));}
+					catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy");}
+			}
+			// processing multiplicities
+			Expr fact;
+			try{
+				Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("src_");
+				if (r.getLowerBound() == 1 && r.getUpperBound() == 1) {
+					fact = (d.get()).join(field.join(s.get())).one().forAll(s,d);
+					srcsig.addFact(fact);	
+				} else if (r.getLowerBound() == 0 && r.getUpperBound() == 1) {
+					fact = (d.get()).join(field.join(s.get())).lone().forAll(s,d);
+					srcsig.addFact(fact);	
+				} else if (r.getLowerBound() == 1 && r.getUpperBound() == -1) {
+					fact = (d.get()).join(field.join(s.get())).some().forAll(s,d);
+					srcsig.addFact(fact);	
+				} else if (r.getUpperBound() == 0) {
+					fact = (d.get()).join(field.join(s.get())).no().forAll(s,d);
+					srcsig.addFact(fact);	
+				} else if (r.getLowerBound() == 0 && r.getUpperBound() == -1) {}
+				if(r.getLowerBound() > 1) {
+					fact = (d.get()).join(field.join(s.get())).cardinality().gte(ExprConstant.makeNUMBER(r.getLowerBound())).forAll(s,d);
+					srcsig.addFact(fact);
+				}
+				if(r.getUpperBound() != -1){
+					fact = (d.get()).join(field.join(s.get())).cardinality().lte(ExprConstant.makeNUMBER(r.getUpperBound())).forAll(s,d);
+					srcsig.addFact(fact);
+				}
+				
+				d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("trg_");
+				if(r.isContainment()){
+					fact = ((field.join(s.get())).join(d.get())).one().forAll(s,d);
+					trgsig.addFact(fact);
+				}
+				Expr parState = mapSigState.get(srcsig);
+				Expr sTypeState = mapSigState.get(trgsig);
+				// BUG IS HERE
+				srcsig.addFact(field.join(s.get()).in(parState.join(s.get()).product(sTypeState.join(s.get()))).forAll(state.decl));
+			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",srcsig);}		
 		}
-		// processing multiplicities
-		Expr fact;
-		try{
-			Decl d = AlloyUtil.localStateSig(srcsig,s.get()).oneOf("src_");
-			if (r.getLowerBound() == 1 && r.getUpperBound() == 1) {
-				fact = (d.get()).join(field.join(s.get())).one().forAll(s,d);
-				srcsig.addFact(fact);	
-			} else if (r.getLowerBound() == 0 && r.getUpperBound() == 1) {
-				fact = (d.get()).join(field.join(s.get())).lone().forAll(s,d);
-				srcsig.addFact(fact);	
-			} else if (r.getLowerBound() == 1 && r.getUpperBound() == -1) {
-				fact = (d.get()).join(field.join(s.get())).some().forAll(s,d);
-				srcsig.addFact(fact);	
-			} else if (r.getUpperBound() == 0) {
-				fact = (d.get()).join(field.join(s.get())).no().forAll(s,d);
-				srcsig.addFact(fact);	
-			} else if (r.getLowerBound() == 0 && r.getUpperBound() == -1) {}
-			if(r.getLowerBound() > 1) {
-				fact = (d.get()).join(field.join(s.get())).cardinality().gte(ExprConstant.makeNUMBER(r.getLowerBound())).forAll(s,d);
-				srcsig.addFact(fact);
-			}
-			if(r.getUpperBound() != -1){
-				fact = (d.get()).join(field.join(s.get())).cardinality().lte(ExprConstant.makeNUMBER(r.getUpperBound())).forAll(s,d);
-				srcsig.addFact(fact);
-			}
-			
-			d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("trg_");
-			if(r.isContainment()){
-				fact = ((field.join(s.get())).join(d.get())).one().forAll(s,d);
-				trgsig.addFact(fact);
-			}
-			Expr parState = mapSigState.get(srcsig);
-			Expr sTypeState = mapSigState.get(trgsig);
-			// BUG IS HERE
-			srcsig.addFact(field.join(s.get()).in(parState.join(s.get()).product(sTypeState.join(s.get()))).forAll(state.decl));
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy",srcsig);}
-		
-		
 	}
 
 
@@ -343,14 +361,14 @@ public class ECore2Alloy {
 				dataList.add((EDataType) e);
 		}
 		
-		processEEnum(enumList);
+		//processEEnum(enumList);
 		processClass(classList);
 		
 		return sigList;
 	}
 	
 	
-	private void processEEnumLiterals(List<EEnumLiteral> el,PrimSig parent) throws ErrorAlloy 
+	/*private void processEEnumLiterals(List<EEnumLiteral> el,PrimSig parent) throws ErrorAlloy 
 	{
 		PrimSig litSig = null;
 		for(EEnumLiteral lit: el)
@@ -360,8 +378,8 @@ public class ECore2Alloy {
 			mapLitSig.put(lit, litSig);
 			sigList.add(litSig);
 		}
-	} 
-	
+	}
+
 	private List<PrimSig> processEEnum(List<EEnum> list) throws ErrorAlloy 
 	{
 		PrimSig enumSig = null;
@@ -370,12 +388,12 @@ public class ECore2Alloy {
 			try{ enumSig = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),en.getName()),Attr.ABSTRACT);}
 			catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",enumSig);}
 			sigList.add(enumSig);
-			mapClassSig.put(en.getName(), enumSig);
+			mapClassSig.put(en, enumSig);
 			//mapSigState.put(enumSig, enumSig.addField(prefix + en.getName().toLowerCase(),state.setOf()));
 			processEEnumLiterals(en.getELiterals(),enumSig);
 		}
 		return sigList;
-	}
+	}*/
 	
 	private List<PrimSig> processClass(List<EClass> classList) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
 	{
@@ -392,8 +410,8 @@ public class ECore2Alloy {
 		
 		for(EClass e: classList)
 		{
-			processReferences(e.getEReferences(),mapClassSig.get(e.getName()));
-			processEAnnotations(e.getEAnnotations(),e,mapClassSig.get(e.getName()));
+			processReferences(e.getEReferences(),mapClassSig.get(e));
+			processEAnnotations(e.getEAnnotations(),e,mapClassSig.get(e));
 		}
 		return sigList;
 	}

@@ -18,8 +18,6 @@ import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
-
-
 public class OCLUtil {
 
 	

@@ -52,9 +52,11 @@ public class Echo {
 		translator.translateModels();
 
 		printer.print("Model signatures: ");
-		printer.printTitle("Processing Instances.");
 		
-		translator.translateInstances();
+		if(!options.isGenerate()) {
+			printer.printTitle("Processing Instances.");
+			translator.translateInstances();
+		}
 		
 		printer.print("Instance signatures: "+translator.getInstanceSigs());
 		printer.print("Instance facts: "+translator.getInstanceFact());
@@ -66,10 +68,12 @@ public class Echo {
 			printer.printForce("Running Alloy command: "+(options.isCheck()?"check.":("enforce "+parser.getTransformation().getName()+" on the direction of "+options.getDirection()+".")));
 
 			printer.print("Delta function: "+translator.getDeltaFact());
-			printer.print("Initial scope: "+translator.getTargetScopes());
+			printer.print("Initial scope: "+translator.getScopes());
 			printer.print("QVT facts: "+translator.getQVTFact());
 		}
 
+		translator.createScopes();
+		
 		timer.setTime("Translating");
 		printer.print("Alloy model generated ("+timer.getTime("Translating")+"ms).");		
 		
@@ -84,7 +88,15 @@ public class Echo {
 				printer.printForce("Instances conform to the models ("+timer.getTime("Conforms")+"ms).");
 			else
 				printer.printForce("Instances do not conform to the models ("+timer.getTime("Conforms")+"ms).");
-		} if (options.isCheck() && conforms) {
+		} else if (options.isGenerate()) {
+			alloyrunner.generate();
+			timer.setTime("Generate");
+			if (alloyrunner.getSolution().satisfiable())
+				printer.printForce("Intance generated ("+timer.getTime("Generate")+"ms).");
+			else
+				printer.printForce("No possible instances ("+timer.getTime("Generate")+"ms).");
+		} 
+		if (options.isCheck() && conforms) {
 			alloyrunner.check();
 			timer.setTime("Check");
 			if (alloyrunner.getSolution().satisfiable()) printer.printForce("Instances consistent ("+timer.getTime("Check")+"ms).");
@@ -97,10 +109,12 @@ public class Echo {
 				alloyrunner.enforce();			
 				timer.setTime("Enforce");
 			}
+			printer.printForce("Instance found for delta "+alloyrunner.getDelta()+" ("+timer.getTime("Enforce")+"ms).");
+		}
+		if ((options.isEnforce() || options.isGenerate()) && alloyrunner.getSolution().satisfiable()) {
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			String end = "y";
-			while (alloyrunner.getSolution().satisfiable()&&end.equals("y")) {		
-				printer.printForce("Instance found for delta "+alloyrunner.getDelta()+" ("+timer.getTime("Enforce")+"ms).");
+			while (alloyrunner.getSolution().satisfiable()&&end.equals("y")) {
 				alloyrunner.show();
 				if(options.isOverwrite()) {
 					String sb = parser.backUpTarget();
@@ -113,7 +127,7 @@ public class Echo {
 			}
 			in.close();
 			alloyrunner.closeViz();
-			if (end.equals("y")) printer.printForce("No more instances for delta "+alloyrunner.getDelta()+".");
+			if (end.equals("y")) printer.printForce("No more instances.");
 		}
 		printer.printForce("Bye ("+timer.getTotalTime()+"ms).");
 	}

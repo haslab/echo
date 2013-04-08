@@ -7,14 +7,11 @@ import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.ocl.examples.pivot.Property;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.transform.EMF2Alloy;
-import pt.uminho.haslab.echo.transform.OCL2Alloy;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
@@ -41,13 +38,7 @@ public class AlloyUtil {
 	public static String targetName(String target) {
 		return target+"_new_";
 	}
-	
-	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, Expr statesig, EMF2Alloy translator) throws ErrorAlloy, ErrorTransform{
-		Expr exp = OCL2Alloy.propertyToField(prop,translator);
-		return exp.join(statesig);
-	}
-	
+		
 	public static Expr localStateSig(Sig sig, Expr var) throws ErrorTransform, ErrorAlloy{
 		Expr exp = null;
 		
@@ -82,36 +73,32 @@ public class AlloyUtil {
 		else return e.and(f);
 	}
 	
-	public static ConstList<CommandScope> createScope (List<PrimSig> instsigs, List<PrimSig> modelsigs) throws ErrorAlloy {
-		Map<String,CommandScope> scopes = new HashMap<String,CommandScope>();
+	public static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, boolean exact) throws ErrorAlloy {
+		List<CommandScope> scopes = new ArrayList<CommandScope>();
+	
+		for (PrimSig sig : sizes.keySet()) 
+			try {scopes.add(new CommandScope(sig, exact, sizes.get(sig)));}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
+
+		return ConstList.make(scopes);
+	}
+	
+	public static ConstList<CommandScope> createScopeFromSigs (List<PrimSig> instsigs) throws ErrorAlloy {
+		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
 		
 		for (PrimSig sig : instsigs) {
-			incrementScope(scopes,sig.parent);
+			if (scopes.get(sig.parent) == null) scopes.put(sig.parent, 1);
+			else scopes.put(sig.parent, scopes.get(sig.parent) + 1);
+
 			PrimSig up = sig.parent.parent;
 			while (up != Sig.UNIV && up != null){
-				incrementScope(scopes,up);
+				if (scopes.get(sig.parent) == null) scopes.put(up, 1);
+				else scopes.put(sig.parent, scopes.get(up) + 1);
 				up = up.parent;
 			}
 		}		
-		for (Sig sig : modelsigs){
-			if (scopes.get(sig.label)==null)
-				try { scopes.put(sig.label,new CommandScope(sig, false, 0));}
-				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-		}
-		return ConstList.make(scopes.values());
-	}
-	
-	private static void incrementScope (Map<String,CommandScope> scopes, Sig sig) throws ErrorAlloy  {
-		String type = sig.toString();
-		CommandScope scope = scopes.get(type);
-		if (scope == null)
-			try { scope = new CommandScope(sig, false, 1);}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-		else 
-			try { scope = new CommandScope(sig, false, scope.startingScope+1);}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-		scopes.put(type, scope);
-	
+
+		return createScope(scopes, false);
 	}
 	
 	public static ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {

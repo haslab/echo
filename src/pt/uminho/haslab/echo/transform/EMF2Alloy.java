@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
@@ -68,7 +69,7 @@ public class EMF2Alloy {
 	private Expr qvtfact = Sig.NONE.no();
 	/** the initial command scopes of the target instance 
 	 * only these need be increased in enforce mode, null if not enforce mode */
-	private ConstList<CommandScope> targetscopes;
+	private ConstList<CommandScope> scopes;
 	/** the Alloy expression denoting the delta function (true if not enforce mode) */
 	private Expr deltaexpr = Sig.NONE.no();
 	/** the target state signature (true if not enforce mode) */
@@ -117,9 +118,7 @@ public class EMF2Alloy {
 			createTargetStateSig();
 			ECore2Alloy mmtrans =  modeltrads.get(back.parent.label);
 			deltaexpr = mmtrans.getDeltaExpr(targetstatesig,back);
-			targetscopes = AlloyUtil.createScope(insttrads.get(name).getSigList(),mmtrans.getSigList());
 			inststatesigs.put(name,targetstatesig);
-			
 			PrimSig mdl = targetstatesig.parent;
 			
 			Expr sourcemdlnosource = null;
@@ -176,6 +175,26 @@ public class EMF2Alloy {
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",sig); }
 	}
 	
+	public void createScopes() throws ErrorAlloy {
+		if (options.isQVT()) {
+			String trg = parser.getInstanceUri(options.getDirection());
+			scopes = AlloyUtil.createScopeFromSigs(insttrads.get(trg).getSigList());
+		} else if (options.isGenerate()) {
+			Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
+			for (Entry<String,String> cla : options.getScopes().keySet()) {
+				ECore2Alloy e2a = modeltrads.get(cla.getKey());
+				PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cla.getValue()));
+				sc.put(sig, options.getScopes().get(cla));
+			}
+			for (Expr sig : modelstatesigs.values())
+				sc.put((PrimSig) sig,1);
+			sc.put(Sig.STRING, options.getSize());
+			System.out.println("SCOPE "+sc);
+			scopes = AlloyUtil.createScope(sc,true);
+		}
+
+	}
+	
 	/** Writes an Alloy solution in the target instance file 
 	 * @throws ErrorAlloy */
 	public void writeTargetInstance(A4Solution sol) throws Err, ErrorAlloy{
@@ -196,8 +215,8 @@ public class EMF2Alloy {
 		return deltaexpr;
 	}
 
-	public ConstList<CommandScope> getTargetScopes(){
-		return targetscopes;
+	public ConstList<CommandScope> getScopes(){
+		return scopes;
 	}
 	
 	public PrimSig getTargetStateSig(){

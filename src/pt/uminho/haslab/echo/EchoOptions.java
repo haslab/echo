@@ -1,5 +1,10 @@
 package pt.uminho.haslab.echo;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.AbstractMap.SimpleEntry;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -24,6 +29,14 @@ public class EchoOptions extends Options{
 				.create());
 		
 		this.addOption(OptionBuilder
+				.withDescription("number of elements of a given class")
+				.withLongOpt("scopes")
+				.withArgName("scopes")
+				.withValueSeparator(' ')
+				.hasArgs()
+				.create());
+
+		this.addOption(OptionBuilder
 				.withDescription("checkonly mode")
 				.withLongOpt("check")
 				.create("c"));
@@ -34,6 +47,13 @@ public class EchoOptions extends Options{
 				.withDescription("enforce mode")
 				.withLongOpt("enforce")
 				.create("e"));
+		
+		this.addOption(OptionBuilder
+				.hasArg()
+				.withArgName("size")
+				.withDescription("generate instances conformant to the metamodels")
+				.withLongOpt("generate")
+				.create("g"));
 
 		this.addOption(OptionBuilder
 				.withDescription("verbose output")
@@ -68,7 +88,7 @@ public class EchoOptions extends Options{
 				.withValueSeparator(' ')
 				.withLongOpt("models")
 				.hasArgs()
-				.isRequired(false)
+				.isRequired(true)
 				.withDescription("model files")
 				.create("m"));
 		
@@ -88,9 +108,16 @@ public class EchoOptions extends Options{
 		CommandLineParser parser = new PosixParser();
 		try {
 			cmd = parser.parse(this, args);
-			if (getModels() == null || getInstances() == null) throw new Exception();
-			if (isQVT() && !(isCheck() || isEnforce())) throw new Exception();
-			if (isCheck() && isEnforce()) throw new Exception();
+			if (!isGenerate() && cmd.getOptionValues("scopes") != null) 
+				throw new ErrorParser("Scopes only required for instance generation model.","CLI Parser");
+			if (isGenerate() && (isQVT() || isConformance() || cmd.getOptionValues("i") != null)) 
+				throw new ErrorParser("Cannot perform tests and generate instances.","CLI Parser");
+			if (getModels() == null) 
+				throw new ErrorParser("Metamodels required","CLI Parser");
+			if (isQVT() && !(isCheck() || isEnforce()))
+				throw new ErrorParser("Applying QVT transformation requires running mode.","CLI Parser");
+			if (isCheck() && isEnforce()) 
+				throw new ErrorParser("Choose either enforce or check mode.","CLI Parser");
 		} catch (Exception e) {
 			if (this.isHelp()) {}
 			else throw new ErrorParser(e.getMessage(),"CLI Parser");
@@ -129,10 +156,17 @@ public class EchoOptions extends Options{
 	public boolean isOptimize() {
 		return !cmd.hasOption("o");
 	}
-		
+	
+	public boolean isGenerate() {
+		return cmd.hasOption("g");
+	}
 		
 	public String getDirection() {
 		return cmd.getOptionValue("e");
+	}
+	
+	public Integer getSize() {
+		return Integer.parseInt(cmd.getOptionValue("g"));
 	}
 	
 	public String getQVTPath() {
@@ -144,8 +178,23 @@ public class EchoOptions extends Options{
 	}
 
 	public String[] getInstances() {
-		return cmd.getOptionValues("i");
+		String [] res = cmd.getOptionValues("i");
+		if (res == null) res = new String[0];
+		return res;
 	}
+	
+	public Map<Entry<String,String>,Integer> getScopes() {
+		Map<Entry<String,String>,Integer> res = new HashMap<Entry<String,String>,Integer>();
+		String[] args = cmd.getOptionValues("scopes");
+		if (args != null) {
+			for (int i = 0; i < args.length ; i++) {
+				String[] split = args[i].split("::");
+				res.put(new SimpleEntry<String,String>(split[0],split[1]),Integer.parseInt(args[++i]));
+			}
+		}
+		return res;
+	}
+
 
 	public Integer getMaxDelta() throws ErrorParser {
 		Integer delta = Integer.MAX_VALUE;

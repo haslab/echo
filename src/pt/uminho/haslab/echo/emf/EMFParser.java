@@ -44,7 +44,7 @@ import com.google.inject.Injector;
 public class EMFParser {
 
 	/** the Echo CLI options */
-	private EchoOptions options;
+	private final EchoOptions options;
 	/** the ECore resource set */
 	private ResourceSet resourceSet = new ResourceSetImpl();
 
@@ -107,7 +107,7 @@ public class EMFParser {
 			EPackage res = (EPackage) load_resource.getContents().get(0);
 			
 			resourceSet.getPackageRegistry().put(res.getNsURI(),res);
-			models.put(uri,res);
+			models.put(uri,res);			
 		}
 	}
 	
@@ -176,6 +176,7 @@ public class EMFParser {
 	public Collection<EPackage> getModels(){
 		return models.values();
 	}
+	
 	public List<EObject> getInstances(){
 		List<EObject> res = new ArrayList<EObject>();
 		for (String s : options.getInstances())

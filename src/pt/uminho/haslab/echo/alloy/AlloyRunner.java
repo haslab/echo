@@ -27,7 +27,7 @@ import edu.mit.csail.sdg.alloy4viz.VizGUI;
 public class AlloyRunner {
 	
 	/** the final command fact (model + delta)*/
-	private Expr finalfact;
+	private Expr finalfact = Sig.NONE.no();
 	/** all the Alloy signatures of the model*/
 	private List<Sig> allsigs = new ArrayList<Sig>(Arrays.asList(EMF2Alloy.STATE));
 	/** the current delta value*/
@@ -46,21 +46,21 @@ public class AlloyRunner {
 	/** the Alloy visualizer used to present instances */
 	private VizGUI viz = null;
 
-	private ConstList<CommandScope> targetscopes;
+	private ConstList<CommandScope> scopes;
 
 	/** Constructs a new Alloy Runner, that runs QVT transformations.
 	 * 
 	 * @param allsigs all the Alloy signatures of the model
 	 * @param modelfact the fact representing the model (instances + QVT)
 	 * @param deltaexpr the delta expression for the target model
-	 * @param targetscopes the signature scopes for the target model
+	 * @param scopes the signature scopes for the target model
 	 * @param path the path of the transformation
 	 */
 	public AlloyRunner (EMF2Alloy translator, EchoOptions eoptions) {
 		
 		this.eoptions = eoptions;
 		this.translator = translator;
-		this.targetscopes = translator.getTargetScopes();
+		this.scopes = translator.getScopes();
 		
 		allsigs.addAll(translator.getModelSigs());
 		for (Expr s : translator.getModelStateSigs()){
@@ -95,8 +95,8 @@ public class AlloyRunner {
 	
 			try {
 				Command cmd = new Command(false, 0, intscope, -1, finalfact);
-				targetscopes = AlloyUtil.incrementScopes(targetscopes);
-				cmd = cmd.change(targetscopes);
+				scopes = AlloyUtil.incrementScopes(scopes);
+				cmd = cmd.change(scopes);
 				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
 		} else throw new ErrorAlloy ("Maximum delta reached.","AlloyRunner");
@@ -122,7 +122,18 @@ public class AlloyRunner {
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
 	}
-	
+
+	/** Generates instances
+	 * @throws ErrorAlloy */
+	public void generate() throws ErrorAlloy {
+		finalfact = Sig.NONE.no();
+		try {
+			Command cmd = new Command(true, eoptions.getSize(), intscope, -1, finalfact);
+			cmd = cmd.change(scopes);
+			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
+	}
+
 	
 	/** Opens the Alloy visualizer and presents the current solution.*/
 	public void show() throws ErrorAlloy {
@@ -189,6 +200,6 @@ public class AlloyRunner {
 	 * @return this.targetscopes
 	 */
 	public ConstList<CommandScope> getScopes() {
-		return targetscopes;
+		return scopes;
 	}	
 }

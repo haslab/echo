@@ -31,6 +31,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class QVTRelation2Alloy {
 
+	private final EMF2Alloy translator;
+
 	/** the QVT Relation being transformed*/
 	private Relation rel;
 	/** the direction of the QVT Relation*/
@@ -38,8 +40,6 @@ public class QVTRelation2Alloy {
 	/** whether the QVT Relation is being called at top level or not
 	 * this is not the same as being a top relation */
 	private boolean top;
-	
-	EMF2Alloy translator;
 	
 	/** the root variables of the QVT Relation being translated*/
 	private List<VariableDeclaration> rootvariables = new ArrayList<VariableDeclaration>();
