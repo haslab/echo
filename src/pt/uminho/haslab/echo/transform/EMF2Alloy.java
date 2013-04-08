@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.transform;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,10 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -196,11 +204,53 @@ public class EMF2Alloy {
 	}
 	
 	/** Writes an Alloy solution in the target instance file 
-	 * @throws ErrorAlloy */
-	public void writeTargetInstance(A4Solution sol) throws Err, ErrorAlloy{
+	 * @throws ErrorAlloy 
+	 * @throws ErrorTransform */
+	public void writeTargetInstance(A4Solution sol) throws Err, ErrorAlloy, ErrorTransform{
 		String name = parser.getInstanceUri(options.getDirection());
 		XMI2Alloy inst = insttrads.get(name);
-		inst.writeXMIAlloy(sol,name,targetstatesig);
+		List<PrimSig> instsigs = inst.getSigList();
+		EObject rootobj = inst.getRootEObject();
+		PrimSig rootsig = inst.getSigFromEObject(rootobj);
+		
+		writeXMIAlloy(sol,name,rootsig,targetstatesig,inst.translator,instsigs);
+	}
+	
+	public void writeInstances(A4Solution sol) throws Err, ErrorAlloy, ErrorTransform{
+		for (String path : options.getModels()) {
+			EPackage pck = parser.getModelsFromUri(path);
+			String uri = path.replace(".ecore", ".xmi");
+			ECore2Alloy e2a = modeltrads.get(pck.getName());
+			List<EClass> topclass = parser.getTopObject(path);
+			if (topclass.size() != 1) throw new ErrorTransform("Could not resolve top class.","");
+			PrimSig sig = e2a.getSigFromEClass(topclass.get(0));
+			writeXMIAlloy(sol,uri,sig, e2a.getState(),e2a,null);
+		}
+	}
+	
+	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform {
+		
+		Alloy2XMI a2x = new Alloy2XMI(sol,rootatom,trad,state,options,instsigs);
+		
+		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
+		    "*", new  XMIResourceFactoryImpl());
+
+		Resource resource = resourceSet.createResource(URI.createURI(uri));
+		resource.getContents().add(a2x.getModel());
+
+		/*
+		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
+		* xsi:schemaLocation attribute in the document
+		*/
+		Map<Object,Object> options = new HashMap<Object,Object>();
+		options.put(XMIResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+		try{
+		     resource.save(options);
+		   }catch (IOException e) {
+		     e.printStackTrace();
+		   }
+		
 	}
 	
 	public Expr getInstanceFact(){

@@ -52,6 +52,8 @@ public class Echo {
 		translator.translateModels();
 
 		printer.print("Model signatures: ");
+
+		parser.getTopObject("examples/UML2RDBMS/UML.ecore");
 		
 		if(!options.isGenerate()) {
 			printer.printTitle("Processing Instances.");
@@ -112,21 +114,25 @@ public class Echo {
 			printer.printForce("Instance found for delta "+alloyrunner.getDelta()+" ("+timer.getTime("Enforce")+"ms).");
 		}
 		if ((options.isEnforce() || options.isGenerate()) && alloyrunner.getSolution().satisfiable()) {
+			if (options.isEnforce()) {
+				String sb = parser.backUpTarget();
+				printer.print("Backup file created: " + sb);	
+			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			String end = "y";
 			while (alloyrunner.getSolution().satisfiable()&&end.equals("y")) {
 				alloyrunner.show();
-				if(options.isOverwrite()) {
-					String sb = parser.backUpTarget();
-					printer.print("Backup file created: " + sb);
+				if(options.isEnforce()&&options.isOverwrite())
 					translator.writeTargetInstance(alloyrunner.getSolution());
-				}
+				else if (options.isGenerate())
+					translator.writeInstances(alloyrunner.getSolution());	
 				printer.printForce("Search another instance? (y)");
 				alloyrunner.nextInstance();
 				end = in.readLine(); 
 			}
 			in.close();
 			alloyrunner.closeViz();
+
 			if (end.equals("y")) printer.printForce("No more instances.");
 		}
 		printer.printForce("Bye ("+timer.getTotalTime()+"ms).");

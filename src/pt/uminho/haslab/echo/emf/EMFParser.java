@@ -12,8 +12,11 @@ import java.util.Map;
 import java.util.Scanner;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -184,6 +187,10 @@ public class EMFParser {
 		return res;
 	}
 
+	public EPackage getModelsFromUri(String uri){
+		return models.get(uri);
+	}
+
 	public EObject getInstanceFromUri(String uri){
 		return instances.get(uri);
 	}
@@ -192,6 +199,19 @@ public class EMFParser {
 		return instances.get(argpaths.inverse().get(arg));
 	}
 
+	public List<EClass> getTopObject(String m) {
+		EPackage pck = models.get(m);
+		List<EClass> classes = new ArrayList<EClass>();
+		for (EClassifier obj : pck.getEClassifiers())
+			if (obj instanceof EClass) classes.add((EClass) obj);
+		List<EClass> candidates = new ArrayList<EClass>(classes);
+			
+		for (EClass obj : classes) {
+			for (EReference ref : obj.getEReferences())
+				if (ref.isContainment()) candidates.remove(ref.getEReferenceType());
+		}			
+		return candidates;
+	}
 	
 	public String backUpTarget(){
 		String dir = getInstanceUri(options.getDirection());

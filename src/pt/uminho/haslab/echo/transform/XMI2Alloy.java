@@ -44,12 +44,12 @@ public class XMI2Alloy {
 	private List<PrimSig> sigList = new ArrayList<PrimSig>();
 	private Expr factExpr = null; 
 	
-	private final ECore2Alloy e2a;
+	public final ECore2Alloy translator;
 	
 	public XMI2Alloy(EObject obj,ECore2Alloy t, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		eObj = obj;
-		e2a = t;
+		translator = t;
 		state = stateSig;
 		initContent();
 		makeSigList(eObj);
@@ -67,14 +67,14 @@ public class XMI2Alloy {
 	// initializes relations to n-ary none
 	private void initContent()
 	{
-		for(Expr f: e2a.getStateFields()) {
+		for(Expr f: translator.getStateFields()) {
 			mapContent.put(f,Sig.NONE);}
-		for(EStructuralFeature sf: e2a.getSFeatures()){
+		for(EStructuralFeature sf: translator.getSFeatures()){
 			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
 			else if(sf.getEType().getName().equals("EBoolean"))
-				mapContent.put(e2a.getFieldFromSFeature(sf),Sig.NONE);
+				mapContent.put(translator.getFieldFromSFeature(sf),Sig.NONE);
 			else
-				mapContent.put(e2a.getFieldFromSFeature(sf),Sig.NONE.product(Sig.NONE));}
+				mapContent.put(translator.getFieldFromSFeature(sf),Sig.NONE.product(Sig.NONE));}
 	}
 
 	
@@ -133,7 +133,7 @@ public class XMI2Alloy {
 		//List<Sig> listSiblings;
 		Expr aux = null;
 		Object eG;
-		PrimSig parent = e2a.getSigFromEClass(it.eClass());
+		PrimSig parent = translator.getSigFromEClass(it.eClass());
 		PrimSig res;
 		try {res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);}
 		catch (Err a) {throw new ErrorAlloy(a.getMessage(),"XMI2Alloy",parent);}
@@ -141,14 +141,14 @@ public class XMI2Alloy {
 		/*listSiblings = mapContents.get(parent);
 		listSiblings.add(res);*/
 		
-		fieldState = e2a.getStateFieldFromSig(parent);
+		fieldState = translator.getStateFieldFromSig(parent);
 		siblings = mapContent.get(fieldState);
 
 		siblings = siblings.plus(res);
 		mapContent.put(fieldState,siblings);
 		PrimSig up = parent.parent;
 		while (up != Sig.UNIV && up != null){
-			Expr fieldStateup = e2a.getStateFieldFromSig(up);
+			Expr fieldStateup = translator.getStateFieldFromSig(up);
 			Expr siblingsup = mapContent.get(fieldStateup);			
 			siblingsup = siblingsup.plus(res);
 			mapContent.put(fieldStateup,siblingsup);
@@ -160,7 +160,7 @@ public class XMI2Alloy {
 		List<EStructuralFeature> sfList = it.eClass().getEAllStructuralFeatures();
 		for(EStructuralFeature sf: sfList)
 		{
-			field = e2a.getFieldFromSFeature(sf);
+			field = translator.getFieldFromSFeature(sf);
 			eG = it.eGet(sf);
 			if (sf instanceof EReference) {
 				if(eG instanceof EList<?>) {
@@ -203,7 +203,7 @@ public class XMI2Alloy {
 			}
 		}else if(obj instanceof EEnumLiteral)
 		{
-			manos = manos.plus(it.product(e2a.getSigFromEEnumLiteral((EEnumLiteral)obj)));
+			manos = manos.plus(it.product(translator.getSigFromEEnumLiteral((EEnumLiteral)obj)));
 			mapContent.put(field, manos);
 		}else if(obj instanceof String)
 		{
@@ -220,29 +220,7 @@ public class XMI2Alloy {
 		}else throw new ErrorUnsupported("Primitive type for attribute not supported.","XMI2Alloy",obj.toString());
 	}
 	
-	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig state) throws ErrorAlloy {
-		Alloy2XMI a2x = new Alloy2XMI(sol,this,e2a,state);
-		
-		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
-		    "*", new  XMIResourceFactoryImpl());
 
-		Resource resource = resourceSet.createResource(URI.createURI(uri));
-		resource.getContents().add(a2x.getModel());
-
-		/*
-		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
-		* xsi:schemaLocation attribute in the document
-		*/
-		Map<Object,Object> options = new HashMap<Object,Object>();
-		options.put(XMIResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
-		try{
-		     resource.save(options);
-		   }catch (IOException e) {
-		     e.printStackTrace();
-		   }
-		
-	}
 
 	
 }
