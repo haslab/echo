@@ -8,6 +8,9 @@ public class ErrorAlloy extends Exception {
 	private Expr object;
 	private String trans;
 
+
+	public ErrorAlloy(String msg) { super(msg); }
+
 	public ErrorAlloy(String msg, String trans) { super(msg); this.trans = trans; }
 
 	public ErrorAlloy(String msg, String trans, Expr obj) { 

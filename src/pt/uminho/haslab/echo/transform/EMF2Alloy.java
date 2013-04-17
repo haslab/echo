@@ -19,6 +19,10 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -26,6 +30,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.cli.CLIOptions;
 import pt.uminho.haslab.echo.emf.EMFParser;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -41,6 +46,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
@@ -50,8 +56,6 @@ public class EMF2Alloy {
 
 	/** the parsed EMF resources */
 	public final EMFParser parser;
-	/** the echo run options */
-	public final EchoOptions options;
 
 	/** maps metamodels to the respective state signatures (should be "abstract")*/
 	private Map<String,Expr> modelstatesigs = new HashMap<String,Expr>();
@@ -62,6 +66,10 @@ public class EMF2Alloy {
 	/** maps instances to the respective Alloy translator*/
 	private Map<String,XMI2Alloy> insttrads = new HashMap<String,XMI2Alloy>();
 
+	private Map<String,QVTTransformation2Alloy> qvttrads = new HashMap<String,QVTTransformation2Alloy>();
+	
+	public final EchoOptions options;
+
 	/** the abstract top level state sig */
     public static final PrimSig STATE;
     static{
@@ -71,167 +79,111 @@ public class EMF2Alloy {
     	STATE = s;
     }
     
-	/** the complete Alloy fact defining the instance models */
-	private Expr instancefact = Sig.NONE.no();
-	/** the Alloy fact denoting the QVT relations (true if not enforce mode) */
-	private Expr qvtfact = Sig.NONE.no();
 	/** the initial command scopes of the target instance 
 	 * only these need be increased in enforce mode, null if not enforce mode */
 	private ConstList<CommandScope> scopes;
 	/** the Alloy expression denoting the delta function (true if not enforce mode) */
 	private Expr deltaexpr = Sig.NONE.no();
-	/** the target state signature (true if not enforce mode) */
-	private PrimSig targetstatesig = null;
-
+	
 	/**
 	 * Constructs a new EMF to Alloy translator
 	 * @param parser the parsed EMF resources
 	 * @param options the Echo run options
 	 */
-	public EMF2Alloy(EMFParser parser,EchoOptions options) throws ErrorAlloy, ErrorTransform{
+	public EMF2Alloy(EMFParser parser, EchoOptions options) throws ErrorAlloy, ErrorTransform{
 		this.parser = parser;
 		this.options = options;
-		
-		createModelStateSigs();
-		createInstanceStateSigs();
 	}
+
 	
 	/** Translates ECore metamodels to the respective Alloy specs */
-	public void translateModels() throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		for (EPackage epck : parser.getModels()) {
-			ECore2Alloy mmtrans = new ECore2Alloy(epck,(PrimSig) modelstatesigs.get(epck.getName()),this);
-			modeltrads.put(epck.getName(),mmtrans);
-			mmtrans.translate();
-		}	
+	public void translateModel(EPackage pck) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+		ECore2Alloy mmtrans = new ECore2Alloy(pck,(PrimSig) modelstatesigs.get(pck.getName()),this);
+		modeltrads.put(pck.getName(),mmtrans);
+		mmtrans.translate();
 	}
 
 	/** Translates XMI instances to the respective Alloy specs */
-	public void translateInstances() throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		for (EObject obj: parser.getInstances()) {
-			String mdl = obj.eClass().getEPackage().getName();
-			PrimSig state = inststatesigs.get(obj.eResource().getURI().toString());
-			ECore2Alloy mmtrans = modeltrads.get(mdl);			
-			XMI2Alloy insttrans = new XMI2Alloy(obj,mmtrans,state);
-			insttrads.put(obj.eResource().getURI().toString(),insttrans);
-			instancefact = AlloyUtil.cleanAnd(instancefact,insttrans.getFact());
-		}
+	public void translateInstance(EObject obj) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+		String mdl = obj.eClass().getEPackage().getName();
+		PrimSig state = inststatesigs.get(obj.eResource().getURI().toString());
+		ECore2Alloy mmtrans = modeltrads.get(mdl);			
+		XMI2Alloy insttrans = new XMI2Alloy(obj,mmtrans,state);
+		insttrads.put(obj.eResource().getURI().toString(),insttrans);
 	}
 	
-	/** Translates the QVT transformation to the respective Alloy specs */
-	public void translateQVT() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		String name = parser.getInstanceUri(options.getDirection());
-		PrimSig back = inststatesigs.get(name);
-		if (options.isEnforce()) {
-			createTargetStateSig();
-			ECore2Alloy mmtrans =  modeltrads.get(back.parent.label);
-			deltaexpr = mmtrans.getDeltaExpr(targetstatesig,back);
-			inststatesigs.put(name,targetstatesig);
-			PrimSig mdl = targetstatesig.parent;
-			
-			Expr sourcemdlnosource = null;
-			try{
-				for (PrimSig s : mdl.descendents())
-					if (!s.equals(back)) 
-						if (sourcemdlnosource != null) sourcemdlnosource = sourcemdlnosource.plus(s);
-						else sourcemdlnosource = s;
-			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",targetstatesig); }
-
-			modelstatesigs.put(mdl.label, sourcemdlnosource);
-			
-		}
-		QVTTransformation2Alloy qvtrans = new QVTTransformation2Alloy(this,parser.getTransformation());
-		if (options.isEnforce()) {
-			inststatesigs.put(name,back);
-			modelstatesigs.put(targetstatesig.parent.label, targetstatesig.parent);
-		}
-		
-		Map<String,Expr> qvtfacts = qvtrans.getFact();
-		for (String e : qvtfacts.keySet()){
-			qvtfact = AlloyUtil.cleanAnd(qvtfact, qvtfacts.get(e));
-		}	
+	/** Translates the QVT transformation to the respective Alloy specs 
+	 * @throws Err */
+	public void translateQVT(String uri) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
+		QVTTransformation2Alloy qvtrans = new QVTTransformation2Alloy(this,parser.getTransformation(uri));		
+		qvttrads.put(uri, qvtrans);
 	}
 	
     /** Creates the metamodels abstract state signatures */
-	private void createModelStateSigs() throws ErrorAlloy, ErrorTransform {
+	public void createModelStateSigs(EPackage mdl) throws ErrorAlloy, ErrorTransform {
 		PrimSig s = null;
-		for (EPackage mdl : parser.getModels()){
-			try {
-				s = new PrimSig(mdl.getName(),STATE,Attr.ABSTRACT);
-				modelstatesigs.put(s.label, s);
-			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
-		}
+		try {
+			s = new PrimSig(mdl.getName(),STATE,Attr.ABSTRACT);
+			modelstatesigs.put(s.label, s);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
 	}
 	
     /** Creates the instances singleton state signatures */
-	private void createInstanceStateSigs() throws ErrorAlloy, ErrorTransform {
-		for (EObject obj : parser.getInstances()){
-			String uri = obj.eResource().getURI().toString();
-			String pck = obj.eClass().getEPackage().getName();
-			try {
-				String name = parser.getInstanceArgName(uri);
-				PrimSig s = new PrimSig(name,(PrimSig) modelstatesigs.get(pck),Attr.ONE);
-				inststatesigs.put(uri, s);
-			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil"); }
+	public void createInstanceStateSigs(EObject inst) throws ErrorAlloy, ErrorTransform {
+		String uri = inst.eResource().getURI().toString();
+		String pck = inst.eClass().getEPackage().getName();
+		try {
+			String name = uri;
+			PrimSig s = new PrimSig(name,(PrimSig) modelstatesigs.get(pck),Attr.ONE);
+			inststatesigs.put(uri, s);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil"); }
+	}
+		
+	/*
+	public void createScopesFromTargetInstance(String trguri) throws ErrorAlloy {
+		XMI2Alloy i2a = insttrads.get(trguri);
+		if (i2a != null) {
+			List<PrimSig> modelsigs = i2a.translator.getSigList();
+			scopes = AlloyUtil.createScopeFromSigs(modelsigs, i2a.getSigMap());
+		} else {
+			List<PrimSig> modelsigs = modeltrads.get(targetstatesig.parent.label).getSigList();
+			scopes = AlloyUtil.createScopeFromSigs(modelsigs, new HashMap<String,List<PrimSig>>());	
 		}
+	}*/
+	
+	public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopes) throws ErrorAlloy {
+		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
+		for (Entry<String,String> cla : scopes.keySet()) {
+			ECore2Alloy e2a = modeltrads.get(cla.getKey());
+			PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cla.getValue()));
+			sc.put(sig, scopes.get(cla));
+		}
+		for (Expr sig : modelstatesigs.values())
+			sc.put((PrimSig) sig,1);
+		sc.put(Sig.STRING, overall);
+		this.scopes = AlloyUtil.createScope(sc,true);
 	}
 	
-    /** Creates the singleton target state */
-	private void createTargetStateSig() throws ErrorAlloy{
-		PrimSig sig = inststatesigs.get(parser.getInstanceUri(options.getDirection()));
-		try{
-			targetstatesig = new PrimSig(AlloyUtil.targetName(options.getDirection()),sig.parent,Attr.ONE);
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",sig); }
-	}
-	
-	public void createScopes() throws ErrorAlloy {
-		if (options.isQVT()) {
-			String trg = parser.getInstanceUri(options.getDirection());
-			XMI2Alloy i2a = insttrads.get(trg);
-			if (i2a != null) {
-				List<PrimSig> modelsigs = i2a.translator.getSigList();
-				scopes = AlloyUtil.createScopeFromSigs(modelsigs, i2a.getSigMap());
-			} else {
-				List<PrimSig> modelsigs = modeltrads.get(targetstatesig.parent.label).getSigList();
-				scopes = AlloyUtil.createScopeFromSigs(modelsigs, new HashMap<String,List<PrimSig>>());	
-			}
-		} else if (options.isGenerate()) {
-			Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
-			for (Entry<String,String> cla : options.getScopes().keySet()) {
-				ECore2Alloy e2a = modeltrads.get(cla.getKey());
-				PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cla.getValue()));
-				sc.put(sig, options.getScopes().get(cla));
-			}
-			for (Expr sig : modelstatesigs.values())
-				sc.put((PrimSig) sig,1);
-			sc.put(Sig.STRING, options.getSize());
-			scopes = AlloyUtil.createScope(sc,true);
-		}
-
-	}
 	
 	/** Writes an Alloy solution in the target instance file 
 	 * @throws ErrorAlloy 
 	 * @throws ErrorTransform */
-	public void writeTargetInstance(A4Solution sol) throws Err, ErrorAlloy, ErrorTransform{
-		String name = parser.getInstanceUri(options.getDirection());
-		XMI2Alloy inst = insttrads.get(name);
+	/*public void writeTargetInstance(A4Solution sol,String trguri) throws Err, ErrorAlloy, ErrorTransform{
+		XMI2Alloy inst = insttrads.get(trguri);
 		List<PrimSig> instsigs = inst.getSigList();
 		EObject rootobj = inst.getRootEObject();
 		PrimSig rootsig = inst.getSigFromEObject(rootobj);
-		
-		writeXMIAlloy(sol,name,rootsig,targetstatesig,inst.translator,instsigs);
-	}
+		writeXMIAlloy(sol,trguri,rootsig,targetstatesig,inst.translator,instsigs);
+	}*/
 	
-	public void writeInstances(A4Solution sol) throws Err, ErrorAlloy, ErrorTransform{
-		for (String path : options.getModels()) {
-			EPackage pck = parser.getModelsFromUri(path);
-			String uri = path.replace(".ecore", ".xmi");
-			ECore2Alloy e2a = modeltrads.get(pck.getName());
-			List<EClass> topclass = parser.getTopObject(path);
-			if (topclass.size() != 1) throw new ErrorTransform("Could not resolve top class.","");
-			PrimSig sig = e2a.getSigFromEClass(topclass.get(0));
-			writeXMIAlloy(sol,uri,sig, e2a.getState(),e2a,null);
-		}
+	public void writeInstances(A4Solution sol, String mdluri) throws Err, ErrorAlloy, ErrorTransform{
+		EPackage pck = parser.getModelsFromUri(mdluri);
+		String uri = mdluri.replace(".ecore", ".xmi");
+		ECore2Alloy e2a = modeltrads.get(pck.getName());
+		List<EClass> topclass = parser.getTopObject(mdluri);
+		if (topclass.size() != 1) throw new ErrorTransform("Could not resolve top class.","");
+		PrimSig sig = e2a.getSigFromEClass(topclass.get(0));
+		writeXMIAlloy(sol,uri,sig, e2a.getState(),e2a,null);
 	}
 	
 	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform {
@@ -259,14 +211,18 @@ public class EMF2Alloy {
 		
 	}
 	
-	public Expr getInstanceFact(){
-		return instancefact;
+	public Expr getInstanceFact(String uri){
+		return insttrads.get(uri).getFact();
 	}
 
-	public Expr getQVTFact(){
-		return qvtfact;
+	public Func getQVTFact(String uri) {
+		return qvttrads.get(uri).getFunc();
 	}
-
+	
+	public RelationalTransformation getQVTTransformation(String uri) {
+		return qvttrads.get(uri).getQVTTransformation();
+	}
+	
 	public Expr getDeltaFact(){
 		return deltaexpr;
 	}
@@ -274,53 +230,37 @@ public class EMF2Alloy {
 	public ConstList<CommandScope> getScopes(){
 		return scopes;
 	}
-	
-	public PrimSig getTargetStateSig(){
-		return targetstatesig;
-	}
-	
-	public List<PrimSig> getModelSigs(){
-		List<PrimSig> aux = new ArrayList<PrimSig>();
-		for (ECore2Alloy x : modeltrads.values())
-			aux.addAll(x.getSigList());
-		return aux;
-	}
-	
-	public List<PrimSig> getModelSigs(String s){
-		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(s).getSigList());
-		return aux;
-	}
 
-	public Collection<PrimSig> getInstanceSigs(){
-		List<PrimSig> aux = new ArrayList<PrimSig>();
-		for (XMI2Alloy x : insttrads.values())
-			aux.addAll(x.getSigList());
+	
+	public List<PrimSig> getModelSigsFromName(String uri){
+		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(uri).getSigList());
 		return aux;
-	}
+	}	
 
-	public List<Expr> getModelStateSigs(){
-		return new ArrayList<Expr>(modelstatesigs.values());
+	public List<PrimSig> getModelSigsFromURI(String uri){
+		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(parser.getModelsFromUri(uri).getName()).getSigList());
+		return aux;
+	}	
+
+	public Collection<PrimSig> getInstanceSigs(String uri){
+		List<PrimSig> aux = new ArrayList<PrimSig>(insttrads.get(uri).getSigList());
+		return aux;
 	}
 
 	public Expr getModelStateSig(String mm){
 		return modelstatesigs.get(mm);
 	}
 	
-	public List<PrimSig> getInstanceStateSigs(){
-		List<PrimSig> aux = new ArrayList<PrimSig>(inststatesigs.values());
-		return aux;
-	}
-	
 	public PrimSig getInstanceStateSigFromURI (String uri){
 		return inststatesigs.get(uri);
 	}
 
-	public PrimSig getInstanceStateSigFromArg (String arg){
-		return inststatesigs.get(parser.getInstanceUri(arg));
-	}
-
 	public ECore2Alloy getModelTranslator (String mdl) {
 		return modeltrads.get(mdl);
+	}
+
+	public XMI2Alloy getInstanceTranslator (String uri) {
+		return insttrads.get(uri);
 	}
 
 

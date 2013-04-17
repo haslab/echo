@@ -1,23 +1,36 @@
 package pt.uminho.haslab.echo.transform;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
 import org.eclipse.qvtd.pivot.qvtbase.Transformation;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
 
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import edu.mit.csail.sdg.alloy4compiler.ast.Func;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class QVTTransformation2Alloy {
 
 	/** the Alloy expression rising from this QVT Transformation*/
-	public final Map<String,Expr> fact = new HashMap<String,Expr>();
+	private Func func;
+	private RelationalTransformation qvt;
 	
 	/** Constructs a new QVT Transformation to Alloy translator.
 	 * A {@code QVTRelation2Alloy} is called for every top QVT Relation and direction.
@@ -29,25 +42,50 @@ public class QVTTransformation2Alloy {
 	 * @throws ErrorTransform, 
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
+	 * @throws Err 
 	 */
-	public QVTTransformation2Alloy (EMF2Alloy translator, Transformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public QVTTransformation2Alloy (EMF2Alloy translator, RelationalTransformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
+		Expr fact = Sig.NONE.no();
+		this.qvt = qvt;
+		Map<String,Decl> argsdecls = new HashMap<String, Decl>();
+		List<Decl> decls = new ArrayList<Decl>();
+		List<ExprHasName> vars = new ArrayList<ExprHasName>();
+		for (TypedModel mdl : qvt.getModelParameter()) {
+			Decl d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName());
+			argsdecls.put(mdl.getName(), d);
+			decls.add(d);
+			vars.add(d.get());
+		}
 		for (Rule rel : qvt.getRule())
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else if (((Relation) rel).isIsTopLevel()) {
-				for (TypedModel mdl : qvt.getModelParameter()) {
-					//TypedModel mdl = qvt.getModelParameter().get(0);
-					QVTRelation2Alloy trans = new QVTRelation2Alloy((Relation) rel,mdl,true,translator);
-					fact.put(rel.getName()+"_"+mdl.getName(),trans.getFact());
-				}
+
+				//for (TypedModel mdl : qvt.getModelParameter()) {
+				TypedModel mdl = qvt.getModelParameter().get(0);
+						QVTRelation2Alloy trans = new QVTRelation2Alloy(null,(Relation)rel,mdl,true,translator);
+					fact = fact.and(trans.getFunc().call(vars.toArray(new ExprVar[vars.size()])));
+					for (Func f : trans.getFieldFunc()) {
+
+						fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
+					}
+				//}
 			}
+		func = new Func(null, qvt.getName(), decls, null, fact);		
+		
+		System.out.println("GOOO "+fact);
+
 	}
 	
 	/** Returns the Alloy fact corresponding to this QVT Transformation
 	 * 
 	 * @return this.fact
 	 */	
-	public Map<String,Expr> getFact() {
-		return fact;
+	public Func getFunc() {
+		return func;
+	}
+
+	public RelationalTransformation getQVTTransformation() {
+		return qvt;
 	}
 
 }

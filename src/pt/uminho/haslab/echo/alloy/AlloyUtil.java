@@ -109,6 +109,18 @@ public class AlloyUtil {
 		return ConstList.make(list);
 	}
 	
+	public static ConstList<CommandScope> incrementStringScopes (List<CommandScope> scopes) throws ErrorAlloy {
+		List<CommandScope> list = new ArrayList<CommandScope>();
+		
+		for (CommandScope scope : scopes)
+			try {
+				if (scope.sig.label.equals("String")) list.add(new CommandScope(scope.sig, true, scope.startingScope+1));
+				else list.add(new CommandScope(scope.sig, false, scope.startingScope));
+			} catch (ErrorSyntax e) { throw new ErrorAlloy(e.getMessage(), "AlloyUtil");}
+
+		return ConstList.make(list);
+	}
+
 	public static List<Decl> ordDecls (List<Decl> decls){
 		List<Decl> res = new ArrayList<Decl>();
 		int last = decls.size()+1;

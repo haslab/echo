@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -23,6 +24,8 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
+import com.sun.tracing.dtrace.ArgsAttributes;
+
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -33,6 +36,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
@@ -42,10 +47,14 @@ public class OCL2Alloy {
 
 	private TypedModel modelvar;
 	private Set<Decl> vardecls;
-
-	public OCL2Alloy(TypedModel modelvar, EMF2Alloy translator, Set<Decl> vardecls) {
+	private List<ExprHasName> argsvars;
+	private QVTRelation2Alloy parentq;
+	
+	public OCL2Alloy(QVTRelation2Alloy q2a, TypedModel modelvar, EMF2Alloy translator, Set<Decl> vardecls, List<ExprHasName> argsvars) {
 		this (translator,vardecls);
-		this.modelvar = modelvar;		
+		this.parentq = q2a;
+		this.modelvar = modelvar;	
+		this.argsvars = argsvars;
 	}
 	
 	public OCL2Alloy(EMF2Alloy translator, Set<Decl> vardecls) {
@@ -77,7 +86,7 @@ public class OCL2Alloy {
 		return ExprConstant.makeNUMBER(n.intValue());
 	}
 
-	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 		Expr result = Sig.NONE.no();
 		
 		for (PropertyTemplateItem part: temp.getPart()) {
@@ -86,7 +95,7 @@ public class OCL2Alloy {
 			Expr ocl = this.oclExprToAlloy(value);
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
-			Expr localfield = propertyToField(prop, translator);
+			Expr localfield = propertyToField(prop);
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
@@ -126,13 +135,16 @@ public class OCL2Alloy {
 		return result;
 	}
 	
-	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 		if (modelvar == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
-		QVTRelation2Alloy trans = new QVTRelation2Alloy (expr.getReferredRelation(), modelvar, false, translator);
+		QVTRelation2Alloy trans = new QVTRelation2Alloy (parentq,expr.getReferredRelation(), modelvar, false, translator);
+
+		Func func = trans.getFunc();
+		Expr res = func.call(argsvars.toArray(new ExprHasName[argsvars.size()]));
+		
+		
 		List<OCLExpression> vars = expr.getArgument();
 		List<Expr> avars = new ArrayList<Expr>();
-		
-		Expr res = trans.getField();
 		for (OCLExpression var : vars){
 			Expr avar = oclExprToAlloy(var);
 			avars.add(avar);
@@ -147,7 +159,7 @@ public class OCL2Alloy {
 		return res;
 	}
 
-	public Expr oclExprToAlloy (IfExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (IfExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 		Expr res = null;
 		
 		Expr eif = oclExprToAlloy(expr.getCondition());
@@ -158,13 +170,13 @@ public class OCL2Alloy {
 		return res;
 	}
 	
-	public Expr oclExprToAlloy (IteratorExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (IteratorExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 		Expr res = null;
 		
 		List<Variable> variterator = expr.getIterator();
 		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure.","OCL2Alloy",variterator);
 
-		Decl d = variableListToExpr(new HashSet<Variable>(variterator),true,translator).iterator().next();
+		Decl d = variableListToExpr(new HashSet<Variable>(variterator),true).iterator().next();
 
 		vardecls.add(d);
 		Expr src = oclExprToAlloy(expr.getSource());
@@ -207,14 +219,14 @@ public class OCL2Alloy {
 		return res;
 	}
 	
-	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 		Expr res = null;
-		Expr aux = propertyToField(expr.getReferredProperty(), translator);
+		Expr aux = propertyToField(expr.getReferredProperty());
 		res = oclExprToAlloy(expr.getSource()).join(aux);	
 		return res;
 	}
 	
-	public Expr oclExprToAlloy (OperationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (OperationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 		Expr res = null; 
 
 		Expr src = oclExprToAlloy(expr.getSource());
@@ -267,7 +279,7 @@ public class OCL2Alloy {
 	}
 
 	
-	public Expr oclExprToAlloy (OCLExpression expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (OCLExpression expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);
@@ -282,14 +294,18 @@ public class OCL2Alloy {
 
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	public Expr propertyToField (Property prop, EMF2Alloy translator) {
+	public Expr propertyToField (Property prop) throws Err {
 		String mdl = prop.getOwningType().getPackage().getName();
 		ECore2Alloy e2a = translator.getModelTranslator(mdl);
 		EStructuralFeature sf;
 		Expr exp;
-		Expr statesig;
-		if (modelvar != null)
-			statesig = translator.getInstanceStateSigFromArg(modelvar.getName());
+		Expr statesig = null;
+		if (modelvar != null) {
+			for (ExprHasName v : argsvars) {
+				if (v.label.startsWith(modelvar.getName()))
+						statesig = v;
+			}
+		}
 		else
 			statesig = translator.getModelStateSig(mdl);
 		if (prop.getOpposite() != null && prop.getOpposite().isComposite() && translator.options.isOptimize()) {
@@ -300,20 +316,23 @@ public class OCL2Alloy {
 			sf = e2a.getSFeatureFromName(prop.getName(),prop.getOwningType().getName());
 			exp = (e2a.getFieldFromSFeature(sf).join(statesig));			
 		}
-		System.out.println("DEBUG "+exp);
 		if (exp == null) throw new Error ("Field not found: "+AlloyUtil.pckPrefix(mdl,prop.getName()));
 		return exp;
 	}
 	
 	// creates a list of Alloy declarations from a list of OCL variables
-		public static Collection<Decl> variableListToExpr (Collection<? extends VariableDeclaration> ovars, boolean set, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy {
+		public Collection<Decl> variableListToExpr (Collection<? extends VariableDeclaration> ovars, boolean set) throws ErrorTransform, ErrorAlloy, Err {
 			Collection<Decl> avars = set?(new HashSet<Decl>()):(new ArrayList<Decl>());
 			
 			for (VariableDeclaration ovar : ovars) {
 				Sig range = Sig.NONE;
 				String mdl = ovar.getType().getPackage().getName();
 				Expr state = translator.getModelStateSig(mdl);
-
+				if (argsvars != null)
+					for (ExprHasName x : argsvars)
+						if(x.type().toExpr().equals(state))
+							state = x;
+					
 				String type = ovar.getType().getName();
 				try {
 					if (type.equals("String")) {
@@ -321,10 +340,11 @@ public class OCL2Alloy {
 					avars.add(range.oneOf(ovar.getName()));
 					}
 					else  {
-						List<PrimSig> sigs = translator.getModelSigs(mdl);
+						List<PrimSig> sigs = translator.getModelSigsFromName(mdl);
 						for (Sig s : sigs)
-							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) range = s;
-				
+							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) 
+								range = s;
+						System.out.println(range+":"+state);
 						if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs,"AlloyUtil",ovar);
 						Decl d = AlloyUtil.localStateSig(range,state).oneOf(ovar.getName()); 
 						avars.add(d);
@@ -342,8 +362,9 @@ public class OCL2Alloy {
 		 * @throws ErrorTransform
 		 * @throws ErrorAlloy
 		 * @throws ErrorUnsupported
+		 * @throws Err 
 		 */
-		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
 			Expr res = Sig.NONE.no();
 			OperationCallExp a = null,b = null;
 			if (((OperationCallExp)x).getReferredOperation().getName().equals("includes") && 
@@ -367,7 +388,7 @@ public class OCL2Alloy {
 					a1.getReferredVariable().equals(b2.getReferredVariable())) || 
 					(a2.getReferredVariable().equals(b2.getReferredVariable()) && 
 					a1.getReferredVariable().equals(b1.getReferredVariable()))) {
-				Decl d = variableListToExpr(new HashSet<Variable>(it.getIterator()),true,translator).iterator().next();
+				Decl d = variableListToExpr(new HashSet<Variable>(it.getIterator()),true).iterator().next();
 				try{
 					vardecls.add(d);
 					Expr bdy = oclExprToAlloy(it.getBody());

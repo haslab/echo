@@ -40,6 +40,7 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.cli.CLIOptions;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -47,7 +48,7 @@ import com.google.inject.Injector;
 
 public class EMFParser {
 
-	/** the Echo CLI options */
+	/** the Echo options */
 	private final EchoOptions options;
 	/** the ECore resource set */
 	private ResourceSet resourceSet = new ResourceSetImpl();
@@ -57,16 +58,14 @@ public class EMFParser {
 	/** the loaded instances (key is the XMI file uri) */
 	private Map<String,EObject> instances = new HashMap<String,EObject>();
 	/** the loaded QVT-R transformation */
-	private RelationalTransformation transformation;
-	/** maps the XMI instance paths into the QVT-R argument names (if any)  */
-	private BiMap<String,String> argpaths;
+	private Map<String,RelationalTransformation> transformations = new HashMap<String, RelationalTransformation>();
 	private BiMap<String,String> modelpaths;
 
 	
 	public EMFParser(EchoOptions options){
 		/*
 		// register Pivot globally
-		org.eclipse.ocl.examples.pivot.OCL.initialize(resourceSet);
+		org.eclipse.ocl.examples.pivot.OCL.kialize(resourceSet);
 
 		String oclDelegateURI = OCLDelegateDomain.OCL_DELEGATE_URI_PIVOT;
 		EOperation.Internal.InvocationDelegate.Factory.Registry.INSTANCE.put(oclDelegateURI,
@@ -89,40 +88,38 @@ public class EMFParser {
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*",new XMIResourceFactoryImpl());
 	
 		this.options = options;
+		modelpaths = HashBiMap.create();
+
 	}
 	
 	/**
-	 * Loads the EObjects from the CLI arguments
+	 * Loads the EObject its uri
 	 */
-	public void loadInstances() {
-		for (int i = 0; i<options.getInstances().length; i++) {
-			String uri = options.getInstances()[i];
-			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
-			EObject res = load_resource.getContents().get(0);
-			instances.put(uri,res);
-		}
+	public EObject loadInstance(String uri) {
+		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
+		EObject res = load_resource.getContents().get(0);
+		instances.put(uri,res);
+		return res;
 	}
 
 	/**
-	 * Loads the EPackages from the CLI arguments
+	 * Loads the EPackages its uri
 	 */
-	public void loadModels() {
-		modelpaths = HashBiMap.create();
-
-		for (String uri : options.getModels()) {
-			Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
-			EPackage res = (EPackage) load_resource.getContents().get(0);
-			
-			resourceSet.getPackageRegistry().put(res.getNsURI(),res);
-			models.put(uri,res);	
-			modelpaths.put(uri, res.getName());
-		}
+	public EPackage loadModel(String uri) {
+		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
+		EPackage res = (EPackage) load_resource.getContents().get(0);
+		
+		resourceSet.getPackageRegistry().put(res.getNsURI(),res);
+		models.put(uri,res);	
+		modelpaths.put(uri, res.getName());
+		
+		return res;
 	}
 	
 	/**
 	 * Loads the QVT specification from the CLI argument
 	 */
-	public RelationalTransformation loadQVT() throws ErrorParser {
+	public RelationalTransformation loadQVT(String uri) throws ErrorParser {
 		CS2PivotResourceAdapter adapter = null;
 
 		QVTrelationStandaloneSetup.doSetup();
@@ -132,7 +129,7 @@ public class EMFParser {
 		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		
 		try{
-			Scanner scan = new Scanner(new File(options.getQVTPath()));
+			Scanner scan = new Scanner(new File(uri));
 			String qvtcontent = scan.useDelimiter("\\Z").next();
 			scan.close();
 			File qvtaux = new File("aux.qvtr");
@@ -155,36 +152,36 @@ public class EMFParser {
 			Resource pivotResource = adapter.getPivotResource(xtextResource);
 					
 			RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
-			transformation = (RelationalTransformation) rm.eContents().get(0);
-			argpaths = HashBiMap.create();
+			RelationalTransformation transformation = (RelationalTransformation) rm.eContents().get(0);
+			/*argpaths = HashBiMap.create();
 			int j = 0;
 			for (int i = 0; i < transformation.getModelParameter().size(); i++){
 				String arg = transformation.getModelParameter().get(i).getName();
-				if (options.isNew() && arg.equals(options.getDirection())) {
-					String uri = "New.xmi";
+				/* if (options.isNew() && arg.equals(options.getDirection())) {
+					String nuri = "New.xmi";
 					Package mdl = transformation.getModelParameter(options.getDirection()).getUsedPackage().get(0);
 					String mdluri = modelpaths.inverse().get(mdl.getName());
 					EPackage pck = models.get(mdluri);
-					Resource resource = resourceSet.createResource(URI.createURI(uri));
+					Resource resource = resourceSet.createResource(URI.createURI(nuri));
 					EObject obj = pck.getEFactoryInstance().create(getTopObject(mdluri).get(0));
 					resource.getContents().add(obj);
-					argpaths.put(uri, arg);
-					instances.put(uri, obj);
+					argpaths.put(nuri, arg);
+					instances.put(nuri, obj);
 				}
-				else argpaths.put(options.getInstances()[j++],arg);	
-			}
+				else argpaths.put(args.get(j++),arg);	
+			}*/
 
-			
+			transformations.put(uri, transformation);
 			return transformation;
 		} catch (Exception e) { throw new ErrorParser (e.getMessage(),"QVT Parser");}
 		
 	}
 	
-	public RelationalTransformation getTransformation(){
-		return transformation;
+	public RelationalTransformation getTransformation(String uri){
+		return transformations.get(uri);
 	}
 
-	public String getInstanceArgName(String uri) {
+	/*public String getInstanceArgName(String uri) {
 		String res = uri;
 		if (argpaths != null) res = argpaths.get(uri);
 		return res;
@@ -193,7 +190,7 @@ public class EMFParser {
 	public String getInstanceUri(String arg) {
 		String res = argpaths.inverse().get(arg);
 		return res;
-	}
+	}*/
 
 
 	public Collection<EPackage> getModels(){
@@ -215,9 +212,9 @@ public class EMFParser {
 		return instances.get(uri);
 	}
 
-	public EObject getInstanceFromArg(String arg){
+	/*public EObject getInstanceFromArg(String arg){
 		return instances.get(argpaths.inverse().get(arg));
-	}
+	}*/
 
 	public List<EClass> getTopObject(String m) {
 		EPackage pck = models.get(m);
@@ -233,15 +230,15 @@ public class EMFParser {
 		return candidates;
 	}
 	
-	public String backUpTarget(){
-		String dir = getInstanceUri(options.getDirection());
+	public String backUpTarget(String uri){
+		//String dir = getInstanceUri(options.getDirection());
+		//String oldPath = getInstanceFromUri(dir).eResource().getURI().toString();
 
-		String oldPath = getInstanceFromUri(dir).eResource().getURI().toString();
-		StringBuilder sb = new StringBuilder(oldPath);
+		StringBuilder sb = new StringBuilder(uri);
 		sb.insert(sb.length()-4,".old");
 
 		XMIResource resource = (XMIResource) resourceSet.createResource(URI.createURI(sb.toString()));
-		resource.getContents().add(getInstanceFromUri(dir));
+		resource.getContents().add(getInstanceFromUri(uri));
 
 		
 		/*

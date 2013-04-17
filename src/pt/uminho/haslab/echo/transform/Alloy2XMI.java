@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.cli.CLIOptions;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
