@@ -39,14 +39,17 @@ public class QVTTransformation2Alloy {
 	 * @throws ErrorAlloy
 	 * @throws Err 
 	 */
-	public QVTTransformation2Alloy (EMF2Alloy translator, RelationalTransformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
+	public QVTTransformation2Alloy (EMF2Alloy translator, RelationalTransformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr fact = Sig.NONE.no();
 		this.qvt = qvt;
 		Map<String,Decl> argsdecls = new HashMap<String, Decl>();
 		List<Decl> decls = new ArrayList<Decl>();
 		List<ExprHasName> vars = new ArrayList<ExprHasName>();
 		for (TypedModel mdl : qvt.getModelParameter()) {
-			Decl d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName());
+			Decl d;
+			try {
+				d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName());
+			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			argsdecls.put(mdl.getName(), d);
 			decls.add(d);
 			vars.add(d.get());
@@ -65,7 +68,9 @@ public class QVTTransformation2Alloy {
 					}
 				}
 			}
-		func = new Func(null, qvt.getName(), decls, null, fact);		
+		try {
+			func = new Func(null, qvt.getName(), decls, null, fact);		
+		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 	}
 	
 	/** Returns the Alloy fact corresponding to this QVT Transformation

@@ -82,17 +82,14 @@ public class QVTRelation2Alloy {
 	
 	/** Constructs a new QVT Relation to Alloy translator.
 	 * Translates a QVT Relation (top or non top) to Alloy in a given direction.
-	 * 
 	 * @param rel the QVT Relation being translated
 	 * @param direction the target direction of the transformation
 	 * @param top whether the QVT Relation is top or not
-	 * 
 	 * @throws ErrorTransform, 
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
-	 * @throws Err 
 	 */
-	public QVTRelation2Alloy (QVTRelation2Alloy q2a, Relation rel, TypedModel direction, boolean top, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
+	public QVTRelation2Alloy (QVTRelation2Alloy q2a, Relation rel, TypedModel direction, boolean top, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.rel = rel;
 		this.direction = direction;
 		parentq = (q2a==null)?this:q2a;
@@ -100,7 +97,10 @@ public class QVTRelation2Alloy {
 		this.translator = translator;
 				
 		for (TypedModel mdl : rel.getTransformation().getModelParameter()) {
-			Decl d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName()+(top?"a":"b"));
+			Decl d;
+			try {
+				d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName()+(top?"a":"b"));
+			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			mdecls.add(d);
 			argsvars.add(d.get());
 		}
@@ -115,14 +115,14 @@ public class QVTRelation2Alloy {
 			fact = opt.onePoint(fact);
 			System.out.println("Pos-onepoint "+fact);
 		}
-		if(top) {
-			func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact);		
-
-		}
-		else {
-			addRelationFields();
-			func = new Func(null, rel.getTransformation().getName()+"_"+direction.getName(), mdecls, field.type().toExpr(), field);	
-		}
+		try {
+			if(top)
+				func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact);		
+			else {
+				addRelationFields();
+				func = new Func(null, rel.getTransformation().getName()+"_"+direction.getName(), mdecls, field.type().toExpr(), field);	
+			}
+		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }		
 	}
 	
 	/** Initializes the domain variables {@code this.sourcedomains}, {@code this.targetdomain} and {@code this.rootvariables}
@@ -200,10 +200,9 @@ public class QVTRelation2Alloy {
 	 * @throws ErrorTransform
 	 * @throws ErrorAlloy
 	 * @throws ErrorUnsupported
-	 * @throws Err 
 	 * @todo Support fom <code>CollectionTemplateExp</code>
 	 */
-	private void initVariableDeclarationLists() throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
+	private void initVariableDeclarationLists() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		TemplateExp temp;
 		Set<VariableDeclaration> whenvariables = new HashSet<VariableDeclaration>();
 		Set<VariableDeclaration> sourcevariables = new HashSet<VariableDeclaration>();
@@ -256,9 +255,8 @@ public class QVTRelation2Alloy {
 	 * @throws ErrorTransform
 	 * @throws ErrorAlloy
 	 * @throws ErrorUnsupported
-	 * @throws Err 
 	 */
-	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
+	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		OCL2Alloy ocltrans = new OCL2Alloy(parentq,domain.getTypedModel(),translator,decls,argsvars);
 
 

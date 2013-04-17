@@ -110,7 +110,7 @@ public class EMF2Alloy {
 	
 	/** Translates the QVT transformation to the respective Alloy specs 
 	 * @throws Err */
-	public void translateQVT(String uri) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, Err {
+	public void translateQVT(String uri) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		QVTTransformation2Alloy qvtrans = new QVTTransformation2Alloy(this,parser.getTransformation(uri));		
 		qvttrads.put(uri, qvtrans);
 	}

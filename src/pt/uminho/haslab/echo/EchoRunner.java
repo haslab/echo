@@ -13,8 +13,6 @@ import org.eclipse.emf.ecore.EPackage;
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
 import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
@@ -26,6 +24,13 @@ public class EchoRunner {
 	public final EchoTimer timer;
 	private AlloyRunner runner;
 	
+	/**
+	 * Creates a new EchoRunner which runs commands in Alloy
+	 * @param options the Echo run options
+	 * @throws ErrorParser
+	 * @throws ErrorAlloy
+	 * @throws ErrorTransform
+	 */
 	public EchoRunner (EchoOptions options) throws ErrorParser, ErrorAlloy, ErrorTransform {
 		this.options = options;
 		timer = new EchoTimer();
@@ -61,7 +66,15 @@ public class EchoRunner {
 		translator.translateInstance(inst);
 	}
 	
-	public void addQVT(String uri) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser, Err{
+	/**
+	 * Parses and processes into Alloy a QVT-R transformation from its URI
+	 * @param uri the URI of the QVT-R transformation to load
+	 * @throws ErrorUnsupported
+	 * @throws ErrorAlloy
+	 * @throws ErrorTransform
+	 * @throws ErrorParser
+	 */
+	public void addQVT(String uri) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		parser.loadQVT(uri);
 		translator.translateQVT(uri);
 	}
@@ -83,12 +96,10 @@ public class EchoRunner {
 	 * If overall size greater than zero, tries to generate with exact scope
 	 * Otherwise, tries to generate minimum (incremental)
 	 * @param uris the URIs of the models
-	 * @return
+	 * @return true if able to generate instance
 	 * @throws ErrorAlloy
-	 * @throws ErrorParser 
-	 * @throws ErrorSyntax 
 	 */
-	public boolean generate(List<String> uris) throws ErrorAlloy, ErrorParser, ErrorSyntax {
+	public boolean generate(List<String> uris) throws ErrorAlloy {
 		if (options.getSize() != 0) {
 			translator.createScopesFromSizes(options.getSize(), options.getScopes());
 			runner = new AlloyRunner(translator);
@@ -129,26 +140,23 @@ public class EchoRunner {
 	 * Starts enforcement run according to a QVT transformation
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param insturis the URIs of the instances (should be in the order of the QVT-R transformation arguments)
-	 * @return true if success
+	 * @param targetarg the direction of the enforce (should be an argument of the QVT-R transformation)
+	 * @return true if able to generate instance
 	 * @throws ErrorAlloy
-	 * @throws Err 
-	 * @throws ErrorParser 
 	 */
-	public boolean enforce(String qvturi, List<String> insturis, String targetarg) throws ErrorAlloy, Err, ErrorParser {
+	public boolean enforce(String qvturi, List<String> insturis, String targetarg) throws ErrorAlloy {
 		runner = new AlloyRunner(translator);
 		runner.enforce(qvturi, insturis, targetarg);
 		return runner.getSolution().satisfiable();
 	}
 	
 	/**
-	 * Searchs for an instance with larger bounds and delta (if defined)
+	 * Searches for an instance with larger bounds and delta (if defined)
 	 * Can be used for instance generation (no delta) or QVT-R enforcement
-	 * @return true if success
+	 * @return true if able to generate instance
 	 * @throws ErrorAlloy
-	 * @throws Err 
-	 * @throws ErrorParser 
 	 */
-	public boolean increment() throws ErrorAlloy, ErrorParser, ErrorSyntax {
+	public boolean increment() throws ErrorAlloy {
 		runner.increment();
 		return runner.getSolution().satisfiable();
 	}
@@ -164,9 +172,8 @@ public class EchoRunner {
 	}
 	
 	/**
-	 * Retrieves the Alloy instance
+	 * Retrieves the current Alloy instance
 	 * @return the Alloy instance, if satisfiable
-	 * @throws ErrorAlloy 
 	 */
 	public A4Solution getAInstance() {
 		if (runner.getSolution().satisfiable()) return runner.getSolution();
@@ -174,7 +181,8 @@ public class EchoRunner {
 	}
 	
 	/**
-	 * Generates the Alloy theme for a given instance
+	 * Applies a generated Alloy theme for a given instance
+	 * @param vizstate the state of the visualizer
 	 */
 	public void generateTheme (VizState vizstate) {
 		runner.generateTheme(vizstate);
