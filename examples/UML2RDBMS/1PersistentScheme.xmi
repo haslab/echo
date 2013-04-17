@@ -5,9 +5,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:rdbms="RDBMS"
     xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
-    name="Topp">
+    name="Top">
   <tables name="a">
     <columns
         name="a"/>
+    <columns
+        name="b"/>
   </tables>
 </rdbms:Scheme>
