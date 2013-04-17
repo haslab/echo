@@ -54,7 +54,7 @@ public class AlloyRunner {
 	private Set<Sig> allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
 	
 	/** the current delta value*/
-	private int delta = 0;	
+	private int delta = 1;	
 	/** the current int bitwidth*/
 	private int intscope = 2;
 	/** the current overall scope */
@@ -142,10 +142,13 @@ public class AlloyRunner {
 	 * @throws ErrorAlloy
 	 */
 	public void enforce(String qvturi, List<String> insturis, String dirarg) throws ErrorAlloy {
-		if (delta < translator.options.getMaxDelta()) {
+		check(qvturi,insturis);
+		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
+		else {			
+			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
+			finalfact = Sig.NONE.no();
 			Func func = translator.getQVTFact(qvturi);
 			RelationalTransformation qvt = translator.getQVTTransformation(qvturi);
-			
 			PrimSig original, target;
 			ECore2Alloy e2a = null;
 			XMI2Alloy x2a;
@@ -169,12 +172,7 @@ public class AlloyRunner {
 				finalfact = finalfact.and(translator.getInstanceFact(uri));
 			}
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
-			try {
-				Command cmd = new Command(false, overall, intscope, -1, finalfact.and(edelta.equal(ExprConstant.makeNUMBER(0))));
-				cmd = cmd.change(scopes);
-				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
-			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
-		} else throw new ErrorAlloy ("Maximum delta (" + translator.options.getMaxDelta() + ") reached.");
+		} 
 	}
 	
 	/**
@@ -189,8 +187,7 @@ public class AlloyRunner {
 			if (overall >= translator.options.getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.","AlloyRunner");
 		}
 		try {
-			if (delta == 0) intscope = 2;
-			else intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
+			intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 			Command cmd = new Command(false, overall, intscope, -1, finalfact.and(edelta.equal(ExprConstant.makeNUMBER(++delta))));
 			scopes = AlloyUtil.incrementScopes(scopes);
 			cmd = cmd.change(scopes);
