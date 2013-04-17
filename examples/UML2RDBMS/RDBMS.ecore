@@ -11,7 +11,8 @@
     <eOperations name="remTable">
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral="New"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="tables" upperBound="-1"
         eType="#//Table" containment="true" eOpposite="#//Table/scheme"/>
   </eClassifiers>
@@ -25,11 +26,11 @@
     <eOperations name="remColumn">
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="scheme" lowerBound="1"
-        eType="#//Scheme" eOpposite="#//Scheme/tables"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="columns" lowerBound="1"
         upperBound="-1" eType="#//Column" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="scheme" lowerBound="1"
+        eType="#//Scheme" eOpposite="#//Scheme/tables"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Column">
     <eOperations name="setName">
