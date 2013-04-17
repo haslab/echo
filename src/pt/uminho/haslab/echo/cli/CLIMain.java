@@ -31,11 +31,7 @@ public class CLIMain {
 				options.printHelp();
 				return;
 			}
-		} catch (ErrorParser e) { 
-			System.out.println("Error parsing CLI: "+e.getMessage());
-			options.printHelp();
-			return;
-		}
+		} catch (ErrorParser e) { System.out.println(e.getMessage()); }
 		
 		CLIPrinter printer = new CLIPrinter(options);
 		EchoRunner echo = new EchoRunner(options);
@@ -44,7 +40,7 @@ public class CLIMain {
 		
 		for (String uri : options.getModels())
 			echo.addModel(uri);
-		if (options.isQVT()) echo.addQVT(options.getQVTPath(),Arrays.asList(options.getInstances()));
+		if (options.isQVT()) echo.addQVT(options.getQVTPath());
 		for (String uri : options.getInstances())
 			echo.addInstance(uri);
 		

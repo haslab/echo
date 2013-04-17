@@ -1,13 +1,11 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
-import org.eclipse.qvtd.pivot.qvtbase.Transformation;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
@@ -15,8 +13,6 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -24,7 +20,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class QVTTransformation2Alloy {
 
@@ -60,20 +55,17 @@ public class QVTTransformation2Alloy {
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
 			else if (((Relation) rel).isIsTopLevel()) {
 
-				//for (TypedModel mdl : qvt.getModelParameter()) {
-				TypedModel mdl = qvt.getModelParameter().get(0);
+				for (TypedModel mdl : qvt.getModelParameter()) {
+				//TypedModel mdl = qvt.getModelParameter().get(0);
 						QVTRelation2Alloy trans = new QVTRelation2Alloy(null,(Relation)rel,mdl,true,translator);
 					fact = fact.and(trans.getFunc().call(vars.toArray(new ExprVar[vars.size()])));
 					for (Func f : trans.getFieldFunc()) {
 
 						fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
 					}
-				//}
+				}
 			}
 		func = new Func(null, qvt.getName(), decls, null, fact);		
-		
-		System.out.println("GOOO "+fact);
-
 	}
 	
 	/** Returns the Alloy fact corresponding to this QVT Transformation

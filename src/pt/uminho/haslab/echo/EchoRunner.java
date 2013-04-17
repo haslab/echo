@@ -61,7 +61,7 @@ public class EchoRunner {
 		translator.translateInstance(inst);
 	}
 	
-	public void addQVT(String uri, List<String> arguris) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser, Err{
+	public void addQVT(String uri) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser, Err{
 		parser.loadQVT(uri);
 		translator.translateQVT(uri);
 	}

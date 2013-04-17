@@ -2,13 +2,9 @@ package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import javax.print.attribute.standard.Fidelity;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
@@ -31,7 +27,6 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
@@ -128,7 +123,6 @@ public class QVTRelation2Alloy {
 			addRelationFields();
 			func = new Func(null, rel.getTransformation().getName()+"_"+direction.getName(), mdecls, field.type().toExpr(), field);	
 		}
-		System.out.println("AAA "+fact);
 	}
 	
 	/** Initializes the domain variables {@code this.sourcedomains}, {@code this.targetdomain} and {@code this.rootvariables}
@@ -253,10 +247,6 @@ public class QVTRelation2Alloy {
 		decls.addAll(alloytargetvars);
 		alloyrootvars = (List<Decl>) ocltrans.variableListToExpr(rootvariables,false);
 	    if (!top) decls.addAll(alloyrootvars);
-	    
-	    for (Decl d : decls) {
-	    	System.out.println(d.names + " : " +d.expr);
-	    }
 	}
 
 	/** Translates a {@code RelationDomain} to the correspondent Alloy expression through {@code OCL2Alloy} translator.
