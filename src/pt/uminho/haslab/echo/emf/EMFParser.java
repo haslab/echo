@@ -28,7 +28,6 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
-import org.eclipse.ocl.examples.pivot.Package;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
 import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
 import org.eclipse.ocl.examples.xtext.oclinecore.OCLinEcoreStandaloneSetup;
@@ -40,7 +39,6 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.cli.CLIOptions;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -48,8 +46,6 @@ import com.google.inject.Injector;
 
 public class EMFParser {
 
-	/** the Echo options */
-	private final EchoOptions options;
 	/** the ECore resource set */
 	private ResourceSet resourceSet = new ResourceSetImpl();
 
@@ -87,7 +83,6 @@ public class EMFParser {
 		// Register XML Factory implementation to handle files with any extension
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*",new XMIResourceFactoryImpl());
 	
-		this.options = options;
 		modelpaths = HashBiMap.create();
 
 	}

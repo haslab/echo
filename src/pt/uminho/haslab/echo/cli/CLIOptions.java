@@ -214,11 +214,11 @@ public class CLIOptions extends Options implements EchoOptions{
 
 
 	public Integer getMaxDelta() {
-		Integer delta = 0;
+		Integer delta = Integer.MAX_VALUE;
 		try {
 			if (cmd.hasOption("d"))
 				delta = (Integer) cmd.getParsedOptionValue("d");
-		} catch (ParseException e) { delta = Integer.MAX_VALUE; }
+		} catch (ParseException e) { delta = 0; }
 		return delta;
 	}
 	

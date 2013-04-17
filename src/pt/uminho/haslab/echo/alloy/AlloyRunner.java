@@ -174,7 +174,7 @@ public class AlloyRunner {
 				cmd = cmd.change(scopes);
 				sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
-		} else throw new ErrorAlloy ("Maximum delta reached.","AlloyRunner");
+		} else throw new ErrorAlloy ("Maximum delta (" + translator.options.getMaxDelta() + ") reached.");
 	}
 	
 	/**
@@ -204,7 +204,7 @@ public class AlloyRunner {
 	 */
 	public void nextInstance() throws ErrorAlloy  {
 		try { sol = sol.next(); }
-		catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
+		catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
 	
 	/**
