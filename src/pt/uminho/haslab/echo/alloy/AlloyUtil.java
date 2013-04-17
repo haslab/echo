@@ -34,10 +34,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class AlloyUtil {
-
-	public static String targetName(String target) {
-		return target+"_new_";
-	}
 		
 	public static Expr localStateSig(Sig sig, Expr var) throws ErrorTransform, ErrorAlloy{
 		Expr exp = null;
