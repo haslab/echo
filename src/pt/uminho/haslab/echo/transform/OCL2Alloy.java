@@ -234,39 +234,39 @@ public class OCL2Alloy {
 		else if (expr.getReferredOperation().getName().equals("size"))
 			res = src.cardinality();
 		else if (expr.getReferredOperation().getName().equals("="))
-			res = src.equal(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.equal(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("and"))
-			res = src.and(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.and(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("or")) {
 			try{
 				res = closure2Reflexive(expr.getArgument().get(0),expr.getSource());
 			}
 			catch (Error a) {
-				res = src.or(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+				res = src.or(oclExprToAlloy(expr.getArgument().get(0)));
 			}
 		}
 		else if (expr.getReferredOperation().getName().equals("implies"))
-			res = src.implies(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.implies(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("<"))
-			res = src.lt(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.lt(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals(">"))
-			res = src.gt(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.gt(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("<="))
-			res = src.lte(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.lte(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals(">="))
-			res = src.gte(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.gte(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("union"))
-			res = src.plus(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.plus(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("intersection"))
-			res = src.intersect(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.intersect(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("includes"))
-			res =(oclExprToAlloy((OCLExpression) expr.getArgument().get(0))).in(src);
+			res =(oclExprToAlloy(expr.getArgument().get(0))).in(src);
 		else if (expr.getReferredOperation().getName().equals("oclAsSet")) 
 			res = src;
 		else if (expr.getReferredOperation().getName().equals("+"))
-			res = src.iplus(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.iplus(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("-"))
-			res = src.iminus(oclExprToAlloy((OCLExpression) expr.getArgument().get(0)));
+			res = src.iminus(oclExprToAlloy(expr.getArgument().get(0)));
 
 		
 		else throw new ErrorUnsupported ("OCL expression not supported."+expr.getName()+","+expr.getArgument().toString(),"OCL2Alloy",expr);
@@ -287,7 +287,7 @@ public class OCL2Alloy {
 		else if (expr instanceof UnlimitedNaturalLiteralExp) return oclExprToAlloy((UnlimitedNaturalLiteralExp) expr);
 		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
 	}
-
+	
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
 	public Expr propertyToField (Property prop) {
