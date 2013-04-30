@@ -111,8 +111,8 @@ public class EchoRunner {
 	 * @throws ErrorAlloy
 	 */
 	public boolean generate(List<String> uris) throws ErrorAlloy {
-		if (options.getSize() != 0) {
-			translator.createScopesFromSizes(options.getSize(), options.getScopes());
+		if (options.getOverallScope() != 0) {
+			translator.createScopesFromSizes(options.getOverallScope(), options.getScopes());
 			runner = new AlloyRunner(translator);
 			runner.generate(uris);
 			return runner.getSolution().satisfiable();

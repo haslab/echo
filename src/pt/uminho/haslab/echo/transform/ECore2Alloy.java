@@ -254,7 +254,11 @@ public class ECore2Alloy {
 					}
 				}
 
-	
+				Integer bitwidth = translator.options.getBitwidth();
+				Integer max = (int) (Math.pow(2, bitwidth) / 2);
+				if (reference.getLowerBound() >= max || reference.getLowerBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+reference.getLowerBound()+".");
+				if (reference.getUpperBound() >= max || reference.getUpperBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+reference.getUpperBound()+".");
+				
 				try{
 					Decl d = AlloyUtil.localStateSig(classsig,constraintdecl.get()).oneOf("src_");
 					if (reference.getLowerBound() == 1 && reference.getUpperBound() == 1) {
@@ -270,13 +274,15 @@ public class ECore2Alloy {
 						fact = (d.get()).join(field.join(constraintdecl.get())).no().forAll(d);
 						constraint = constraint.and(fact);
 					} else if (reference.getLowerBound() == 0 && reference.getUpperBound() == -1) {}
-					if(reference.getLowerBound() > 1) {
-						fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().gte(ExprConstant.makeNUMBER(reference.getLowerBound())).forAll(d);
-						constraint = constraint.and(fact);
-					}
-					if(reference.getUpperBound() > 1){
-						fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().lte(ExprConstant.makeNUMBER(reference.getUpperBound())).forAll(d);
-						constraint = constraint.and(fact);
+					else {
+						if(reference.getLowerBound() > 1) {
+							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().gte(ExprConstant.makeNUMBER(reference.getLowerBound())).forAll(d);
+							constraint = constraint.and(fact);
+						}
+						if(reference.getUpperBound() > 1){
+							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().lte(ExprConstant.makeNUMBER(reference.getUpperBound())).forAll(d);
+							constraint = constraint.and(fact);
+						}
 					}
 					
 					if(reference.isContainment()){

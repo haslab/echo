@@ -15,12 +15,15 @@ public interface EchoOptions {
 	public boolean isOptimize();
 			
 	/** the overall Alloy scope */
-	public Integer getSize();
+	public Integer getOverallScope();
 
 	/** the concrete scope for particular classes ((model,class) -> scope) */
 	public Map<Entry<String,String>,Integer> getScopes();
 
 	/** the maximum delta for an instance generation run */
 	public Integer getMaxDelta();
-	
+
+	/** the default integer bitwidth */
+	public Integer getBitwidth();
+
 }

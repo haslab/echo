@@ -25,7 +25,7 @@ public class CLIOptions extends Options implements EchoOptions{
 	@SuppressWarnings("static-access")
 	public CLIOptions (String[] args) throws ErrorParser {	
 		super();
-
+		
 		this.addOption(OptionBuilder
 				.withDescription("generate new QVT consistent target instance")
 				.withLongOpt("new")
@@ -117,6 +117,14 @@ public class CLIOptions extends Options implements EchoOptions{
 				.create("d"));
 		
 		this.addOption(OptionBuilder
+				.hasArg()
+				.withArgName("nat")
+				.withDescription("default integer bitwidth")
+				.withLongOpt("bitwidth")
+				.withType(Integer.class)
+				.create());
+		
+		this.addOption(OptionBuilder
 				.withDescription("surpress optimitazions")
 				.withLongOpt("no-optimizations")
 				.create("o"));
@@ -190,10 +198,10 @@ public class CLIOptions extends Options implements EchoOptions{
 		else return cmd.getOptionValue("e");
 	}
 	
-	public Integer getSize() {
+	public Integer getOverallScope() {
 		Integer size = 0;
 		try {size = Integer.parseInt(cmd.getOptionValue("g"));}
-		catch (Exception x) {}
+		catch (Exception x) { size = 0; }
 		return size;
 	}
 	
@@ -230,6 +238,15 @@ public class CLIOptions extends Options implements EchoOptions{
 			if (cmd.hasOption("d"))
 				delta = (Integer) cmd.getParsedOptionValue("d");
 		} catch (ParseException e) { delta = 0; }
+		return delta;
+	}
+	
+	public Integer getBitwidth() {
+		Integer delta = 2;
+		try {
+			if (cmd.hasOption("bitwidth"))
+				delta = (Integer) cmd.getParsedOptionValue("bitwidth");
+		} catch (ParseException e) { delta = 2; }
 		return delta;
 	}
 	

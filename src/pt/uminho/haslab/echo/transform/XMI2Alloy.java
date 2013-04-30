@@ -194,7 +194,7 @@ public class XMI2Alloy {
 	}
 	
 	
-	private void handleAttr(Object obj, Sig it, Expr field) throws ErrorUnsupported
+	private void handleAttr(Object obj, Sig it, Expr field) throws ErrorUnsupported, ErrorTransform
 	{
 		Expr manos = mapContent.get(field);
 		if(obj instanceof Boolean)
@@ -220,6 +220,9 @@ public class XMI2Alloy {
 			mapContent.put(field, manos);
 		}else if(obj instanceof Integer)
 		{
+			Integer bitwidth = translator.translator.options.getBitwidth();
+			Integer max = (int) (Math.pow(2, bitwidth) / 2);
+			if ((int) obj >= max || (int) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
 			Expr str = ExprConstant.makeNUMBER((Integer) obj);
 			
 			manos = manos.plus(it.product(str));

@@ -54,9 +54,9 @@ public class AlloyRunner {
 	/** the current delta value*/
 	private int delta = 1;	
 	/** the current int bitwidth*/
-	private int intscope = 2;
+	private int intscope;
 	/** the current overall scope */
-	private int overall = 0;
+	private int overall;
 	/** the current specific scopes */
 	private ConstList<CommandScope> scopes;
 
@@ -66,7 +66,7 @@ public class AlloyRunner {
 	 */
 	public AlloyRunner (EMF2Alloy translator) {	
 		this.translator = translator;
-		this.overall = translator.options.getSize();
+		this.overall = translator.options.getOverallScope();
 		rep = new A4Reporter() {
 			@Override public void warning(ErrorWarning msg) {
 				System.out.print("Relevance Warning:\n"+(msg.toString().trim())+"\n\n");
@@ -76,6 +76,8 @@ public class AlloyRunner {
 		aoptions = new A4Options();
 		aoptions.solver = A4Options.SatSolver.SAT4J;
 		aoptions.noOverflow = true;
+		intscope = translator.options.getBitwidth();
+		intscope = translator.options.getOverallScope();
 	}
 
 	/**
