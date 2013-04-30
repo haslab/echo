@@ -55,12 +55,20 @@ public class CLIOptions extends Options implements EchoOptions{
 				.withDescription("enforce mode")
 				.withLongOpt("enforce")
 				.create("e"));
-		
+
+		this.addOption(OptionBuilder
+				.hasArg()
+				.withArgName("direction")
+				.withDescription("repair mode")
+				.withLongOpt("repair")
+				.create("r"));
+
 		this.addOption(OptionBuilder
 				.hasArg()
 				.withArgName("size")
 				.withDescription("generate instances conformant to the metamodels")
 				.withLongOpt("generate")
+				.withType(Integer.class)
 				.create("g"));
 
 		this.addOption(OptionBuilder
@@ -116,19 +124,19 @@ public class CLIOptions extends Options implements EchoOptions{
 		CommandLineParser parser = new PosixParser();
 		try {
 			cmd = parser.parse(this, args);
-			if (!isGenerate() && cmd.getOptionValues("scopes") != null) 
-				throw new ErrorParser("Scopes only required for instance generation model.","CLI Parser");
 			if (isGenerate() && (isQVT() || isConformance() || cmd.getOptionValues("i") != null)) 
-				throw new ErrorParser("Cannot perform tests and generate instances.","CLI Parser");
+				throw new ErrorParser("Cannot perform tests and generate instances.");
+			if (isRepair() && (isQVT() || isConformance())) 
+				throw new ErrorParser("Cannot perform tests and repair instances.");
 			if (getModels() == null) 
 				throw new ErrorParser("Metamodels required","CLI Parser");
 			if (isQVT() && !(isCheck() || isEnforce()))
-				throw new ErrorParser("Applying QVT transformation requires running mode.","CLI Parser");
+				throw new ErrorParser("Applying QVT transformation requires running mode.");
 			if (isCheck() && isEnforce()) 
-				throw new ErrorParser("Choose either enforce or check mode.","CLI Parser");
+				throw new ErrorParser("Choose either enforce or check mode.");
 		} catch (Exception e) {
 			if (this.isHelp()) {}
-			else throw new ErrorParser(e.getMessage(),"CLI Parser");
+			else throw new ErrorParser(e.getMessage());
 		}
 		
 	}
@@ -172,17 +180,20 @@ public class CLIOptions extends Options implements EchoOptions{
 	public boolean isGenerate() {
 		return cmd.hasOption("g");
 	}
-		
+
+	public boolean isRepair() {
+		return cmd.hasOption("r");
+	}
+
 	public String getDirection() {
-		return cmd.getOptionValue("e");
+		if (cmd.hasOption("r")) return cmd.getOptionValue("r");
+		else return cmd.getOptionValue("e");
 	}
 	
 	public Integer getSize() {
 		Integer size = 0;
-		try {
-			if (cmd.hasOption("g"))
-				size = (Integer) cmd.getParsedOptionValue("g");
-		} catch (ParseException e) {}
+		try {size = Integer.parseInt(cmd.getOptionValue("g"));}
+		catch (Exception x) {}
 		return size;
 	}
 	

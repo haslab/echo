@@ -62,7 +62,7 @@ public class XMI2Alloy {
 	// initializes relations to n-ary none
 	private void initContent()
 	{
-		for(PrimSig s: translator.getSigList()) {
+		for(PrimSig s: translator.getSigs()) {
 			mapContent.put(translator.getStateFieldFromSig(s),Sig.NONE);}
 		for(EStructuralFeature sf: translator.getSFeatures()){
 			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}

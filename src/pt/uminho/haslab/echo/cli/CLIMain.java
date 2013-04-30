@@ -84,6 +84,15 @@ public class CLIMain {
 				printer.printForce("Intance generated ("+echo.timer.getTime("Generate")+"ms).");
 			else
 				printer.printForce("No possible instances ("+echo.timer.getTime("Generate")+"ms).");
+		} else if (options.isRepair()) {
+			success = echo.repair(Arrays.asList(options.getInstances()),options.getDirection());
+			echo.timer.setTime("Repair");
+			while (!success) {
+				printer.printForce("No instance found for delta ");//+echo.alloyrunner.getDelta()+((options.isVerbose())?(" (for "+echo.alloyrunner.getScopes()+", int "+echo.alloyrunner.getIntScope()+")"):"")+" ("+echo.timer.getTime("Enforce")+"ms).");
+				success = echo.increment();			
+				echo.timer.setTime("Repair");
+			}
+			printer.printForce("Instance found for delta ");//+echo.alloyrunner.getDelta()+" ("+echo.timer.getTime("Enforce")+"ms).");
 		}
 		if (options.isCheck() && conforms) {
 			success = echo.check(options.getQVTPath(),Arrays.asList(options.getInstances()));
@@ -100,7 +109,7 @@ public class CLIMain {
 			}
 			printer.printForce("Instance found for delta ");//+echo.alloyrunner.getDelta()+" ("+echo.timer.getTime("Enforce")+"ms).");
 		}
-		if ((options.isEnforce() || options.isGenerate()) && success) {
+		if ((options.isEnforce() || options.isGenerate() || options.isRepair()) && success) {
 			if (options.isEnforce() && !options.isNew()) {
 				//String sb = echo.parser.backUpTarget();
 				//printer.print("Backup file created: " + sb);	
@@ -115,7 +124,7 @@ public class CLIMain {
 			while (success&&end.equals("y")) {
 				sol = echo.getAInstance();
 				sol.writeXML("alloy_output.xml");
-				viz.loadXML("alloy_output.xml", false);
+				viz.loadXML("alloy_output.xml", true);
 				/*if(options.isEnforce()&&options.isOverwrite())
 					echo.translator.writeTargetInstance(echo.alloyrunner.getSolution());
 				else if (options.isGenerate())

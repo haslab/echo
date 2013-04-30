@@ -18,20 +18,19 @@ import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
 	
-	private final EchoOptions options;
-	private final EMFParser parser;
-	private final EMF2Alloy translator;
+	public final EchoOptions options;
+	public final EMFParser parser;
+	public final EMF2Alloy translator;
 	public final EchoTimer timer;
 	private AlloyRunner runner;
 	
 	/**
 	 * Creates a new EchoRunner which runs commands in Alloy
 	 * @param options the Echo run options
-	 * @throws ErrorParser
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
 	 */
-	public EchoRunner (EchoOptions options) throws ErrorParser, ErrorAlloy, ErrorTransform {
+	public EchoRunner (EchoOptions options) throws ErrorAlloy, ErrorTransform {
 		this.options = options;
 		timer = new EchoTimer();
 		parser = new EMFParser(options);
@@ -88,6 +87,18 @@ public class EchoRunner {
 	public boolean conforms(List<String> uri) throws ErrorAlloy {
 		runner = new AlloyRunner(translator);
 		runner.conforms(uri);
+		return runner.getSolution().satisfiable();
+	}
+	
+	/**
+	 * Repairs a list of instances not conforming to their models
+	 * @param uri the URIs of the EObjects to repair
+	 * @return true if the instance all instances conform to the models
+	 * @throws ErrorAlloy
+	 */
+	public boolean repair(List<String> uri, String dir) throws ErrorAlloy {
+		runner = new AlloyRunner(translator);
+		runner.repair(uri,dir);
 		return runner.getSolution().satisfiable();
 	}
 	

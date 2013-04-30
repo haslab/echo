@@ -40,6 +40,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
@@ -49,7 +50,7 @@ public class ECore2Alloy {
 
 	/** the package being translated */
 	public final EPackage epackage;
-	/** the signature matching this metamodel */
+	/** the signature matching this meta-model */
 	public final PrimSig statesig;
 	/** the parent EMF translator */
 	public final EMF2Alloy translator;
@@ -68,10 +69,13 @@ public class ECore2Alloy {
 	private List<Func> functions = new ArrayList<Func>();
 	
 	
+	private Expr constraint = Sig.NONE.no();
+	private Decl constraintvar;
+	
 	/**
 	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
 	 * @param pck the package to translate
-	 * @param statesig the state signature representing the metamodel
+	 * @param statesig the state signature representing the meta-model
 	 * @param translator the parent translator
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
@@ -134,10 +138,10 @@ public class ECore2Alloy {
 		PrimSig ecsig,parent = null;
 		Field statefield;
 		List<EClass> superTypes = ec.getESuperTypes();
-		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".","ECore2Alloy");
+		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
 		if(!superTypes.isEmpty()) {
 			parent = mapClassSig.get(superTypes.get(0));
-			if(parent == null) throw new ErrorTransform("Parent class not found: "+superTypes.get(0).getName()+".","ECore2Alloy");	
+			if(parent == null) throw new ErrorTransform("Parent class not found: "+superTypes.get(0).getName()+".");	
 		}
 		String signame = AlloyUtil.pckPrefix(epackage.getName(),ec.getName());
 		try {
@@ -146,7 +150,7 @@ public class ECore2Alloy {
 			statefield = ecsig.addField(AlloyUtil.stateFieldName(epackage,ec),statesig.setOf());
 			Expr stateatoms = ecsig.equal(statefield.join(statesig));
 			ecsig.addFact(stateatoms);
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"ECore2Alloy");}	
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}	
 		mapSigState.put(ecsig,statefield);
 		mapClassSig.put(ec, ecsig);
 		mapClassClass.put(ec.getName(), ec);
@@ -170,7 +174,7 @@ public class ECore2Alloy {
 			if(attr.getEType().getName().equals("EBoolean")) {
 				try {
 					field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),attr.getName()),statesig.setOf());
-				} catch (Err a) { throw new ErrorAlloy(a.getMessage(),"ECore2Alloy"); }
+				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 				mapSfField.put(attr,field);					
 			} else if(attr.getEType().getName().equals("EString")) {
 				try {
@@ -179,8 +183,9 @@ public class ECore2Alloy {
 					Expr bound = mapSigState.get(classsig).join(statesig.decl.get()).any_arrow_one(Sig.STRING);
 					fact = fact.in(bound);
 					fact = fact.forAll(statesig.decl);
+					System.out.println("debug "+statesig.label+"," +fact);
 					classsig.addFact(fact);
-				} catch (Err a) { throw new ErrorAlloy(a.getMessage(),"ECore2Alloy"); }
+				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 				mapSfField.put(attr,field);
 			} else if(attr.getEType().getName().equals("EInt")) {
 				try {
@@ -202,7 +207,7 @@ public class ECore2Alloy {
 				fact = fact.in(bound);
 				fact = fact.forAll(statesig.decl);
 				classsig.addFact(fact);				
-			} catch (Err a) { throw new ErrorAlloy(a.getMessage(),"ECore2Alloy"); }
+			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			mapSfField.put(attr,field);
 			} */
 			else throw new ErrorUnsupported("Primitive type for attribute not supported: "+attr+".");
@@ -335,8 +340,8 @@ public class ECore2Alloy {
 			Decl pre,pos,self = null;
 			try{
 				self = classsig.oneOf("self");
-				pre = statesig.oneOf("pre");
-				pos = statesig.oneOf("pos");
+				pre = statesig.oneOf("pre_");
+				pos = statesig.oneOf("pos_");
 				decls.add(self);
 				for (EParameter p : operation.getEParameters()) {
 					PrimSig type = translator.getClassifierFromSig(p.getEType());
@@ -345,7 +350,7 @@ public class ECore2Alloy {
 				}
 				decls.add(pre);
 				decls.add(pos);
-			} catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",classsig);}
+			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 			OCLHelper helper = ocl.createOCLHelper(operation);
 			Map<String,ExprHasName> prestatevars = new HashMap<String, ExprHasName>();
 			Map<String,ExprHasName> posstatevars = new HashMap<String, ExprHasName>();
@@ -354,17 +359,16 @@ public class ECore2Alloy {
 			OCL2Alloy converter = new OCL2Alloy(translator,new HashSet<Decl>(decls),posstatevars,prestatevars);
 			for (EAnnotation ea : operation.getEAnnotations())
 				if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
-					try{
-						for(String sExpr: ea.getDetails().values()) {
-							System.out.println("Operation: "+sExpr);
+					for(String sExpr: ea.getDetails().values()) {
+						try{
 							ExpressionInOCL invariant = helper.createPostcondition(sExpr);
 							Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
 							decls.remove(self);
 							Func fun = new Func(null,operation.getName(),decls,null,oclalloy);
 							functions.add(fun);
-						}
-					} catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",classsig);} 
-					  catch (ParserException e) { throw new ErrorParser(e.getMessage(),"ECore2Alloy");}
+						} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
+						  catch (ParserException e) { throw new ErrorParser("Error parsing OCL formula: "+sExpr);}
+					}
 		}
 	}
 		
@@ -444,7 +448,7 @@ public class ECore2Alloy {
 	}
 	
 	/**
-	 * Returns all {@link EStructuralFeature} of this metamodel
+	 * Returns all {@link EStructuralFeature} of this meta-model
 	 * @return the features
 	 */
 	public Set<EStructuralFeature> getSFeatures() {
@@ -488,10 +492,10 @@ public class ECore2Alloy {
 	}
 	
 	/**
-	 * Returns all {@link PrimSig} of this metamodel
+	 * Returns all {@link PrimSig} of this meta-model
 	 * @return the signatures
 	 */
-	public List<PrimSig> getSigList() {
+	public List<PrimSig> getSigs() {
 		return new ArrayList<PrimSig>(mapClassSig.values());
 	}
 

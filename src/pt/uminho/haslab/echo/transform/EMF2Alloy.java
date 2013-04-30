@@ -230,12 +230,12 @@ public class EMF2Alloy {
 
 	
 	public List<PrimSig> getModelSigsFromName(String uri){
-		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(uri).getSigList());
+		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(uri).getSigs());
 		return aux;
 	}	
 
 	public List<PrimSig> getModelSigsFromURI(String uri){
-		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(parser.getModelsFromUri(uri).getName()).getSigList());
+		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(parser.getModelsFromUri(uri).getName()).getSigs());
 		return aux;
 	}	
 
@@ -275,7 +275,7 @@ public class EMF2Alloy {
 	}
 	
 	public List<PrimSig> getModelSigs(String pck) {
-		return modeltrads.get(pck).getSigList();
+		return modeltrads.get(pck).getSigs();
 	}
 	
 	public EStructuralFeature getESFeatureFromName(String pck, String cla, String fie) {

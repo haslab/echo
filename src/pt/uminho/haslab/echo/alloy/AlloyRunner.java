@@ -94,6 +94,39 @@ public class AlloyRunner {
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
 
+	/**
+	 * Initializes q QVT-R enforcement command
+	 * @param qvturi the URI of the QVT-R transformation
+	 * @param insturis the URIs of the instances
+	 * @param dirarg the direction of the transformation (one of the QVT-R arguments)
+	 * @throws ErrorAlloy
+	 */
+	public void repair(List<String> insturis, String dir) throws ErrorAlloy {
+		conforms(insturis);	
+		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
+		else {			
+			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
+			finalfact = Sig.NONE.no();
+			PrimSig original, target;
+			List<PrimSig> sigs = new ArrayList<PrimSig>();
+			for (String uri : insturis) {
+				PrimSig state = addInstanceSigs(uri);
+				if (uri.equals(dir)) {
+					original = state;
+					try { target = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
+					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+					allsigs.add(target);
+					sigs.add(target);
+					edelta = translator.getModelDeltaExpr(original.parent.label,original, target);
+					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
+				} else {
+					sigs.add(state);			
+				}
+				finalfact = finalfact.and(translator.getInstanceFact(uri));
+			}
+		} 
+	}
+	
 	/** 
 	 * Generates instances conforming to given models
 	 * @param uris the URIs of the models
@@ -123,7 +156,6 @@ public class AlloyRunner {
 		for (String uri : insturis) {
 			PrimSig state = addInstanceSigs(uri);
 			sigs.add(state);
-			System.out.println("Instance: "+translator.getInstanceFact(uri));
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 		}
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
@@ -160,7 +192,6 @@ public class AlloyRunner {
 					allsigs.add(target);
 					sigs.add(target);
 					edelta = translator.getModelDeltaExpr(original.parent.label,original, target);
-					System.out.println("DELTA: "+edelta);
 					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
 				} else {
 					sigs.add(state);			
