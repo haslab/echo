@@ -6,6 +6,8 @@ public class ErrorParser extends Exception {
 	private Object object;
 	private String trans;
 
+	public ErrorParser(String msg) { super(msg); }
+
 	public ErrorParser(String msg, String trans) { super(msg); this.trans = trans; }
 
 	public ErrorParser(String msg, String trans, Object obj) { 
