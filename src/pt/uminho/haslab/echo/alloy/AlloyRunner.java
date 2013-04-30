@@ -86,6 +86,8 @@ public class AlloyRunner {
 	public void conforms(List<String> uris) throws ErrorAlloy {
 		for (String uri : uris) {
 			addInstanceSigs(uri);
+			finalfact = finalfact.and(translator.getConformsInstance(uri));
+			System.out.println(translator.getConformsInstance(uri));
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 		}
 		try {
@@ -107,7 +109,7 @@ public class AlloyRunner {
 		else {			
 			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
 			finalfact = Sig.NONE.no();
-			PrimSig original, target;
+			PrimSig original, target = null;
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
 			for (String uri : insturis) {
 				PrimSig state = addInstanceSigs(uri);
@@ -122,6 +124,7 @@ public class AlloyRunner {
 				} else {
 					sigs.add(state);			
 				}
+				finalfact = finalfact.and(translator.getConformsInstance(uri, target));
 				finalfact = finalfact.and(translator.getInstanceFact(uri));
 			}
 		} 
@@ -135,6 +138,7 @@ public class AlloyRunner {
 	public void generate(List<String> uris) throws ErrorAlloy {
 		for (String uri : uris) {
 			allsigs.addAll(translator.getModelSigsFromURI(uri));
+			finalfact = finalfact.and(translator.getConformsAllInstances(uri));
 		}
 		scopes = translator.getScopes();
 		try {
@@ -214,12 +218,12 @@ public class AlloyRunner {
 			if (overall >= translator.options.getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.","AlloyRunner");
 		}
 		try {
-			delta++;
 			intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 			Command cmd = new Command(false, overall, intscope, -1, finalfact.and(edelta.equal(ExprConstant.makeNUMBER(delta))));
 			scopes = AlloyUtil.incrementScopes(scopes);
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
+			delta++;
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
 	}
 	

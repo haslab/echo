@@ -292,6 +292,22 @@ public class EMF2Alloy {
 		return insttrads.get(uri).getSigMap();
 	}
 	
+	
+	public Expr getConformsInstance(String uri) {
+		Func f = insttrads.get(uri).translator.getConforms();
+		return f.call(inststatesigs.get(uri));
+	}
+
+	public Expr getConformsInstance(String uri, PrimSig sig) {
+		Func f = insttrads.get(uri).translator.getConforms();
+		return f.call(sig);
+	}
+
+	public Expr getConformsAllInstances(String uri) {
+		String name = parser.getModelsFromUri(uri).getName();
+		Func f = modeltrads.get(name).getConforms();
+		return f.call(modelstatesigs.get(name));
+	}
 
 	/**
 	 * returns true is able to determine determinism;

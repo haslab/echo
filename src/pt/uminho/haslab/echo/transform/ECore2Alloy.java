@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,7 +41,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
@@ -70,7 +70,8 @@ public class ECore2Alloy {
 	
 	
 	private Expr constraint = Sig.NONE.no();
-	private Decl constraintvar;
+	private Decl constraintdecl;
+	private Func conformity;
 	
 	/**
 	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
@@ -88,6 +89,9 @@ public class ECore2Alloy {
 		this.translator = translator;
 		this.statesig = statesig;
 		epackage = pck;
+		try{
+			constraintdecl = statesig.oneOf("s_");
+		} catch (Err a) { throw new ErrorAlloy (a.getMessage());}
 	}
 
 	/**
@@ -123,6 +127,11 @@ public class ECore2Alloy {
 		for (EClass c : classList)
 			processOperations(c.getEOperations());
 
+		System.out.println(constraint);
+		try {
+			conformity = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint);
+		} catch (Err e1) { new ErrorAlloy (e1.getMessage()); }
+		
 	}
 	
 	/**
@@ -179,22 +188,20 @@ public class ECore2Alloy {
 			} else if(attr.getEType().getName().equals("EString")) {
 				try {
 					field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),attr.getName()),Sig.STRING.product(statesig));
-					fact = field.join(statesig.decl.get());
-					Expr bound = mapSigState.get(classsig).join(statesig.decl.get()).any_arrow_one(Sig.STRING);
+					fact = field.join(constraintdecl.get());
+					Expr bound = mapSigState.get(classsig).join(constraintdecl.get()).any_arrow_one(Sig.STRING);
 					fact = fact.in(bound);
-					fact = fact.forAll(statesig.decl);
-					System.out.println("debug "+statesig.label+"," +fact);
-					classsig.addFact(fact);
+					System.out.println("debug "+constraintdecl+"," +fact);
+					constraint = constraint.and(fact);
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 				mapSfField.put(attr,field);
 			} else if(attr.getEType().getName().equals("EInt")) {
 				try {
 					field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),attr.getName()),Sig.SIGINT.product(statesig));
-					fact = field.join(statesig.decl.get());
-					Expr bound = mapSigState.get(classsig).join(statesig.decl.get()).any_arrow_one(Sig.SIGINT);
+					fact = field.join(constraintdecl.get());
+					Expr bound = mapSigState.get(classsig).join(constraintdecl.get()).any_arrow_one(Sig.SIGINT);
 					fact = fact.in(bound);
-					fact = fact.forAll(statesig.decl);
-					classsig.addFact(fact);
+					constraint = constraint.and(fact);
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 				mapSfField.put(attr,field);
 			} 
@@ -236,50 +243,53 @@ public class ECore2Alloy {
 				try{field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),reference.getName()),trgsig.product(statesig));}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 				mapSfField.put(reference,field);
-				Decl s = statesig.decl;
 
 				EReference op = reference.getEOpposite();
+				Expr fact;
 				if(op!=null) {
 					Field opField = getFieldFromSFeature(op);
-					if(opField != null)
-						try{classsig.addFact(field.join(s.get()).equal(opField.join(s.get()).transpose()).forAll(statesig.decl));}
-						catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+					if(opField != null) {
+						fact = field.join(constraintdecl.get()).equal(opField.join(constraintdecl.get()).transpose());
+						constraint = constraint.and(fact);
+					}
 				}
 
-				Expr fact;
+	
 				try{
-					Decl d = AlloyUtil.localStateSig(classsig,s.get()).oneOf("src_");
+					Decl d = AlloyUtil.localStateSig(classsig,constraintdecl.get()).oneOf("src_");
 					if (reference.getLowerBound() == 1 && reference.getUpperBound() == 1) {
-						fact = (d.get()).join(field.join(s.get())).one().forAll(s,d);
-						classsig.addFact(fact);	
+						fact = (d.get()).join(field.join(constraintdecl.get())).one().forAll(d);
+						constraint = constraint.and(fact);
 					} else if (reference.getLowerBound() == 0 && reference.getUpperBound() == 1) {
-						fact = (d.get()).join(field.join(s.get())).lone().forAll(s,d);
-						classsig.addFact(fact);	
+						fact = (d.get()).join(field.join(constraintdecl.get())).lone().forAll(d);
+						constraint = constraint.and(fact);
 					} else if (reference.getLowerBound() == 1 && reference.getUpperBound() == -1) {
-						fact = (d.get()).join(field.join(s.get())).some().forAll(s,d);
-						classsig.addFact(fact);	
+						fact = (d.get()).join(field.join(constraintdecl.get())).some().forAll(d);
+						constraint = constraint.and(fact);
 					} else if (reference.getUpperBound() == 0) {
-						fact = (d.get()).join(field.join(s.get())).no().forAll(s,d);
-						classsig.addFact(fact);	
+						fact = (d.get()).join(field.join(constraintdecl.get())).no().forAll(d);
+						constraint = constraint.and(fact);
 					} else if (reference.getLowerBound() == 0 && reference.getUpperBound() == -1) {}
 					if(reference.getLowerBound() > 1) {
-						fact = (d.get()).join(field.join(s.get())).cardinality().gte(ExprConstant.makeNUMBER(reference.getLowerBound())).forAll(s,d);
-						classsig.addFact(fact);
+						fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().gte(ExprConstant.makeNUMBER(reference.getLowerBound())).forAll(d);
+						constraint = constraint.and(fact);
 					}
-					if(reference.getUpperBound() != -1){
-						fact = (d.get()).join(field.join(s.get())).cardinality().lte(ExprConstant.makeNUMBER(reference.getUpperBound())).forAll(s,d);
-						classsig.addFact(fact);
+					if(reference.getUpperBound() > 1){
+						fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().lte(ExprConstant.makeNUMBER(reference.getUpperBound())).forAll(d);
+						constraint = constraint.and(fact);
 					}
 					
 					if(reference.isContainment()){
-						d = AlloyUtil.localStateSig(trgsig,s.get()).oneOf("trg_");
-						fact = ((field.join(s.get())).join(d.get())).one().forAll(s,d);
-						trgsig.addFact(fact);
+						d = AlloyUtil.localStateSig(trgsig,constraintdecl.get()).oneOf("trg_");
+						fact = ((field.join(constraintdecl.get())).join(d.get())).one().forAll(d);
+						constraint = constraint.and(fact);
 					}
 					
 					Expr parState = mapSigState.get(classsig);
 					Expr sTypeState = mapSigState.get(trgsig);
-					classsig.addFact(field.join(s.get()).in(parState.join(s.get()).product(sTypeState.join(s.get()))).forAll(statesig.decl));
+					fact = field.join(constraintdecl.get()).in(parState.join(constraintdecl.get()).product(sTypeState.join(constraintdecl.get())));
+					constraint = constraint.and(fact);
+
 				} catch (Err a) {throw new ErrorAlloy (a.getMessage());}		
 			}
 		}
@@ -305,18 +315,18 @@ public class ECore2Alloy {
 				self = classsig.oneOf("self");
 			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 			sd.add(self);
-			sd.add(statesig.decl);
+			sd.add(constraintdecl);
 
 			Map<String,ExprHasName> statevars = new HashMap<String, ExprHasName>();
-			statevars.put(statesig.label,statesig.decl.get());
+			statevars.put(statesig.label,constraintdecl.get());
 			OCL2Alloy converter = new OCL2Alloy(translator,sd,statevars,null);
 			
 			if(annotation.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
 				try{
 					for(String sExpr: annotation.getDetails().values()) {
 						ExpressionInOCL invariant = helper.createInvariant(sExpr);
-						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self, statesig.decl);
-						classsig.addFact(oclalloy);
+						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
+						constraint = constraint.and(oclalloy);
 					}
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
 				  catch (ParserException e) { throw new ErrorParser(e.getMessage());}
@@ -497,6 +507,14 @@ public class ECore2Alloy {
 	 */
 	public List<PrimSig> getSigs() {
 		return new ArrayList<PrimSig>(mapClassSig.values());
+	}
+	
+	/**
+	 * Returns the {@link Func} that tests well-formedness
+	 * @return the predicate
+	 */
+	public Func getConforms() {
+		return conformity;
 	}
 
 	/*public PrimSig getSigFromEEnumLiteral(EEnumLiteral e)
