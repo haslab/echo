@@ -72,9 +72,9 @@ public class Alloy2XMI {
 		EClass ec = null;
 		try {
 			PrimSig type = (PrimSig)ex.type().toExpr();
-			if (instancesigs.contains(type)) ec = e2a.getEClassFromSig(type.parent);
-			else ec = e2a.getEClassFromSig(type);
-		} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"Alloy2XMI"); }
+			if (instancesigs.contains(type)) ec = (EClass) e2a.getEClassFromSig(type.parent);
+			else ec = (EClass) e2a.getEClassFromSig(type);
+		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 		EObject obj = e2a.epackage.getEFactoryInstance().create(ec);
 		mapExprObj.put(ex, obj);
 		Field field;
@@ -143,7 +143,7 @@ public class Alloy2XMI {
 				{
 					;
 				}
-			} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"");}
+			} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 		}
 		
 		

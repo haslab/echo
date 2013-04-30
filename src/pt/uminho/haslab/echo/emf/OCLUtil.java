@@ -55,7 +55,7 @@ public class OCLUtil {
 			vars.addAll(variablesOCLExpression(((IfExp) exp).getElseExpression()));
 		}
 		else if (exp instanceof PrimitiveLiteralExp) {}
-		else throw new ErrorUnsupported ("OCL expression not supported: "+exp+".","OCLUtil");
+		else throw new ErrorUnsupported ("OCL expression not supported: "+exp+".");
 
 		return vars;
 	}

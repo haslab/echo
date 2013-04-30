@@ -103,7 +103,7 @@ public class OCL2Alloy {
 			for (Decl d : vardecls)
 				if (d.get().label.equals(varname))
 					decl = d;
-			if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",((ObjectTemplateExp) temp).getBindsTo());
+			if (decl == null) throw new ErrorTransform ("Variable not declared: "+((ObjectTemplateExp) temp).getBindsTo());
 			ExprHasName var = decl.get();
 			
 			// merges the whole thing
@@ -192,44 +192,44 @@ public class OCL2Alloy {
 				res = ((d.get().in(src)).implies(bdy));
 				res = res.forAll(d);
 			}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("exists")) {
 				try {
 					res = ((d.get().in(src)).and(bdy));
 					res = res.forSome(d);
 				}
-				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+				catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("one")) {
 			try {
 				res = ((d.get().in(src)).and(bdy));
 				res = res.forOne(d);
 			}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("forAll")) {
 			try {
 				res = ((d.get().in(src)).and(bdy));
 				res = res.forSome(d);
 			}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("select")) {
 			try {
 				res = ((d.get().in(src)).and(bdy));
 				res = res.comprehensionOver(d);
-			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+			} catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("reject")) {
 			try {
 				res = ((d.get().in(src)).and(bdy.not()));
 				res = res.comprehensionOver(d);
-			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+			} catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("closure")) {
 			res = Sig.NONE.no();
 			try {
 				Decl dd = bdy.oneOf("2_");
 				res = res.comprehensionOver(d,dd);
-			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+			} catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 			res = src.join(res.closure());	
 		}
-		else throw new ErrorUnsupported ("OCL iterator not supported: "+expr.getReferredIteration()+".","OCL2Alloy");
+		else throw new ErrorUnsupported ("OCL iterator not supported: "+expr.getReferredIteration()+".");
 		vardecls.remove(d);
 		
 		return res;
@@ -261,6 +261,8 @@ public class OCL2Alloy {
 			res = src.cardinality();
 		else if (expr.getReferredOperation().getName().equals("="))
 			res = src.equal(oclExprToAlloy(expr.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("<>"))
+			res = (src.equal(oclExprToAlloy(expr.getArgument().get(0)))).not();
 		else if (expr.getReferredOperation().getName().equals("and"))
 			res = src.and(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("or")) {
@@ -314,7 +316,7 @@ public class OCL2Alloy {
 		}
 			
 		
-		else throw new ErrorUnsupported ("OCL operation not supported: "+expr.toString()+".","OCL2Alloy");
+		else throw new ErrorUnsupported ("OCL operation not supported: "+expr.toString()+".");
 
 		return res;
 	}
@@ -331,7 +333,7 @@ public class OCL2Alloy {
 		else if (expr instanceof IfExp) return oclExprToAlloy((IfExp) expr);
 		else if (expr instanceof UnlimitedNaturalLiteralExp) return oclExprToAlloy((UnlimitedNaturalLiteralExp) expr);
 		else if (expr instanceof TypeExp) return oclExprToAlloy((TypeExp) expr);
-		else throw new ErrorUnsupported ("OCL expression not supported: "+expr+".","OCL2Alloy");
+		else throw new ErrorUnsupported ("OCL expression not supported: "+expr+".");
 	}
 	
 
@@ -375,7 +377,7 @@ public class OCL2Alloy {
 					avars.add(range.oneOf(ovar.getName()));
 					}
 					else  {
-						List<PrimSig> sigs = translator.getModelSigsFromName(mdl);
+						List<PrimSig> sigs = translator.getAllSigsFromName(mdl);
 						for (Sig s : sigs)
 							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) 
 								range = s;
@@ -427,7 +429,7 @@ public class OCL2Alloy {
 					Expr bdy = oclExprToAlloy(it.getBody());
 					Decl dd = bdy.oneOf("2_");
 					res = res.comprehensionOver(d,dd);
-				} catch (Err e) {vardecls.remove(d); throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",res);}
+				} catch (Err e) {vardecls.remove(d); throw new ErrorAlloy(e.getMessage());}
 				Expr v1 = oclExprToAlloy(a1);
 				Expr v2 = oclExprToAlloy(a2);
 				res = v2.in(v1.join(res.reflexiveClosure()));

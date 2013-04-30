@@ -39,7 +39,7 @@ public class AlloyOptimizations {
 		Expr res = null;
 		try {
 			res = trader.visitThis(expr);
-		} catch (Err e) { throw new ErrorUnsupported("", ""); }
+		} catch (Err e) { throw new ErrorUnsupported(""); }
 	
 		return res;
 	}
@@ -50,7 +50,7 @@ public class AlloyOptimizations {
 		Expr res = null;
 		try {
 			res = onpointer.visitThis(expr);
-		} catch (Err e) { throw new ErrorUnsupported("", ""); }
+		} catch (Err e) { throw new ErrorUnsupported(""); }
 
 		return res;
 	}

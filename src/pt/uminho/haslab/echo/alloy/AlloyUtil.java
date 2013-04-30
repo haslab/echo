@@ -43,7 +43,7 @@ public class AlloyUtil {
 				exp = field;
 			}
 		}
-		if (exp == null) throw new ErrorTransform ("State field not found.","AlloyUtil",sig);
+		if (exp == null) throw new ErrorTransform ("State field not found.");
 		
 		return exp.join(var);
 	}
@@ -74,7 +74,7 @@ public class AlloyUtil {
 	
 		for (PrimSig sig : sizes.keySet()) 
 			try {scopes.add(new CommandScope(sig, exact, sizes.get(sig)));}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 
 		return ConstList.make(scopes);
 	}
@@ -112,7 +112,7 @@ public class AlloyUtil {
 			try {
 				if (scope.sig.label.equals("String")) list.add(new CommandScope(scope.sig, true, scope.startingScope+1));
 				else list.add(new CommandScope(scope.sig, false, scope.startingScope));
-			} catch (ErrorSyntax e) { throw new ErrorAlloy(e.getMessage(), "AlloyUtil");}
+			} catch (ErrorSyntax e) { throw new ErrorAlloy(e.getMessage());}
 
 		return ConstList.make(list);
 	}

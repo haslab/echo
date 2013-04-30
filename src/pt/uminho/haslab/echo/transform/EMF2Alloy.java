@@ -122,7 +122,7 @@ public class EMF2Alloy {
 		try {
 			s = new PrimSig(mdl.getName(),STATE,Attr.ABSTRACT);
 			modelstatesigs.put(s.label, s);
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil",s); }
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
 	
     /** Creates the instances singleton state signatures */
@@ -133,7 +133,7 @@ public class EMF2Alloy {
 			String name = uri;
 			PrimSig s = new PrimSig(name,(PrimSig) modelstatesigs.get(pck),Attr.ONE);
 			inststatesigs.put(uri, s);
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyUtil"); }
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
 		
 	/*
@@ -229,13 +229,15 @@ public class EMF2Alloy {
 	}
 
 	
-	public List<PrimSig> getModelSigsFromName(String uri){
-		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(uri).getSigs());
+	public List<PrimSig> getAllSigsFromName(String uri){
+		ECore2Alloy e2a = modeltrads.get(uri);
+		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getAllSigs());
 		return aux;
 	}	
 
-	public List<PrimSig> getModelSigsFromURI(String uri){
-		List<PrimSig> aux = new ArrayList<PrimSig>(modeltrads.get(parser.getModelsFromUri(uri).getName()).getSigs());
+	public List<PrimSig> getAllSigsFromURI(String uri){
+		ECore2Alloy e2a = modeltrads.get(parser.getModelsFromUri(uri).getName());
+		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getAllSigs());
 		return aux;
 	}	
 
@@ -275,7 +277,7 @@ public class EMF2Alloy {
 	}
 	
 	public List<PrimSig> getModelSigs(String pck) {
-		return modeltrads.get(pck).getSigs();
+		return modeltrads.get(pck).getClassSigs();
 	}
 	
 	public EStructuralFeature getESFeatureFromName(String pck, String cla, String fie) {
@@ -320,7 +322,7 @@ public class EMF2Alloy {
 		IsFunctionalQuery q = new IsFunctionalQuery();
 		try {
 			return q.visitThis(e);
-		} catch (Err e1) { throw new ErrorUnsupported("", ""); }
+		} catch (Err e1) { throw new ErrorUnsupported(""); }
 	}
 	
 	private final class IsFunctionalQuery extends VisitQuery<Boolean> {

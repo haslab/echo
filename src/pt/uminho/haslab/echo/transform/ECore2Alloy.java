@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EParameter;
@@ -55,15 +56,15 @@ public class ECore2Alloy {
 	/** the parent EMF translator */
 	public final EMF2Alloy translator;
 	
-	/** maps classes into respective Alloy signature */
-	private BiMap<EClass,PrimSig> mapClassSig;
-	/** maps structural features into the respective Alloy field */
+	/** maps classes into respective Alloy signatures */
+	private BiMap<EClassifier,PrimSig> mapClassSig;
+	/** maps structural features into respective Alloy fields */
 	private BiMap<EStructuralFeature,Field> mapSfField;
-	/** maps a signature name into its respective class */
+	/** maps signature names into respective classes */
 	private Map<String,EClass> mapClassClass = new HashMap<String,EClass>();
-	/** maps a literal into its Alloy signature */
-	/* private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>(); */
-	/** maps a signature into its state field */
+	/** maps literals into respective Alloy signature */
+	private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
+	/** maps signatures into respective state fields */
 	private Map<PrimSig,Field> mapSigState = new HashMap<PrimSig,Field>();
 	/** list of Alloy functions resulting from operation translation */
 	private List<Func> functions = new ArrayList<Func>();
@@ -95,7 +96,7 @@ public class ECore2Alloy {
 	}
 
 	/**
-	 * Translates the information from the this.epackage (classes, attributes, references, annotations, operations)
+	 * Translates the information from the this.epackage (classes, attributes, references, annotations, operations, eenums)
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
@@ -115,7 +116,8 @@ public class ECore2Alloy {
 				dataList.add((EDataType) e);
 		}
 		
-		//processEEnum(enumList);
+		processEnums(enumList);
+		
 		for (EClass c : classList)
 			processClass(c);
 		for (EClass c : classList)
@@ -127,7 +129,6 @@ public class ECore2Alloy {
 		for (EClass c : classList)
 			processOperations(c.getEOperations());
 
-		System.out.println(constraint);
 		try {
 			conformity = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint);
 		} catch (Err e1) { new ErrorAlloy (e1.getMessage()); }
@@ -191,7 +192,6 @@ public class ECore2Alloy {
 					fact = field.join(constraintdecl.get());
 					Expr bound = mapSigState.get(classsig).join(constraintdecl.get()).any_arrow_one(Sig.STRING);
 					fact = fact.in(bound);
-					System.out.println("debug "+constraintdecl+"," +fact);
 					constraint = constraint.and(fact);
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 				mapSfField.put(attr,field);
@@ -205,18 +205,17 @@ public class ECore2Alloy {
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 				mapSfField.put(attr,field);
 			} 
-			/*else if (attr.getEType() instanceof EEnum) {
-			PrimSig sigType = mapClassSig.get(attr.getEType());
-			try {
-				field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),attr.getName()),sigType.product(statesig));
-				fact = field.join(statesig.decl.get());
-				Expr bound = mapSigState.get(classsig).join(statesig.decl.get()).any_arrow_one(sigType);
-				fact = fact.in(bound);
-				fact = fact.forAll(statesig.decl);
-				classsig.addFact(fact);				
-			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-			mapSfField.put(attr,field);
-			} */
+			else if (attr.getEType() instanceof EEnum) {
+				PrimSig sigType = mapClassSig.get(attr.getEType());
+				try {
+					field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),attr.getName()),sigType.product(statesig));
+					fact = field.join(constraintdecl.get());
+					Expr bound = mapSigState.get(classsig).join(constraintdecl.get()).any_arrow_one(sigType);
+					fact = fact.in(bound);
+					constraint = constraint.and(fact);
+				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
+				mapSfField.put(attr,field);
+			} 
 			else throw new ErrorUnsupported("Primitive type for attribute not supported: "+attr+".");
 		}
 
@@ -332,6 +331,7 @@ public class ECore2Alloy {
 					for(String sExpr: annotation.getDetails().values()) {
 						ExpressionInOCL invariant = helper.createInvariant(sExpr);
 						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
+						System.out.println(oclalloy);
 						constraint = constraint.and(oclalloy);
 					}
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
@@ -387,32 +387,30 @@ public class ECore2Alloy {
 					}
 		}
 	}
-		
-	/*private void processEEnumLiterals(List<EEnumLiteral> el,PrimSig parent) throws ErrorAlloy 
-	{
-		PrimSig litSig = null;
-		for(EEnumLiteral lit: el)
-		{
-			try { litSig = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),lit.getLiteral()),parent,Attr.ONE); }
-			catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",litSig);}
-			mapLitSig.put(lit, litSig);
-			sigList.add(litSig);
+	
+	/**
+	 * Translates a list of {@link EEnum} and the respective {@link EEnumLiteral}
+	 * New sigs: abstract sig representing the enum
+	 * New sigs: child singleton sigs representing the enum literals
+	 * @param enums the enums to translate
+	 * @throws ErrorAlloy
+	 */
+	private void processEnums(List<EEnum> enums) throws ErrorAlloy {
+		PrimSig enumSig = null;
+		for(EEnum enu: enums) {
+			try{ 
+				enumSig = new PrimSig(AlloyUtil.pckPrefix(epackage.getName(),enu.getName()),Attr.ABSTRACT);
+			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
+			mapClassSig.put(enu, enumSig);
+			PrimSig litSig = null;
+			for(EEnumLiteral lit : enu.getELiterals()) {
+				try { 
+					litSig = new PrimSig(AlloyUtil.pckPrefix(epackage.getName(),lit.getLiteral()),enumSig,Attr.ONE); 
+				} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
+				mapLitSig.put(lit, litSig);
+			}		
 		}
 	}
-
-	private void processEEnum(List<EEnum> list) throws ErrorAlloy 
-	{
-		PrimSig enumSig = null;
-		for(EEnum en: list)
-		{
-			try{ enumSig = new PrimSig(AlloyUtil.pckPrefix(pack.getName(),en.getName()),Attr.ABSTRACT);}
-			catch (Err a) {throw new ErrorAlloy(a.getMessage(),"ECore2Alloy",enumSig);}
-			sigList.add(enumSig);
-			mapClassSig.put(en, enumSig);
-			//mapSigState.put(enumSig, enumSig.addField(prefix + en.getName().toLowerCase(),state.setOf()));
-			processEEnumLiterals(en.getELiterals(),enumSig);
-		}
-	}*/
 	
 	/**
 	 * Calculates the delta {@link Expr} for particular state {@link PrimSig}
@@ -485,7 +483,7 @@ public class ECore2Alloy {
 	 * @param s the Alloy signature
  	 * @return the matching class
 	 */
-	public EClass getEClassFromSig(PrimSig s) {
+	public EClassifier getEClassFromSig(PrimSig s) {
 		return mapClassSig.inverse().get(s);
 	}
 
@@ -508,12 +506,26 @@ public class ECore2Alloy {
 	}
 	
 	/**
+	 * Returns class {@link PrimSig} of this meta-model
+	 * @return the signatures
+	 */
+	public List<PrimSig> getClassSigs() {
+		List<PrimSig> aux = new ArrayList<PrimSig>();
+		for (EClassifier c : mapClassSig.keySet())
+			if (c instanceof EClass) aux.add(mapClassSig.get(c));
+		return aux;
+	}
+
+	/**
 	 * Returns all {@link PrimSig} of this meta-model
 	 * @return the signatures
 	 */
-	public List<PrimSig> getSigs() {
-		return new ArrayList<PrimSig>(mapClassSig.values());
+	public List<PrimSig> getAllSigs() {
+		List<PrimSig> aux = new ArrayList<PrimSig>(mapClassSig.values());
+		aux.addAll(mapLitSig.values());
+		return aux;
 	}
+
 	
 	/**
 	 * Returns the {@link Func} that tests well-formedness
@@ -523,10 +535,9 @@ public class ECore2Alloy {
 		return conformity;
 	}
 
-	/*public PrimSig getSigFromEEnumLiteral(EEnumLiteral e)
-	{
+	public PrimSig getSigFromEEnumLiteral(EEnumLiteral e) {
 		return mapLitSig.get(e);
-	}*/
+	}
 	
 }
 

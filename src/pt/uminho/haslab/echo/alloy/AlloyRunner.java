@@ -89,7 +89,6 @@ public class AlloyRunner {
 		for (String uri : uris) {
 			addInstanceSigs(uri);
 			finalfact = finalfact.and(translator.getConformsInstance(uri));
-			System.out.println(translator.getConformsInstance(uri));
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 		}
 		try {
@@ -139,7 +138,7 @@ public class AlloyRunner {
 	 */
 	public void generate(List<String> uris) throws ErrorAlloy {
 		for (String uri : uris) {
-			allsigs.addAll(translator.getModelSigsFromURI(uri));
+			allsigs.addAll(translator.getAllSigsFromURI(uri));
 			finalfact = finalfact.and(translator.getConformsAllInstances(uri));
 		}
 		scopes = translator.getScopes();
@@ -168,7 +167,7 @@ public class AlloyRunner {
 		try {
 			Command cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
 	
 	/**
@@ -217,7 +216,7 @@ public class AlloyRunner {
 		if (overall != 0) {
 			scopes = AlloyUtil.incrementStringScopes(scopes);
 			overall++;
-			if (overall >= translator.options.getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.","AlloyRunner");
+			if (overall >= translator.options.getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.");
 		}
 		try {
 			intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
@@ -226,7 +225,7 @@ public class AlloyRunner {
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 			delta++;
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"AlloyRunner");}
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
 	
 	/** 
@@ -249,7 +248,7 @@ public class AlloyRunner {
 		PrimSig state = translator.getInstanceStateSigFromURI(uri);		
 		allsigs.add(state);
 		allsigs.add(state.parent);
-		allsigs.addAll(translator.getModelSigsFromName(state.parent.label));
+		allsigs.addAll(translator.getAllSigsFromName(state.parent.label));
 		return state;
 	}
 	

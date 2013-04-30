@@ -199,7 +199,7 @@ public class QVTRelation2Alloy {
 					fact = fact.forAll(d);
 			}
 			
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",sourceexpr);}
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 		
 		return fact;
 	}
@@ -293,7 +293,7 @@ public class QVTRelation2Alloy {
 				Func f = new Func(null, field.label+"def",mdecls,null,e);
 				parentq.addFieldFunc(f);
 			}
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage(),"QVTRelation2Alloy",fact);}
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 		return field;
 	}
 	

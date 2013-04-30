@@ -62,8 +62,8 @@ public class XMI2Alloy {
 	// initializes relations to n-ary none
 	private void initContent()
 	{
-		for(PrimSig s: translator.getSigs()) {
-			mapContent.put(translator.getStateFieldFromSig(s),Sig.NONE);}
+		for(PrimSig s: translator.getClassSigs())
+			mapContent.put(translator.getStateFieldFromSig(s),Sig.NONE);
 		for(EStructuralFeature sf: translator.getSFeatures()){
 			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
 			else if(sf.getEType().getName().equals("EBoolean"))
@@ -95,9 +95,7 @@ public class XMI2Alloy {
 	private void makeFactExpr()
 	{
 		factExpr = Sig.NONE.no();
-		
-		for(Expr f: mapContent.keySet())
-		{
+		for(Expr f: mapContent.keySet()) {
 			if (!f.toString().equals("String"))
 				factExpr = factExpr.and(f.join(state).equal(mapContent.get(f)));
 		}
@@ -139,7 +137,7 @@ public class XMI2Alloy {
 		PrimSig parent = translator.getSigFromEClass(it.eClass());
 		PrimSig res;
 		try {res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);}
-		catch (Err a) {throw new ErrorAlloy(a.getMessage(),"XMI2Alloy",parent);}
+		catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 		
 		/*listSiblings = mapContents.get(parent);
 		listSiblings.add(res);*/
@@ -184,11 +182,11 @@ public class XMI2Alloy {
 						mappedExpr = mappedExpr.plus(res.product(aux));
 						mapContent.put(field, mappedExpr);	}	
 				} else if (eG == null) {} 
-				else throw new ErrorUnsupported("EReference type not supported: "+eG, "XMI2Alloy");
+				else throw new ErrorUnsupported("EReference type not supported: "+eG);
 			} 
 			else if(sf instanceof EAttribute)
 				handleAttr(eG,res,field);
-			else throw new ErrorUnsupported("Structural feature not supported: "+sf, "XMI2Alloy");
+			else throw new ErrorUnsupported("Structural feature not supported: "+sf);
 		}
 		return res;
 	}
@@ -207,11 +205,11 @@ public class XMI2Alloy {
 				mapContent.put(field, manos);
 			}
 		}
-		/*else if(obj instanceof EEnumLiteral)
+		else if(obj instanceof EEnumLiteral)
 		{
 			manos = manos.plus(it.product(translator.getSigFromEEnumLiteral((EEnumLiteral)obj)));
 			mapContent.put(field, manos);
-		}*/
+		}
 		else if(obj instanceof String)
 		{
 			Expr str = ExprConstant.Op.STRING.make(null,(String) obj);
@@ -227,7 +225,7 @@ public class XMI2Alloy {
 			
 			manos = manos.plus(it.product(str));
 			mapContent.put(field, manos);
-		}else throw new ErrorUnsupported("Primitive type for attribute not supported: "+obj+".","XMI2Alloy");
+		}else throw new ErrorUnsupported("Primitive type for attribute not supported: "+obj+".");
 	}
 	
 
