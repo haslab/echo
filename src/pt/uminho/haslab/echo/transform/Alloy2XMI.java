@@ -75,7 +75,7 @@ public class Alloy2XMI {
 			if (instancesigs.contains(type)) ec = e2a.getEClassFromSig(type.parent);
 			else ec = e2a.getEClassFromSig(type);
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"Alloy2XMI"); }
-		EObject obj = e2a.getEPackage().getEFactoryInstance().create(ec);
+		EObject obj = e2a.epackage.getEFactoryInstance().create(ec);
 		mapExprObj.put(ex, obj);
 		Field field;
 		ExprVar itExpr;

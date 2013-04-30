@@ -62,8 +62,8 @@ public class XMI2Alloy {
 	// initializes relations to n-ary none
 	private void initContent()
 	{
-		for(Expr f: translator.getStateFields()) {
-			mapContent.put(f,Sig.NONE);}
+		for(PrimSig s: translator.getSigList()) {
+			mapContent.put(translator.getStateFieldFromSig(s),Sig.NONE);}
 		for(EStructuralFeature sf: translator.getSFeatures()){
 			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
 			else if(sf.getEType().getName().equals("EBoolean"))
@@ -206,11 +206,13 @@ public class XMI2Alloy {
 				manos = manos.plus(it);
 				mapContent.put(field, manos);
 			}
-		}else if(obj instanceof EEnumLiteral)
+		}
+		/*else if(obj instanceof EEnumLiteral)
 		{
 			manos = manos.plus(it.product(translator.getSigFromEEnumLiteral((EEnumLiteral)obj)));
 			mapContent.put(field, manos);
-		}else if(obj instanceof String)
+		}*/
+		else if(obj instanceof String)
 		{
 			Expr str = ExprConstant.Op.STRING.make(null,(String) obj);
 			
@@ -222,7 +224,7 @@ public class XMI2Alloy {
 			
 			manos = manos.plus(it.product(str));
 			mapContent.put(field, manos);
-		}else throw new ErrorUnsupported("Primitive type for attribute not supported.","XMI2Alloy",obj.toString());
+		}else throw new ErrorUnsupported("Primitive type for attribute not supported: "+obj+".","XMI2Alloy");
 	}
 	
 

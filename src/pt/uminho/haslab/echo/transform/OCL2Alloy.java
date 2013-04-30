@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
 import org.eclipse.ocl.examples.pivot.IfExp;
@@ -14,6 +17,7 @@ import org.eclipse.ocl.examples.pivot.OCLExpression;
 import org.eclipse.ocl.examples.pivot.OperationCallExp;
 import org.eclipse.ocl.examples.pivot.Property;
 import org.eclipse.ocl.examples.pivot.PropertyCallExp;
+import org.eclipse.ocl.examples.pivot.TypeExp;
 import org.eclipse.ocl.examples.pivot.UnlimitedNaturalLiteralExp;
 import org.eclipse.ocl.examples.pivot.Variable;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
@@ -35,27 +39,28 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class OCL2Alloy {
 
 	private final EMF2Alloy translator;
 
-	private TypedModel modelvar;
 	private Set<Decl> vardecls;
-	private List<ExprHasName> argsvars;
+	private Map<String,ExprHasName> argsvars;
+	private Map<String,ExprHasName> prevars;
 	private QVTRelation2Alloy parentq;
 	
-	public OCL2Alloy(QVTRelation2Alloy q2a, TypedModel modelvar, EMF2Alloy translator, Set<Decl> vardecls, List<ExprHasName> argsvars) {
-		this (translator,vardecls);
+	public OCL2Alloy(QVTRelation2Alloy q2a, EMF2Alloy translator, Set<Decl> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+		this (translator,vardecls,argsvars,prevars);
 		this.parentq = q2a;
-		this.modelvar = modelvar;	
-		this.argsvars = argsvars;
 	}
 	
-	public OCL2Alloy(EMF2Alloy translator, Set<Decl> vardecls) {
+	public OCL2Alloy(EMF2Alloy translator, Set<Decl> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
 		this.vardecls = vardecls;
+		this.prevars = prevars;
 		this.translator = translator;
+		this.argsvars = argsvars;
 	}
 	
 	public Expr oclExprToAlloy (VariableExp expr) throws ErrorTransform {
@@ -132,11 +137,14 @@ public class OCL2Alloy {
 	}
 	
 	public Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		if (modelvar == null) throw new ErrorTransform ("No QVT transformation available,","OCL2Alloy");
-		QVTRelation2Alloy trans = new QVTRelation2Alloy (parentq,expr.getReferredRelation(), modelvar, false, translator);
+		QVTRelation2Alloy trans = new QVTRelation2Alloy (parentq,expr.getReferredRelation(), translator);
 
 		Func func = trans.getFunc();
-		Expr res = func.call(argsvars.toArray(new ExprHasName[argsvars.size()]));
+		
+		List<ExprHasName> aux = new ArrayList<ExprHasName>();
+		for (Entry<String, ExprHasName> x : argsvars.entrySet())
+			aux.add(x.getValue());
+		Expr res = func.call(aux.toArray(new ExprHasName[aux.size()]));
 		
 		
 		List<OCLExpression> vars = expr.getArgument();
@@ -185,6 +193,18 @@ public class OCL2Alloy {
 				res = res.forAll(d);
 			}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+		} else if (expr.getReferredIteration().getName().equals("exists")) {
+				try {
+					res = ((d.get().in(src)).and(bdy));
+					res = res.forSome(d);
+				}
+				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
+		} else if (expr.getReferredIteration().getName().equals("one")) {
+			try {
+				res = ((d.get().in(src)).and(bdy));
+				res = res.forOne(d);
+			}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
 		} else if (expr.getReferredIteration().getName().equals("forAll")) {
 			try {
 				res = ((d.get().in(src)).and(bdy));
@@ -209,11 +229,17 @@ public class OCL2Alloy {
 			} catch (Err e) { throw new ErrorAlloy(e.getMessage(),"OCL2Alloy",src);}
 			res = src.join(res.closure());	
 		}
-		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
+		else throw new ErrorUnsupported ("OCL iterator not supported: "+expr.getReferredIteration()+".","OCL2Alloy");
 		vardecls.remove(d);
 		
 		return res;
 	}
+	
+	public PrimSig oclExprToAlloy (TypeExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		String pck = expr.getReferredType().getPackage().getName();
+		return translator.getSigFromName(pck,expr.getReferredType().getName());
+	}
+	
 	
 	public Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
@@ -267,9 +293,28 @@ public class OCL2Alloy {
 			res = src.iplus(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("-"))
 			res = src.iminus(oclExprToAlloy(expr.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("allInstances"))
+			res = src;
+		else if (expr.getReferredOperation().getName().equals("oclIsNew")) {
+			VariableExp x = (VariableExp) expr.getSource();
+			String cl = x.getType().getName();
+			String mdl = x.getType().getPackage().getName();
+			Field statefield = translator.getStateFieldFromName(mdl,cl);
+			ExprHasName pre = null;
+			ExprHasName pos = null;
+			if (argsvars != null) 
+				pre = argsvars.get(mdl);
+			if (prevars != null) 
+				pos = prevars.get(mdl);
 
+			Expr pree = (src.in(statefield.join(pre))).not();
+			Expr pose = src.in(statefield.join(pos));
+			
+			res = pree.and(pose);
+		}
+			
 		
-		else throw new ErrorUnsupported ("OCL expression not supported."+expr.getName()+","+expr.getArgument().toString(),"OCL2Alloy",expr);
+		else throw new ErrorUnsupported ("OCL operation not supported: "+expr.toString()+".","OCL2Alloy");
 
 		return res;
 	}
@@ -285,32 +330,27 @@ public class OCL2Alloy {
 		else if (expr instanceof PropertyCallExp) return oclExprToAlloy((PropertyCallExp) expr);
 		else if (expr instanceof IfExp) return oclExprToAlloy((IfExp) expr);
 		else if (expr instanceof UnlimitedNaturalLiteralExp) return oclExprToAlloy((UnlimitedNaturalLiteralExp) expr);
-		else throw new ErrorUnsupported ("OCL expression not supported.","OCL2Alloy",expr);
+		else if (expr instanceof TypeExp) return oclExprToAlloy((TypeExp) expr);
+		else throw new ErrorUnsupported ("OCL expression not supported: "+expr+".","OCL2Alloy");
 	}
 	
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
 	public Expr propertyToField (Property prop) {
 		String mdl = prop.getOwningType().getPackage().getName();
-		ECore2Alloy e2a = translator.getModelTranslator(mdl);
-		EStructuralFeature sf;
 		Expr exp;
 		Expr statesig = null;
-		if (modelvar != null) {
-			for (ExprHasName v : argsvars) {
-				if (v.label.startsWith(modelvar.getName()))
-						statesig = v;
-			}
-		}
-		else
+		if (argsvars != null) 
+			statesig = argsvars.get(mdl);
+		if (statesig == null) 
 			statesig = translator.getModelStateSig(mdl);
 		if (prop.getOpposite() != null && prop.getOpposite().isComposite() && translator.options.isOptimize()) {
-			sf = e2a.getSFeatureFromName(prop.getOpposite().getName(),prop.getOpposite().getOwningType().getName());
-			exp = (e2a.getFieldFromSFeature(sf).join(statesig)).transpose();			
+			Field field = translator.getFieldFromName(mdl,prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
+			exp = (field.join(statesig)).transpose();			
 		}
 		else {
-			sf = e2a.getSFeatureFromName(prop.getName(),prop.getOwningType().getName());
-			exp = (e2a.getFieldFromSFeature(sf).join(statesig));			
+			Field field = translator.getFieldFromName(mdl,prop.getOwningType().getName(),prop.getName());
+			exp = (field.join(statesig));
 		}
 		if (exp == null) throw new Error ("Field not found: "+AlloyUtil.pckPrefix(mdl,prop.getName()));
 		return exp;
@@ -324,11 +364,11 @@ public class OCL2Alloy {
 				try {
 					Sig range = Sig.NONE;
 					String mdl = ovar.getType().getPackage().getName();
-					Expr state = translator.getModelStateSig(mdl);
+					Expr state = null;
 					if (argsvars != null)
-						for (ExprHasName x : argsvars)
-							if(x.type().toExpr().equals(state))
-								state = x;
+						state = argsvars.get(mdl);
+					if (state == null)
+						state = translator.getModelStateSig(mdl);
 					String type = ovar.getType().getName();
 					if (type.equals("String")) {
 					range = Sig.STRING;

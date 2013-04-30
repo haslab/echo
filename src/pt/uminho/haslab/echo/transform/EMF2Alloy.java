@@ -2,7 +2,6 @@ package pt.uminho.haslab.echo.transform;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import java.util.Map.Entry;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -44,6 +44,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -179,7 +180,7 @@ public class EMF2Alloy {
 		List<EClass> topclass = parser.getTopObject(mdluri);
 		if (topclass.size() != 1) throw new ErrorTransform("Could not resolve top class.","");
 		PrimSig sig = e2a.getSigFromEClass(topclass.get(0));
-		writeXMIAlloy(sol,uri,sig, e2a.getState(),e2a,null);
+		writeXMIAlloy(sol,uri,sig, e2a.statesig,e2a,null);
 	}
 	
 	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform {
@@ -238,11 +239,6 @@ public class EMF2Alloy {
 		return aux;
 	}	
 
-	public Collection<PrimSig> getInstanceSigs(String uri){
-		List<PrimSig> aux = new ArrayList<PrimSig>(insttrads.get(uri).getSigList());
-		return aux;
-	}
-
 	public Expr getModelStateSig(String mm){
 		return modelstatesigs.get(mm);
 	}
@@ -251,14 +247,51 @@ public class EMF2Alloy {
 		return inststatesigs.get(uri);
 	}
 
-	public ECore2Alloy getModelTranslator (String mdl) {
-		return modeltrads.get(mdl);
+	public PrimSig getClassifierFromSig(EClassifier c) {
+		if (c.getName().equals("EString")) return Sig.STRING;
+		else if (c.getName().equals("EBoolean")) return Sig.NONE;
+		else {
+			ECore2Alloy e2a = modeltrads.get(c.getEPackage().getName());
+			return e2a.getSigFromEClass((EClass) c);
+		}
 	}
 
-	public XMI2Alloy getInstanceTranslator (String uri) {
-		return insttrads.get(uri);
+	public PrimSig getSigFromName(String pck, String cla) {
+		ECore2Alloy e2a = modeltrads.get(pck);
+		EClass ecl =  e2a.getEClassFromName(cla);
+		return e2a.getSigFromEClass(ecl);
+	}
+	
+	public Field getStateFieldFromName(String pck, String cla) {
+		ECore2Alloy e2a = modeltrads.get(pck);
+		EClass ecl =  e2a.getEClassFromName(cla);
+		return e2a.getStateFieldFromSig(e2a.getSigFromEClass(ecl));
+	}
+	
+	public Field getFieldFromName(String pck, String cla, String fie) {
+		ECore2Alloy e2a = modeltrads.get(pck);
+		EStructuralFeature sf = e2a.getSFeatureFromName(fie, cla);
+		return e2a.getFieldFromSFeature(sf);
+	}
+	
+	public List<PrimSig> getModelSigs(String pck) {
+		return modeltrads.get(pck).getSigList();
+	}
+	
+	public EStructuralFeature getESFeatureFromName(String pck, String cla, String fie) {
+		ECore2Alloy e2a = modeltrads.get(pck);
+		if (e2a == null) return null;
+		else return e2a.getSFeatureFromName(fie, cla);
 	}
 
+	public Expr getModelDeltaExpr(String pck, PrimSig m, PrimSig n) throws ErrorAlloy {
+		return modeltrads.get(pck).getDeltaExpr(m, n);
+	}
+	
+	public Map<String, List<PrimSig>> getInstanceSigs(String uri) {
+		return insttrads.get(uri).getSigMap();
+	}
+	
 
 	/**
 	 * returns true is able to determine determinism;
