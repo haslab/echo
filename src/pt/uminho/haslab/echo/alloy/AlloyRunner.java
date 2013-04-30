@@ -11,9 +11,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
-import pt.uminho.haslab.echo.transform.ECore2Alloy;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
-import pt.uminho.haslab.echo.transform.XMI2Alloy;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -125,6 +123,7 @@ public class AlloyRunner {
 		for (String uri : insturis) {
 			PrimSig state = addInstanceSigs(uri);
 			sigs.add(state);
+			System.out.println("Instance: "+translator.getInstanceFact(uri));
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 		}
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
@@ -150,8 +149,6 @@ public class AlloyRunner {
 			Func func = translator.getQVTFact(qvturi);
 			RelationalTransformation qvt = translator.getQVTTransformation(qvturi);
 			PrimSig original, target;
-			ECore2Alloy e2a = null;
-			XMI2Alloy x2a;
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
 			for (int i = 0 ; i < insturis.size(); i++) {
 				String uri = insturis.get(i);
@@ -160,12 +157,11 @@ public class AlloyRunner {
 					original = state;
 					try { target = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
-					e2a = translator.getModelTranslator(original.parent.label);
-					x2a = translator.getInstanceTranslator(uri);
 					allsigs.add(target);
 					sigs.add(target);
-					edelta = e2a.getDeltaExpr(original, target);
-					scopes = AlloyUtil.createScopeFromSigs(e2a.getSigList(), x2a.getSigMap());
+					edelta = translator.getModelDeltaExpr(original.parent.label,original, target);
+					System.out.println("DELTA: "+edelta);
+					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
 				} else {
 					sigs.add(state);			
 				}
@@ -187,8 +183,9 @@ public class AlloyRunner {
 			if (overall >= translator.options.getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.","AlloyRunner");
 		}
 		try {
+			delta++;
 			intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
-			Command cmd = new Command(false, overall, intscope, -1, finalfact.and(edelta.equal(ExprConstant.makeNUMBER(++delta))));
+			Command cmd = new Command(false, overall, intscope, -1, finalfact.and(edelta.equal(ExprConstant.makeNUMBER(delta))));
 			scopes = AlloyUtil.incrementScopes(scopes);
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
@@ -210,7 +207,8 @@ public class AlloyRunner {
 	 * @return the signature representing the instance
 	 */
 	private PrimSig addInstanceSigs (String uri) {
-		allsigs.addAll(translator.getInstanceSigs(uri));
+		for (List<PrimSig> x : translator.getInstanceSigs(uri).values())
+			allsigs.addAll(x);
 		PrimSig state = translator.getInstanceStateSigFromURI(uri);		
 		allsigs.add(state);
 		allsigs.add(state.parent);
@@ -255,9 +253,8 @@ public class AlloyRunner {
 				String ref = label.split("_")[1];
 				AlloyType sig = t.getTypes().get(0);
 				String cla = sig.getName().split("_")[1];
-				ECore2Alloy e2a = translator.getModelTranslator(pck);
-				if (e2a != null) {
-					EStructuralFeature sf = e2a.getSFeatureFromName(ref, cla);
+				EStructuralFeature sf = translator.getESFeatureFromName(pck,cla,ref);
+				if (sf != null) {
 					if (sf instanceof EAttribute) {
 						vizstate.edgeVisible.put(t, false);
 						vizstate.attribute.put(t, true);
