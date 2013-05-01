@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.cli;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -78,12 +80,11 @@ public class CLIOptions extends Options implements EchoOptions{
 		
 		this.addOption(OptionBuilder.withArgName("path")
 				.hasArg()
-				.isRequired(false)
 				.withDescription("the QVT-R transformation file")
 				.withLongOpt("qvtr")
 				.create("q"));
 	
-		this.addOption(OptionBuilder.isRequired(false)
+		this.addOption(OptionBuilder
 				.withDescription("test if the instances conform to the models")
 				.withLongOpt("conformance")
 				.create("t"));
@@ -96,7 +97,6 @@ public class CLIOptions extends Options implements EchoOptions{
 				.withValueSeparator(' ')
 				.withLongOpt("instances")
 				.hasArgs()
-				.isRequired(false)
 				.withDescription("instance files (should be in the same order as the QVT-R tranformation's arguments)")
 				.create("i"));
 		
@@ -104,7 +104,6 @@ public class CLIOptions extends Options implements EchoOptions{
 				.withValueSeparator(' ')
 				.withLongOpt("models")
 				.hasArgs()
-				.isRequired(true)
 				.withDescription("model files")
 				.create("m"));
 		
@@ -143,8 +142,8 @@ public class CLIOptions extends Options implements EchoOptions{
 			if (isCheck() && isEnforce()) 
 				throw new ErrorParser("Choose either enforce or check mode.");
 		} catch (Exception e) {
-			if (this.isHelp()) {}
-			else throw new ErrorParser(e.getMessage());
+			if (!(Arrays.asList(args)).contains("--help"))
+				throw new ErrorParser(e.getMessage());
 		}
 		
 	}
@@ -252,7 +251,7 @@ public class CLIOptions extends Options implements EchoOptions{
 	
 	public void printHelp(){
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp( "echo [options] {-c|-e <direction>} -q <path> -m <paths>... -i <paths>...", this,false );
+		formatter.printHelp("echo [options] {-c|-e <direction>} -q <path> -m <paths>... -i <paths>...", this,false );
 	}
 	
 }

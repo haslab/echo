@@ -30,7 +30,13 @@ public class CLIMain {
 				options.printHelp();
 				return;
 			}
-		} catch (ErrorParser e) { System.out.println(e.getMessage()); }
+		} catch (ErrorParser e) { 
+			System.out.println(e.getMessage());
+			String[] a = {"--help"};
+			options = new CLIOptions(a);
+			options.printHelp();
+			return; 
+		}
 		
 		CLIPrinter printer = new CLIPrinter(options);
 		EchoRunner echo = new EchoRunner(options);
