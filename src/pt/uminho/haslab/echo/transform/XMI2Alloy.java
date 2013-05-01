@@ -22,7 +22,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-public class XMI2Alloy {
+class XMI2Alloy {
 	
 	private static int counter = 0;
 	
@@ -35,9 +35,9 @@ public class XMI2Alloy {
 	private Map<String,List<PrimSig>> sigList = new HashMap<String,List<PrimSig>>();
 	private Expr factExpr = null; 
 	
-	public final ECore2Alloy translator;
+	final ECore2Alloy translator;
 	
-	public XMI2Alloy(EObject obj,ECore2Alloy t, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	XMI2Alloy(EObject obj,ECore2Alloy t, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		eObj = obj;
 		translator = t;
@@ -47,15 +47,15 @@ public class XMI2Alloy {
 		makeFactExpr();
 	}
 	
-	public PrimSig getSigFromEObject(EObject o) {
+	PrimSig getSigFromEObject(EObject o) {
 		return mapObjSig.get(o);
 	}
 
-	public List<PrimSig> getSigsFromSig(String s) {
+	List<PrimSig> getSigsFromSig(String s) {
 		return sigList.get(s);
 	}
 
-	public EObject getRootEObject(){
+	EObject getRootEObject(){
 		return eObj;
 	}
 	
@@ -73,7 +73,7 @@ public class XMI2Alloy {
 	}
 
 	
-	public List<PrimSig> getSigList()
+	List<PrimSig> getSigList()
 	{
 		List<PrimSig> res = new ArrayList<PrimSig>();
 		for (List<PrimSig> sigs : sigList.values())
@@ -81,12 +81,12 @@ public class XMI2Alloy {
 		return res;
 	}
 
-	public Map<String,List<PrimSig>> getSigMap()
+	Map<String,List<PrimSig>> getSigMap()
 	{
 		return new HashMap<String,List<PrimSig>>(sigList);
 	}
 
-	public Expr getFact()
+	Expr getFact()
 	{
 		return factExpr;
 	}

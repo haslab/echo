@@ -207,10 +207,6 @@ public class EMFParser {
 		return instances.get(uri);
 	}
 
-	/*public EObject getInstanceFromArg(String arg){
-		return instances.get(argpaths.inverse().get(arg));
-	}*/
-
 	public List<EClass> getTopObject(String m) {
 		EPackage pck = models.get(m);
 		List<EClass> classes = new ArrayList<EClass>();
@@ -224,22 +220,14 @@ public class EMFParser {
 		}			
 		return candidates;
 	}
-	
-	public String backUpTarget(String uri){
-		//String dir = getInstanceUri(options.getDirection());
-		//String oldPath = getInstanceFromUri(dir).eResource().getURI().toString();
 
+	public String backUpTarget(String uri){
 		StringBuilder sb = new StringBuilder(uri);
 		sb.insert(sb.length()-4,".old");
 
 		XMIResource resource = (XMIResource) resourceSet.createResource(URI.createURI(sb.toString()));
 		resource.getContents().add(getInstanceFromUri(uri));
 
-		
-		/*
-		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
-		* xsi:schemaLocation attribute in the document
-		*/
 		Map<Object,Object> options = new HashMap<Object,Object>();
 		options.put(XMIResource.OPTION_SCHEMA_LOCATION, "aaa");
 		try{
@@ -251,5 +239,4 @@ public class EMFParser {
 		return sb.toString();
 		
 	}
-
 }

@@ -79,8 +79,6 @@ public class EMF2Alloy {
 	/** the initial command scopes of the target instance 
 	 * only these need be increased in enforce mode, null if not enforce mode */
 	private ConstList<CommandScope> scopes;
-	/** the Alloy expression denoting the delta function (true if not enforce mode) */
-	private Expr deltaexpr = Sig.NONE.no();
 	
 	/**
 	 * Constructs a new EMF to Alloy translator
@@ -170,7 +168,6 @@ public class EMF2Alloy {
 		List<PrimSig> instsigs = inst.getSigList();
 		EObject rootobj = inst.getRootEObject();
 		PrimSig rootsig = inst.getSigFromEObject(rootobj);
-		System.out.println("ST "+targetstate);
 		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
 	}
 	
@@ -219,10 +216,6 @@ public class EMF2Alloy {
 	public RelationalTransformation getQVTTransformation(String uri) {
 		return qvttrads.get(uri).getQVTTransformation();
 	}
-	
-	public Expr getDeltaFact(){
-		return deltaexpr;
-	}
 
 	public ConstList<CommandScope> getScopes(){
 		return scopes;
@@ -232,6 +225,12 @@ public class EMF2Alloy {
 	public List<PrimSig> getAllSigsFromName(String uri){
 		ECore2Alloy e2a = modeltrads.get(uri);
 		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getAllSigs());
+		return aux;
+	}	
+
+	public List<PrimSig> getEnumSigsFromName(String uri){
+		ECore2Alloy e2a = modeltrads.get(uri);
+		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getEnumSigs());
 		return aux;
 	}	
 
@@ -310,6 +309,7 @@ public class EMF2Alloy {
 		Func f = modeltrads.get(name).getConforms();
 		return f.call(modelstatesigs.get(name));
 	}
+
 
 	/**
 	 * returns true is able to determine determinism;

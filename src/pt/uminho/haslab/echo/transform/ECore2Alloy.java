@@ -47,14 +47,14 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-public class ECore2Alloy {
+class ECore2Alloy {
 
 	/** the package being translated */
-	public final EPackage epackage;
+	final EPackage epackage;
 	/** the signature matching this meta-model */
-	public final PrimSig statesig;
+	final PrimSig statesig;
 	/** the parent EMF translator */
-	public final EMF2Alloy translator;
+	final EMF2Alloy translator;
 	
 	/** maps classes into respective Alloy signatures */
 	private BiMap<EClassifier,PrimSig> mapClassSig;
@@ -83,7 +83,7 @@ public class ECore2Alloy {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public ECore2Alloy(EPackage pck, PrimSig statesig, EMF2Alloy translator) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+	ECore2Alloy(EPackage pck, PrimSig statesig, EMF2Alloy translator) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		mapSfField = HashBiMap.create();
 		mapClassSig = HashBiMap.create();
 		mapLitSig = HashBiMap.create();
@@ -102,7 +102,7 @@ public class ECore2Alloy {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void translate() throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser{
+	void translate() throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser{
 		List<EClass> classList = new LinkedList<EClass>();
 		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
@@ -327,7 +327,6 @@ public class ECore2Alloy {
 					for(String sExpr: annotation.getDetails().values()) {
 						ExpressionInOCL invariant = helper.createInvariant(sExpr);
 						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
-						System.out.println(oclalloy);
 						constraint = constraint.and(oclalloy);
 					}
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
@@ -415,7 +414,7 @@ public class ECore2Alloy {
 	 * @return the delta expression
 	 * @throws ErrorAlloy
 	 */
-	public Expr getDeltaExpr(PrimSig m, PrimSig n) throws ErrorAlloy{
+	Expr getDeltaExpr(PrimSig m, PrimSig n) throws ErrorAlloy{
 		Expr result = ExprConstant.makeNUMBER(0);
 		for (Expr e : mapSigState.values()) {
 			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
@@ -433,7 +432,7 @@ public class ECore2Alloy {
 	 * @param f the desired feature
 	 * @return the matching Alloy field
 	 */
-	public Field getFieldFromSFeature(EStructuralFeature f) {
+	Field getFieldFromSFeature(EStructuralFeature f) {
 		return mapSfField.get(f);
 	}
 	
@@ -442,7 +441,7 @@ public class ECore2Alloy {
 	 * @param f the Alloy field
  	 * @return the matching feature
 	 */
-	public EStructuralFeature getSFeatureFromField(Field f)	{
+	EStructuralFeature getSFeatureFromField(Field f)	{
 		return mapSfField.inverse().get(f);
 	}
 	
@@ -452,7 +451,7 @@ public class ECore2Alloy {
 	 * @param cla the name of the class
  	 * @return the matching feature
 	 */
-	public EStructuralFeature getSFeatureFromName(String ref, String cla) {
+	EStructuralFeature getSFeatureFromName(String ref, String cla) {
 		EClass eclass = mapClassClass.get(cla);
 		return eclass.getEStructuralFeature(ref);
 	}
@@ -461,7 +460,7 @@ public class ECore2Alloy {
 	 * Returns all {@link EStructuralFeature} of this meta-model
 	 * @return the features
 	 */
-	public Set<EStructuralFeature> getSFeatures() {
+	Set<EStructuralFeature> getSFeatures() {
 		return mapSfField.keySet();
 	}
 
@@ -470,7 +469,7 @@ public class ECore2Alloy {
 	 * @param s the class name
 	 * @return the matching class
 	 */
-	public EClass getEClassFromName(String s) {
+	EClass getEClassFromName(String s) {
 		return mapClassClass.get(s);
 	}
 
@@ -479,7 +478,7 @@ public class ECore2Alloy {
 	 * @param s the Alloy signature
  	 * @return the matching class
 	 */
-	public EClassifier getEClassFromSig(PrimSig s) {
+	EClassifier getEClassFromSig(PrimSig s) {
 		return mapClassSig.inverse().get(s);
 	}
 
@@ -488,7 +487,7 @@ public class ECore2Alloy {
 	 * @param c the class
  	 * @return the matching Alloy signature
 	 */
-	public PrimSig getSigFromEClass(EClass c) {
+	PrimSig getSigFromEClass(EClass c) {
 		return mapClassSig.get(c);
 	}
 
@@ -497,7 +496,7 @@ public class ECore2Alloy {
 	 * @param s the signature
  	 * @return the state field
 	 */
-	public Field getStateFieldFromSig(PrimSig s) {
+	Field getStateFieldFromSig(PrimSig s) {
 		return mapSigState.get(s);
 	}
 	
@@ -505,10 +504,22 @@ public class ECore2Alloy {
 	 * Returns class {@link PrimSig} of this meta-model
 	 * @return the signatures
 	 */
-	public List<PrimSig> getClassSigs() {
+	List<PrimSig> getClassSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>();
 		for (EClassifier c : mapClassSig.keySet())
 			if (c instanceof EClass) aux.add(mapClassSig.get(c));
+		return aux;
+	}
+	
+	/**
+	 * Returns enum {@link PrimSig} of this meta-model
+	 * @return the signatures
+	 */
+	List<PrimSig> getEnumSigs() {
+		List<PrimSig> aux = new ArrayList<PrimSig>();
+		for (EClassifier c : mapClassSig.keySet())
+			if (c instanceof EEnum) aux.add(mapClassSig.get(c));
+		aux.addAll(mapLitSig.values());
 		return aux;
 	}
 
@@ -516,7 +527,7 @@ public class ECore2Alloy {
 	 * Returns all {@link PrimSig} of this meta-model
 	 * @return the signatures
 	 */
-	public List<PrimSig> getAllSigs() {
+	List<PrimSig> getAllSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>(mapClassSig.values());
 		aux.addAll(mapLitSig.values());
 		return aux;
@@ -527,7 +538,7 @@ public class ECore2Alloy {
 	 * @return the predicate
 	 * @throws ErrorAlloy 
 	 */
-	public Func getConforms() throws ErrorAlloy {
+	Func getConforms() throws ErrorAlloy {
 		Func f;
 		try {
 			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint);
@@ -539,7 +550,7 @@ public class ECore2Alloy {
 	 * Returns the Alloy {@link PrimSig} representing an {@link EEnumLiteral} 
 	 * @return the matching signature
 	 */
-	public PrimSig getSigFromEEnumLiteral(EEnumLiteral e) {
+	PrimSig getSigFromEEnumLiteral(EEnumLiteral e) {
 		return mapLitSig.get(e);
 	}
 	
@@ -547,7 +558,7 @@ public class ECore2Alloy {
 	 * Returns the {@link EEnumLiteral} represented by an Alloy {@link PrimSig}
 	 * @return the matching enum literal
 	 */
-	public EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
+	EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
 		return mapLitSig.inverse().get(s);
 	}
 	

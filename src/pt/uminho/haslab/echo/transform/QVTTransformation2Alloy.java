@@ -21,7 +21,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
-public class QVTTransformation2Alloy {
+class QVTTransformation2Alloy {
 
 	/** the Alloy expression rising from this QVT Transformation*/
 	private Func func;
@@ -39,7 +39,7 @@ public class QVTTransformation2Alloy {
 	 * @throws ErrorAlloy
 	 * @throws Err 
 	 */
-	public QVTTransformation2Alloy (EMF2Alloy translator, RelationalTransformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	QVTTransformation2Alloy (EMF2Alloy translator, RelationalTransformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr fact = Sig.NONE.no();
 		this.qvt = qvt;
 		Map<String,Decl> argsdecls = new HashMap<String, Decl>();
@@ -77,11 +77,11 @@ public class QVTTransformation2Alloy {
 	 * 
 	 * @return this.fact
 	 */	
-	public Func getFunc() {
+	Func getFunc() {
 		return func;
 	}
 
-	public RelationalTransformation getQVTTransformation() {
+	RelationalTransformation getQVTTransformation() {
 		return qvt;
 	}
 

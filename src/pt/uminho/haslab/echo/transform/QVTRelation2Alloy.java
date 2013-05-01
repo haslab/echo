@@ -33,7 +33,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
-public class QVTRelation2Alloy {
+class QVTRelation2Alloy {
 
 	/** the translator containing information about process EMF artifacts */
 	private final EMF2Alloy translator;	
@@ -79,11 +79,11 @@ public class QVTRelation2Alloy {
 
 	
 	
-	public QVTRelation2Alloy (QVTRelation2Alloy q2a, Relation rel, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	QVTRelation2Alloy (QVTRelation2Alloy q2a, Relation rel, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this (false,q2a,q2a.getDirection(),rel,translator);
 	}
 
-	public QVTRelation2Alloy (TypedModel mdl, Relation rel, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	QVTRelation2Alloy (TypedModel mdl, Relation rel, EMF2Alloy translator) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this (true,null,mdl,rel,translator);
 	}
 
@@ -118,8 +118,8 @@ public class QVTRelation2Alloy {
 		initVariableDeclarationLists();
 		Expr fact = calculateFact();
 		AlloyOptimizations opt = new AlloyOptimizations(translator);
-		System.out.println("Pre-onepoint "+fact);
 		if(translator.options.isOptimize()) {
+			System.out.println("Pre-onepoint "+fact);
 			fact = opt.trading(fact);
 			fact = opt.onePoint(fact);
 			System.out.println("Pos-onepoint "+fact);
@@ -301,7 +301,7 @@ public class QVTRelation2Alloy {
 	 * Returns the Alloy function corresponding to this QVT Relation
 	 * @return this.func
 	 */
-	public Func getFunc() {
+	Func getFunc() {
 		return func;
 	}
 	
@@ -317,11 +317,11 @@ public class QVTRelation2Alloy {
 	 * Returns the additional facts, defining the fields of internal non-top QVT calls
 	 * @returns this.fieldFacts
 	 */
-	public List<Func> getFieldFunc() {
+	List<Func> getFieldFunc() {
 		return fieldFacts;
 	}
 
-	public TypedModel getDirection() {
+	TypedModel getDirection() {
 		return direction;
 	}
 

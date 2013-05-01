@@ -219,5 +219,13 @@ public class EchoRunner {
 		translator.writeInstance(runner.getSolution(), insturi,runner.getTargetStateSig());
 	}
 	
+	
+	public String backUpInstance (String insturi) {
+		return parser.backUpTarget(insturi);
+	}
+	
+	public int getCurrentDelta() {
+		return runner.getDelta();
+	}
 }
 

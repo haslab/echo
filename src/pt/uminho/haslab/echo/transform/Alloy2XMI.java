@@ -29,7 +29,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 
-public class Alloy2XMI {
+class Alloy2XMI {
 	
 	private Map<ExprVar,Object> mapExprObj = new HashMap<ExprVar,Object>();
 	private final EObject result;
@@ -40,7 +40,7 @@ public class Alloy2XMI {
 	private final List<PrimSig> instancesigs;
 	private Map<String,ExprVar> mapAtoms;
 	
-	public Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo,PrimSig state, EchoOptions options,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform 
+	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo,PrimSig state, EchoOptions options,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform 
 	{
 		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom", "Alloy2XMI");
 		instancesigs = (instsigs==null)?new ArrayList<PrimSig>():instsigs;
@@ -53,7 +53,7 @@ public class Alloy2XMI {
 	}
 	
 	
-	public EObject getModel()
+	EObject getModel()
 	{
 		return result;
 	}
