@@ -125,16 +125,19 @@ public class CLIMain {
 				sol = echo.getAInstance();
 				sol.writeXML("alloy_output.xml");
 				viz.loadXML("alloy_output.xml", true);
-				/*if(options.isEnforce()&&options.isOverwrite())
-					echo.translator.writeTargetInstance(echo.alloyrunner.getSolution());
-				else if (options.isGenerate())
-					for (String uri : options.getModels())
-					echo.translator.writeInstances(echo.alloyrunner.getSolution(),uri);	*/
 				printer.printForce("Search another instance? (y)");
-				success = echo.next();
 				end = in.readLine(); 
+				success = echo.next();
 			}
 			in.close();
+			if (success) {
+				/*if(options.isEnforce()&&options.isOverwrite())
+					echo.translator.writeTargetInstance(echo.alloyrunner.getSolution());
+				else*/ if (options.isGenerate())
+					for (String uri : options.getModels())
+						echo.writeInstances(uri);	
+			}
+		
 			SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();
 			new File("alloy_output.xml").delete();
 		

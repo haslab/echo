@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EPackage;
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
 import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
+import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
@@ -109,13 +110,13 @@ public class EchoRunner {
 	 * @param uris the URIs of the models
 	 * @return true if able to generate instance
 	 * @throws ErrorAlloy
+	 * @throws ErrorTransform 
 	 */
-	public boolean generate(List<String> uris) throws ErrorAlloy {
+	public boolean generate(List<String> uris) throws ErrorAlloy, ErrorTransform {
 		if (options.getOverallScope() != 0) {
 			translator.createScopesFromSizes(options.getOverallScope(), options.getScopes());
 			runner = new AlloyRunner(translator);
 			runner.generate(uris);
-			return runner.getSolution().satisfiable();
 		}
 		else {
 			Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
@@ -130,8 +131,8 @@ public class EchoRunner {
 				runner.increment();
 				runner.generate(uris);
 			}
-			return runner.getSolution().satisfiable();				
 		}
+		return runner.getSolution().satisfiable();				
 	}
 	
 	/**
@@ -197,6 +198,16 @@ public class EchoRunner {
 	 */
 	public void generateTheme (VizState vizstate) {
 		runner.generateTheme(vizstate);
+	}
+	
+	/**
+	 * Writes instances from the solution into XMI
+	 * @param uri the uri of the meta-model
+	 * @throws ErrorTransform 
+	 * @throws ErrorAlloy 
+	 */
+	public void writeInstances (String uri) throws ErrorAlloy, ErrorTransform {
+		translator.writeInstances(runner.getSolution(), uri);
 	}
 	
 }

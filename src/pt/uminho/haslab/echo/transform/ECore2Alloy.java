@@ -63,16 +63,15 @@ public class ECore2Alloy {
 	/** maps signature names into respective classes */
 	private Map<String,EClass> mapClassClass = new HashMap<String,EClass>();
 	/** maps literals into respective Alloy signature */
-	private Map<EEnumLiteral,PrimSig> mapLitSig = new HashMap<EEnumLiteral,PrimSig>();
+	private BiMap<EEnumLiteral,PrimSig> mapLitSig;
 	/** maps signatures into respective state fields */
 	private Map<PrimSig,Field> mapSigState = new HashMap<PrimSig,Field>();
 	/** list of Alloy functions resulting from operation translation */
 	private List<Func> functions = new ArrayList<Func>();
-	
-	
+	/** the constraint representing the conformity test */
 	private Expr constraint = Sig.NONE.no();
+	/** the variable declaration for the conformity test */
 	private Decl constraintdecl;
-	private Func conformity;
 	
 	/**
 	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
@@ -87,6 +86,7 @@ public class ECore2Alloy {
 	public ECore2Alloy(EPackage pck, PrimSig statesig, EMF2Alloy translator) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		mapSfField = HashBiMap.create();
 		mapClassSig = HashBiMap.create();
+		mapLitSig = HashBiMap.create();
 		this.translator = translator;
 		this.statesig = statesig;
 		epackage = pck;
@@ -128,10 +128,6 @@ public class ECore2Alloy {
 			processAnnotations(c.getEAnnotations());
 		for (EClass c : classList)
 			processOperations(c.getEOperations());
-
-		try {
-			conformity = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint);
-		} catch (Err e1) { new ErrorAlloy (e1.getMessage()); }
 		
 	}
 	
@@ -526,17 +522,33 @@ public class ECore2Alloy {
 		return aux;
 	}
 
-	
 	/**
 	 * Returns the {@link Func} that tests well-formedness
 	 * @return the predicate
+	 * @throws ErrorAlloy 
 	 */
-	public Func getConforms() {
-		return conformity;
+	public Func getConforms() throws ErrorAlloy {
+		Func f;
+		try {
+			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint);
+		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+		return f;
 	}
 
+	/**
+	 * Returns the Alloy {@link PrimSig} representing an {@link EEnumLiteral} 
+	 * @return the matching signature
+	 */
 	public PrimSig getSigFromEEnumLiteral(EEnumLiteral e) {
 		return mapLitSig.get(e);
+	}
+	
+	/**
+	 * Returns the {@link EEnumLiteral} represented by an Alloy {@link PrimSig}
+	 * @return the matching enum literal
+	 */
+	public EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
+		return mapLitSig.inverse().get(s);
 	}
 	
 }

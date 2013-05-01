@@ -10,6 +10,8 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -65,7 +67,7 @@ public class Alloy2XMI {
 		return res;
 	}
 	
-	//TODO : Aridade das relações, não sei se esta será a maneira correcta.
+	//TODO : Recheck relation arity
 	
 	private EObject createObject(ExprVar ex) throws ErrorAlloy
 	{
@@ -88,25 +90,22 @@ public class Alloy2XMI {
 		{	
 			try {
 				field = e2a.getFieldFromSFeature(sf);
+				ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 
 				if(sf instanceof EAttribute)
 				{
 					att = (EAttribute) sf;
-					if(att.getEType().getName().equals("EBoolean"))
-					{
+					if(att.getEType() instanceof EEnum){
+						Expr e = mapAtoms.get(ts.iterator().next().atom(0));
+						EEnumLiteral lit = e2a.getEEnumLiteralFromSig((PrimSig)e.type().toExpr());
+						obj.eSet(sf, lit);
+					}
+					else if(att.getEType().getName().equals("EBoolean"))
 						obj.eSet(sf,sol.eval(ex.in(field.join(state))));
-					}
 					else if(att.getEType().getName().equals("EString"))
-					{
-						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						obj.eSet(sf, ts.iterator().next().atom(0));
-						
-					}
 					else if(att.getEType().getName().equals("EInt"))
-					{
-						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						obj.eSet(sf,Integer.parseInt(ts.iterator().next().atom(0)));
-					}
 					else
 						;
 				}else if(sf instanceof EReference)
@@ -115,7 +114,6 @@ public class Alloy2XMI {
 							!(((EReference) sf).getEOpposite() != null && ((EReference) sf).getEOpposite().isContainment())) {
 						ref = (EReference) sf;
 		
-						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
 						{
 							itList = new BasicEList<EObject>();

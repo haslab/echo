@@ -165,15 +165,17 @@ public class EMF2Alloy {
 	/** Writes an Alloy solution in the target instance file 
 	 * @throws ErrorAlloy 
 	 * @throws ErrorTransform */
-	/*public void writeTargetInstance(A4Solution sol,String trguri) throws Err, ErrorAlloy, ErrorTransform{
+	/*public void writeTargetInstance(A4Solution sol,String trguri) throws ErrorAlloy, ErrorTransform{
 		XMI2Alloy inst = insttrads.get(trguri);
-		List<PrimSig> instsigs = inst.getSigList();
-		EObject rootobj = inst.getRootEObject();
-		PrimSig rootsig = inst.getSigFromEObject(rootobj);
-		writeXMIAlloy(sol,trguri,rootsig,targetstatesig,inst.translator,instsigs);
+		if (inst != null) {
+			List<PrimSig> instsigs = inst.getSigList();
+			EObject rootobj = inst.getRootEObject();
+			PrimSig rootsig = inst.getSigFromEObject(rootobj);
+			writeXMIAlloy(sol,trguri,rootsig,targetstatesig,inst.translator,instsigs);
+		}
 	}*/
 	
-	public void writeInstances(A4Solution sol, String mdluri) throws Err, ErrorAlloy, ErrorTransform{
+	public void writeInstances(A4Solution sol, String mdluri) throws ErrorAlloy, ErrorTransform{
 		EPackage pck = parser.getModelsFromUri(mdluri);
 		String uri = mdluri.replace(".ecore", ".xmi");
 		ECore2Alloy e2a = modeltrads.get(pck.getName());
@@ -183,7 +185,7 @@ public class EMF2Alloy {
 		writeXMIAlloy(sol,uri,sig, e2a.statesig,e2a,null);
 	}
 	
-	public void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform {
+	private void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform {
 		
 		Alloy2XMI a2x = new Alloy2XMI(sol,rootatom,trad,state,options,instsigs);
 		
@@ -295,17 +297,17 @@ public class EMF2Alloy {
 	}
 	
 	
-	public Expr getConformsInstance(String uri) {
+	public Expr getConformsInstance(String uri) throws ErrorAlloy {
 		Func f = insttrads.get(uri).translator.getConforms();
 		return f.call(inststatesigs.get(uri));
 	}
 
-	public Expr getConformsInstance(String uri, PrimSig sig) {
+	public Expr getConformsInstance(String uri, PrimSig sig) throws ErrorAlloy {
 		Func f = insttrads.get(uri).translator.getConforms();
 		return f.call(sig);
 	}
 
-	public Expr getConformsAllInstances(String uri) {
+	public Expr getConformsAllInstances(String uri) throws ErrorAlloy {
 		String name = parser.getModelsFromUri(uri).getName();
 		Func f = modeltrads.get(name).getConforms();
 		return f.call(modelstatesigs.get(name));
