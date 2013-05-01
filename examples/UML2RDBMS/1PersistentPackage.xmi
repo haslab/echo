@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
-<uml:Package
-    xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:uml="UML"
-    xsi:schemaLocation="UML UML.ecore#UML"
-    name="Top">
-  <classes name="a">
-    <attributes
-        name="a"/>
+<uml:Package xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="UML" xsi:schemaLocation="UML examples/UML2RDBMS/UML.ecore#UML" name="Topp">
+  <classes name="a" persistent="true" super="//@classes.0">
+    <attributes name="a"/>
   </classes>
 </uml:Package>

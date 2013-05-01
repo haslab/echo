@@ -9,7 +9,5 @@
   <tables name="a">
     <columns
         name="a"/>
-    <columns
-        name="b"/>
   </tables>
 </rdbms:Scheme>
