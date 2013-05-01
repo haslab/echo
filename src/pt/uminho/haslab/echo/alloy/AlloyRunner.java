@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
@@ -59,6 +58,8 @@ public class AlloyRunner {
 	private int overall;
 	/** the current specific scopes */
 	private ConstList<CommandScope> scopes;
+	/** the state signature of the target instance */	
+	private PrimSig targetstate;
 
 	/** 
 	 * Constructs a new Alloy Runner that performs tests and generates instances
@@ -98,10 +99,9 @@ public class AlloyRunner {
 	}
 
 	/**
-	 * Initializes q QVT-R enforcement command
-	 * @param qvturi the URI of the QVT-R transformation
+	 * Initializes a repair command
 	 * @param insturis the URIs of the instances
-	 * @param dirarg the direction of the transformation (one of the QVT-R arguments)
+	 * @param dirarg the URI of the instance to repair
 	 * @throws ErrorAlloy
 	 */
 	public void repair(List<String> insturis, String dir) throws ErrorAlloy {
@@ -110,22 +110,22 @@ public class AlloyRunner {
 		else {			
 			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
 			finalfact = Sig.NONE.no();
-			PrimSig original, target = null;
+			PrimSig original;
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
 			for (String uri : insturis) {
 				PrimSig state = addInstanceSigs(uri);
 				if (uri.equals(dir)) {
 					original = state;
-					try { target = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
+					try { targetstate = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
-					allsigs.add(target);
-					sigs.add(target);
-					edelta = translator.getModelDeltaExpr(original.parent.label,original, target);
+					allsigs.add(targetstate);
+					sigs.add(targetstate);
+					edelta = translator.getModelDeltaExpr(original.parent.label,original, targetstate);
 					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
 				} else {
 					sigs.add(state);			
 				}
-				finalfact = finalfact.and(translator.getConformsInstance(uri, target));
+				finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				finalfact = finalfact.and(translator.getInstanceFact(uri));
 			}
 		} 
@@ -174,29 +174,27 @@ public class AlloyRunner {
 	 * Initializes q QVT-R enforcement command
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param insturis the URIs of the instances
-	 * @param dirarg the direction of the transformation (one of the QVT-R arguments)
+	 * @param diruri the URI of the target model
 	 * @throws ErrorAlloy
 	 */
-	public void enforce(String qvturi, List<String> insturis, String dirarg) throws ErrorAlloy {
+	public void enforce(String qvturi, List<String> insturis, String diruri) throws ErrorAlloy {
 		check(qvturi,insturis);
 		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
 		else {			
 			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
 			finalfact = Sig.NONE.no();
 			Func func = translator.getQVTFact(qvturi);
-			RelationalTransformation qvt = translator.getQVTTransformation(qvturi);
-			PrimSig original, target;
+			PrimSig original;
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
-			for (int i = 0 ; i < insturis.size(); i++) {
-				String uri = insturis.get(i);
+			for (String uri : insturis) {
 				PrimSig state = addInstanceSigs(uri);
-				if (qvt.getModelParameter().get(i).getName().equals(dirarg)) {
+				if (uri.equals(diruri)) {
 					original = state;
-					try { target = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
+					try { targetstate = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
-					allsigs.add(target);
-					sigs.add(target);
-					edelta = translator.getModelDeltaExpr(original.parent.label,original, target);
+					allsigs.add(targetstate);
+					sigs.add(targetstate);
+					edelta = translator.getModelDeltaExpr(original.parent.label,original, targetstate);
 					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
 				} else {
 					sigs.add(state);			
@@ -344,4 +342,13 @@ public class AlloyRunner {
 	public ConstList<CommandScope> getScopes() {
 		return scopes;
 	}	
+	
+	/** 
+	 * Returns the state signature of the target instance.
+	 * @return this.targetstate
+	 */
+	public PrimSig getTargetStateSig(){
+		return targetstate;
+	}
 }
+

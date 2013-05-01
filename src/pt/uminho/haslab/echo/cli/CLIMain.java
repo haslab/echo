@@ -114,6 +114,7 @@ public class CLIMain {
 				//String sb = echo.parser.backUpTarget();
 				//printer.print("Backup file created: " + sb);	
 			}
+			
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			String end = "y";
 			A4Solution sol = echo.getAInstance();
@@ -121,21 +122,28 @@ public class CLIMain {
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
 			echo.generateTheme(viz.getVizState());
 			viz.doShowViz();
+			printer.printForce("Search another instance? (y)");
+			end = in.readLine();
 			while (success&&end.equals("y")) {
-				sol = echo.getAInstance();
-				sol.writeXML("alloy_output.xml");
-				viz.loadXML("alloy_output.xml", true);
-				printer.printForce("Search another instance? (y)");
-				end = in.readLine(); 
 				success = echo.next();
-			}
+				if (success) {
+					sol = echo.getAInstance();
+					sol.writeXML("alloy_output.xml");
+					viz.loadXML("alloy_output.xml", true);
+					printer.printForce("Search another instance? (y)");
+					end = in.readLine();
+				}
+			}  
 			in.close();
 			if (success) {
-				/*if(options.isEnforce()&&options.isOverwrite())
-					echo.translator.writeTargetInstance(echo.alloyrunner.getSolution());
-				else*/ if (options.isGenerate())
+				if (options.isGenerate())
 					for (String uri : options.getModels())
-						echo.writeInstances(uri);	
+						echo.writeAllInstances(uri);	
+				else if(options.isRepair()&&options.isOverwrite())
+					echo.writeInstance(options.getDirection());	
+				else if(options.isEnforce()&&options.isOverwrite())
+					echo.writeInstance(options.getDirection());	
+ 					
 			}
 		
 			SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();

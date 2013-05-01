@@ -13,7 +13,6 @@ import org.eclipse.emf.ecore.EPackage;
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
 import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
-import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
@@ -39,8 +38,8 @@ public class EchoRunner {
 	}
 	
 	/**
-	 * Parses and processes into Alloy a EPackage model from its URI
-	 * @param uri the URI of the EPackage to load
+	 * Parses and processes into Alloy a {@link EPackage} model from its URI
+	 * @param uri the URI of the package to load
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
@@ -53,8 +52,8 @@ public class EchoRunner {
 	}
 
 	/**
-	 * Parses and processes into Alloy a EObject instance from its URI
-	 * @param uri the URI of the EObject to load
+	 * Parses and processes into Alloy a {@link EObject} instance from its URI
+	 * @param uri the URI of the model instance to load
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
@@ -152,13 +151,13 @@ public class EchoRunner {
 	 * Starts enforcement run according to a QVT transformation
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param insturis the URIs of the instances (should be in the order of the QVT-R transformation arguments)
-	 * @param targetarg the direction of the enforce (should be an argument of the QVT-R transformation)
+	 * @param targeturi the uri of the target instance
 	 * @return true if able to generate instance
 	 * @throws ErrorAlloy
 	 */
-	public boolean enforce(String qvturi, List<String> insturis, String targetarg) throws ErrorAlloy {
+	public boolean enforce(String qvturi, List<String> insturis, String targeturi) throws ErrorAlloy {
 		runner = new AlloyRunner(translator);
-		runner.enforce(qvturi, insturis, targetarg);
+		runner.enforce(qvturi, insturis, targeturi);
 		return runner.getSolution().satisfiable();
 	}
 	
@@ -201,13 +200,23 @@ public class EchoRunner {
 	}
 	
 	/**
-	 * Writes instances from the solution into XMI
+	 * Writes all instances of a given meta-model from the current Alloy solution into XMI
 	 * @param uri the uri of the meta-model
 	 * @throws ErrorTransform 
 	 * @throws ErrorAlloy 
 	 */
-	public void writeInstances (String uri) throws ErrorAlloy, ErrorTransform {
-		translator.writeInstances(runner.getSolution(), uri);
+	public void writeAllInstances (String mmuri) throws ErrorAlloy, ErrorTransform {
+		translator.writeAllInstances(runner.getSolution(), mmuri);
+	}
+	
+	/**
+	 * Writes a particular instance from the current Alloy solution into XMI
+	 * @param uri the uri of the instance
+	 * @throws ErrorTransform 
+	 * @throws ErrorAlloy 
+	 */
+	public void writeInstance (String insturi) throws ErrorAlloy, ErrorTransform {
+		translator.writeInstance(runner.getSolution(), insturi,runner.getTargetStateSig());
 	}
 	
 }

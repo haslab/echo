@@ -165,17 +165,16 @@ public class EMF2Alloy {
 	/** Writes an Alloy solution in the target instance file 
 	 * @throws ErrorAlloy 
 	 * @throws ErrorTransform */
-	/*public void writeTargetInstance(A4Solution sol,String trguri) throws ErrorAlloy, ErrorTransform{
+	public void writeInstance(A4Solution sol,String trguri, PrimSig targetstate) throws ErrorAlloy, ErrorTransform{
 		XMI2Alloy inst = insttrads.get(trguri);
-		if (inst != null) {
-			List<PrimSig> instsigs = inst.getSigList();
-			EObject rootobj = inst.getRootEObject();
-			PrimSig rootsig = inst.getSigFromEObject(rootobj);
-			writeXMIAlloy(sol,trguri,rootsig,targetstatesig,inst.translator,instsigs);
-		}
-	}*/
+		List<PrimSig> instsigs = inst.getSigList();
+		EObject rootobj = inst.getRootEObject();
+		PrimSig rootsig = inst.getSigFromEObject(rootobj);
+		System.out.println("ST "+targetstate);
+		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
+	}
 	
-	public void writeInstances(A4Solution sol, String mdluri) throws ErrorAlloy, ErrorTransform{
+	public void writeAllInstances(A4Solution sol, String mdluri) throws ErrorAlloy, ErrorTransform{
 		EPackage pck = parser.getModelsFromUri(mdluri);
 		String uri = mdluri.replace(".ecore", ".xmi");
 		ECore2Alloy e2a = modeltrads.get(pck.getName());
@@ -186,7 +185,6 @@ public class EMF2Alloy {
 	}
 	
 	private void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform {
-		
 		Alloy2XMI a2x = new Alloy2XMI(sol,rootatom,trad,state,options,instsigs);
 		
 		ResourceSet resourceSet = new ResourceSetImpl();

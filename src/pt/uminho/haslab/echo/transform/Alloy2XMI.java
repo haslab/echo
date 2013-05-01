@@ -88,60 +88,71 @@ public class Alloy2XMI {
 		EList<EObject> itList;
 		for(EStructuralFeature sf: ec.getEAllStructuralFeatures())
 		{	
-			try {
-				field = e2a.getFieldFromSFeature(sf);
-				ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
-
-				if(sf instanceof EAttribute)
-				{
-					att = (EAttribute) sf;
-					if(att.getEType() instanceof EEnum){
+			field = e2a.getFieldFromSFeature(sf);
+		
+			if(sf instanceof EAttribute)
+			{
+				att = (EAttribute) sf;
+				if(att.getEType() instanceof EEnum){
+					try {
+						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						Expr e = mapAtoms.get(ts.iterator().next().atom(0));
 						EEnumLiteral lit = e2a.getEEnumLiteralFromSig((PrimSig)e.type().toExpr());
 						obj.eSet(sf, lit);
-					}
-					else if(att.getEType().getName().equals("EBoolean"))
+					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+
+				}
+				else if(att.getEType().getName().equals("EBoolean"))
+					try {
 						obj.eSet(sf,sol.eval(ex.in(field.join(state))));
-					else if(att.getEType().getName().equals("EString"))
+					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+				else if(att.getEType().getName().equals("EString")) {
+					try {
+						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						obj.eSet(sf, ts.iterator().next().atom(0));
-					else if(att.getEType().getName().equals("EInt"))
+					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+				}
+				else if(att.getEType().getName().equals("EInt")) {
+					try {
+						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						obj.eSet(sf,Integer.parseInt(ts.iterator().next().atom(0)));
-					else
-						;
-				}else if(sf instanceof EReference)
-				{
-					if (!options.isOptimize() || 
-							!(((EReference) sf).getEOpposite() != null && ((EReference) sf).getEOpposite().isContainment())) {
-						ref = (EReference) sf;
-		
-						if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
+					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+
+				}
+			}
+			else if(sf instanceof EReference)
+			{
+				if (!options.isOptimize() || 
+						!(((EReference) sf).getEOpposite() != null && ((EReference) sf).getEOpposite().isContainment())) {
+					ref = (EReference) sf;
+
+					try {
+						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
+					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+
+					if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
+					{
+						itList = new BasicEList<EObject>();
+						for(A4Tuple t : ts)
 						{
-							itList = new BasicEList<EObject>();
-							for(A4Tuple t : ts)
-							{
-								itExpr = mapAtoms.get(t.atom(0));
-								itObj = (EObject) mapExprObj.get(itExpr);
-								if(itObj == null)
-									itObj = createObject(itExpr);
-								itList.add(itObj);
-							}
-							obj.eSet(sf, itList);
-						}
-						else if (ts.size()> 0)
-						{
-							itExpr = mapAtoms.get(ts.iterator().next().atom(0));
+							itExpr = mapAtoms.get(t.atom(0));
 							itObj = (EObject) mapExprObj.get(itExpr);
 							if(itObj == null)
 								itObj = createObject(itExpr);
-							obj.eSet(sf, itObj);
+							itList.add(itObj);
 						}
+						obj.eSet(sf, itList);
+					}
+					else if (ts.size()> 0)
+					{
+						itExpr = mapAtoms.get(ts.iterator().next().atom(0));
+						itObj = (EObject) mapExprObj.get(itExpr);
+						if(itObj == null)
+							itObj = createObject(itExpr);
+						obj.eSet(sf, itObj);
 					}
 				}
-				else
-				{
-					;
-				}
-			} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+			}
 		}
 		
 		
