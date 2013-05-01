@@ -18,6 +18,9 @@
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="addAttribute">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+        <details key="post_a" value="Attribute.allInstances()->one(x | x.oclIsNew() and x.name = n)"/>
+      </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="remAttribute">
