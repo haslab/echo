@@ -44,16 +44,16 @@ class OCL2Alloy {
 	private final EMF2Alloy translator;
 
 	private Set<Decl> vardecls;
-	private Map<String,ExprHasName> argsvars;
-	private Map<String,ExprHasName> prevars;
+	private Map<String,List<ExprHasName>> argsvars;
+	private Map<String,List<ExprHasName>> prevars;
 	private QVTRelation2Alloy parentq;
 	
-	OCL2Alloy(QVTRelation2Alloy q2a, EMF2Alloy translator, Set<Decl> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+	OCL2Alloy(QVTRelation2Alloy q2a, EMF2Alloy translator, Set<Decl> vardecls, Map<String,List<ExprHasName>> argsvars, Map<String,List<ExprHasName>> prevars) {
 		this (translator,vardecls,argsvars,prevars);
 		this.parentq = q2a;
 	}
 	
-	OCL2Alloy(EMF2Alloy translator, Set<Decl> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+	OCL2Alloy(EMF2Alloy translator, Set<Decl> vardecls, Map<String,List<ExprHasName>> argsvars, Map<String,List<ExprHasName>> prevars) {
 		this.vardecls = vardecls;
 		this.prevars = prevars;
 		this.translator = translator;
@@ -139,10 +139,10 @@ class OCL2Alloy {
 		Func func = trans.getFunc();
 		
 		List<ExprHasName> aux = new ArrayList<ExprHasName>();
-		for (Entry<String, ExprHasName> x : argsvars.entrySet())
-			aux.add(x.getValue());
+		for (Entry<String, List<ExprHasName>> x : argsvars.entrySet())
+			for (ExprHasName y : x.getValue())
+				aux.add(y);
 		Expr res = func.call(aux.toArray(new ExprHasName[aux.size()]));
-		
 		
 		List<OCLExpression> vars = expr.getArgument();
 		List<Expr> avars = new ArrayList<Expr>();
@@ -301,10 +301,10 @@ class OCL2Alloy {
 			Field statefield = translator.getStateFieldFromName(mdl,cl);
 			ExprHasName pre = null;
 			ExprHasName pos = null;
-			if (argsvars != null) 
-				pre = argsvars.get(mdl);
-			if (prevars != null) 
-				pos = prevars.get(mdl);
+			if (argsvars != null && argsvars.get(mdl) != null) 
+				pre = argsvars.get(mdl).get(0);
+			if (prevars != null && prevars.get(mdl) != null) 
+				pre = prevars.get(mdl).get(0);
 
 			Expr pree = (src.in(statefield.join(pre))).not();
 			Expr pose = src.in(statefield.join(pos));
@@ -340,7 +340,7 @@ class OCL2Alloy {
 		Expr exp;
 		Expr statesig = null;
 		if (argsvars != null) 
-			statesig = argsvars.get(mdl);
+			statesig = argsvars.get(mdl).get(0);
 		if (statesig == null) 
 			statesig = translator.getModelStateSig(mdl);
 		if (prop.getOpposite() != null && prop.getOpposite().isComposite() && translator.options.isOptimize()) {
@@ -364,8 +364,8 @@ class OCL2Alloy {
 					Sig range = Sig.NONE;
 					String mdl = ovar.getType().getPackage().getName();
 					Expr state = null;
-					if (argsvars != null)
-						state = argsvars.get(mdl);
+					if (argsvars != null && argsvars.get(mdl) != null)
+						state = argsvars.get(mdl).get(0);
 					if (state == null)
 						state = translator.getModelStateSig(mdl);
 					String type = ovar.getType().getName();

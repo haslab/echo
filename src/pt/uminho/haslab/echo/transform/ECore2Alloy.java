@@ -318,8 +318,10 @@ class ECore2Alloy {
 			sd.add(self);
 			sd.add(constraintdecl);
 
-			Map<String,ExprHasName> statevars = new HashMap<String, ExprHasName>();
-			statevars.put(statesig.label,constraintdecl.get());
+			Map<String,List<ExprHasName>> statevars = new HashMap<String,List<ExprHasName>>();
+			statevars.put(statesig.label,new ArrayList<ExprHasName>());
+			statevars.get(statesig.label).add(constraintdecl.get());
+			
 			OCL2Alloy converter = new OCL2Alloy(translator,sd,statevars,null);
 			
 			if(annotation.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
@@ -363,10 +365,12 @@ class ECore2Alloy {
 				decls.add(pos);
 			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 			OCLHelper helper = ocl.createOCLHelper(operation);
-			Map<String,ExprHasName> prestatevars = new HashMap<String, ExprHasName>();
-			Map<String,ExprHasName> posstatevars = new HashMap<String, ExprHasName>();
-			prestatevars.put(statesig.label,pre.get());
-			posstatevars.put(statesig.label,pos.get());
+			Map<String,List<ExprHasName>> prestatevars = new HashMap<String,List<ExprHasName>>();
+			Map<String,List<ExprHasName>> posstatevars = new HashMap<String,List<ExprHasName>>();
+			prestatevars.put(statesig.label,new ArrayList<ExprHasName>());
+			posstatevars.put(statesig.label,new ArrayList<ExprHasName>());
+			prestatevars.get(statesig.label).add(pre.get());
+			posstatevars.get(statesig.label).add(pos.get());
 			OCL2Alloy converter = new OCL2Alloy(translator,new HashSet<Decl>(decls),posstatevars,prestatevars);
 			for (EAnnotation ea : operation.getEAnnotations())
 				if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))

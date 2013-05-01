@@ -45,7 +45,7 @@ class QVTRelation2Alloy {
 	/** whether the QVT Relation is being called at top level or not
 	 * this is not the same as being a top relation */
 	private boolean top;
-	/** the parente top QVT Relation, null if top */
+	/** the parent top QVT Relation, null if top */
 	private final QVTRelation2Alloy parentq;
 
 	/** the root variables of the QVT Relation being translated*/
@@ -73,7 +73,7 @@ class QVTRelation2Alloy {
 	/** the current QVT function */
 	private Func func;
 	/** the variables of the current QVT function */
-	private Map<String,ExprHasName> argsvars = new LinkedHashMap<String,ExprHasName>();
+	private Map<String,List<ExprHasName>> argsvars = new LinkedHashMap<String,List<ExprHasName>>();
 	/** the additional facts, defining the fields of internal QVT calls */
 	private List<Func> fieldFacts = new ArrayList<Func>();
 
@@ -111,7 +111,9 @@ class QVTRelation2Alloy {
 				d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName()+(top?"a":"b"));
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			mdecls.add(d);
-			argsvars.put(mdl.getUsedPackage().get(0).getName(),d.get());
+			String mname = mdl.getUsedPackage().get(0).getName();
+			if (argsvars.get(mname) == null) argsvars.put(mname, new ArrayList<ExprHasName>());
+			argsvars.get(mname).add(d.get());
 		}
 		this.decls.addAll(mdecls);
 		initDomains();
