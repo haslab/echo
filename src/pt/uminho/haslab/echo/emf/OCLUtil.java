@@ -18,8 +18,6 @@ import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
-
-
 public class OCLUtil {
 
 	
@@ -57,7 +55,7 @@ public class OCLUtil {
 			vars.addAll(variablesOCLExpression(((IfExp) exp).getElseExpression()));
 		}
 		else if (exp instanceof PrimitiveLiteralExp) {}
-		else throw new ErrorUnsupported ("OCL expression not supported.","OCLUtil",exp);
+		else throw new ErrorUnsupported ("OCL expression not supported: "+exp+".");
 
 		return vars;
 	}

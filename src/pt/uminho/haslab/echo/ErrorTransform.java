@@ -7,6 +7,9 @@ public final class ErrorTransform extends Exception {
 	private Object object;
 	private String trans;
 
+
+	public ErrorTransform(String msg) { super(msg); }
+
 	public ErrorTransform(String msg, String trans) { super(msg); this.trans = trans; }
 
 	public ErrorTransform(String msg, String trans, Object obj) { 

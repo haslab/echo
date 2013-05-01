@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AddInfoHandler"
+            id="pt.uminho.haslab.echo.commands.addInfo"
+            name="addInfo">
+      </command>
+      <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ConformsHandler"
+            id="pt.uminho.haslab.echo.commands.conforms"
+            name="Conforms">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
+         <command
+               commandId="pt.uminho.haslab.echo.commands.addInfo"
+               label="Add Meta Model"
+               style="push">
+            <visibleWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.ecore">
+                     </test>
+                  </adapt>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="pt.uminho.haslab.echo.commands.addInfo"
+               label="Add QVT"
+               style="push">
+            <visibleWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.qvtr">
+                     </test>
+                  </adapt>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="pt.uminho.haslab.echo.commands.addInfo"
+               label="Add Model"
+               style="push">
+            <visibleWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.xmi">
+                     </test>
+                  </adapt>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="pt.uminho.haslab.echo.commands.conforms"
+               label="Check consistency with Meta Model"
+               style="push">
+            <visibleWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.xmi">
+                     </test>
+                  </adapt>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="echo.command5"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>

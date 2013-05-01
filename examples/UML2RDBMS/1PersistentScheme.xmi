@@ -6,12 +6,8 @@
     xmlns:rdbms="RDBMS"
     xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
     name="Top">
-  <tables name="B">
-    <columns
-        name="b"/>
+  <tables name="a">
     <columns
         name="a"/>
-    <columns
-        name="x"/>
   </tables>
 </rdbms:Scheme>

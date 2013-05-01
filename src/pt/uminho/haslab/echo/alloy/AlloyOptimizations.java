@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
+import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.transform.EMF2Alloy;
+
 import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
@@ -20,16 +24,34 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
+
 public class AlloyOptimizations {
 
-	public Expr trading(Expr expr) {
+	private final EMF2Alloy translator;
+
+	public AlloyOptimizations (EMF2Alloy translator) {
+		this.translator = translator;
+	}
+	
+	public Expr trading(Expr expr) throws ErrorUnsupported {
 		
 		TradeQnt trader = new TradeQnt();
 		Expr res = null;
 		try {
 			res = trader.visitThis(expr);
-		} catch (Err e) { e.printStackTrace(); }
+		} catch (Err e) { throw new ErrorUnsupported(""); }
 	
+		return res;
+	}
+	
+	public Expr onePoint(Expr expr) throws ErrorUnsupported {
+		
+		OnePointQnt onpointer = new OnePointQnt();
+		Expr res = null;
+		try {
+			res = onpointer.visitThis(expr);
+		} catch (Err e) { throw new ErrorUnsupported(""); }
+
 		return res;
 	}
 	
@@ -165,11 +187,13 @@ public class AlloyOptimizations {
     							TradeForm finder = new TradeForm((ExprVar) d.get());
     							rngs = finder.visitThis(abody);
     							if (rngs.getKey().size() > 0) {
-    								System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(0)+" and "+rngs.getKey().size());
+    								//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(0)+" and "+rngs.getKey().size());
     								Expr meet = Sig.NONE;
     								for (Expr em : rngs.getKey())
     									if (meet.isSame(Sig.NONE)) meet = em;
     									else meet = meet.intersect(em);
+    								//System.out.println("From "+d.expr + " to "+meet + ", "+translator.isFunctional(meet));
+    								
     								d = new Decl(null,null,null,d.names,meet);
     								abody = rngs.getValue();
     							}
@@ -191,7 +215,7 @@ public class AlloyOptimizations {
 							TradeForm finder = new TradeForm((ExprVar) d.get());
 							rngs = finder.visitThis(ebody);
 							if (rngs.getKey().size() > 0) {
-								System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(0)+" and "+rngs.getKey().size());
+								//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(0)+" and "+rngs.getKey().size());
 								
 								Expr meet = Sig.NONE;
 								for (Expr em : rngs.getKey())
@@ -229,31 +253,43 @@ public class AlloyOptimizations {
 
       }
 
-	/**
-	 * returns true is able to determine determinism;
-	 * false otherwise
-	 * @param exp
-	 * @return
-	 */
-/*	public static boolean isFunctinal (Expr exp) throws Err {
-		VisitQuery<Boolean> q = new VisitQuery<Boolean>() {
+
+	private final class OnePointQnt extends VisitQuery<Expr> {
+		   @Override public final Expr visit(ExprQt x) throws Err { 
+				Expr sub = x.sub;
+	        	switch (x.op){
+	        	case ALL :
+	        	case SOME : 
+	        		List<Decl> decls = new ArrayList<Decl>(x.decls);
+	        		for (Decl d : x.decls) {
+	        			try {
+	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
+							if (translator.isFunctional(d.expr))
+								sub = AlloyUtil.replace(sub, d.get(), d.expr);
+						} catch (ErrorUnsupported e) { throw new ErrorFatal("");}
+	        		}
+	        		return x.op.make(null, null, decls, sub);
+
+	        	default: return x;
+	        	}
+
+	        };
 			
-			@Override public final Boolean visit(ExprQt x) throws Err { return false; };
-			@Override public final Boolean visit(ExprBinary x) throws Err { return false; };
-	        @Override public final Boolean visit(ExprCall x) { return false; };
-	        @Override public final Boolean visit(ExprList x) { return false; };
-	        @Override public final Boolean visit(ExprConstant x) { return false; };
-	        @Override public final Boolean visit(ExprITE x) { return false; };
-	        @Override public final Boolean visit(ExprLet x) { return false; };
-	        @Override public final Boolean visit(ExprUnary x) { return false; };
-	        @Override public final Boolean visit(ExprVar x) { return true; };
-	        @Override public final Boolean visit(Sig x) { return false; };
-	        @Override public final Boolean visit(Sig.Field x) { 
-	        	EStructuralFeature sf = e2a. false; };
-	        
-		};
-		
-		return q.visitThis(exp);
-	}*/
+	        @Override public final Expr visit(ExprBinary x) throws Err { 
+	        	Expr left = visitThis(x.left);
+	        	Expr right = visitThis(x.right);
+	        	return x.op.make(null, null, left, right); 
+	        };
+	        @Override public final Expr visit(ExprCall x) { return x; };
+	        @Override public final Expr visit(ExprList x) { return x; };
+	        @Override public final Expr visit(ExprConstant x) { return x; };
+	        @Override public final Expr visit(ExprITE x) { return x; };
+	        @Override public final Expr visit(ExprLet x) { return x; };
+	        @Override public final Expr visit(ExprUnary x) { return x; };
+	        @Override public final Expr visit(ExprVar x) { return x; };
+	        @Override public final Expr visit(Sig x) { return x; };
+	        @Override public final Expr visit(Sig.Field x) { return x; };
+
+	}
 	
 }

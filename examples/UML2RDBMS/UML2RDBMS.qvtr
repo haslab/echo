@@ -1,5 +1,6 @@
 transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
 
+
  	top relation P2S { 
 		pn: String; 
 		domain uml pt:Package { 
@@ -24,6 +25,8 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
     	domain uml c:Class {} {g.attributes->includes(a) and a.name = an and (c->closure(super)->includes(g) or g = c) };
     	domain rdbms t:Table { columns = cl:Column {name = an} };
   }
+
+
 
 
 }

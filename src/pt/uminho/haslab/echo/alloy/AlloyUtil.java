@@ -7,38 +7,34 @@ import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.ocl.examples.pivot.Property;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.transform.EMF2Alloy;
-import pt.uminho.haslab.echo.transform.OCL2Alloy;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprLet;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class AlloyUtil {
-
-	public static String targetName(String target) {
-		return target+"_new_";
-	}
-	
-	// composes an expression with the respective state variable
-	public static Expr localStateAttribute(Property prop, Expr statesig, EMF2Alloy translator) throws ErrorAlloy, ErrorTransform{
-		Expr exp = OCL2Alloy.propertyToField(prop,translator);
-		return exp.join(statesig);
-	}
-	
+		
 	public static Expr localStateSig(Sig sig, Expr var) throws ErrorTransform, ErrorAlloy{
 		Expr exp = null;
 		
@@ -47,7 +43,7 @@ public class AlloyUtil {
 				exp = field;
 			}
 		}
-		if (exp == null) throw new ErrorTransform ("State field not found.","AlloyUtil",sig);
+		if (exp == null) throw new ErrorTransform ("State field not found.");
 		
 		return exp.join(var);
 	}
@@ -73,36 +69,31 @@ public class AlloyUtil {
 		else return e.and(f);
 	}
 	
-	public static ConstList<CommandScope> createScope (List<PrimSig> instsigs, List<PrimSig> modelsigs) throws ErrorAlloy {
-		Map<String,CommandScope> scopes = new HashMap<String,CommandScope>();
-		
-		for (PrimSig sig : instsigs) {
-			incrementScope(scopes,sig.parent);
-			PrimSig up = sig.parent.parent;
-			while (up != Sig.UNIV && up != null){
-				incrementScope(scopes,up);
-				up = up.parent;
-			}
-		}		
-		for (Sig sig : modelsigs){
-			if (scopes.get(sig.label)==null)
-				try { scopes.put(sig.label,new CommandScope(sig, false, 0));}
-				catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-		}
-		return ConstList.make(scopes.values());
+	public static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, boolean exact) throws ErrorAlloy {
+		List<CommandScope> scopes = new ArrayList<CommandScope>();
+	
+		for (PrimSig sig : sizes.keySet()) 
+			try {scopes.add(new CommandScope(sig, exact, sizes.get(sig)));}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
+
+		return ConstList.make(scopes);
 	}
 	
-	private static void incrementScope (Map<String,CommandScope> scopes, Sig sig) throws ErrorAlloy  {
-		String type = sig.toString();
-		CommandScope scope = scopes.get(type);
-		if (scope == null)
-			try { scope = new CommandScope(sig, false, 1);}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-		else 
-			try { scope = new CommandScope(sig, false, scope.startingScope+1);}
-			catch (Err e) { throw new ErrorAlloy(e.getMessage(),"AlloyUtil");}
-		scopes.put(type, scope);
-	
+	public static ConstList<CommandScope> createScopeFromSigs (List<PrimSig> modelsigs, Map<String,List<PrimSig>> instsigs) throws ErrorAlloy {
+		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
+
+		for (PrimSig sig : modelsigs) {
+			int count = instsigs.get(sig.label)==null?0:instsigs.get(sig.label).size();
+			if (scopes.get(sig) == null) scopes.put(sig, count);
+			else scopes.put(sig, scopes.get(sig) + count);
+			PrimSig up = sig.parent;
+			while (up != Sig.UNIV && up != null){
+				if (scopes.get(up) == null) scopes.put(up, count);
+				else scopes.put(up, scopes.get(up) + count);
+				up = up.parent;
+			}
+		}
+		return createScope(scopes, false);
 	}
 	
 	public static ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
@@ -114,6 +105,18 @@ public class AlloyUtil {
 		return ConstList.make(list);
 	}
 	
+	public static ConstList<CommandScope> incrementStringScopes (List<CommandScope> scopes) throws ErrorAlloy {
+		List<CommandScope> list = new ArrayList<CommandScope>();
+		
+		for (CommandScope scope : scopes)
+			try {
+				if (scope.sig.label.equals("String")) list.add(new CommandScope(scope.sig, true, scope.startingScope+1));
+				else list.add(new CommandScope(scope.sig, false, scope.startingScope));
+			} catch (ErrorSyntax e) { throw new ErrorAlloy(e.getMessage());}
+
+		return ConstList.make(list);
+	}
+
 	public static List<Decl> ordDecls (List<Decl> decls){
 		List<Decl> res = new ArrayList<Decl>();
 		int last = decls.size()+1;
@@ -153,5 +156,84 @@ public class AlloyUtil {
 		if (exp.isSame(ExprConstant.TRUE)) return true;
 		return false;
 	}
+	
+	public static Expr replace(Expr in, Expr find, Expr replace) throws Err {
+		Replacer replacer = new Replacer(find, replace);
+		return replacer.visitThis(in);
+	}
+	
+	private static class Replacer extends VisitQuery<Expr> {
+		
+		Expr find, replace;
+		
+		Replacer (Expr find, Expr replace) {
+			this.find = find;
+			this.replace = replace;
+		}
+		
+        @Override public final Expr visit(ExprQt x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		List<Decl> decls = new ArrayList<Decl>();
+        		Expr sub = visitThis(x.sub);
+        		for (Decl d : x.decls) {
+        			Expr expr = visitThis(d.expr);
+        			decls.add(new Decl(null,null,null,d.names,expr));
+        		}
+
+           	    return x.op.make(null, null, decls, sub); 
+        	}
+        };		
+        @Override public final Expr visit(ExprBinary x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		Expr left = visitThis(x.left);
+           		Expr right = visitThis(x.right);
+           	    return x.op.make(null, null, left, right); 
+        	}
+        };
+        @Override public final Expr visit(ExprCall x) throws Err { 
+        	throw new ErrorFatal("");
+        };
+        @Override public final Expr visit(ExprList x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		List<Expr> args = new ArrayList<Expr>();
+        		for (Expr arg : x.args)
+        			args.add(visitThis(arg));
+           	    return ExprList.make(null, null, x.op, args); 
+        	}
+        };
+        @Override public final Expr visit(ExprConstant x) { 
+        	if (x.isSame(find)) return replace;
+        	else return x;
+        };
+        @Override public final Expr visit(ExprITE x) throws Err {         	
+        	throw new ErrorFatal("");
+        };
+        @Override public final Expr visit(ExprLet x) throws Err { 
+        	throw new ErrorFatal("");
+        };
+        @Override public final Expr visit(ExprUnary x) throws Err { 
+        	if (x.isSame(find)) return replace;
+        	else {
+        		Expr sub = visitThis(x.sub);
+        		return x.op.make(null, sub); 
+        	}
+        };
+        @Override public final Expr visit(ExprVar x) { 
+        	if (x.isSame(find)) return replace;
+        	else return x;
+        };
+        @Override public final Expr visit(Sig x) {       
+        	if (x.isSame(find)) return replace;
+        	else return x; 
+        };
+        @Override public final Expr visit(Sig.Field x) { 
+        	if (x.isSame(find)) return replace;
+        	else return x; 
+        };
+
+      }
 	
 }
