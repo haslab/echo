@@ -122,10 +122,10 @@ public class AlloyRunner {
 					sigs.add(targetstate);
 					edelta = translator.getModelDeltaExpr(original.parent.label,original, targetstate);
 					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
+					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				} else {
 					sigs.add(state);			
 				}
-				finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				finalfact = finalfact.and(translator.getInstanceFact(uri));
 			}
 		} 
@@ -162,6 +162,7 @@ public class AlloyRunner {
 			PrimSig state = addInstanceSigs(uri);
 			sigs.add(state);
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
+			finalfact = finalfact.and(translator.getConformsInstance(uri));
 		}
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		try {
@@ -200,6 +201,7 @@ public class AlloyRunner {
 					sigs.add(state);			
 				}
 				finalfact = finalfact.and(translator.getInstanceFact(uri));
+				finalfact = finalfact.and(translator.getConformsInstance(uri));
 			}
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		} 
@@ -237,10 +239,11 @@ public class AlloyRunner {
 	
 	/**
 	 * Adds the signatures of an instance to this.allsigs
-	 * @param uri the URI of the intance
+	 * @param uri the URI of the instance
 	 * @return the signature representing the instance
+	 * @throws ErrorAlloy 
 	 */
-	private PrimSig addInstanceSigs (String uri) {
+	private PrimSig addInstanceSigs (String uri) throws ErrorAlloy {
 		for (List<PrimSig> x : translator.getInstanceSigs(uri).values())
 			allsigs.addAll(x);
 		PrimSig state = translator.getInstanceStateSigFromURI(uri);		
