@@ -1,8 +1,10 @@
 package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -39,7 +41,7 @@ public class AlloyOptimizations {
 		Expr res = null;
 		try {
 			res = trader.visitThis(expr);
-		} catch (Err e) { throw new ErrorUnsupported(""); }
+		} catch (Err e) { throw new ErrorUnsupported(e.getMessage()); }
 	
 		return res;
 	}
@@ -50,80 +52,124 @@ public class AlloyOptimizations {
 		Expr res = null;
 		try {
 			res = onpointer.visitThis(expr);
-		} catch (Err e) { throw new ErrorUnsupported(""); }
+		} catch (Err e) { throw new ErrorUnsupported(e.getMessage()+": "+expr); }
 
 		return res;
 	}
 	
 	/** Finds inclusion expression over the given variable
 	 */
-	private final class TradeForm extends VisitQuery<Entry<List<Expr>,Expr>> {
-		List<Expr> rngs = new ArrayList<Expr>();
-		ExprVar var;
+	private final class TradeForm extends VisitQuery<Entry<Map<Decl,Expr>,Expr>> {
+		Map<Decl,Expr> rngs = new HashMap<Decl,Expr>();
+		Map<ExprVar,Decl> vars = new HashMap<ExprVar,Decl>();
+		List<Decl> decls = new ArrayList<Decl>();
 		
-		TradeForm(ExprVar var) {
-			this.var = var;
+		TradeForm(List<Decl> decls) {
+			for (Decl d : decls) {
+				vars.put((ExprVar) d.get(),d);
+				rngs.put(d,((ExprUnary) d.expr).sub);
+				this.decls.add(d);
+			}
 		}
-		
 
-		@Override public Entry<List<Expr>,Expr> visit(ExprList x) throws Err { 
+		@Override public Entry<Map<Decl,Expr>,Expr> visit(ExprList x) throws Err { 
 			switch(x.op) {
 				case AND: 	
              		List<Expr> exps = new ArrayList<Expr>();
 	    			for (Expr arg : x.args) {
-	    				Entry<List<Expr>,Expr> aux = visitThis(arg);
+	    				Entry<Map<Decl,Expr>,Expr> aux = visitThis(arg);
 	    				if (!AlloyUtil.isTrue(aux.getValue())) exps.add(aux.getValue());
 	    			}
 	    			Expr exp = Sig.NONE.no();
 	    			if (exps.size() > 1) exp = ExprList.make(null, null, ExprList.Op.AND, exps);
 	    			else if (exps.size() == 1) exp = exps.get(0);
-	    			return new SimpleEntry<List<Expr>,Expr>(rngs,exp);
-				default: return new SimpleEntry<List<Expr>,Expr>(rngs,x);
+	    			return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,exp);
+				default: return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x);
         	 }
 		}
-        @Override public final Entry<List<Expr>,Expr> visit(ExprBinary x) throws Err { 
-			Expr range = Sig.NONE;
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprBinary x) throws Err { 
 			switch(x.op){
         		case EQUALS:
-        			if (x.hasVar(var) && (x.right instanceof ExprVar)) {
-        				if (x.right.isSame(var)) range = x.left;
-            			else if (x.left.hasVar(var)){
-            				PushVar pusher = new PushVar(var);
-            				range = pusher.visitThis(x.left);
-            				if (range instanceof ExprBinary && ((ExprBinary) range).left.isSame(var))
-            					range = ((ExprBinary) range).right.join(x.right);
-            				else if (range instanceof ExprBinary && ((ExprBinary) range).right.isSame(var))
-            					range = x.right.join(((ExprBinary) range).left);
-            			}
-        				rngs.add(range);
-        				return new SimpleEntry<List<Expr>,Expr>(rngs,Sig.NONE.no());
-        			}
+        			if (x.right instanceof ExprVar) {
+						Decl d = vars.get((ExprVar) x.right);
+						if (d != null) {
+							Expr r = rngs.get(d);
+							if (r == null || r.isSame(((ExprUnary)d.expr).sub)) rngs.put(d,x.left);
+							else rngs.put(d,r.intersect(x.left));
+						}
+						else {
+							for (ExprVar v : vars.keySet()) {
+								if (x.left.hasVar(v)) {
+									PushVar pusher = new PushVar(v);
+									Expr nr = pusher.visitThis(x.left);
+									if (nr instanceof ExprBinary && ((ExprBinary) nr).left.isSame(v))
+										nr = ((ExprBinary) nr).right.join(x.right);
+									else if (nr instanceof ExprBinary && ((ExprBinary) nr).right.isSame(v))
+										nr = x.right.join(((ExprBinary) nr).left);
+									Expr r = rngs.get(v);
+									if (r == null) rngs.put(vars.get(v),nr);
+									else rngs.put(vars.get(v),r.intersect(nr));
+								}
+							}
+						}
+						return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,Sig.NONE.no());
+					}
         		case IN: 
-        			if (x.hasVar(var) && (x.left instanceof ExprVar)) {
-        				if (x.left.isSame(var)) range = x.right;
-            			else if (x.right.hasVar(var)){
-            				PushVar pusher = new PushVar(var);
-            				range = pusher.visitThis(x.right);
-            				if (range instanceof ExprBinary && ((ExprBinary) range).left.isSame(var))
-            					range = ((ExprBinary) range).right.join(x.left);
-            				else if (range instanceof ExprBinary && ((ExprBinary) range).right.isSame(var))
-            					range = x.left.join(((ExprBinary) range).left);
-            			}
-        				rngs.add(range);
-        				return new SimpleEntry<List<Expr>,Expr>(rngs,Sig.NONE.no());
-        			}
-        		default: return new SimpleEntry<List<Expr>,Expr>(rngs,x);
+					if (x.left instanceof ExprVar) {
+						Decl d = vars.get((ExprVar) x.left);
+						if (d != null) {
+							Expr r = rngs.get(d);
+							if (r == null || r.isSame(((ExprUnary)d.expr).sub)) rngs.put(d,x.right);
+							else rngs.put(d,r.intersect(x.right));
+						}
+						else {
+							for (ExprVar v : vars.keySet()) {
+								if (x.right.hasVar(v)) {
+									PushVar pusher = new PushVar(v);
+									Expr nr = pusher.visitThis(x.right);
+									if (nr instanceof ExprBinary && ((ExprBinary) nr).left.isSame(v))
+										nr = ((ExprBinary) nr).right.join(x.left);
+									else if (nr instanceof ExprBinary && ((ExprBinary) nr).right.isSame(v))
+										nr = x.left.join(((ExprBinary) nr).left);
+									Expr r = rngs.get(v);
+									if (r == null) rngs.put(vars.get(v),nr);
+									else rngs.put(vars.get(v),r.intersect(nr));
+								}
+							}
+						}
+						return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,Sig.NONE.no());
+					}
+        		default: return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x);
         	}
         };
-        @Override public final Entry<List<Expr>,Expr> visit(ExprCall x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(ExprConstant x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(ExprITE x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(ExprLet x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(ExprQt x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(ExprUnary x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(ExprVar x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(Sig x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
-        @Override public final Entry<List<Expr>,Expr> visit(Sig.Field x) { return new SimpleEntry<List<Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprCall x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprConstant x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprITE x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprLet x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprQt x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprUnary x) throws Err { 
+			switch(x.op){
+        		case NO:
+        			for (ExprVar v : vars.keySet()) {
+						if (x.sub.hasVar(v)) {
+							PushVar pusher = new PushVar(v);
+							Expr nr = pusher.visitThis(x.sub);
+							if (nr instanceof ExprBinary && ((ExprBinary) nr).left.isSame(v))
+								nr = ((ExprBinary) nr).right.join(Sig.UNIV);
+							else if (nr instanceof ExprBinary && ((ExprBinary) nr).right.isSame(v))
+								nr = Sig.UNIV.join(((ExprBinary) nr).left);
+							Expr r = rngs.get(v);
+							if (r == null) rngs.put(vars.get(v),nr);
+							else rngs.put(vars.get(v),r.minus(nr));
+						}
+					}
+       				return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,Sig.NONE.no());	
+        		default: return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x);
+        	}
+        };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprVar x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(Sig x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(Sig.Field x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
 
 	}
 	
@@ -180,56 +226,46 @@ public class AlloyOptimizations {
     				Expr abody = ((ExprBinary)ebody).left;
     				Expr bbody = ((ExprBinary)ebody).right;
 
-    				for (Decl d : x.decls) {
-    					if (d.names.size()==1){
-    						Entry<List<Expr>, Expr> rngs;
-    						try {
-    							TradeForm finder = new TradeForm((ExprVar) d.get());
-    							rngs = finder.visitThis(abody);
-    							if (rngs.getKey().size() > 0) {
-    								//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(0)+" and "+rngs.getKey().size());
-    								Expr meet = Sig.NONE;
-    								for (Expr em : rngs.getKey())
-    									if (meet.isSame(Sig.NONE)) meet = em;
-    									else meet = meet.intersect(em);
-    								//System.out.println("From "+d.expr + " to "+meet + ", "+translator.isFunctional(meet));
-    								
-    								d = new Decl(null,null,null,d.names,meet);
-    								abody = rngs.getValue();
-    							}
-    						} catch (Err e) { e.printStackTrace(); }
-    						aux.add(d);
-    						if (!AlloyUtil.isTrue(abody)) ebody = ExprBinary.Op.IMPLIES.make(null, null, abody, bbody);
-    						else ebody = bbody;
-    					}
-    				}
+					Entry<Map<Decl,Expr>, Expr> rngs;
+					try {
+						TradeForm finder = new TradeForm(x.decls);
+						rngs = finder.visitThis(abody);
+						for (Decl d : rngs.getKey().keySet()) {
+							System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+							Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
+							aux.add(d2);
+						}
+						abody = rngs.getValue();
+					} catch (Err e) { e.printStackTrace(); }
+					if (!AlloyUtil.isTrue(abody)) ebody = ExprBinary.Op.IMPLIES.make(null, null, abody, bbody);
+					else ebody = bbody;
+
     				aux = AlloyUtil.ordDecls(aux);
     				Expr res = x.op.make(null, null,aux, ebody);
     				return res;
         		}
         	case SOME : 
-        		for (Decl d : x.decls) {
-					if (d.names.size()==1){
-						Entry<List<Expr>, Expr> rngs;
-						try {
-							TradeForm finder = new TradeForm((ExprVar) d.get());
-							rngs = finder.visitThis(ebody);
-							if (rngs.getKey().size() > 0) {
-								//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(0)+" and "+rngs.getKey().size());
-								
-								Expr meet = Sig.NONE;
-								for (Expr em : rngs.getKey())
-									if (meet.isSame(Sig.NONE)) meet = em;
-									else meet = meet.intersect(em);
-								d = new Decl(null,null,null,d.names,meet);
-								ebody = rngs.getValue();
-							} 
-						} catch (Err e) { e.printStackTrace(); }
-						aux.add(d);
+				Entry<Map<Decl,Expr>, Expr> rngs;
+				try {
+					TradeForm finder = new TradeForm(x.decls);
+					rngs = finder.visitThis(ebody);
+					for (Decl d : rngs.getKey().keySet()) {
+						//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+						Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
+						aux.add(d2);
 					}
-				}
+					ebody = rngs.getValue();
+				} catch (Err e) { e.printStackTrace(); }
+
 				aux = AlloyUtil.ordDecls(aux);
-				Expr res = x.op.make(null, null,aux, ebody);
+				Expr res;
+				if (ebody.isSame(Sig.NONE.no())) {
+					Decl last = aux.remove(aux.size()-1);
+					if (!aux.isEmpty())
+						res = x.op.make(null, null, aux, last.expr.some());
+					else
+						res = last.expr.some();
+				} else res = x.op.make(null, null, aux, ebody);
 				return res;
         	default: return x;
         	}
@@ -264,12 +300,15 @@ public class AlloyOptimizations {
 	        		for (Decl d : x.decls) {
 	        			try {
 	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
-							if (translator.isFunctional(d.expr))
+							if (translator.isFunctional(d.expr)) {
 								sub = AlloyUtil.replace(sub, d.get(), d.expr);
-						} catch (ErrorUnsupported e) { throw new ErrorFatal("");}
+								decls.remove(d);
+							}
+						} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage());}
 	        		}
-	        		return x.op.make(null, null, decls, sub);
-
+	        		if (decls.size() > 0) return x.op.make(null, null, decls, sub);
+	        		else return sub;
+	        		
 	        	default: return x;
 	        	}
 

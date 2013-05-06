@@ -1,7 +1,9 @@
 package pt.uminho.haslab.echo.cli;
 
 import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
@@ -52,8 +54,13 @@ public class CLIPrinter {
 		
 		if (options.isQVT()) {
 			sb.append("* QVT-R transformation "+options.getQVTPath()+"\n");
-			sb.append("Constraint: "+translator.getQVTFact(options.getQVTPath()).getBody()+"\n");
-		}
+			ExprList x = (ExprList) translator.getQVTFact(options.getQVTPath()).getBody();
+			for (Expr y : x.args) {
+				if (y instanceof ExprCall)
+					sb.append("Constraint: "+((ExprCall) y).fun.getBody()+"\n");
+			
+			}
+			}
 
 		return sb.toString();
 	}

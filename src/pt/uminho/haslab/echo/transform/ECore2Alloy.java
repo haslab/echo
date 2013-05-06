@@ -42,6 +42,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
@@ -72,6 +73,8 @@ class ECore2Alloy {
 	private Expr constraint = Sig.NONE.no();
 	/** the variable declaration for the conformity test */
 	private Decl constraintdecl;
+	
+	private PrimSig order;
 	
 	/**
 	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
@@ -128,6 +131,8 @@ class ECore2Alloy {
 			processAnnotations(c.getEAnnotations());
 		for (EClass c : classList)
 			processOperations(c.getEOperations());
+		
+		if (translator.options.isOperationBased()) createOrder(statesig);
 		
 	}
 	
@@ -373,17 +378,21 @@ class ECore2Alloy {
 			posstatevars.get(statesig.label).add(pos.get());
 			OCL2Alloy converter = new OCL2Alloy(translator,new HashSet<Decl>(decls),posstatevars,prestatevars);
 			for (EAnnotation ea : operation.getEAnnotations())
-				if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
+				if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot")) {
+					Expr oclalloy = Sig.NONE.no();
 					for(String sExpr: ea.getDetails().values()) {
 						try{
 							ExpressionInOCL invariant = helper.createPostcondition(sExpr);
-							Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
-							decls.remove(self);
-							Func fun = new Func(null,operation.getName(),decls,null,oclalloy);
-							functions.add(fun);
-						} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
-						  catch (ParserException e) { throw new ErrorParser("Error parsing OCL formula: "+sExpr);}
+							oclalloy = oclalloy.and(converter.oclExprToAlloy(invariant.getBodyExpression()));
+						} catch (ParserException e) { throw new ErrorParser("Error parsing OCL formula: "+sExpr);}
 					}
+					decls.remove(self);
+					try{
+						//System.out.println(oclalloy);
+						Func fun = new Func(null,operation.getName(),decls,null,oclalloy.forAll(self));
+						functions.add(fun);
+					} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
+				}
 		}
 	}
 	
@@ -413,6 +422,7 @@ class ECore2Alloy {
 	
 	/**
 	 * Calculates the delta {@link Expr} for particular state {@link PrimSig}
+	 * Optimization: container opposites are not counted (made obsolete by optimization that removed opposites altogether)
 	 * @param m the pre state signature
 	 * @param n the post state signature
 	 * @return the delta expression
@@ -425,8 +435,12 @@ class ECore2Alloy {
 			result = result.iplus(aux);
 		}
 		for (Field e : mapSfField.values()) {
-			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
-			result = result.iplus(aux);
+			EStructuralFeature ref = mapSfField.inverse().get(e);
+			if (!(translator.options.isOptimize() && mapSfField.inverse().get(e) instanceof EReference &&
+				((EReference) ref).getEOpposite() != null && ((EReference) ref).getEOpposite().isContainment())) {
+				Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
+				result = result.iplus(aux);
+			}
 		}
 		return result;
 	}
@@ -530,10 +544,12 @@ class ECore2Alloy {
 	/**
 	 * Returns all {@link PrimSig} of this meta-model
 	 * @return the signatures
+	 * @throws ErrorAlloy 
 	 */
-	List<PrimSig> getAllSigs() {
+	List<PrimSig> getAllSigs() throws ErrorAlloy {
 		List<PrimSig> aux = new ArrayList<PrimSig>(mapClassSig.values());
 		aux.addAll(mapLitSig.values());
+		if (translator.options.isOperationBased()) aux.add(order);
 		return aux;
 	}
 
@@ -565,6 +581,44 @@ class ECore2Alloy {
 	EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
 		return mapLitSig.inverse().get(s);
 	}
+	
+	void createOrder(PrimSig sig) throws ErrorAlloy {
+		PrimSig ord; Field next,first;
+		try {
+			ord = new PrimSig("ord", Attr.ONE);
+			first = ord.addField("first", sig);
+			next = ord.addField("next", sig.product(sig));
+		} catch (Err e) { throw new ErrorAlloy(e.getMessage());	}
+		try {
+			Decl s1 = sig.oneOf("m_"),s2 = (s1.get().join(ord.join(next))).oneOf("n_");
+			Expr ops = Sig.NONE.some();
+			for (Func fun : functions) {
+				List<Decl> decls = new ArrayList<Decl>();
+				List<ExprHasName> vars = new ArrayList<ExprHasName>();
+				for (int i = 0; i < fun.decls.size() -2; i ++) {
+					Decl d = fun.decls.get(i).get().type().toExpr().oneOf(fun.decls.get(i).names.get(0).label);
+					decls.add(d);
+					vars.add(d.get());
+				}
+				vars.add(s1.get());
+				vars.add(s2.get());
+
+				Expr aux = fun.call(vars.toArray(new Expr[vars.size()]));
+				Decl fst = decls.get(0);
+				decls.remove(0);
+				aux = aux.forSome(fst, decls.toArray(new Decl[decls.size()]));
+				ops = ops.or(aux);
+			}			
+			ops = ops.forAll(s1, s2);
+			ord.addFact(ops);
+			List<Expr> x = new ArrayList<Expr>();
+			x.add(sig); x.add(ord.join(first)); x.add(ord.join(next));
+			ord.addFact(ExprList.makeTOTALORDER(null, null, x));
+			
+		} catch (Err e) { throw new ErrorAlloy(e.getMessage());	}
+
+		order = ord;
+}	
 	
 }
 

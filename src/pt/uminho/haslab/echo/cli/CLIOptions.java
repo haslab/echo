@@ -253,4 +253,8 @@ public class CLIOptions extends Options implements EchoOptions{
 		formatter.printHelp("echo [options] {-c|-e <direction>} -q <path> -m <paths>... -i <paths>...", this,false );
 	}
 	
+	public boolean isOperationBased(){
+		return false;
+	}
+
 }

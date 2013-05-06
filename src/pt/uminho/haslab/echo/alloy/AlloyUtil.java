@@ -193,7 +193,12 @@ public class AlloyUtil {
         	}
         };
         @Override public final Expr visit(ExprCall x) throws Err { 
-        	throw new ErrorFatal("");
+        	List<Expr> aux = new ArrayList<Expr>();
+        	for (Expr e : x.args) {
+        		aux.add(visitThis(e));
+        	}
+        	return ExprCall.make(null, null, x.fun, aux, 0);
+
         };
         @Override public final Expr visit(ExprList x) throws Err { 
         	if (x.isSame(find)) return replace;

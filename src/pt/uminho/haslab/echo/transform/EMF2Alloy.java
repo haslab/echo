@@ -222,7 +222,7 @@ public class EMF2Alloy {
 	}
 
 	
-	public List<PrimSig> getAllSigsFromName(String uri){
+	public List<PrimSig> getAllSigsFromName(String uri) throws ErrorAlloy{
 		ECore2Alloy e2a = modeltrads.get(uri);
 		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getAllSigs());
 		return aux;
@@ -234,7 +234,7 @@ public class EMF2Alloy {
 		return aux;
 	}	
 
-	public List<PrimSig> getAllSigsFromURI(String uri){
+	public List<PrimSig> getAllSigsFromURI(String uri) throws ErrorAlloy{
 		ECore2Alloy e2a = modeltrads.get(parser.getModelsFromUri(uri).getName());
 		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getAllSigs());
 		return aux;
@@ -322,7 +322,7 @@ public class EMF2Alloy {
 		IsFunctionalQuery q = new IsFunctionalQuery();
 		try {
 			return q.visitThis(e);
-		} catch (Err e1) { throw new ErrorUnsupported(""); }
+		} catch (Err e1) { throw new ErrorUnsupported(e1.getMessage()); }
 	}
 	
 	private final class IsFunctionalQuery extends VisitQuery<Boolean> {

@@ -242,12 +242,12 @@ class OCL2Alloy {
 		Expr res = null;
 		Expr aux = propertyToField(expr.getReferredProperty());
 		res = oclExprToAlloy(expr.getSource()).join(aux);	
+		
 		return res;
 	}
 	
 	Expr oclExprToAlloy (OperationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null; 
-
 		Expr src = oclExprToAlloy(expr.getSource());
 		
 		if (expr.getReferredOperation().getName().equals("not"))
@@ -302,7 +302,7 @@ class OCL2Alloy {
 			ExprHasName pre = null;
 			ExprHasName pos = null;
 			if (argsvars != null && argsvars.get(mdl) != null) 
-				pre = argsvars.get(mdl).get(0);
+				pos = argsvars.get(mdl).get(0);
 			if (prevars != null && prevars.get(mdl) != null) 
 				pre = prevars.get(mdl).get(0);
 
@@ -374,7 +374,7 @@ class OCL2Alloy {
 					avars.add(range.oneOf(ovar.getName()));
 					}
 					else  {
-						List<PrimSig> sigs = translator.getAllSigsFromName(mdl);
+						List<PrimSig> sigs = translator.getModelSigs(mdl);
 						for (Sig s : sigs)
 							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) 
 								range = s;

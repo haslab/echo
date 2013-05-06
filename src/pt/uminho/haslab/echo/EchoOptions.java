@@ -26,4 +26,7 @@ public interface EchoOptions {
 	/** the default integer bitwidth */
 	public Integer getBitwidth();
 
+	/** if the distance is operation-based */
+	public boolean isOperationBased();
+
 }

@@ -121,17 +121,18 @@ class QVTRelation2Alloy {
 		Expr fact = calculateFact();
 		AlloyOptimizations opt = new AlloyOptimizations(translator);
 		if(translator.options.isOptimize()) {
-			System.out.println("Pre-onepoint "+fact);
+			//System.out.println("Pre-onepoint "+fact);
 			fact = opt.trading(fact);
 			fact = opt.onePoint(fact);
 			System.out.println("Pos-onepoint "+fact);
 		}
 		try {
-			if(top)
-				func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact);		
+			if(top) {
+				func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact);	
+			}
 			else {
 				Field field = addRelationFields(fact,mdecls);
-				func = new Func(null, rel.getTransformation().getName()+"_"+direction.getName(), mdecls, field.type().toExpr(), field);	
+				func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, field.type().toExpr(), field);	
 			}
 		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }		
 	}
