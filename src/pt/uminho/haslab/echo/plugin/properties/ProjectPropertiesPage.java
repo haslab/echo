@@ -1,7 +1,9 @@
 package pt.uminho.haslab.echo.plugin.properties;
 
-import java.util.ArrayList;
 
+import java.util.Set;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
@@ -19,9 +21,8 @@ public class ProjectPropertiesPage extends PropertyPage implements
 
 	@Override
 	protected Control createContents(Composite parent) {
-		ArrayList<String> l = new ArrayList<String>();
-		l.add("asd");
-		l.add("ddddd");
+		IProject p = (IProject) getElement().getAdapter(IProject.class);
+		Set<String> l = ProjectProperties.getProjectProperties(p).getConformList();
 		
 		Composite myComposite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
@@ -36,6 +37,10 @@ public class ProjectPropertiesPage extends PropertyPage implements
 	    // Get the content for the viewer, setInput will call getElements in the
 	    // contentProvider
 	    viewer.setInput(l);
+	    
+	   
+	    
+	    
 	    
 	    Button addButton = new Button(myComposite,SWT.PUSH );
 	    Button remButton = new Button(myComposite,SWT.PUSH);

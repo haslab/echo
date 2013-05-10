@@ -45,13 +45,13 @@ public class PlugInOptions implements EchoOptions {
 	@Override
 	public Integer getOverallScope() {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
 	@Override
 	public Integer getBitwidth() {
 		// TODO Auto-generated method stub
-		return null;
+		return 2;
 	}
 
 }
