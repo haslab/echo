@@ -197,11 +197,12 @@ public class AlloyRunner {
 					sigs.add(targetstate);
 					edelta = translator.getModelDeltaExpr(original.parent.label,original, targetstate);
 					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
+					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				} else {
 					sigs.add(state);			
 				}
 				finalfact = finalfact.and(translator.getInstanceFact(uri));
-				finalfact = finalfact.and(translator.getConformsInstance(uri));
+				//finalfact = finalfact.and(translator.getConformsInstance(uri));
 			}
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		} 

@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
@@ -12,6 +13,7 @@ import pt.uminho.haslab.echo.transform.EMF2Alloy;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
+import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
@@ -24,6 +26,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 
@@ -36,7 +39,6 @@ public class AlloyOptimizations {
 	}
 	
 	public Expr trading(Expr expr) throws ErrorUnsupported {
-		
 		TradeQnt trader = new TradeQnt();
 		Expr res = null;
 		try {
@@ -67,7 +69,11 @@ public class AlloyOptimizations {
 		TradeForm(List<Decl> decls) {
 			for (Decl d : decls) {
 				vars.put((ExprVar) d.get(),d);
-				rngs.put(d,((ExprUnary) d.expr).sub);
+				//System.out.println(d.expr);
+				if (d.expr instanceof ExprUnary && ((ExprUnary)d.expr).op.equals(ExprUnary.Op.ONEOF))
+					rngs.put(d,((ExprUnary) d.expr).sub);
+				else
+					rngs.put(d,d.expr);			
 				this.decls.add(d);
 			}
 		}
@@ -94,7 +100,8 @@ public class AlloyOptimizations {
 						Decl d = vars.get((ExprVar) x.right);
 						if (d != null) {
 							Expr r = rngs.get(d);
-							if (r == null || r.isSame(((ExprUnary)d.expr).sub)) rngs.put(d,x.left);
+//							if (r.isSame(PrimSig.STRING)) rngs.put(d,x.left);
+							if (d.expr instanceof ExprUnary && r.isSame(((ExprUnary) d.expr).sub)) rngs.put(d,x.left);
 							else rngs.put(d,r.intersect(x.left));
 						}
 						else {
@@ -106,8 +113,9 @@ public class AlloyOptimizations {
 										nr = ((ExprBinary) nr).right.join(x.right);
 									else if (nr instanceof ExprBinary && ((ExprBinary) nr).right.isSame(v))
 										nr = x.right.join(((ExprBinary) nr).left);
-									Expr r = rngs.get(v);
-									if (r == null) rngs.put(vars.get(v),nr);
+									Expr r = rngs.get(vars.get(v));
+//									if (r.isSame(PrimSig.STRING)) rngs.put(vars.get(v),nr);
+									if (vars.get(v).expr instanceof ExprUnary && r.isSame(((ExprUnary) vars.get(v).expr).sub)) rngs.put(vars.get(v),nr);
 									else rngs.put(vars.get(v),r.intersect(nr));
 								}
 							}
@@ -119,21 +127,25 @@ public class AlloyOptimizations {
 						Decl d = vars.get((ExprVar) x.left);
 						if (d != null) {
 							Expr r = rngs.get(d);
-							if (r == null || r.isSame(((ExprUnary)d.expr).sub)) rngs.put(d,x.right);
+//							if (r.isSame(PrimSig.STRING)) rngs.put(d,x.right);
+							if (d.expr instanceof ExprUnary && r.isSame(((ExprUnary) d.expr).sub)) rngs.put(d,x.right);
 							else rngs.put(d,r.intersect(x.right));
 						}
 						else {
 							for (ExprVar v : vars.keySet()) {
 								if (x.right.hasVar(v)) {
-									PushVar pusher = new PushVar(v);
-									Expr nr = pusher.visitThis(x.right);
-									if (nr instanceof ExprBinary && ((ExprBinary) nr).left.isSame(v))
-										nr = ((ExprBinary) nr).right.join(x.left);
-									else if (nr instanceof ExprBinary && ((ExprBinary) nr).right.isSame(v))
-										nr = x.left.join(((ExprBinary) nr).left);
-									Expr r = rngs.get(v);
-									if (r == null) rngs.put(vars.get(v),nr);
-									else rngs.put(vars.get(v),r.intersect(nr));
+									try {
+										PushVar pusher = new PushVar(v);
+										Expr nr = pusher.visitThis(x.right);
+										if (nr instanceof ExprBinary && ((ExprBinary) nr).left.isSame(v))
+											nr = ((ExprBinary) nr).right.join(x.left);
+										else if (nr instanceof ExprBinary && ((ExprBinary) nr).right.isSame(v))
+											nr = x.left.join(((ExprBinary) nr).left);
+										Expr r = rngs.get(vars.get(v));
+	//									if (r.isSame(PrimSig.STRING)) rngs.put(vars.get(v),nr);
+										if (vars.get(v).expr instanceof ExprUnary && r.isSame(((ExprUnary) vars.get(v).expr).sub)) rngs.put(vars.get(v),nr);
+										else rngs.put(vars.get(v),r.intersect(nr));
+									} catch (ErrorWarning e) {}
 								}
 							}
 						}
@@ -184,16 +196,18 @@ public class AlloyOptimizations {
         @Override public final Expr visit(ExprBinary x) throws Err { 
         	switch(x.op){
         		case JOIN: 
-        			if (x.left.isSame(var) || x.right.isSame(var))
+        			if (x.right.isSame(var))
         				return x;
+        			else if (x.left.isSame(var))
+        				return x.right.transpose().join(var);
         			else if (x.left.hasVar(var)) {
         				Expr aux = visitThis(x.left);
-        				if (!(aux instanceof ExprBinary && ((ExprBinary)aux).left.isSame(var))) throw new Error();
-        				return ((ExprBinary)aux).left.join((((ExprBinary)aux).right).join(x.right));
+        				if (!(aux instanceof ExprBinary && ((ExprBinary)aux).right.isSame(var))) throw new ErrorWarning("Failed to push: "+x.left);
+        				return (x.right.transpose().join(((ExprBinary)aux).left)).join(var);
         			} else if (x.right.hasVar(var)) {
         				Expr aux = visitThis(x.right);
-        				if (!(aux instanceof ExprBinary && ((ExprBinary)aux).right.isSame(var))) throw new Error();
-        				return ((x.left).join(((ExprBinary)aux).left)).join(((ExprBinary)aux).right);
+        				if (!(aux instanceof ExprBinary && ((ExprBinary)aux).right.isSame(var))) throw new ErrorWarning("Failed to push: "+x.right);
+        				return (x.left.join(((ExprBinary)aux).left)).join(var);
         			}
 
         		default: return x;
@@ -231,7 +245,7 @@ public class AlloyOptimizations {
 						TradeForm finder = new TradeForm(x.decls);
 						rngs = finder.visitThis(abody);
 						for (Decl d : rngs.getKey().keySet()) {
-							System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+							//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
 							Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
 							aux.add(d2);
 						}
@@ -243,7 +257,7 @@ public class AlloyOptimizations {
     				aux = AlloyUtil.ordDecls(aux);
     				Expr res = x.op.make(null, null,aux, ebody);
     				return res;
-        		}
+        		} else return x;
         	case SOME : 
 				Entry<Map<Decl,Expr>, Expr> rngs;
 				try {
@@ -259,12 +273,24 @@ public class AlloyOptimizations {
 
 				aux = AlloyUtil.ordDecls(aux);
 				Expr res;
-				if (ebody.isSame(Sig.NONE.no())) {
+				if (ebody.isSame(Sig.NONE.no())&&true) {
 					Decl last = aux.remove(aux.size()-1);
-					if (!aux.isEmpty())
-						res = x.op.make(null, null, aux, last.expr.some());
-					else
-						res = last.expr.some();
+					Expr body;
+					try {
+						body = cutExists(last.expr);
+						if(body != null) {
+							//System.out.println("went "+body);
+							if (!aux.isEmpty()) res = x.op.make(null, null, aux, body);
+							else res = body;
+						}
+						else {
+							aux.add(last);
+							res = x.op.make(null, null, aux, ebody);
+						}
+					} catch (ErrorUnsupported e) {
+						aux.add(last);
+						res = x.op.make(null, null, aux, ebody);
+					}
 				} else res = x.op.make(null, null, aux, ebody);
 				return res;
         	default: return x;
@@ -293,10 +319,32 @@ public class AlloyOptimizations {
 	private final class OnePointQnt extends VisitQuery<Expr> {
 		   @Override public final Expr visit(ExprQt x) throws Err { 
 				Expr sub = x.sub;
-	        	switch (x.op){
+				List<Decl> decls = new ArrayList<Decl>(x.decls);
+        		switch (x.op){
 	        	case ALL :
+	        		for (Decl d : x.decls) {
+	        			try {
+	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
+							if (translator.isFunctional(d.expr)) {
+								sub = AlloyUtil.replace(sub, d.get(), d.expr);
+								decls.remove(d);
+							}
+						} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage());}
+	        		}
+	        		if (true) {
+		        		List<Decl> delcsaux = new ArrayList<Decl>(decls);
+	        			for (Decl d : delcsaux)
+		        			try {
+		        				Expr aux = cutForall(sub,d);
+		        				if (aux != null) {
+		        					sub = aux;
+		        					decls.remove(d);
+		        				}
+			        		} catch (ErrorUnsupported e) {}
+	        		}
+	        		if (decls.size() > 0) return x.op.make(null, null, decls, sub);
+	        		else return sub;    		
 	        	case SOME : 
-	        		List<Decl> decls = new ArrayList<Decl>(x.decls);
 	        		for (Decl d : x.decls) {
 	        			try {
 	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
@@ -328,7 +376,100 @@ public class AlloyOptimizations {
 	        @Override public final Expr visit(ExprVar x) { return x; };
 	        @Override public final Expr visit(Sig x) { return x; };
 	        @Override public final Expr visit(Sig.Field x) { return x; };
+	}
+	
+	private Expr cutExists(Expr e) throws ErrorUnsupported, Err {
+		CutExists cutter = new CutExists();
+		Entry<Expr,List<ExprVar>> pair = cutter.visitThis(e);
+		if(pair==null) return null;
+		else if(pair.getValue().size()==1)
+			return pair.getValue().get(0).in((pair.getKey().transpose().join(pair.getKey())).join(pair.getValue().get(0)));
+		else if(pair.getValue().size()==2)
+			return pair.getValue().get(0).in(pair.getKey().join(pair.getValue().get(1)));
+		else return null;
+	}
+	
+	private Expr cutForall(Expr e, Decl d) throws ErrorUnsupported {
+		if (e instanceof ExprBinary && ((ExprBinary)e).op.equals(ExprBinary.Op.IN)) {
+			try {
+				if (((ExprBinary)e).left.hasVar((ExprVar)d.get()) && ((ExprBinary)e).right.hasVar((ExprVar)d.get())) {
+					PushVar pusher = new PushVar((ExprVar) d.get());
+					Expr body1 = pusher.visitThis(((ExprBinary)e).left);
+					//System.out.println("HI "+e +"; "+d.get()+", "+body1);
+					Expr body2 = pusher.visitThis(((ExprBinary)e).right);
+					if (body1 instanceof ExprBinary && ((ExprBinary) body1).right.isSame(d.get())) {
+						if (body2 instanceof ExprBinary && ((ExprBinary) body2).right.isSame(d.get())) {
+							Expr res = ((((ExprBinary) body1).left).range(d.expr)).in(((ExprBinary) body2).left);
+							//System.out.println(e + " over "+ d.get() + " went "+res);
+							return res;
+						}
+					}
+				}
+			} catch (Err er) {}
+		}
+		return null;
+	}	
+	
+	private final class CutExists extends VisitQuery<Entry<Expr,List<ExprVar>>> {
+		   	@Override public final Entry<Expr,List<ExprVar>> visit(ExprQt x) throws Err { return null;  };
+			
+	       	@Override public final Entry<Expr,List<ExprVar>> visit(ExprBinary x) throws Err { 
+	       		switch (x.op) {
+	       		case JOIN : 
+	    			List<ExprVar> vars;
+					try {
+						vars = AlloyUtil.getVars(x);
+					} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage()); }
+	    			for (ExprVar var : vars) {
+	    				try {
+	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(translator.STATE))) {
+	    						//System.out.println ("var "+var.type().toExpr());
+	    						PushVar pusher = new PushVar(var);
+	    						Expr body = pusher.visitThis(x);
+	    						//System.out.println("Out "+var.in(((ExprBinary) body).left.transpose().join(((ExprBinary) body).left).join(var)));
+	    						Expr res = ((ExprBinary) body).left; 
+	    						return new SimpleEntry<Expr,List<ExprVar>>(res,new ArrayList<ExprVar>(Arrays.asList(var)));
+	    					} else 
+	    						return new SimpleEntry<Expr,List<ExprVar>>(x,new ArrayList<ExprVar>());
+	    						
+	    				} 
+	    				catch (Err er) {}
+	    				
+	    			} 
+	    			return null;
+	       		case INTERSECT :
+	       			Entry<Expr,List<ExprVar>> e1 = visitThis(x.left);
+	       			Entry<Expr,List<ExprVar>> e2 = visitThis(x.right);
+	       			if (e1 == null || e2 == null) return null;
+	       			if (e2.getValue() == null && e1.getValue() == null) 
+	       				return new SimpleEntry<Expr,List<ExprVar>>(e1.getKey().intersect(e2.getKey()),new ArrayList<ExprVar>());
+	       			if (e1.getValue().size() == 1 && e2.getValue().size() == 1) {
+	       				Expr f = e1.getKey().transpose().join(e2.getKey());
+	       				List<ExprVar> res = new ArrayList<ExprVar>(e1.getValue());
+	       				res.addAll(e2.getValue());
+		       			return new SimpleEntry<Expr,List<ExprVar>>(f,res);
+	       			}
+	       			else if ((e1.getValue().size() + e2.getValue().size() == 1)) {
+		       			Entry<Expr,List<ExprVar>> e = (e1.getValue() == null)?e2:e1;
+		       			Expr r = (e1.getValue() == null)?e1.getKey():e2.getKey();
+		       			Expr f = r.domain(e.getKey());
+		       			//System.out.println("INE "+x);
+		       			//System.out.println("OUT "+f);
+		       			return new SimpleEntry<Expr,List<ExprVar>>(f,e.getValue());
+	       			} else return null;
 
+	    		default : return null;
+	    		}
+	       	};
+	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprCall x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprList x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprConstant x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprITE x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprLet x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprUnary x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprVar x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(Sig x) { return null; };
+	        @Override public final Entry<Expr,List<ExprVar>> visit(Sig.Field x) { return null; };
 	}
 	
 }

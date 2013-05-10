@@ -12,6 +12,7 @@ import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
@@ -214,10 +215,10 @@ public class AlloyUtil {
         	else return x;
         };
         @Override public final Expr visit(ExprITE x) throws Err {         	
-        	throw new ErrorFatal("");
+        	throw new ErrorFatal("Failed to replace: "+x);
         };
         @Override public final Expr visit(ExprLet x) throws Err { 
-        	throw new ErrorFatal("");
+        	throw new ErrorFatal("Failed to replace: "+x);
         };
         @Override public final Expr visit(ExprUnary x) throws Err { 
         	if (x.isSame(find)) return replace;
@@ -237,6 +238,70 @@ public class AlloyUtil {
         @Override public final Expr visit(Sig.Field x) { 
         	if (x.isSame(find)) return replace;
         	else return x; 
+        };
+
+      }
+	
+	public static List<ExprVar> getVars(Expr in) throws ErrorUnsupported {
+		VarGetter getter = new VarGetter();
+		List<ExprVar> res;
+		try {
+			res = getter.visitThis(in);
+		} catch (Err e) { throw new ErrorUnsupported(e.getMessage()); }
+		return res;
+	}
+	
+	private static class VarGetter extends VisitQuery<List<ExprVar>> {
+		
+		VarGetter () {}
+		
+        @Override public final List<ExprVar> visit(ExprQt x) throws Err { 
+        	List<ExprVar> aux = new ArrayList<ExprVar>();
+        	aux.addAll(visitThis(x.sub));
+         	for (Decl d : x.decls)
+            	aux.addAll(visitThis(d.expr));
+         	return aux;
+        };		
+        @Override public final List<ExprVar> visit(ExprBinary x) throws Err { 
+        	List<ExprVar> aux = new ArrayList<ExprVar>();
+        	aux.addAll(visitThis(x.left));
+        	aux.addAll(visitThis(x.right));
+        	return aux;
+        };
+        @Override public final List<ExprVar> visit(ExprCall x) throws Err { 
+        	List<ExprVar> aux = new ArrayList<ExprVar>();
+        	for (Expr exp : x.args)
+            	aux.addAll(visitThis(exp));
+        	return aux;
+        };
+        @Override public final List<ExprVar> visit(ExprList x) throws Err { 
+        	List<ExprVar> aux = new ArrayList<ExprVar>();
+        	for (Expr arg : x.args)
+       			aux.addAll(visitThis(arg));
+       		return aux;
+        };
+        @Override public final List<ExprVar> visit(ExprConstant x) { 
+        	return new ArrayList<ExprVar>();
+        };
+        @Override public final List<ExprVar> visit(ExprITE x) throws Err {         	
+        	throw new ErrorFatal("Failed to get vars: "+x);
+        };
+        @Override public final List<ExprVar> visit(ExprLet x) throws Err { 
+        	throw new ErrorFatal("Failed to get vars: "+x);
+        };
+        @Override public final List<ExprVar> visit(ExprUnary x) throws Err { 
+        	return visitThis(x.sub);
+        };
+        @Override public final List<ExprVar> visit(ExprVar x) { 
+        	List<ExprVar> aux = new ArrayList<ExprVar>();
+        	aux.add(x);
+        	return aux;
+        };
+        @Override public final List<ExprVar> visit(Sig x) {       
+        	return new ArrayList<ExprVar>();
+        };
+        @Override public final List<ExprVar> visit(Sig.Field x) { 
+        	return new ArrayList<ExprVar>();
         };
 
       }

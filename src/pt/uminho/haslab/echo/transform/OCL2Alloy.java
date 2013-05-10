@@ -242,14 +242,14 @@ class OCL2Alloy {
 		Expr res = null;
 		Expr aux = propertyToField(expr.getReferredProperty());
 		res = oclExprToAlloy(expr.getSource()).join(aux);	
-		
+		System.out.println("ispre? "+expr.getReferredProperty().getName()+", "+expr.isPre());
 		return res;
 	}
 	
 	Expr oclExprToAlloy (OperationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null; 
 		Expr src = oclExprToAlloy(expr.getSource());
-		
+		System.out.println("ispre? "+expr.getReferredOperation().getName()+", "+expr.isPre());
 		if (expr.getReferredOperation().getName().equals("not"))
 			res = src.not();
 		else if (expr.getReferredOperation().getName().equals("isEmpty"))

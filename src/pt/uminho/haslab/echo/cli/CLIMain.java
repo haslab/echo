@@ -90,11 +90,12 @@ public class CLIMain {
 		} else if (options.isEnforce() && conforms) {
 			printer.printTitle("Enforcing consistency.");
 			success = echo.enforce(options.getQVTPath(),Arrays.asList(options.getInstances()),options.getDirection());
-			while (!success) {
-				printer.printForce("No instance found for delta "+echo.getCurrentDelta()+".");
-				success = echo.increment();			
-			}
 			echo.timer.setTime("Enforce");
+			while (!success) {
+				printer.printForce("No instance found for delta "+(echo.getCurrentDelta()-1)+" ("+echo.timer.getTime("Enforce")+"ms).");
+				success = echo.increment();			
+				echo.timer.setTime("Enforce");
+			}
 			printer.printForce("Instance found ("+echo.timer.getTime("Enforce")+"ms).");
 		}
 		if ((options.isEnforce() || options.isGenerate() || options.isRepair()) && success) {
