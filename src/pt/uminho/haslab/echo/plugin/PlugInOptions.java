@@ -54,4 +54,10 @@ public class PlugInOptions implements EchoOptions {
 		return 2;
 	}
 
+	@Override
+	public boolean isOperationBased() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
