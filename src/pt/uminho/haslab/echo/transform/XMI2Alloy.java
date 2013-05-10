@@ -165,6 +165,7 @@ class XMI2Alloy {
 			field = translator.getFieldFromSFeature(sf);
 			eG = it.eGet(sf);
 			if (sf instanceof EReference) {
+				System.out.println(sf +" : " +eG);
 				if(eG instanceof EList<?>) {
 					if(!((EList<?>) eG).isEmpty()) {
 						EReference op = ((EReference) sf).getEOpposite();
