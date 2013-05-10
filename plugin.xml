@@ -82,11 +82,20 @@
                </iterate>
             </visibleWhen>
          </command>
-         <command
-               commandId="echo.command5"
-               style="push">
-         </command>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesPage"
+            id="pt.uminho.haslab.echo.plugin.properties.projectProperties"
+            name="Echo">
+         <enabledWhen>
+         	<adapt
+         		type="org.eclipse.core.resources.IProject">
+            </adapt>
+         </enabledWhen>
+      </page>
    </extension>
 
 </plugin>

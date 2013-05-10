@@ -83,6 +83,8 @@ public class EMFParser {
 		// Register XML Factory implementation to handle files with any extension
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*",new XMIResourceFactoryImpl());
 	
+		
+		
 		modelpaths = HashBiMap.create();
 
 	}
@@ -91,8 +93,16 @@ public class EMFParser {
 	 * Loads the EObject its uri
 	 */
 	public EObject loadInstance(String uri) {
-		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
+		Resource load_resource = resourceSet.createResource(URI.createURI(uri));
+		/*Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);*/
+		try {
+			load_resource.load(resourceSet.getLoadOptions());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		EObject res = load_resource.getContents().get(0);
+		System.out.println(load_resource.getContents().size());
 		instances.put(uri,res);
 		return res;
 	}
@@ -102,6 +112,7 @@ public class EMFParser {
 	 */
 	public EPackage loadModel(String uri) {
 		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
+	
 		EPackage res = (EPackage) load_resource.getContents().get(0);
 		
 		resourceSet.getPackageRegistry().put(res.getNsURI(),res);

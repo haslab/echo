@@ -14,7 +14,7 @@ public class PlugInOptions implements EchoOptions {
 	@Override
 	public boolean isVerbose() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -29,11 +29,6 @@ public class PlugInOptions implements EchoOptions {
 		return false;
 	}
 
-	@Override
-	public Integer getSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public Map<Entry<String, String>, Integer> getScopes() {
@@ -45,6 +40,18 @@ public class PlugInOptions implements EchoOptions {
 	public Integer getMaxDelta() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public Integer getOverallScope() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Integer getBitwidth() {
+		// TODO Auto-generated method stub
+		return 2;
 	}
 
 }

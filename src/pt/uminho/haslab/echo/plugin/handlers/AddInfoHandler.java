@@ -10,12 +10,11 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 
 public class AddInfoHandler extends AbstractHandler {
 
@@ -24,7 +23,6 @@ public class AddInfoHandler extends AbstractHandler {
 		// TODO Auto-generated method stub
 		
 		Shell shell = HandlerUtil.getActiveShell(event);
-		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
 
@@ -36,12 +34,16 @@ public class AddInfoHandler extends AbstractHandler {
 			String extension = res.getFileExtension();
 			
 			try {
+				ProjectProperties pp = ProjectProperties.getProjectProperties(res.getProject());
 				if(extension.equals("xmi"))
-					er.addInstance(path);
+				{			
+					pp.addConformList(path);
+				}
 				else if (extension.equals("ecore"))
-					er.addModel(path);
-				else if (extension.equals("qvt") || extension.equals("qvtr"))
-					er.addQVT(path);
+				{
+					pp.addMetaModel(path);
+				}else if (extension.equals("qvt") || extension.equals("qvtr"))
+					MessageDialog.openInformation(shell, "QVT","entraste no QVT mano!\n esto ainda não está direito.");
 				else
 					MessageDialog.openInformation(shell, "Not Right",extension + "\n" + path);
 				
