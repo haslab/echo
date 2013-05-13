@@ -75,6 +75,8 @@ class ECore2Alloy {
 	private Decl constraintdecl;
 	
 	private PrimSig order;
+	private Map<String,Integer> news = new HashMap<String,Integer>();
+
 	
 	/**
 	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
@@ -395,6 +397,13 @@ class ECore2Alloy {
 						functions.add(fun);
 					} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
 				}
+			
+			for (String cl : converter.getOCLAreNews().keySet()) {
+				Integer newi = news.get(cl);
+				if (newi == null) news.put(cl,converter.getOCLAreNews().get(cl));
+				else news.put(cl,newi+converter.getOCLAreNews().get(cl));
+			}
+
 		}
 	}
 	
@@ -621,7 +630,11 @@ class ECore2Alloy {
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage());	}
 
 		order = ord;
-}	
+	}
+	
+	public Map<String,Integer> getOCLAreNews() {
+		return news;
+	}
 	
 }
 

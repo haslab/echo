@@ -30,6 +30,7 @@ import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.emf.EMFParser;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -79,7 +80,9 @@ public class EMF2Alloy {
 	/** the initial command scopes of the target instance 
 	 * only these need be increased in enforce mode, null if not enforce mode */
 	private ConstList<CommandScope> scopes;
-	
+
+	private Map<PrimSig,Integer> scopesincrement = new HashMap<PrimSig,Integer>();
+
 	/**
 	 * Constructs a new EMF to Alloy translator
 	 * @param parser the parsed EMF resources
@@ -136,18 +139,6 @@ public class EMF2Alloy {
 			inststatesigs.put(uri, s);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
-		
-	/*
-	public void createScopesFromTargetInstance(String trguri) throws ErrorAlloy {
-		XMI2Alloy i2a = insttrads.get(trguri);
-		if (i2a != null) {
-			List<PrimSig> modelsigs = i2a.translator.getSigList();
-			scopes = AlloyUtil.createScopeFromSigs(modelsigs, i2a.getSigMap());
-		} else {
-			List<PrimSig> modelsigs = modeltrads.get(targetstatesig.parent.label).getSigList();
-			scopes = AlloyUtil.createScopeFromSigs(modelsigs, new HashMap<String,List<PrimSig>>());	
-		}
-	}*/
 	
 	public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopes) throws ErrorAlloy {
 		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
@@ -159,9 +150,70 @@ public class EMF2Alloy {
 		for (Expr sig : modelstatesigs.values())
 			sc.put((PrimSig) sig,1);
 		sc.put(Sig.STRING, overall);
-		this.scopes = AlloyUtil.createScope(sc,true);
+		this.scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
+	public void createScopesFromOps(String uri) throws ErrorAlloy {
+		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
+		XMI2Alloy x2a = insttrads.get(uri);
+		ECore2Alloy e2a = x2a.translator;
+
+		for (String cl : e2a.getOCLAreNews().keySet()) {
+			PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cl));
+			scopesincrement.put(sig,e2a.getOCLAreNews().get(cl));
+		}
+		
+		for (PrimSig sig : scopesincrement.keySet()) {
+			int count = x2a.getSigMap().get(sig.label)==null?0:x2a.getSigMap().get(sig.label).size();
+			if (scopes.get(sig) == null) scopes.put(sig, count);
+			else scopes.put(sig, scopes.get(sig) + count);
+			PrimSig up = sig.parent;
+			while (up != Sig.UNIV && up != null){
+				if (scopes.get(up) == null) scopes.put(up, count);
+				else scopes.put(up, scopes.get(up) + count);
+				up = up.parent;
+			}
+		}
+		scopesincrement.put(e2a.statesig,1);
+
+		Map<PrimSig,Integer> aux = new HashMap<PrimSig, Integer>();
+		aux.put(e2a.statesig,1);
+
+		this.scopes = AlloyUtil.createScope(scopes,aux);
+	}	
+	
+	public void createScopesFromURI(String uri) throws ErrorAlloy {
+		XMI2Alloy x2a = insttrads.get(uri);
+		ECore2Alloy e2a = x2a.translator;
+		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
+
+		for (PrimSig sig : e2a.getAllSigs()) {
+			int count = x2a.getSigMap().get(sig.label)==null?0:x2a.getSigMap().get(sig.label).size();
+			if (scopes.get(sig) == null) scopes.put(sig, count);
+			else scopes.put(sig, scopes.get(sig) + count);
+			PrimSig up = sig.parent;
+			while (up != Sig.UNIV && up != null){
+				if (scopes.get(up) == null) scopes.put(up, count);
+				else scopes.put(up, scopes.get(up) + count);
+				up = up.parent;
+			}
+		}
+		this.scopes = AlloyUtil.createScope(scopes,new HashMap<PrimSig, Integer>());
+	}	
+	
+	public ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
+		List<CommandScope> list = new ArrayList<CommandScope>();
+		
+		if (!options.isOperationBased())
+			for (CommandScope scope : scopes)
+				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+1));
+		else
+			for (CommandScope scope : scopes) {
+				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+scopesincrement.get(scope.sig)));
+				// need to manage inheritance
+			}		
+		return ConstList.make(list);
+	}
 	
 	/** Writes an Alloy solution in the target instance file 
 	 * @throws ErrorAlloy 
@@ -224,7 +276,6 @@ public class EMF2Alloy {
 		return scopes;
 	}
 
-	
 	public List<PrimSig> getAllSigsFromName(String uri) throws ErrorAlloy{
 		ECore2Alloy e2a = modeltrads.get(uri);
 		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getAllSigs());
@@ -312,8 +363,7 @@ public class EMF2Alloy {
 		Func f = modeltrads.get(name).getConforms();
 		return f.call(modelstatesigs.get(name));
 	}
-
-
+	
 	/**
 	 * returns true is able to determine determinism;
 	 * false otherwise

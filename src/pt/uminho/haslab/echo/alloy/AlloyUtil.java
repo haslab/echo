@@ -1,7 +1,6 @@
 package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,47 +69,19 @@ public class AlloyUtil {
 		else return e.and(f);
 	}
 	
-	public static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, boolean exact) throws ErrorAlloy {
+	public static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, Map<PrimSig,Integer> sizesexact) throws ErrorAlloy {
 		List<CommandScope> scopes = new ArrayList<CommandScope>();
 	
 		for (PrimSig sig : sizes.keySet()) 
-			try {scopes.add(new CommandScope(sig, exact, sizes.get(sig)));}
+			try {scopes.add(new CommandScope(sig, false, sizes.get(sig)));}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
+		for (PrimSig sig : sizesexact.keySet()) 
+			try {scopes.add(new CommandScope(sig, true, sizesexact.get(sig)));}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 
 		return ConstList.make(scopes);
 	}
 	
-	public static ConstList<CommandScope> createScopeFromSigs (List<PrimSig> modelsigs, Map<String,List<PrimSig>> instsigs) throws ErrorAlloy {
-		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
-
-		for (PrimSig sig : modelsigs) {
-			int count = instsigs.get(sig.label)==null?0:instsigs.get(sig.label).size();
-			if (scopes.get(sig) == null) scopes.put(sig, count);
-			else scopes.put(sig, scopes.get(sig) + count);
-			PrimSig up = sig.parent;
-			while (up != Sig.UNIV && up != null){
-				if (scopes.get(up) == null) scopes.put(up, count);
-				else scopes.put(up, scopes.get(up) + count);
-				up = up.parent;
-			}
-		}
-		return createScope(scopes, false);
-	}
-	
-	public static ConstList<CommandScope> createScopeFromOp (PrimSig sig) throws ErrorAlloy {
-		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
-		scopes.put(sig, 1);
-		return createScope(scopes, true);
-	}
-	
-	public static ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
-		List<CommandScope> list = new ArrayList<CommandScope>();
-		
-		for (CommandScope scope : scopes)
-			list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+1));
-
-		return ConstList.make(list);
-	}
 	
 	public static ConstList<CommandScope> incrementStringScopes (List<CommandScope> scopes) throws ErrorAlloy {
 		List<CommandScope> list = new ArrayList<CommandScope>();

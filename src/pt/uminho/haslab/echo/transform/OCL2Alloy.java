@@ -2,12 +2,14 @@ package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
 import org.eclipse.ocl.examples.pivot.IfExp;
 import org.eclipse.ocl.examples.pivot.IteratorExp;
@@ -48,7 +50,9 @@ class OCL2Alloy {
 	private Map<String,List<ExprHasName>> prevars;
 	private QVTRelation2Alloy parentq;
 	private boolean isPre = false;
-	
+
+	private Map<String,Integer> news = new HashMap<String,Integer>();
+
 	OCL2Alloy(QVTRelation2Alloy q2a, EMF2Alloy translator, Set<Decl> vardecls, Map<String,List<ExprHasName>> argsvars, Map<String,List<ExprHasName>> prevars) {
 		this (translator,vardecls,argsvars,prevars);
 		this.parentq = q2a;
@@ -306,9 +310,21 @@ class OCL2Alloy {
 		else if (expr.getReferredOperation().getName().equals("allInstances"))
 			res = src;
 		else if (expr.getReferredOperation().getName().equals("oclIsNew")) {
+			EObject container = expr.eContainer();
+			while (!(container instanceof IteratorExp) && container != null)
+				container = container.eContainer();
+			if (container == null || !((IteratorExp)container).getReferredIteration().getName().equals("one"))
+				throw new ErrorTransform("oclIsNew may only occur in a \"one\" iteration");
+
+			
 			VariableExp x = (VariableExp) expr.getSource();
 			String cl = x.getType().getName();
 			String mdl = x.getType().getPackage().getName();
+
+			Integer newi = news.get(cl);
+			if (newi == null) news.put(cl,1);
+			else news.put(cl,newi+1);
+
 			Field statefield = translator.getStateFieldFromName(mdl,cl);
 			ExprHasName pre = null;
 			ExprHasName pos = null;
@@ -447,5 +463,9 @@ class OCL2Alloy {
 			return res;
 		}
 		
+		
+		public Map<String,Integer> getOCLAreNews() {
+			return news;
+		}
 
 }

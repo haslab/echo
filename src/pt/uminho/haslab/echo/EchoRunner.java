@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -156,6 +157,11 @@ public class EchoRunner {
 	 * @throws ErrorAlloy
 	 */
 	public boolean enforce(String qvturi, List<String> insturis, String targeturi) throws ErrorAlloy {
+		if (translator.options.isOperationBased())
+			translator.createScopesFromOps(targeturi);
+		else
+			translator.createScopesFromURI(targeturi);
+		
 		runner = new AlloyRunner(translator);
 		runner.enforce(qvturi, insturis, targeturi);
 		return runner.getSolution().satisfiable();
