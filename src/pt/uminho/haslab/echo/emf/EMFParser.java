@@ -102,7 +102,6 @@ public class EMFParser {
 			e.printStackTrace();
 		}
 		EObject res = load_resource.getContents().get(0);
-		System.out.println(load_resource.getContents().size());
 		instances.put(uri,res);
 		return res;
 	}

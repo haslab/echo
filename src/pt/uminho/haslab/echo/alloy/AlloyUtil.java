@@ -97,11 +97,17 @@ public class AlloyUtil {
 		return createScope(scopes, false);
 	}
 	
+	public static ConstList<CommandScope> createScopeFromOp (PrimSig sig) throws ErrorAlloy {
+		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
+		scopes.put(sig, 1);
+		return createScope(scopes, true);
+	}
+	
 	public static ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
 		List<CommandScope> list = new ArrayList<CommandScope>();
 		
 		for (CommandScope scope : scopes)
-			list.add(new CommandScope(scope.sig, false, scope.startingScope+1));
+			list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+1));
 
 		return ConstList.make(list);
 	}

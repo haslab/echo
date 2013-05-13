@@ -38,6 +38,11 @@ public class CLIOptions extends Options implements EchoOptions{
 				.create());
 		
 		this.addOption(OptionBuilder
+				.withDescription("use operation-based metric")
+				.withLongOpt("operation")
+				.create());
+		
+		this.addOption(OptionBuilder
 				.withDescription("number of elements of a given class")
 				.withLongOpt("scopes")
 				.withArgName("scopes")
@@ -254,7 +259,7 @@ public class CLIOptions extends Options implements EchoOptions{
 	}
 	
 	public boolean isOperationBased(){
-		return false;
+		return cmd.hasOption("operation");
 	}
 
 }

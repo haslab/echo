@@ -322,12 +322,15 @@ public class AlloyOptimizations {
 				List<Decl> decls = new ArrayList<Decl>(x.decls);
         		switch (x.op){
 	        	case ALL :
-	        		for (Decl d : x.decls) {
+					for (int i = 0; i < decls.size() ; i++) {
+						Decl d = decls.get(i);
 	        			try {
 	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
 							if (translator.isFunctional(d.expr)) {
 								sub = AlloyUtil.replace(sub, d.get(), d.expr);
 								decls.remove(d);
+								for (int j = 0; j < decls.size() ; j++)
+									decls.set(j, new Decl(decls.get(j).isPrivate, decls.get(j).disjoint, decls.get(j).disjoint2, decls.get(j).names, AlloyUtil.replace(decls.get(j).expr,d.get(),d.expr)));
 							}
 						} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage());}
 	        		}
@@ -422,7 +425,7 @@ public class AlloyOptimizations {
 					} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage()); }
 	    			for (ExprVar var : vars) {
 	    				try {
-	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(translator.STATE))) {
+	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(EMF2Alloy.STATE))) {
 	    						//System.out.println ("var "+var.type().toExpr());
 	    						PushVar pusher = new PushVar(var);
 	    						Expr body = pusher.visitThis(x);

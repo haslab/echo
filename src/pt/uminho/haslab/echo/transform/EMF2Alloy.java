@@ -118,7 +118,10 @@ public class EMF2Alloy {
 	public void createModelStateSigs(EPackage mdl) throws ErrorAlloy, ErrorTransform {
 		PrimSig s = null;
 		try {
-			s = new PrimSig(mdl.getName(),STATE,Attr.ABSTRACT);
+			if (options.isOperationBased())
+				s = new PrimSig(mdl.getName(),STATE);
+			else
+				s = new PrimSig(mdl.getName(),STATE,Attr.ABSTRACT);
 			modelstatesigs.put(s.label, s);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
@@ -353,7 +356,9 @@ public class EMF2Alloy {
         	EStructuralFeature sf = e2a.getSFeatureFromField(x);
         	if (sf == null) return false;
         
-        	return (sf instanceof EAttribute || (sf.getLowerBound() == 1 && sf.getUpperBound() == 1));
+        	if (sf instanceof EAttribute && !sf.getEType().getName().equals("EBoolean")) return true;
+        	if (sf.getLowerBound() == 1 && sf.getUpperBound() == 1) return true;
+        	return false;
        };
 	}
 }

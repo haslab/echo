@@ -196,7 +196,10 @@ public class AlloyRunner {
 					allsigs.add(targetstate);
 					sigs.add(targetstate);
 					edelta = translator.getModelDeltaExpr(original.parent.label,original, targetstate);
-					scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
+					if (translator.options.isOperationBased())
+						scopes = AlloyUtil.createScopeFromOp(state.parent);	
+					else
+						scopes = AlloyUtil.createScopeFromSigs(translator.getModelSigs(original.parent.label), translator.getInstanceSigs(uri));
 					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				} else {
 					sigs.add(state);			
@@ -221,8 +224,12 @@ public class AlloyRunner {
 		}
 		try {
 			intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
-			Command cmd = new Command(false, overall, intscope, -1, finalfact.and(edelta.equal(ExprConstant.makeNUMBER(delta))));
+			Expr runfact = finalfact;
+			if(!translator.options.isOperationBased())
+				runfact = finalfact.and(edelta.equal(ExprConstant.makeNUMBER(delta)));
+			Command cmd = new Command(false, overall, intscope, -1, runfact);
 			scopes = AlloyUtil.incrementScopes(scopes);
+			//System.out.println(scopes);
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 			delta++;

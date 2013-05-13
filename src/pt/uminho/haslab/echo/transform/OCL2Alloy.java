@@ -44,9 +44,10 @@ class OCL2Alloy {
 	private final EMF2Alloy translator;
 
 	private Set<Decl> vardecls;
-	private Map<String,List<ExprHasName>> argsvars;
+	private Map<String,List<ExprHasName>> posvars;
 	private Map<String,List<ExprHasName>> prevars;
 	private QVTRelation2Alloy parentq;
+	private boolean isPre = false;
 	
 	OCL2Alloy(QVTRelation2Alloy q2a, EMF2Alloy translator, Set<Decl> vardecls, Map<String,List<ExprHasName>> argsvars, Map<String,List<ExprHasName>> prevars) {
 		this (translator,vardecls,argsvars,prevars);
@@ -57,7 +58,7 @@ class OCL2Alloy {
 		this.vardecls = vardecls;
 		this.prevars = prevars;
 		this.translator = translator;
-		this.argsvars = argsvars;
+		this.posvars = argsvars;
 	}
 	
 	Expr oclExprToAlloy (VariableExp expr) throws ErrorTransform {
@@ -139,7 +140,7 @@ class OCL2Alloy {
 		Func func = trans.getFunc();
 		
 		List<ExprHasName> aux = new ArrayList<ExprHasName>();
-		for (Entry<String, List<ExprHasName>> x : argsvars.entrySet())
+		for (Entry<String, List<ExprHasName>> x : (isPre?prevars:posvars).entrySet())
 			for (ExprHasName y : x.getValue())
 				aux.add(y);
 		Expr res = func.call(aux.toArray(new ExprHasName[aux.size()]));
@@ -232,32 +233,42 @@ class OCL2Alloy {
 		return res;
 	}
 	
-	PrimSig oclExprToAlloy (TypeExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (TypeExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		String pck = expr.getReferredType().getPackage().getName();
-		return translator.getSigFromName(pck,expr.getReferredType().getName());
+		Field field = translator.getStateFieldFromName(pck, expr.getReferredType().getName());
+		ExprHasName state = (isPre?prevars:posvars).get(pck).get(0);
+		return field.join(state);
 	}
 	
 	
 	Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null;
+		isPre = expr.isPre();
 		Expr aux = propertyToField(expr.getReferredProperty());
-		res = oclExprToAlloy(expr.getSource()).join(aux);	
-		System.out.println("ispre? "+expr.getReferredProperty().getName()+", "+expr.isPre());
+		if(expr.getType().getName().equals("Boolean"))
+			res = oclExprToAlloy(expr.getSource()).in(aux);	
+		else
+			res = oclExprToAlloy(expr.getSource()).join(aux);	
 		return res;
 	}
 	
 	Expr oclExprToAlloy (OperationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr res = null; 
+		isPre = expr.isPre();
 		Expr src = oclExprToAlloy(expr.getSource());
-		System.out.println("ispre? "+expr.getReferredOperation().getName()+", "+expr.isPre());
 		if (expr.getReferredOperation().getName().equals("not"))
 			res = src.not();
 		else if (expr.getReferredOperation().getName().equals("isEmpty"))
 			res = src.no();
 		else if (expr.getReferredOperation().getName().equals("size"))
 			res = src.cardinality();
-		else if (expr.getReferredOperation().getName().equals("="))
-			res = src.equal(oclExprToAlloy(expr.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("=")) {
+			Expr aux = oclExprToAlloy(expr.getArgument().get(0));
+			if (expr.getArgument().get(0).getType().getName().equals("Boolean"))
+				res = src.iff(aux);
+			else 
+				res = src.equal(aux);
+		}
 		else if (expr.getReferredOperation().getName().equals("<>"))
 			res = (src.equal(oclExprToAlloy(expr.getArgument().get(0)))).not();
 		else if (expr.getReferredOperation().getName().equals("and"))
@@ -301,8 +312,8 @@ class OCL2Alloy {
 			Field statefield = translator.getStateFieldFromName(mdl,cl);
 			ExprHasName pre = null;
 			ExprHasName pos = null;
-			if (argsvars != null && argsvars.get(mdl) != null) 
-				pos = argsvars.get(mdl).get(0);
+			if (posvars != null && posvars.get(mdl) != null) 
+				pos = posvars.get(mdl).get(0);
 			if (prevars != null && prevars.get(mdl) != null) 
 				pre = prevars.get(mdl).get(0);
 
@@ -339,8 +350,8 @@ class OCL2Alloy {
 		String mdl = prop.getOwningType().getPackage().getName();
 		Expr exp;
 		Expr statesig = null;
-		if (argsvars != null) 
-			statesig = argsvars.get(mdl).get(0);
+		if ((isPre?prevars:posvars) != null) 
+			statesig = (isPre?prevars:posvars).get(mdl).get(0);
 		if (statesig == null) 
 			statesig = translator.getModelStateSig(mdl);
 		if (prop.getOpposite() != null && prop.getOpposite().isComposite() && translator.options.isOptimize()) {
@@ -364,8 +375,8 @@ class OCL2Alloy {
 					Sig range = Sig.NONE;
 					String mdl = ovar.getType().getPackage().getName();
 					Expr state = null;
-					if (argsvars != null && argsvars.get(mdl) != null)
-						state = argsvars.get(mdl).get(0);
+					if ((isPre?prevars:posvars) != null && (isPre?prevars:posvars).get(mdl) != null)
+						state = (isPre?prevars:posvars).get(mdl).get(0);
 					if (state == null)
 						state = translator.getModelStateSig(mdl);
 					String type = ovar.getType().getName();

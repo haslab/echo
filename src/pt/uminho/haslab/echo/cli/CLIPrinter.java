@@ -57,7 +57,7 @@ public class CLIPrinter {
 			ExprList x = (ExprList) translator.getQVTFact(options.getQVTPath()).getBody();
 			for (Expr y : x.args) {
 				if (y instanceof ExprCall)
-					sb.append("Constraint: "+((ExprCall) y).fun.getBody()+"\n");
+					sb.append("Constraint: "+y+" : "+((ExprCall) y).fun.getBody()+"\n");
 			
 			}
 			}

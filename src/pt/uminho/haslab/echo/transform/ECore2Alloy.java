@@ -249,8 +249,11 @@ class ECore2Alloy {
 				if(op!=null) {
 					Field opField = getFieldFromSFeature(op);
 					if(opField != null) {
-						fact = field.join(constraintdecl.get()).equal(opField.join(constraintdecl.get()).transpose());
-						constraint = constraint.and(fact);
+						try { 
+							Decl d = statesig.oneOf("s_");
+							fact = (field.join(d.get()).equal(opField.join(d.get()).transpose())).forAll(d);
+							classsig.addFact(fact); 
+						} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 					}
 				}
 
@@ -386,10 +389,9 @@ class ECore2Alloy {
 							oclalloy = oclalloy.and(converter.oclExprToAlloy(invariant.getBodyExpression()));
 						} catch (ParserException e) { throw new ErrorParser("Error parsing OCL formula: "+sExpr);}
 					}
-					decls.remove(self);
 					try{
-						//System.out.println(oclalloy);
-						Func fun = new Func(null,operation.getName(),decls,null,oclalloy.forAll(self));
+						System.out.println(oclalloy);
+						Func fun = new Func(null,operation.getName(),decls,null,oclalloy);
 						functions.add(fun);
 					} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
 				}
@@ -586,7 +588,7 @@ class ECore2Alloy {
 		PrimSig ord; Field next,first;
 		try {
 			ord = new PrimSig("ord", Attr.ONE);
-			first = ord.addField("first", sig);
+			first = ord.addField("first", sig.setOf());
 			next = ord.addField("next", sig.product(sig));
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage());	}
 		try {
@@ -610,6 +612,7 @@ class ECore2Alloy {
 				ops = ops.or(aux);
 			}			
 			ops = ops.forAll(s1, s2);
+			//System.out.println("ORD: "+ops);
 			ord.addFact(ops);
 			List<Expr> x = new ArrayList<Expr>();
 			x.add(sig); x.add(ord.join(first)); x.add(ord.join(next));

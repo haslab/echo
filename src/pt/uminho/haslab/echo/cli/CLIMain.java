@@ -108,6 +108,7 @@ public class CLIMain {
 			A4Solution sol = echo.getAInstance();
 			sol.writeXML("alloy_output.xml");
 			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
+			
 			echo.generateTheme(viz.getVizState());
 			viz.doShowViz();
 			printer.printForce("Search another instance? (y)");
