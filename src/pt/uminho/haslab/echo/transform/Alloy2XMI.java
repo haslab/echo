@@ -42,7 +42,7 @@ class Alloy2XMI {
 	
 	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo,PrimSig state, EchoOptions options,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform 
 	{
-		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom", "Alloy2XMI");
+		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom.");
 		instancesigs = (instsigs==null)?new ArrayList<PrimSig>():instsigs;
 		e2a = metaInfo;
 		this.sol = sol;

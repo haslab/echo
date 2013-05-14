@@ -231,7 +231,7 @@ public class EMF2Alloy {
 		String uri = mdluri.replace(".ecore", ".xmi");
 		ECore2Alloy e2a = modeltrads.get(pck.getName());
 		List<EClass> topclass = parser.getTopObject(mdluri);
-		if (topclass.size() != 1) throw new ErrorTransform("Could not resolve top class.","");
+		if (topclass.size() != 1) throw new ErrorTransform("Could not resolve top class.");
 		PrimSig sig = e2a.getSigFromEClass(topclass.get(0));
 		writeXMIAlloy(sol,uri,sig, e2a.statesig,e2a,null);
 	}
@@ -363,7 +363,13 @@ public class EMF2Alloy {
 		Func f = modeltrads.get(name).getConforms();
 		return f.call(modelstatesigs.get(name));
 	}
-	
+
+	public Expr getGenerateAllInstances(String uri) throws ErrorAlloy {
+		String name = parser.getModelsFromUri(uri).getName();
+		Func f = modeltrads.get(name).getGenerate();
+		return f.call(modelstatesigs.get(name));
+	}
+
 	/**
 	 * returns true is able to determine determinism;
 	 * false otherwise

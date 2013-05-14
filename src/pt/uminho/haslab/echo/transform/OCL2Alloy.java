@@ -71,7 +71,7 @@ class OCL2Alloy {
 		for (Decl d : vardecls){
 			if (d.get().label.equals(varname))
 				decl = d;}
-		if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",varname);
+		if (decl == null) throw new ErrorTransform ("Variable not declared: "+varname);
 		ExprHasName var = decl.get();
 		return var;	
 	}
@@ -84,7 +84,12 @@ class OCL2Alloy {
 	Expr oclExprToAlloy (UnlimitedNaturalLiteralExp expr) throws ErrorTransform{
 		Number n = expr.getUnlimitedNaturalSymbol();
 
-		if (n.toString().equals("*"))  throw new ErrorTransform ("No support for unlimited integers.","OCL2Alloy");
+		if (n.toString().equals("*"))  throw new ErrorTransform ("No support for unlimited integers.");
+		Integer bitwidth = translator.options.getBitwidth();
+		Integer max = (int) (Math.pow(2, bitwidth) / 2);
+		if (n.intValue() >= max || n.intValue() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+n+".");
+
+		
 		
 		return ExprConstant.makeNUMBER(n.intValue());
 	}
@@ -118,7 +123,7 @@ class OCL2Alloy {
 				for (Decl d : vardecls)
 					if (d.get().label.equals(varname))
 						decl = d;
-				if (decl == null) throw new ErrorTransform ("Variable not declared.","OCL2Alloy",((ObjectTemplateExp) value).getBindsTo());
+				if (decl == null) throw new ErrorTransform ("Variable not declared: "+((ObjectTemplateExp) value).getBindsTo());
 				ExprHasName var1 = decl.get();
 				item = var1.in(var.join(localfield));
 				item = AlloyUtil.cleanAnd(item,ocl);
@@ -180,7 +185,7 @@ class OCL2Alloy {
 		Expr res = null;
 		
 		List<Variable> variterator = expr.getIterator();
-		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure.","OCL2Alloy",variterator);
+		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure: "+variterator);
 
 		Decl d = variableListToExpr(new HashSet<Variable>(variterator),true).iterator().next();
 
@@ -273,8 +278,13 @@ class OCL2Alloy {
 			else 
 				res = src.equal(aux);
 		}
-		else if (expr.getReferredOperation().getName().equals("<>"))
-			res = (src.equal(oclExprToAlloy(expr.getArgument().get(0)))).not();
+		else if (expr.getReferredOperation().getName().equals("<>")){
+			Expr aux = oclExprToAlloy(expr.getArgument().get(0));
+			if (expr.getArgument().get(0).getType().getName().equals("Boolean"))
+				res = src.iff(aux).not();
+			else 
+				res = src.equal(aux).not();
+		}
 		else if (expr.getReferredOperation().getName().equals("and"))
 			res = src.and(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("or")) {
@@ -405,7 +415,7 @@ class OCL2Alloy {
 						for (Sig s : sigs)
 							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) 
 								range = s;
-						if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs,"AlloyUtil",ovar);
+						if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs);
 						Decl d = AlloyUtil.localStateSig(range,state).oneOf(ovar.getName()); 
 						avars.add(d);
 					}

@@ -248,8 +248,8 @@ public class CLIOptions extends Options implements EchoOptions{
 		Integer delta = 2;
 		try {
 			if (cmd.hasOption("bitwidth"))
-				delta = (Integer) cmd.getParsedOptionValue("bitwidth");
-		} catch (ParseException e) { delta = 2; }
+				delta = Integer.parseInt(cmd.getOptionValue("bitwidth"));
+		} catch (Exception x) { delta = 2; }
 		return delta;
 	}
 	

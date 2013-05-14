@@ -143,7 +143,7 @@ class QVTRelation2Alloy {
 	 */
 	private void initDomains () throws ErrorTransform {
 		for (Domain dom : rel.getDomain())
-			if (!(dom instanceof RelationDomain)) throw new ErrorTransform("Not a domain relation.","QVTRelation2Alloy",dom);
+			if (!(dom instanceof RelationDomain)) throw new ErrorTransform("Not a domain relation: "+dom);
 			else {
 				rootvariables.add(((RelationDomain) dom).getRootVariable());
 				if (dom.getTypedModel().equals(direction)) targetdomain = (RelationDomain) dom;

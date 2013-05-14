@@ -71,6 +71,7 @@ class ECore2Alloy {
 	private List<Func> functions = new ArrayList<Func>();
 	/** the constraint representing the conformity test */
 	private Expr constraint = Sig.NONE.no();
+	private Expr genconstraint = Sig.NONE.no();
 	/** the variable declaration for the conformity test */
 	private Decl constraintdecl;
 	
@@ -343,6 +344,17 @@ class ECore2Alloy {
 					}
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
 				  catch (ParserException e) { throw new ErrorParser(e.getMessage());}
+			
+			if(annotation.getSource().equals("Echo/Gen"))
+				try{
+					for(String sExpr: annotation.getDetails().values()) {
+						ExpressionInOCL invariant = helper.createInvariant(sExpr);
+						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
+						System.out.println(oclalloy);
+						genconstraint = genconstraint.and(oclalloy);
+					}
+				} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
+				  catch (ParserException e) { throw new ErrorParser(e.getMessage());}
 		}
 	}
 	
@@ -392,7 +404,7 @@ class ECore2Alloy {
 						} catch (ParserException e) { throw new ErrorParser("Error parsing OCL formula: "+sExpr);}
 					}
 					try{
-						System.out.println(oclalloy);
+						//System.out.println(oclalloy);
 						Func fun = new Func(null,operation.getName(),decls,null,oclalloy);
 						functions.add(fun);
 					} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
@@ -577,6 +589,15 @@ class ECore2Alloy {
 		return f;
 	}
 
+	Func getGenerate() throws ErrorAlloy {
+		Func f;
+		try {
+			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint.and(genconstraint));
+		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+		return f;
+	}
+
+	
 	/**
 	 * Returns the Alloy {@link PrimSig} representing an {@link EEnumLiteral} 
 	 * @return the matching signature

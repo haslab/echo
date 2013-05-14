@@ -139,7 +139,7 @@ public class AlloyRunner {
 	public void generate(List<String> uris) throws ErrorAlloy {
 		for (String uri : uris) {
 			allsigs.addAll(translator.getAllSigsFromURI(uri));
-			finalfact = finalfact.and(translator.getConformsAllInstances(uri));
+			finalfact = finalfact.and(translator.getGenerateAllInstances(uri));
 		}
 		scopes = translator.getScopes();
 		try {

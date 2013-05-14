@@ -122,7 +122,7 @@ class XMI2Alloy {
 				ref = handleRef((EObject) o);
 				if(res==null) res = ref;
 				else res = res.plus(ref);
-			}else throw new ErrorTransform("Invalid reference.","XMI2Alloy",o);
+			}else throw new ErrorTransform("Invalid reference.: "+o);
 		return res;
 	}
 	

@@ -55,7 +55,7 @@ class QVTTransformation2Alloy {
 			vars.add(d.get());
 		}
 		for (Rule rel : qvt.getRule())
-			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation.","QVT2Alloy",rel);
+			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation: "+rel);
 			else if (((Relation) rel).isIsTopLevel()) {
 
 				for (TypedModel mdl : qvt.getModelParameter()) {
