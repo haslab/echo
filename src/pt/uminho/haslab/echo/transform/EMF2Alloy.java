@@ -142,14 +142,18 @@ public class EMF2Alloy {
 	
 	public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopes) throws ErrorAlloy {
 		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
+		sc.put(Sig.STRING, overall);
 		for (Entry<String,String> cla : scopes.keySet()) {
-			ECore2Alloy e2a = modeltrads.get(cla.getKey());
-			PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cla.getValue()));
-			sc.put(sig, scopes.get(cla));
+			if (cla.getKey().equals("") && cla.getValue().equals("String"))
+				sc.put(PrimSig.STRING, scopes.get(cla));
+			else {
+				ECore2Alloy e2a = modeltrads.get(cla.getKey());
+				PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cla.getValue()));
+				sc.put(sig, scopes.get(cla));
+			}
 		}
 		for (Expr sig : modelstatesigs.values())
 			sc.put((PrimSig) sig,1);
-		sc.put(Sig.STRING, overall);
 		this.scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
