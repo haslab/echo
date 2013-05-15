@@ -9,6 +9,11 @@
             name="addInfo">
       </command>
       <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.RepairHandler"
+            id="pt.uminho.haslab.echo.commands.repair"
+            name="repair">
+      </command>
+      <command
             defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ConformsHandler"
             id="pt.uminho.haslab.echo.commands.conforms"
             name="Conforms">
@@ -67,6 +72,24 @@
             </visibleWhen>
          </command>
          <command
+               commandId="pt.uminho.haslab.echo.commands.repair"
+               label="Repair Model"
+               style="push">
+            <visibleWhen>
+               <iterate>
+                  <and>
+                     <adapt
+                           type="org.eclipse.core.resources.IFile">
+                        <test
+                              property="org.eclipse.core.resources.name"
+                              value="*.xmi">
+                        </test>
+                     </adapt>
+                  </and>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
                commandId="pt.uminho.haslab.echo.commands.conforms"
                label="Check consistency with Meta Model"
                style="push">
@@ -97,5 +120,13 @@
          </enabledWhen>
       </page>
    </extension>
+	<extension id="pt.uminho.haslab.echo.plugin.metaconformityrpoblem" point="org.eclipse.core.resources.markers">
+		<super type="org.eclipse.core.resources.problemmarker"/>
+		<persistent value="true"/>
+	</extension>
+	<extension id="pt.uminho.haslab.echo.plugin.qvtconformityrpoblem" point="org.eclipse.core.resources.markers">
+		<super type="org.eclipse.core.resources.problemmarker"/>
+		<persistent value="true"/>
+	</extension>
 
 </plugin>
