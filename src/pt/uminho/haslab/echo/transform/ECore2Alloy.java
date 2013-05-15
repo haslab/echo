@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import kodkod.engine.config.Options;
+
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -31,6 +33,7 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 
 import com.google.common.collect.BiMap;
@@ -240,14 +243,18 @@ class ECore2Alloy {
 	private void processReferences(List<EReference> references) throws ErrorAlloy, ErrorTransform {
 		for(EReference reference : references) {
 			PrimSig classsig = mapClassSig.get(reference.getEContainingClass());
-			if(!(reference.getEOpposite() != null && reference.getEOpposite().isContainment() && translator.options.isOptimize())) {
+			EReference op = reference.getEOpposite();
+			
+			if((op != null && op.isContainment() && translator.options.isOptimize())) {}
+			else if((op != null && !reference.isContainment() && op.getLowerBound() == 1 && op.getUpperBound() == 1 && translator.options.isOptimize())) {}
+			else if((op != null && getFieldFromSFeature(op) != null && translator.options.isOptimize())) {}
+			else {
 				PrimSig trgsig = mapClassSig.get(reference.getEReferenceType());
 				Field field;
 				try{field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),reference.getName()),trgsig.product(statesig));}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 				mapSfField.put(reference,field);
-
-				EReference op = reference.getEOpposite();
+				
 				Expr fact;
 				if(op!=null) {
 					Field opField = getFieldFromSFeature(op);
@@ -340,6 +347,14 @@ class ECore2Alloy {
 					for(String sExpr: annotation.getDetails().values()) {
 						ExpressionInOCL invariant = helper.createInvariant(sExpr);
 						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
+						AlloyOptimizations opt = new AlloyOptimizations(translator);
+						if(translator.options.isOptimize()) {
+							//System.out.println("Pre-onepoint "+fact);
+							oclalloy = opt.trading(oclalloy);
+							oclalloy = opt.onePoint(oclalloy);
+							System.out.println("Pos-onepoint "+oclalloy);
+						}
+
 						constraint = constraint.and(oclalloy);
 					}
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
@@ -351,6 +366,13 @@ class ECore2Alloy {
 						ExpressionInOCL invariant = helper.createInvariant(sExpr);
 						Expr oclalloy = converter.oclExprToAlloy(invariant.getBodyExpression()).forAll(self);
 						System.out.println(oclalloy);
+						AlloyOptimizations opt = new AlloyOptimizations(translator);
+						if(translator.options.isOptimize()) {
+							//System.out.println("Pre-onepoint "+fact);
+							oclalloy = opt.trading(oclalloy);
+							oclalloy = opt.onePoint(oclalloy);
+							System.out.println("Pos-onepoint "+oclalloy);
+						}
 						genconstraint = genconstraint.and(oclalloy);
 					}
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 

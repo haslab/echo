@@ -380,14 +380,15 @@ class OCL2Alloy {
 			statesig = (isPre?prevars:posvars).get(mdl).get(0);
 		if (statesig == null) 
 			statesig = translator.getModelStateSig(mdl);
-		if (prop.getOpposite() != null && prop.getOpposite().isComposite() && translator.options.isOptimize()) {
-			Field field = translator.getFieldFromName(mdl,prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
-			exp = (field.join(statesig)).transpose();			
+
+		Field field = translator.getFieldFromName(mdl,prop.getOwningType().getName(),prop.getName());
+		if (field == null && prop.getOpposite() != null && translator.options.isOptimize()) {
+			field = translator.getFieldFromName(mdl,prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
+			exp = (field.join(statesig)).transpose();
 		}
-		else {
-			Field field = translator.getFieldFromName(mdl,prop.getOwningType().getName(),prop.getName());
+		else 
 			exp = (field.join(statesig));
-		}
+
 		if (exp == null) throw new Error ("Field not found: "+AlloyUtil.pckPrefix(mdl,prop.getName()));
 		return exp;
 	}

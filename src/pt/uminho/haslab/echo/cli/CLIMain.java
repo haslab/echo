@@ -89,6 +89,9 @@ public class CLIMain {
 			else printer.printForce("Instances inconsistent ("+echo.timer.getTime("Check")+"ms).");
 		} else if (options.isEnforce() && conforms) {
 			printer.printTitle("Enforcing consistency.");
+			/*if (options.isNew())
+				success = echo.enforcenew(options.getQVTPath(),Arrays.asList(options.getInstances()),options.getDirection());
+			else*/ 
 			success = echo.enforce(options.getQVTPath(),Arrays.asList(options.getInstances()),options.getDirection());
 			echo.timer.setTime("Enforce");
 			while (!success) {
