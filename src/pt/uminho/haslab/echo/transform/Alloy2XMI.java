@@ -122,10 +122,9 @@ class Alloy2XMI {
 			}
 			else if(sf instanceof EReference)
 			{
-				if (!options.isOptimize() || 
-						!(((EReference) sf).getEOpposite() != null && ((EReference) sf).getEOpposite().isContainment())) {
-					ref = (EReference) sf;
-
+				ref = (EReference) sf;
+				if (options.isOptimize() && ref.getEOpposite() != null && field == null) {}
+				else {
 					try {
 						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}

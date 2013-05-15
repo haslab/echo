@@ -108,6 +108,7 @@ public class AlloyRunner {
 		conforms(insturis);	
 		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
 		else {			
+			scopes = translator.getScopes();
 			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
 			finalfact = Sig.NONE.no();
 			PrimSig original;
@@ -142,6 +143,7 @@ public class AlloyRunner {
 			finalfact = finalfact.and(translator.getGenerateAllInstances(uri));
 		}
 		scopes = translator.getScopes();
+		System.out.println(scopes);
 		try {
 			Command cmd = new Command(true, overall, intscope, -1, finalfact);
 			cmd = cmd.change(scopes);

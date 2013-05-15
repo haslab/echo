@@ -228,7 +228,10 @@ public class CLIOptions extends Options implements EchoOptions{
 		if (args != null) {
 			for (int i = 0; i < args.length ; i++) {
 				String[] split = args[i].split("::");
-				res.put(new SimpleEntry<String,String>(split[0],split[1]),Integer.parseInt(args[++i]));
+				if (split.length == 2)
+					res.put(new SimpleEntry<String,String>(split[0],split[1]),Integer.parseInt(args[++i]));
+				else if (split.length == 1)
+					res.put(new SimpleEntry<String,String>("",split[0]),Integer.parseInt(args[++i]));
 			}
 		}
 		return res;

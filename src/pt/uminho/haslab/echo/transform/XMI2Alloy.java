@@ -169,11 +169,13 @@ class XMI2Alloy {
 				if(eG instanceof EList<?>) {
 					if(!((EList<?>) eG).isEmpty()) {
 						EReference op = ((EReference) sf).getEOpposite();
-						if (op == null || (op != null && !op.isContainment())){				
+						if (op != null && field == null){}
+						else{
 							aux = handleRef((EList<?>) eG);
 							mappedExpr = mapContent.get(field);
 							mappedExpr = mappedExpr.plus(res.product(aux));
-							mapContent.put(field, mappedExpr);	}	
+							mapContent.put(field, mappedExpr);	
+						}	
 					}
 				} else if(eG instanceof EObject) {
 					EReference op = ((EReference) sf).getEOpposite();
