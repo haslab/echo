@@ -6,6 +6,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -14,6 +15,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.plugin.EchoMarker;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 public class ConformsHandler extends AbstractHandler {
@@ -35,11 +37,14 @@ public class ConformsHandler extends AbstractHandler {
 			list.add(path);
 			try {
 				boolean b = er.conforms(list);
+				if (!b) res.createMarker(EchoMarker.META_ERROR);
+				else
+					res.deleteMarkers(EchoMarker.META_ERROR, false, 0);
 				MessageDialog.openInformation(shell, "ok", "Conforms = " + b);
-			} catch (ErrorAlloy e) {
+			} catch (ErrorAlloy | CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				MessageDialog.openInformation(shell, "Alloy Error", e.getMessage());
+				MessageDialog.openInformation(shell, "Error", e.getMessage());
 			}
 			
 		}

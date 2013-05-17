@@ -81,10 +81,10 @@
                      <adapt
                            type="org.eclipse.core.resources.IFile">
                         <test
-                              property="org.eclipse.core.resources.name"
-                              value="*.xmi">
+                              forcePluginActivation="true"
+                              property="pt.uminho.haslab.echo.plugin.propertyTester.hasmark">
                         </test>
-                     </adapt>
+                    </adapt>
                   </and>
                </iterate>
             </visibleWhen>
@@ -128,5 +128,15 @@
 		<super type="org.eclipse.core.resources.problemmarker"/>
 		<persistent value="true"/>
 	</extension>
+	<extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="pt.uminho.haslab.echo.plugin.EchoPropertyTester"
+            id="pt.uminho.haslab.echo.plugin.propertyTester"
+            namespace="pt.uminho.haslab.echo.plugin.propertyTester"
+            properties="hasmark"
+            type="org.eclipse.core.resources.IFile">
+      </propertyTester>
+   </extension>
 
 </plugin>
