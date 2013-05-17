@@ -106,6 +106,15 @@
             </visibleWhen>
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:pt.uminho.haslab.echo.alloymodelview">
+         <command
+               commandId="pt.uminho.haslab.echo.commands.conforms"
+               label="Dummy"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.propertyPages">
@@ -138,5 +147,19 @@
             type="org.eclipse.core.resources.IFile">
       </propertyTester>
    </extension>
+ <extension
+       point="org.eclipse.ui.views">
+       <category 
+           id="pt.uminho.haslab.echo.viewcategory"
+           name="Echo">
+        </category>
+    <view
+          category="pt.uminho.haslab.echo.viewcategory"
+          class="pt.uminho.haslab.echo.plugin.views.AlloyModelView"
+          id="pt.uminho.haslab.echo.alloymodelview"
+          name="Alloy Model"
+          restorable="true">
+    </view>
+ </extension>
 
 </plugin>
