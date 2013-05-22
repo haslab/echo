@@ -24,7 +24,9 @@ public class NextHandler extends AbstractHandler {
 				while(!EchoPlugin.getInstance().getEchoRunner().increment());
 			}
 			
-			((AlloyModelView) HandlerUtil.getActivePart(event)) .loadGraph();
+			AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
+			if(amv!= null)
+				amv.loadGraph();
 				
 		} catch (ErrorAlloy e) {
 			// TODO Auto-generated catch block

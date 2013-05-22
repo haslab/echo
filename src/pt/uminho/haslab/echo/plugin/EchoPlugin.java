@@ -62,6 +62,11 @@ public class EchoPlugin extends Plugin {
 	public void deleteView() {
 		AlloyView = null;
 	}
+	
+	public AlloyModelView getAlloyView()
+	{
+		return AlloyView;
+	}
 
 	public void setAlloyView(AlloyModelView alloyView) {
 		AlloyView = alloyView;
