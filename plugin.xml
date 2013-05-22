@@ -18,6 +18,16 @@
             id="pt.uminho.haslab.echo.commands.conforms"
             name="Conforms">
       </command>
+      <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.SaveHandler"
+            id="pt.uminho.haslab.echo.commands.saveInstanceInView"
+            name="Save This Instance">
+      </command>
+      <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.NextHandler"
+            id="pt.uminho.haslab.echo.commands.next"
+            name="Next Instance">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -110,8 +120,13 @@
             allPopups="false"
             locationURI="toolbar:pt.uminho.haslab.echo.alloymodelview">
          <command
-               commandId="pt.uminho.haslab.echo.commands.conforms"
-               label="Dummy"
+               commandId="pt.uminho.haslab.echo.commands.next"
+               label="Next"
+               style="push">
+         </command>
+         <command
+               commandId="pt.uminho.haslab.echo.commands.saveInstanceInView"
+               label="Save"
                style="push">
          </command>
       </menuContribution>

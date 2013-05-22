@@ -10,6 +10,7 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.plugin.listeners.XMIChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
+import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
 
 public class EchoPlugin extends Plugin {
 	private static EchoPlugin instance;
@@ -17,7 +18,7 @@ public class EchoPlugin extends Plugin {
 	private EchoRunner echoRunner;
 	
 	
-	
+	private AlloyModelView AlloyView = null;
 	
 	
 	
@@ -25,6 +26,7 @@ public class EchoPlugin extends Plugin {
 	{
 		super();
 		instance = this;
+	
 		try {
 			echoRunner = new EchoRunner(new PlugInOptions());
 		} catch (ErrorAlloy | ErrorTransform e) {
@@ -41,6 +43,13 @@ public class EchoPlugin extends Plugin {
 		
 	}
 	
+	public void refreshView()
+	{
+		if(AlloyView != null)
+				AlloyView.refresh();
+	}
+	
+	
 	
 	public static EchoPlugin getInstance(){
 		return instance;
@@ -48,5 +57,13 @@ public class EchoPlugin extends Plugin {
 	
 	public EchoRunner getEchoRunner(){
 		return echoRunner;
+	}
+
+	public void deleteView() {
+		AlloyView = null;
+	}
+
+	public void setAlloyView(AlloyModelView alloyView) {
+		AlloyView = alloyView;
 	}
 }

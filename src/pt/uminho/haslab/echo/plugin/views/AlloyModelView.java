@@ -7,6 +7,8 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
+import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 import edu.mit.csail.sdg.alloy4.Err;
@@ -14,34 +16,75 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 public class AlloyModelView extends ViewPart {
-
-	VizGUI viz;
+  
+	VizGUI viz = new VizGUI(false, "", null,null,null,false);;
 	A4Solution sol;
+	String pathToWrite;
+	
 	
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 	    Frame frame = SWT_AWT.new_Frame(composite);
-	    viz = new VizGUI(false, "", null,null,null,false);
-	    
 	    frame.add(viz.getPanel());
 	    
-	   sol = EchoPlugin.getInstance().getEchoRunner().getAInstance();
-	   try {
-		sol.writeXML("dummy.xml");
-	} catch (Err e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+	  
+	   loadGraph();
+	   
+	    EchoPlugin.getInstance().setAlloyView(this);
 	}
-	   viz.loadXML("dummy.xml",true);
-	    
+
+	public void refresh()
+	{
+		loadGraph();
+		pathToWrite = null;
 	}
+
+	public void setPathToWrite(String path)
+	{
+		pathToWrite = path;
+	}
+	
+
+	public void loadGraph()
+	{
+		sol = EchoPlugin.getInstance().getEchoRunner().getAInstance();
+		   try {
+			   if(sol != null && sol.satisfiable())
+			   {
+				   sol.writeXML(".dummy.xml");
+				   viz.loadXML(".dummy.xml",true);
+				   EchoPlugin.getInstance().getEchoRunner().generateTheme(viz.getVizState());
+				   viz.doShowViz();
+			   }
+		   }catch (Err e) {
+			   // TODO Auto-generated catch block
+			   e.printStackTrace();
+		   }
+	}
+	public void dispose(){
+		EchoPlugin.getInstance().deleteView();
+		super.dispose();
+	}
+	
+	
 
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
+	public void saveInstance() {
+		try {
+			EchoPlugin.getInstance().getEchoRunner().writeInstance(pathToWrite);
+			pathToWrite = null;
+		} catch (ErrorAlloy | ErrorTransform e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
 }

@@ -13,9 +13,7 @@ public class EchoPropertyTester extends PropertyTester {
 	@Override
 	public boolean test(Object receiver, String property, Object[] args,
 			Object expectedValue) {
-		System.out.println(receiver);
 		if (PROPERTY_HAS_MARK.equals(property)) {
-			System.out.println("class do homem: " + receiver.getClass().toString());
 			if(receiver instanceof IResource)
 			{
 				IResource res = (IResource) receiver;

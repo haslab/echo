@@ -193,7 +193,7 @@ public class EchoRunner {
 	 * @return the Alloy instance, if satisfiable
 	 */
 	public A4Solution getAInstance() {
-		if (runner.getSolution().satisfiable()) return runner.getSolution();
+		if (runner != null && runner.getSolution()!= null && runner.getSolution().satisfiable()) return runner.getSolution();
 		else return null;
 	}
 	
