@@ -5,6 +5,8 @@ import java.util.Map.Entry;
 
 import pt.uminho.haslab.echo.EchoOptions;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+
 public class PlugInOptions implements EchoOptions {
 
 	public PlugInOptions(){
@@ -58,6 +60,13 @@ public class PlugInOptions implements EchoOptions {
 	public boolean isOperationBased() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public String getWorkspacePath() {
+		// TODO Auto-generated method stub
+		
+		return ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toString();
 	}
 
 }

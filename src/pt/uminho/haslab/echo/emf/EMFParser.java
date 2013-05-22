@@ -56,7 +56,8 @@ public class EMFParser {
 	/** the loaded QVT-R transformation */
 	private Map<String,RelationalTransformation> transformations = new HashMap<String, RelationalTransformation>();
 	private BiMap<String,String> modelpaths;
-
+	/** the prefix for the metamodels paths*/
+	private String metaModelsPrefix;
 	
 	public EMFParser(EchoOptions options){
 		/*
@@ -86,6 +87,8 @@ public class EMFParser {
 		
 		
 		modelpaths = HashBiMap.create();
+		
+		metaModelsPrefix = options.getWorkspacePath();
 
 	}
 	
@@ -127,6 +130,7 @@ public class EMFParser {
 	public RelationalTransformation loadQVT(String uri) throws ErrorParser {
 		CS2PivotResourceAdapter adapter = null;
 
+		
 		QVTrelationStandaloneSetup.doSetup();
 		
 		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
@@ -142,11 +146,13 @@ public class EMFParser {
 			FileWriter out = new FileWriter(qvtaux, true);
 		    BufferedWriter fbw = new BufferedWriter(out);
 		    for (String u: models.keySet())
-		    	fbw.write("import "+models.get(u).getName()+" : \'"+u+"\'::"+models.get(u).getName()+";\n\n");
+		    	fbw.write("import "+models.get(u).getName()+" : \'"+metaModelsPrefix+u+"\'::"+models.get(u).getName()+";\n\n");
 
 		    fbw.write(qvtcontent);
 	        fbw.close();
-
+	        
+	        
+	        
 			BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("aux.qvtr"), true);
 	        qvtaux.delete();
 		

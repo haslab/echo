@@ -28,5 +28,8 @@ public interface EchoOptions {
 
 	/** if the distance is operation-based */
 	public boolean isOperationBased();
+	
+	/** the prefix for the qvt meta-models imports */
+	public String getWorkspacePath();
 
 }

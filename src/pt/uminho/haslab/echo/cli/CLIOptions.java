@@ -265,4 +265,9 @@ public class CLIOptions extends Options implements EchoOptions{
 		return cmd.hasOption("operation");
 	}
 
+	@Override
+	public String getWorkspacePath() {
+		return "";
+	}
+
 }
