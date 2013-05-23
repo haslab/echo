@@ -5,6 +5,8 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.BundleContext;
+
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
@@ -25,8 +27,17 @@ public class EchoPlugin extends Plugin {
 	public EchoPlugin()
 	{
 		super();
-		instance = this;
+		
 	
+		
+		
+	}
+	
+	
+	public void start(BundleContext bc) throws Exception{
+		super.start(bc);
+		
+		instance = this;
 		try {
 			echoRunner = new EchoRunner(new PlugInOptions());
 		} catch (ErrorAlloy | ErrorTransform e) {
@@ -40,8 +51,8 @@ public class EchoPlugin extends Plugin {
 		IResourceChangeListener listener = new XMIChangeListener();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
 			      listener, IResourceChangeEvent.POST_CHANGE);
-		
 	}
+
 	
 	public void refreshView()
 	{

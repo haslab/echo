@@ -31,7 +31,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 	public void resourceChanged(IResourceChangeEvent event) {
 		switch (event.getType()) {
 		case IResourceChangeEvent.POST_CHANGE:
-      		System.out.println("Resources have changed.");
+      		//System.out.println("Resources have changed.");
       		try {
       			event.getDelta().accept(new DeltaPrinter());
       			} catch (CoreException e) {
