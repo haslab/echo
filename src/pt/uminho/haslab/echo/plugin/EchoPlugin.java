@@ -27,8 +27,14 @@ public class EchoPlugin extends Plugin {
 	public EchoPlugin()
 	{
 		super();
+		instance = this;
+		try {
+			echoRunner = new EchoRunner(new PlugInOptions());
+		} catch (ErrorAlloy | ErrorTransform e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-	
 		
 		
 	}
@@ -37,13 +43,7 @@ public class EchoPlugin extends Plugin {
 	public void start(BundleContext bc) throws Exception{
 		super.start(bc);
 		
-		instance = this;
-		try {
-			echoRunner = new EchoRunner(new PlugInOptions());
-		} catch (ErrorAlloy | ErrorTransform e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		for (IProject p :ResourcesPlugin.getWorkspace().getRoot().getProjects())
 			if(p.isOpen())
 				ProjectProperties.getProjectProperties(p);
