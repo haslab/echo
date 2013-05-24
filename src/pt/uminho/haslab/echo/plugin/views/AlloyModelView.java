@@ -24,18 +24,15 @@ public class AlloyModelView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
-		viz = new VizGUI(true, "", null,null,null,false);
+		viz = new VizGUI(false, ".dummy.xml", null,null,null,false);
 		viz.doShowViz();
 		
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 	    Frame frame = SWT_AWT.new_Frame(composite);
-	    frame.add(viz.getViewer());
-
-	    viz.loadXML(".dummy.xml",true);
+	    frame.add(viz.getPanel());
 
 	    //loadGraph();
 	    
-
 	    EchoPlugin.getInstance().setAlloyView(this);
 	}
 
@@ -62,9 +59,6 @@ public class AlloyModelView extends ViewPart {
 				   viz.loadXML(".dummy.xml",true);
 				   EchoPlugin.getInstance().getEchoRunner().generateTheme(viz.getVizState());
 				   viz.doShowViz();
-			   } else {
-				   viz.loadXML("alloy_output.xml",true);
-				   viz.doShowViz();				   
 			   }
 		   }catch (Err e) {
 			   // TODO Auto-generated catch block
