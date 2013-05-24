@@ -144,14 +144,17 @@
          </enabledWhen>
       </page>
    </extension>
-	<extension id="pt.uminho.haslab.echo.plugin.metaconformityrpoblem" point="org.eclipse.core.resources.markers">
+	<extension name="Echo intra-model inconsistency" id="pt.uminho.haslab.echo.plugin.intrainconsistency" point="org.eclipse.core.resources.markers">
 		<super type="org.eclipse.core.resources.problemmarker"/>
 		<persistent value="true"/>
 	</extension>
-	<extension id="pt.uminho.haslab.echo.plugin.qvtconformityrpoblem" point="org.eclipse.core.resources.markers">
+	<extension
+       id="pt.uminho.haslab.echo.plugin.qvtconformityrpoblem"
+       name="Echo inter-model inconsistency"
+       point="org.eclipse.core.resources.markers">
 		<super type="org.eclipse.core.resources.problemmarker"/>
 		<persistent value="true"/>
-	</extension>
+	</extension>      
 	<extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
@@ -175,6 +178,9 @@
           name="Alloy Model"
           restorable="true">
     </view>
+ </extension>
+ <extension
+       point="org.eclipse.core.resources.variableResolvers">
  </extension>
 
 </plugin>
