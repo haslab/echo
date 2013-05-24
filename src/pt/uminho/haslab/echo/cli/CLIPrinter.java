@@ -1,10 +1,8 @@
 package pt.uminho.haslab.echo.cli;
 
-import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
 
@@ -40,9 +38,7 @@ public class CLIPrinter {
 			sb.append("Enum sigs: "+translator.getEnumSigsFromName(name)+"\n");
 			ExprCall exp = (ExprCall) translator.getConformsAllInstances(uri);
 			sb.append("Constraints: "+exp.fun.getBody()+"\n");
-			try {
-				sb.append("Delta exp: "+translator.getModelDeltaExpr(name, new PrimSig("m"), new PrimSig("n"))+"\n");
-			} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+			sb.append("Delta exp: "+translator.getModelDeltaExpr(name).getBody()+"\n");
 		}
 		
 		for (String uri : options.getInstances()) {

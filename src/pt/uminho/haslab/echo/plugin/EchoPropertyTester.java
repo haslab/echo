@@ -18,7 +18,7 @@ public class EchoPropertyTester extends PropertyTester {
 			{
 				IResource res = (IResource) receiver;
 				try {
-					if (res.findMarkers(EchoMarker.META_ERROR, true, 0).length != 0) 
+					if (res.findMarkers(EchoMarker.INTRA_ERROR, true, 0).length != 0) 
 						return true;
 				} catch (CoreException e) {
 					// TODO Auto-generated catch block

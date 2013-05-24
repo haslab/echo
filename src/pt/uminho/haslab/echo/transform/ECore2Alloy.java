@@ -471,7 +471,18 @@ class ECore2Alloy {
 	 * @return the delta expression
 	 * @throws ErrorAlloy
 	 */
-	Expr getDeltaExpr(PrimSig m, PrimSig n) throws ErrorAlloy{
+	Func getDeltaExpr() throws ErrorAlloy{
+		Decl dm, dn;
+		List<Decl> ds = new ArrayList<Decl>();
+		try {
+			dm = statesig.oneOf("m");
+			ds.add(dm);
+			dn = statesig.oneOf("n");
+			ds.add(dn);
+		} catch (Err e1) {
+			throw new ErrorAlloy(e1.getMessage());
+		}
+		ExprHasName m = dm.get(), n = dn.get();
 		Expr result = ExprConstant.makeNUMBER(0);
 		for (Expr e : mapSigState.values()) {
 			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m)))).cardinality();
@@ -485,7 +496,13 @@ class ECore2Alloy {
 				result = result.iplus(aux);
 			}
 		}
-		return result;
+		Func f;
+		try {
+			f = new Func(null, statesig.label, ds, PrimSig.SIGINT, result);
+		} catch (Err e1) {
+			throw new ErrorAlloy(e1.getMessage());
+		}
+		return f;
 	}
 	
 	/** 

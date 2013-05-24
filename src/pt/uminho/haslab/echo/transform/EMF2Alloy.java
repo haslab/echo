@@ -343,8 +343,8 @@ public class EMF2Alloy {
 		else return e2a.getSFeatureFromName(fie, cla);
 	}
 
-	public Expr getModelDeltaExpr(String pck, PrimSig m, PrimSig n) throws ErrorAlloy {
-		return modeltrads.get(pck).getDeltaExpr(m, n);
+	public Func getModelDeltaExpr(String pck) throws ErrorAlloy {
+		return modeltrads.get(pck).getDeltaExpr();
 	}
 	
 	public Map<String, List<PrimSig>> getInstanceSigs(String uri) {

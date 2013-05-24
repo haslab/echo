@@ -10,14 +10,13 @@ import org.eclipse.ui.part.ViewPart;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 public class AlloyModelView extends ViewPart {
   
-	VizGUI viz = new VizGUI(false, "", null,null,null,false);;
+	VizGUI viz;
 	A4Solution sol;
 	String pathToWrite;
 	
@@ -25,16 +24,22 @@ public class AlloyModelView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
+		viz = new VizGUI(true, "", null,null,null,false);
+		viz.doShowViz();
+		
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 	    Frame frame = SWT_AWT.new_Frame(composite);
-	    frame.add(viz.getPanel());
+	    frame.add(viz.getViewer());
+
+	    viz.loadXML(".dummy.xml",true);
+
+	    //loadGraph();
 	    
-	  
-	   loadGraph();
-	   
+
 	    EchoPlugin.getInstance().setAlloyView(this);
 	}
 
+	
 	public void refresh()
 	{
 		loadGraph();
@@ -57,6 +62,9 @@ public class AlloyModelView extends ViewPart {
 				   viz.loadXML(".dummy.xml",true);
 				   EchoPlugin.getInstance().getEchoRunner().generateTheme(viz.getVizState());
 				   viz.doShowViz();
+			   } else {
+				   viz.loadXML("alloy_output.xml",true);
+				   viz.doShowViz();				   
 			   }
 		   }catch (Err e) {
 			   // TODO Auto-generated catch block

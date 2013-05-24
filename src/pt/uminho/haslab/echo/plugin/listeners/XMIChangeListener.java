@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -92,9 +93,11 @@ public class XMIChangeListener implements IResourceChangeListener {
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
-				if (res!=null && !bool) res.createMarker(EchoMarker.META_ERROR);
+				if (res!=null && !bool) {
+					EchoMarker.createIntraMarker(res);
+				}
 				else if (res !=null && bool)
-					res.deleteMarkers(EchoMarker.META_ERROR, false, 0);
+					res.deleteMarkers(EchoMarker.INTRA_ERROR, false, 0);
 				return Status.OK_STATUS;
 			}
 	    }

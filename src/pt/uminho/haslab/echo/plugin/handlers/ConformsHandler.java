@@ -13,7 +13,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoMarker;
@@ -38,9 +37,11 @@ public class ConformsHandler extends AbstractHandler {
 			list.add(path);
 			try {
 				boolean b = er.conforms(list);
-				if (!b) res.createMarker(EchoMarker.META_ERROR);
+				if (!b) {
+					EchoMarker.createIntraMarker(res);
+				}
 				else
-					res.deleteMarkers(EchoMarker.META_ERROR, false, 0);
+					res.deleteMarkers(EchoMarker.INTRA_ERROR, false, 0);
 				MessageDialog.openInformation(shell, "ok", "Conforms = " + b);
 				EchoPlugin.getInstance().refreshView();
 			} catch (ErrorAlloy | CoreException e) {

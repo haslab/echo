@@ -121,7 +121,7 @@ public class AlloyRunner {
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 					allsigs.add(targetstate);
 					sigs.add(targetstate);
-					edelta = translator.getModelDeltaExpr(original.parent.label,original, targetstate);
+					edelta = translator.getModelDeltaExpr(original.parent.label).call(original, targetstate);
 					translator.createScopesFromURI(uri);
 					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				} else {
@@ -197,7 +197,7 @@ public class AlloyRunner {
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 					allsigs.add(targetstate);
 					sigs.add(targetstate);
-					edelta = translator.getModelDeltaExpr(original.parent.label,original, targetstate);
+					edelta = translator.getModelDeltaExpr(original.parent.label).call(original, targetstate);
 					scopes = translator.getScopes();
 					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				} else {
@@ -231,6 +231,7 @@ public class AlloyRunner {
 			System.out.println(scopes);
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
+			if (sol.satisfiable()) System.out.println(sol.eval(edelta));
 			delta++;
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
