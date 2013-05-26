@@ -6,6 +6,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -38,7 +39,7 @@ public class ConformsHandler extends AbstractHandler {
 			list.add(path);
 			try {
 				boolean b = er.conforms(list);
-				if (!b) res.createMarker(EchoMarker.META_ERROR);
+				if (!b) res.createMarker(IMarker.PROBLEM);
 				else
 					res.deleteMarkers(EchoMarker.META_ERROR, false, 0);
 				MessageDialog.openInformation(shell, "ok", "Conforms = " + b);
