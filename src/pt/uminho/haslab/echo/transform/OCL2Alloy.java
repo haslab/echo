@@ -437,11 +437,11 @@ class OCL2Alloy {
 		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 			Expr res = Sig.NONE.no();
 			OperationCallExp a = null,b = null;
-			if (((OperationCallExp)x).getReferredOperation().getName().equals("includes") && 
+			if ((x instanceof OperationCallExp) && ((OperationCallExp)x).getReferredOperation().getName().equals("includes") && 
 					((OperationCallExp)y).getReferredOperation().getName().equals("=")) {
 				a = (OperationCallExp) x;
 				b = (OperationCallExp) y;
-			} else if (((OperationCallExp)y).getReferredOperation().getName().equals("includes") && 
+			} else if ((y instanceof OperationCallExp) && ((OperationCallExp)y).getReferredOperation().getName().equals("includes") && 
 					((OperationCallExp)x).getReferredOperation().getName().equals("=")) {
 				a = (OperationCallExp) y;
 				b = (OperationCallExp) x;

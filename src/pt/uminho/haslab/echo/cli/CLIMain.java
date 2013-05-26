@@ -13,7 +13,6 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
@@ -110,7 +109,9 @@ public class CLIMain {
 			String end = "y";
 			A4Solution sol = echo.getAInstance();
 			sol.writeXML("alloy_output.xml");
-			VizGUI viz = new VizGUI(true, "alloy_output.xml", null);
+			VizGUI viz = new VizGUI(true, "alloy_output.xml", null,null,null,true);
+			
+			viz.loadXML("alloy_output.xml", true);
 			
 			echo.generateTheme(viz.getVizState());
 			viz.doShowViz();

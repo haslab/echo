@@ -10,14 +10,13 @@ import org.eclipse.ui.part.ViewPart;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 public class AlloyModelView extends ViewPart {
   
-	VizGUI viz = new VizGUI(false, "", null,null,null,false);;
+	VizGUI viz;
 	A4Solution sol;
 	String pathToWrite;
 	
@@ -25,16 +24,19 @@ public class AlloyModelView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
+		viz = new VizGUI(false, ".dummy.xml", null,null,null,false);
+		viz.doShowViz();
+		
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 	    Frame frame = SWT_AWT.new_Frame(composite);
 	    frame.add(viz.getPanel());
+
+	    //loadGraph();
 	    
-	  
-	   loadGraph();
-	   
 	    EchoPlugin.getInstance().setAlloyView(this);
 	}
 
+	
 	public void refresh()
 	{
 		loadGraph();
