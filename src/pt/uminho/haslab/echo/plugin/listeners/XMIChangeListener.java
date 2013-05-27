@@ -120,7 +120,9 @@ public class XMIChangeListener implements IResourceChangeListener {
 	    			if(qrp.getModels().contains(res.getFullPath().toString()))
 	    			{
 	    				if(er.check(qrp.getQVTrule(), qrp.getModels()))
-	    					;
+	    				{
+	    					;//res.g
+	    				}
 	    				else
 	    				{
 	    					String path;

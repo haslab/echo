@@ -72,6 +72,7 @@ public class ProjectProperties {
 	
 		
 		this.project = project;
+		cleanProperties();
 		metaModels = loadMetaModels();
 		conformList = loadConformList();
 		qvtRules = loadQvtRules();
@@ -79,6 +80,17 @@ public class ProjectProperties {
 		mapIProject.put(project, this);
 	}
 	
+	private void cleanProperties(){
+		try {
+			project.setPersistentProperty(qnConformList, null);
+			project.setPersistentProperty(qnRelations, null);
+			project.setPersistentProperty(qnMetaModels, null);
+			project.setPersistentProperty(qnQvtRules, null);
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	private Set<QvtRelationProperty> loadRelations(){
 		
