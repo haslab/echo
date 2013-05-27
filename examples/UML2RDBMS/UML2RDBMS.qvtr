@@ -9,7 +9,7 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
       		name=pn };
   	}
 
-	top relation C2T { 
+ 	top relation C2T { 
     	cn: String; 
     	domain uml c:Class { 
       		persistent=true, 
