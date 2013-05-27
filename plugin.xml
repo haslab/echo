@@ -179,6 +179,11 @@
           restorable="true">
     </view>
  </extension>
+ <extension point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+         markerType="pt.uminho.haslab.echo.plugin.intrainconsistency"
+         class="pt.uminho.haslab.echo.plugin.EchoQuickFixer"/>
+ </extension>
  <extension
        point="org.eclipse.core.resources.variableResolvers">
  </extension>
