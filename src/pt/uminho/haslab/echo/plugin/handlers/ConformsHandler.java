@@ -37,6 +37,7 @@ public class ConformsHandler extends AbstractHandler {
 			list.add(path);
 			try {
 				boolean b = er.conforms(list);
+
 				if (!b) {
 					EchoMarker.createIntraMarker(res);
 				}
