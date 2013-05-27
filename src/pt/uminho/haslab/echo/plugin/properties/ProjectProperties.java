@@ -86,6 +86,7 @@ public class ProjectProperties {
 		Set<QvtRelationProperty> result = new HashSet<QvtRelationProperty>();
 		try {
 			qvtRelationsString = project.getPersistentProperty(qnRelations);
+			System.out.println(qvtRelationsString);
 			if (qvtRelationsString != null && qvtRelationsString != "")
 				for(String s : qvtRelationsString.split(";"))
 					if(s!=null)

@@ -1,8 +1,5 @@
 package pt.uminho.haslab.echo;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
 public interface EchoOptions {
 
 	/** if the output should be verbose */
@@ -16,9 +13,6 @@ public interface EchoOptions {
 			
 	/** the overall Alloy scope */
 	public Integer getOverallScope();
-
-	/** the concrete scope for particular classes ((model,class) -> scope) */
-	public Map<Entry<String,String>,Integer> getScopes();
 
 	/** the maximum delta for an instance generation run */
 	public Integer getMaxDelta();

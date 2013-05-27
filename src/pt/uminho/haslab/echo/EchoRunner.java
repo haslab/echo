@@ -112,9 +112,9 @@ public class EchoRunner {
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform 
 	 */
-	public boolean generate(List<String> uris) throws ErrorAlloy, ErrorTransform {
+	public boolean generate(List<String> uris, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorTransform {
 		if (options.getOverallScope() != 0) {
-			translator.createScopesFromSizes(options.getOverallScope(), options.getScopes());
+			translator.createScopesFromSizes(options.getOverallScope(), scope);
 			runner = new AlloyRunner(translator);
 			runner.generate(uris);
 		}
