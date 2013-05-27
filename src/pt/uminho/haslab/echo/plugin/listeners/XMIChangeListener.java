@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.plugin.listeners;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -36,7 +37,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 		case IResourceChangeEvent.POST_CHANGE:
       		//System.out.println("Resources have changed.");
       		try {
-      			event.getDelta().accept(new DeltaPrinter());
+      			event.getDelta().accept(new DeltaIterator());
       			} catch (CoreException e) {
       			// TODO Auto-generated catch block
       			e.printStackTrace();
@@ -47,7 +48,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 	}
 	
 	
-	class DeltaPrinter implements IResourceDeltaVisitor {
+	class DeltaIterator implements IResourceDeltaVisitor {
 	    public boolean visit(IResourceDelta delta) {
 	       IResource res = delta.getResource();
 	       switch (delta.getKind()) {
@@ -119,20 +120,25 @@ public class XMIChangeListener implements IResourceChangeListener {
 	    		for(QvtRelationProperty qrp : pp.getQvtRelations())
 	    			if(qrp.getModels().contains(res.getFullPath().toString()))
 	    			{
+	    				String path;
+    					if(res.getFullPath().toString().equals(qrp.getModelA()))
+    						path = qrp.getModelB();
+    					else
+    						path = qrp.getModelA();
+    					IResource partner = res.getWorkspace().getRoot().findMember(path);
 	    				if(er.check(qrp.getQVTrule(), qrp.getModels()))
-	    				{
-	    					;//res.g
+	    				{	
+	    					for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR, false, 0))
+	    						if(mk.getAttribute(EchoMarker.PARTNER_MODEL).equals(path) &&
+	    								mk.getAttribute(EchoMarker.QVR_RULE).equals(qrp.getQVTrule()))
+	    							mk.delete();
+	    					for(IMarker mk : partner.findMarkers(EchoMarker.INTER_ERROR, false, 0))
+	    						if(mk.getAttribute(EchoMarker.PARTNER_MODEL).equals(res.getFullPath().toString()) &&
+	    								mk.getAttribute(EchoMarker.QVR_RULE).equals(qrp.getQVTrule()))
+	    							mk.delete();
 	    				}
 	    				else
-	    				{
-	    					String path;
-	    					if(res.getFullPath().toString().equals(qrp.getModelA()))
-	    						path = qrp.getModelB();
-	    					else
-	    						path = qrp.getModelA();
-	    					IResource partner = res.getWorkspace().getRoot().findMember(path);
 	    					EchoMarker.createInterMarker(res,partner,qrp.getQVTrule());
-	    				}
 	    			}
 	    		
 	    	}
