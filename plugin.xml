@@ -28,6 +28,11 @@
             id="pt.uminho.haslab.echo.commands.next"
             name="Next Instance">
       </command>
+      <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AddQVTRelationHandler"
+            id="pt.uminho.haslab.echo.commands.addqvtrelation"
+            name="Add QVT Relation">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -115,6 +120,21 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="pt.uminho.haslab.echo.commands.addqvtrelation"
+               style="push">
+               <visibleWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.qvtr">
+                     </test>
+                  </adapt>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -149,11 +169,17 @@
 		<persistent value="true"/>
 	</extension>
 	<extension
-       id="pt.uminho.haslab.echo.plugin.qvtconformityrpoblem"
+       id="pt.uminho.haslab.echo.plugin.interinconsistency"
        name="Echo inter-model inconsistency"
        point="org.eclipse.core.resources.markers">
 		<super type="org.eclipse.core.resources.problemmarker"/>
 		<persistent value="true"/>
+  <attribute
+        name="pt.uminho.haslab.echo.plugin.qvtrule">
+  </attribute>
+  <attribute
+        name="pt.uminho.haslab.echo.plugin.partnermodel">
+  </attribute>
 	</extension>      
 	<extension
          point="org.eclipse.core.expressions.propertyTesters">

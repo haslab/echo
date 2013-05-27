@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.plugin.properties;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
+
+//TODO: THIS PACKAGE NEEDS TO BE REFACTORED!!!
 public class ProjectProperties {
 	
 	
@@ -31,17 +34,27 @@ public class ProjectProperties {
 	}
 	
 	
+	//QN for parsed models
 	private static QualifiedName qnConformList = 
 				new QualifiedName("pt.uminho.haslab.echo.properties.projectconformlist"
 						,"projectconformlist");
+	
+	//QN for parsed Meta-models
 	private static QualifiedName qnMetaModels = 
 			new QualifiedName("pt.uminho.haslab.echo.properties.projectmetamodels"
 					,"projectmetamodels");
+	
+	//QN for parsed QVTr files
 	private static QualifiedName qnQvtRules = 
 			new QualifiedName("pt.uminho.haslab.echo.properties.projectqvtrules"
-					,"qvtrules");
+					,"projectqvtrules");
 	
+	//QN for relations to keep;
+	private static QualifiedName qnRelations = 
+			new QualifiedName("pt.uminho.haslab.echo.properties.projectqvtrelations"
+			,"projectqvtrelations");;
 	
+			
 	private IProject project;
 	private Set<String> conformList;
 	private String conformString;
@@ -52,6 +65,9 @@ public class ProjectProperties {
 	private Set<String> qvtRules;
 	private String qvtRulesString;
 	
+	private Set<QvtRelationProperty> qvtRelations;
+	private String qvtRelationsString;
+	
 	public ProjectProperties(IProject project){
 	
 		
@@ -59,7 +75,30 @@ public class ProjectProperties {
 		metaModels = loadMetaModels();
 		conformList = loadConformList();
 		qvtRules = loadQvtRules();
+		qvtRelations = loadRelations();
 		mapIProject.put(project, this);
+	}
+	
+	
+	private Set<QvtRelationProperty> loadRelations(){
+		
+		//EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		Set<QvtRelationProperty> result = new HashSet<QvtRelationProperty>();
+		try {
+			qvtRelationsString = project.getPersistentProperty(qnRelations);
+			if (qvtRelationsString != null && qvtRelationsString != "")
+				for(String s : qvtRelationsString.split(";"))
+					if(s!=null)
+					{
+						result.add(QvtRelationProperty.parseString(s));
+						//er.addQVT(s);
+					}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		} 
+		
+		return result;
 	}
 	
 	private Set<String> loadQvtRules() {
@@ -140,12 +179,67 @@ public class ProjectProperties {
 		return result;
 	}
 	
+	
+
 	public Set<String> getConformList(){
 		return conformList;
 	}
 	
 	public Set<String> getMetaModels(){
 		return metaModels;
+	}
+	
+	public Set<String> getQvtRules(){
+		return qvtRules;
+	}
+	
+	public Set<QvtRelationProperty> getQvtRelations()
+	{
+		return qvtRelations;
+	}
+	
+	
+	public void addQvtRelation(String qvtRule, List<String> models)
+	{
+		QvtRelationProperty qvtR = new QvtRelationProperty(qvtRule,models);
+		System.out.println(qvtR);
+		if(!qvtRelations.contains(qvtR)){
+			//EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+			//er.addQVT(uri);
+			if(qvtRelationsString != null)
+				qvtRelationsString = qvtRelationsString + ";" + qvtR.toString();
+			else
+				qvtRelationsString = qvtR.toString();
+			try {
+				project.setPersistentProperty(qnRelations, qvtRelationsString);
+				
+				System.out.println("objecto: " + qvtR.toString() +"\nString: " + qvtRelationsString);
+				qvtRelations.add(qvtR);
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void addQvtRelation(String relation) throws Exception
+	{
+		QvtRelationProperty qvtR = QvtRelationProperty.parseString(relation);
+		if(!qvtRelations.contains(qvtR)){
+			//EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+			//er.addQVT(uri);
+			if(qvtRelationsString != null)
+				qvtRelationsString = qvtRelationsString + ";" + qvtR.toString();
+			else qvtRulesString = qvtR.toString();
+			try {
+				//asd
+				project.setPersistentProperty(qnRelations, qvtRelationsString);
+				qvtRelations.add(qvtR);
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	
@@ -205,6 +299,7 @@ public class ProjectProperties {
 			}
 		}
 	}
+	
 	
 	
 	
