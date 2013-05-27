@@ -22,6 +22,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -78,7 +79,7 @@ public class AlloyRunner {
 		aoptions.solver = A4Options.SatSolver.SAT4J;
 		aoptions.noOverflow = true;
 		intscope = translator.options.getBitwidth();
-		intscope = translator.options.getOverallScope();
+		overall = translator.options.getOverallScope();
 	}
 
 	/**
@@ -89,23 +90,19 @@ public class AlloyRunner {
 	public void conforms(List<String> uris) throws ErrorAlloy {
 		for (String uri : uris) {
 			addInstanceSigs(uri);
-			System.out.println("Debug1: "+finalfact);
 			finalfact = finalfact.and(translator.getConformsInstance(uri));
-			System.out.println("Debug2: "+finalfact);
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
-			System.out.println("Debug3: "+finalfact);
 		}
 		Command cmd = null;
+		for (Sig sig : allsigs) {
+			System.out.println(sig +" : "+((PrimSig)sig).parent);
+			for (Field f : sig.getFields())
+				System.out.println(f.label +" : "+f.type());
+		}
 		try {
-			System.out.println("Debug8: "+overall);
-			System.out.println("Debug9: "+intscope);
 			cmd = new Command(true, overall, intscope, -1, finalfact);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 		try {
-			System.out.println("Debug4: "+allsigs);
-			System.out.println("Debug5: "+aoptions);
-			System.out.println("Debug6: "+rep);
-			System.out.println("Debug7: "+cmd);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
@@ -174,6 +171,7 @@ public class AlloyRunner {
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
 		for (String uri : insturis) {
 			PrimSig state = addInstanceSigs(uri);
+			
 			sigs.add(state);
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 			finalfact = finalfact.and(translator.getConformsInstance(uri));

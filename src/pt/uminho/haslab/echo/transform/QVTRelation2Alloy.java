@@ -134,7 +134,7 @@ class QVTRelation2Alloy {
 				Field field = addRelationFields(fact,mdecls);
 				func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, field.type().toExpr(), field);	
 			}
-		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }		
+		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }	
 	}
 	
 	/** 
@@ -291,7 +291,7 @@ class QVTRelation2Alloy {
 					field = f;
 			}
 			if (field == null) {
-				field = s.addField(AlloyUtil.relationFieldName(rel,direction), type.setOf());
+				field = s.addField(AlloyUtil.relationFieldName(rel,direction), /*type.setOf()*/Sig.UNIV);
 				Expr e = field.equal(fact.comprehensionOver(alloyrootvars.get(0), alloyrootvars.get(1)));
 				Func f = new Func(null, field.label+"def",mdecls,null,e);
 				parentq.addFieldFunc(f);

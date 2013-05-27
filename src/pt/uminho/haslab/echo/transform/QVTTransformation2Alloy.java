@@ -58,19 +58,19 @@ class QVTTransformation2Alloy {
 			if (!(rel instanceof Relation)) throw new ErrorTransform ("Rule not a relation: "+rel);
 			else if (((Relation) rel).isIsTopLevel()) {
 
+				
 				for (TypedModel mdl : qvt.getModelParameter()) {
 				//TypedModel mdl = qvt.getModelParameter().get(0);
 					QVTRelation2Alloy trans = new QVTRelation2Alloy(mdl,(Relation)rel,translator);
 					fact = fact.and(trans.getFunc().call(vars.toArray(new ExprVar[vars.size()])));
 					for (Func f : trans.getFieldFunc()) {
-
 						fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
 					}
 				}
 			}
 		try {
 			func = new Func(null, qvt.getName(), decls, null, fact);		
-		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
+		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); } 
 	}
 	
 	/** Returns the Alloy fact corresponding to this QVT Transformation
