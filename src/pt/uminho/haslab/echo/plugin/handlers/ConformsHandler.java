@@ -36,6 +36,7 @@ public class ConformsHandler extends AbstractHandler {
 			ArrayList<String> list = new ArrayList<String>(1);
 			list.add(path);
 			try {
+				System.out.println("DEGUG "+list);
 				boolean b = er.conforms(list);
 
 				if (!b) {

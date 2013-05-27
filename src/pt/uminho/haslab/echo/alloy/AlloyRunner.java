@@ -89,11 +89,23 @@ public class AlloyRunner {
 	public void conforms(List<String> uris) throws ErrorAlloy {
 		for (String uri : uris) {
 			addInstanceSigs(uri);
+			System.out.println("Debug1: "+finalfact);
 			finalfact = finalfact.and(translator.getConformsInstance(uri));
+			System.out.println("Debug2: "+finalfact);
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
+			System.out.println("Debug3: "+finalfact);
 		}
+		Command cmd = null;
 		try {
-			Command cmd = new Command(true, overall, intscope, -1, finalfact);
+			System.out.println("Debug8: "+overall);
+			System.out.println("Debug9: "+intscope);
+			cmd = new Command(true, overall, intscope, -1, finalfact);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+		try {
+			System.out.println("Debug4: "+allsigs);
+			System.out.println("Debug5: "+aoptions);
+			System.out.println("Debug6: "+rep);
+			System.out.println("Debug7: "+cmd);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}

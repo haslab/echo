@@ -20,8 +20,6 @@ public class AddQVTRelationHandler extends AbstractHandler {
 		
 		Shell shell = HandlerUtil.getActiveShell(event);
 		
-		
-		
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
 
