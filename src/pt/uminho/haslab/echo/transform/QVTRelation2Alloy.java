@@ -291,8 +291,10 @@ class QVTRelation2Alloy {
 					field = f;
 			}
 			if (field == null) {
-				field = s.addField(AlloyUtil.relationFieldName(rel,direction), /*type.setOf()*/Sig.UNIV);
+				field = s.addField(AlloyUtil.relationFieldName(rel,direction), /*type.setOf()*/Sig.UNIV.setOf());
 				Expr e = field.equal(fact.comprehensionOver(alloyrootvars.get(0), alloyrootvars.get(1)));
+				System.out.println(alloyrootvars.get(0).expr+", "+alloyrootvars.get(1).expr);
+				System.out.println("DEBUG "+e);
 				Func f = new Func(null, field.label+"def",mdecls,null,e);
 				parentq.addFieldFunc(f);
 			}

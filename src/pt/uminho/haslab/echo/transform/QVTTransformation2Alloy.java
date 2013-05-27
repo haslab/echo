@@ -60,7 +60,7 @@ class QVTTransformation2Alloy {
 
 				
 				for (TypedModel mdl : qvt.getModelParameter()) {
-				//TypedModel mdl = qvt.getModelParameter().get(0);
+					//TypedModel mdl = qvt.getModelParameter().get(0);
 					QVTRelation2Alloy trans = new QVTRelation2Alloy(mdl,(Relation)rel,translator);
 					fact = fact.and(trans.getFunc().call(vars.toArray(new ExprVar[vars.size()])));
 					for (Func f : trans.getFieldFunc()) {

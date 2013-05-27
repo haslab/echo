@@ -18,12 +18,10 @@ public class EchoQuickFixer implements IMarkerResolutionGenerator {
 	             new EchoIntraQuickFix(EchoMarker.OPS),
 	          };
           else if (problem.equals(EchoMarker.INTER_ERROR)) {
-        	  List<EchoInterQuickFix> fixes = new ArrayList<EchoInterQuickFix>();
-        	  for (String dir : new ArrayList<String>()){
-        		 fixes.add(new EchoInterQuickFix(EchoMarker.GED,dir));
-        		 fixes.add(new EchoInterQuickFix(EchoMarker.OPS,dir));
- 	          }
-        	  return fixes.toArray(new IMarkerResolution[fixes.size()]);
+        	  return new IMarkerResolution[] {
+ 	             new EchoInterQuickFix(EchoMarker.GED),
+ 	             new EchoInterQuickFix(EchoMarker.OPS),
+        	  };
           }
           else return new IMarkerResolution[0];
        }
