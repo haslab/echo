@@ -121,12 +121,12 @@
             locationURI="toolbar:pt.uminho.haslab.echo.alloymodelview">
          <command
                commandId="pt.uminho.haslab.echo.commands.next"
-               label="Next"
+               icon="icons/next.gif"
                style="push">
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.saveInstanceInView"
-               label="Save"
+               icon="icons/select.gif"
                style="push">
          </command>
       </menuContribution>
@@ -176,6 +176,7 @@
           class="pt.uminho.haslab.echo.plugin.views.AlloyModelView"
           id="pt.uminho.haslab.echo.alloymodelview"
           name="Alloy Model"
+          icon="icons/alloy.png"
           restorable="true">
     </view>
  </extension>
