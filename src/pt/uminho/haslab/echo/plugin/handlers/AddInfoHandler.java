@@ -45,7 +45,6 @@ public class AddInfoHandler extends AbstractHandler {
 					pp.addMetaModel(path);
 				}else if (extension.equals("qvt") || extension.equals("qvtr"))
 					pp.addQvtRule(res.getRawLocation().toString());
-					//MessageDialog.openInformation(shell, "QVT","entraste no QVT mano!\n esto ainda não está direito.");
 				else
 					MessageDialog.openInformation(shell, "Not Right",extension + "\n" + path);
 				
