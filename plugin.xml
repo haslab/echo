@@ -4,43 +4,50 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AddInfoHandler"
-            id="pt.uminho.haslab.echo.commands.addInfo"
-            name="addInfo">
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.FileManageHandler"
+            id="pt.uminho.haslab.echo.commands.filemanage"
+            name="Manage file">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.RepairHandler"
-            id="pt.uminho.haslab.echo.commands.repair"
-            name="repair">
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ModelRepairHandler"
+            id="pt.uminho.haslab.echo.commands.modelrepair"
+            name="Repair model">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ConformsHandler"
-            id="pt.uminho.haslab.echo.commands.conforms"
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ModelConformsHandler"
+            id="pt.uminho.haslab.echo.commands.modelconforms"
             name="Conforms">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.SaveHandler"
-            id="pt.uminho.haslab.echo.commands.saveInstanceInView"
-            name="Save This Instance">
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AlloySaveHandler"
+            id="pt.uminho.haslab.echo.commands.alloysave"
+            name="Save instance">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.NextHandler"
-            id="pt.uminho.haslab.echo.commands.next"
-            name="Next Instance">
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AlloyNextHandler"
+            id="pt.uminho.haslab.echo.commands.alloynext"
+            name="Next instance">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AddQVTRelationHandler"
-            id="pt.uminho.haslab.echo.commands.addqvtrelation"
-            name="Add QVT Relation">
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.QVTNewConstraintHandler"
+            id="pt.uminho.haslab.echo.commands.qvtconstraint"
+            name="New inter-model constraint">
+      </command>
+      <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
+            id="pt.uminho.haslab.echo.commands.modelgenerate"
+            name="Generate model">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
-         <command
-               commandId="pt.uminho.haslab.echo.commands.addInfo"
-               label="Add Meta Model"
+         <menu
+               label="Echo">
+               <command
+               commandId="pt.uminho.haslab.echo.commands.filemanage"
+               label="Manage meta-model"
                style="push">
             <visibleWhen>
                <iterate>
@@ -55,8 +62,8 @@
             </visibleWhen>
          </command>
          <command
-               commandId="pt.uminho.haslab.echo.commands.addInfo"
-               label="Add QVT"
+               commandId="pt.uminho.haslab.echo.commands.filemanage"
+               label="Manage QVT"
                style="push">
             <visibleWhen>
                <iterate>
@@ -71,8 +78,8 @@
             </visibleWhen>
          </command>
          <command
-               commandId="pt.uminho.haslab.echo.commands.addInfo"
-               label="Add Model"
+               commandId="pt.uminho.haslab.echo.commands.filemanage"
+               label="Manage model"
                style="push">
             <visibleWhen>
                <iterate>
@@ -87,8 +94,8 @@
             </visibleWhen>
          </command>
          <command
-               commandId="pt.uminho.haslab.echo.commands.repair"
-               label="Repair Model"
+               commandId="pt.uminho.haslab.echo.commands.modelrepair"
+               label="Repair model"
                style="push">
             <visibleWhen>
                <iterate>
@@ -105,8 +112,8 @@
             </visibleWhen>
          </command>
          <command
-               commandId="pt.uminho.haslab.echo.commands.conforms"
-               label="Check consistency with Meta Model"
+               commandId="pt.uminho.haslab.echo.commands.modelconforms"
+               label="Conforms"
                style="push">
             <visibleWhen>
                <iterate>
@@ -121,7 +128,8 @@
             </visibleWhen>
          </command>
          <command
-               commandId="pt.uminho.haslab.echo.commands.addqvtrelation"
+               commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
+               label="New inter-model constraint"
                style="push">
                <visibleWhen>
                <iterate>
@@ -135,18 +143,40 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="pt.uminho.haslab.echo.commands.modelgenerate"
+               label="Generate model"
+               style="push">
+            <visibleWhen>
+               <iterate>
+                  <and>
+                     <adapt
+                           type="org.eclipse.core.resources.IFile">
+                        <test
+                              forcePluginActivation="true"
+                              property="org.eclipse.core.resources.name"
+                              value="*.ecore">
+                        </test>
+                     </adapt>
+                  </and>
+               </iterate>
+            </visibleWhen>
+         </command>d>
+         </menu>
       </menuContribution>
       <menuContribution
             allPopups="false"
             locationURI="toolbar:pt.uminho.haslab.echo.alloymodelview">
          <command
-               commandId="pt.uminho.haslab.echo.commands.next"
+               commandId="pt.uminho.haslab.echo.commands.alloynext"
                icon="icons/next.gif"
+               label="Next instance"
                style="push">
          </command>
          <command
-               commandId="pt.uminho.haslab.echo.commands.saveInstanceInView"
+               commandId="pt.uminho.haslab.echo.commands.alloysave"
                icon="icons/select.gif"
+               label="Save instance"
                style="push">
          </command>
       </menuContribution>
@@ -175,10 +205,10 @@
 		<super type="org.eclipse.core.resources.problemmarker"/>
 		<persistent value="true"/>
   <attribute
-        name="pt.uminho.haslab.echo.plugin.qvtrule">
+        name="qvtr">
   </attribute>
   <attribute
-        name="pt.uminho.haslab.echo.plugin.partnermodel">
+        name="opposite">
   </attribute>
 	</extension>      
 	<extension
@@ -209,12 +239,12 @@
  <extension point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
          markerType="pt.uminho.haslab.echo.plugin.intrainconsistency"
-         class="pt.uminho.haslab.echo.plugin.EchoQuickFixer"/>
+         class="pt.uminho.haslab.echo.plugin.markers.EchoQuickFixer"/>
  </extension>
   <extension point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
          markerType="pt.uminho.haslab.echo.plugin.interinconsistency"
-         class="pt.uminho.haslab.echo.plugin.EchoQuickFixer"/>
+         class="pt.uminho.haslab.echo.plugin.markers.EchoQuickFixer"/>
  </extension>
  <extension
        point="org.eclipse.core.resources.variableResolvers">

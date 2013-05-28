@@ -21,8 +21,8 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.plugin.EchoMarker;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.properties.QvtRelationProperty;
 
@@ -129,12 +129,12 @@ public class XMIChangeListener implements IResourceChangeListener {
 	    				if(er.check(qrp.getQVTrule(), qrp.getModels()))
 	    				{	
 	    					for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR, false, 0))
-	    						if(mk.getAttribute(EchoMarker.PARTNER_MODEL).equals(path) &&
-	    								mk.getAttribute(EchoMarker.QVR_RULE).equals(qrp.getQVTrule()))
+	    						if(mk.getAttribute(EchoMarker.OPPOSITE).equals(path) &&
+	    								mk.getAttribute(EchoMarker.QVTR).equals(qrp.getQVTrule()))
 	    							mk.delete();
 	    					for(IMarker mk : partner.findMarkers(EchoMarker.INTER_ERROR, false, 0))
-	    						if(mk.getAttribute(EchoMarker.PARTNER_MODEL).equals(res.getFullPath().toString()) &&
-	    								mk.getAttribute(EchoMarker.QVR_RULE).equals(qrp.getQVTrule()))
+	    						if(mk.getAttribute(EchoMarker.OPPOSITE).equals(res.getFullPath().toString()) &&
+	    								mk.getAttribute(EchoMarker.QVTR).equals(qrp.getQVTrule()))
 	    							mk.delete();
 	    				}
 	    				else

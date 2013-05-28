@@ -140,7 +140,7 @@ public class EMF2Alloy {
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
 	
-	public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopes) throws ErrorAlloy {
+	public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopes, String uri) throws ErrorAlloy {
 		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
 		sc.put(Sig.STRING, overall);
 		for (Entry<String,String> cla : scopes.keySet()) {
@@ -152,8 +152,6 @@ public class EMF2Alloy {
 				sc.put(sig, scopes.get(cla));
 			}
 		}
-		for (Expr sig : modelstatesigs.values())
-			sc.put((PrimSig) sig,1);
 		this.scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
@@ -230,9 +228,8 @@ public class EMF2Alloy {
 		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
 	}
 	
-	public void writeAllInstances(A4Solution sol, String mdluri) throws ErrorAlloy, ErrorTransform{
+	public void writeAllInstances(A4Solution sol, String mdluri, String uri) throws ErrorAlloy, ErrorTransform{
 		EPackage pck = parser.getModelsFromUri(mdluri);
-		String uri = mdluri.replace(".ecore", ".xmi");
 		ECore2Alloy e2a = modeltrads.get(pck.getName());
 		List<EClass> topclass = parser.getTopObject(mdluri);
 		if (topclass.size() != 1) throw new ErrorTransform("Could not resolve top class.");
@@ -265,14 +262,17 @@ public class EMF2Alloy {
 	}
 	
 	public Expr getInstanceFact(String uri){
+		if (insttrads.get(uri) == null) return null;
 		return insttrads.get(uri).getFact();
 	}
 
 	public Func getQVTFact(String uri) {
+		if (qvttrads.get(uri) == null) return null;
 		return qvttrads.get(uri).getFunc();
 	}
 	
 	public RelationalTransformation getQVTTransformation(String uri) {
+		if (qvttrads.get(uri) == null) return null;
 		return qvttrads.get(uri).getQVTTransformation();
 	}
 
@@ -361,6 +361,12 @@ public class EMF2Alloy {
 		Func f = insttrads.get(uri).translator.getConforms();
 		return f.call(sig);
 	}
+	
+	public Expr getGenerateInstance(String uri, PrimSig sig) throws ErrorAlloy {
+		String name = parser.getModelsFromUri(uri).getName();
+		Func f = modeltrads.get(name).getGenerate();
+		return f.call(sig);
+	}
 
 	public Expr getConformsAllInstances(String uri) throws ErrorAlloy {
 		String name = parser.getModelsFromUri(uri).getName();
@@ -368,11 +374,6 @@ public class EMF2Alloy {
 		return f.call(modelstatesigs.get(name));
 	}
 
-	public Expr getGenerateAllInstances(String uri) throws ErrorAlloy {
-		String name = parser.getModelsFromUri(uri).getName();
-		Func f = modeltrads.get(name).getGenerate();
-		return f.call(modelstatesigs.get(name));
-	}
 
 	/**
 	 * returns true is able to determine determinism;

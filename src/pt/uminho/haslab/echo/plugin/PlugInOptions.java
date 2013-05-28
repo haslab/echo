@@ -31,13 +31,13 @@ public class PlugInOptions implements EchoOptions {
 	@Override
 	public Integer getMaxDelta() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 20;
 	}
 
 	@Override
 	public Integer getOverallScope() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	@Override

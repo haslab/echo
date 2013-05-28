@@ -64,7 +64,7 @@ public class CLIMain {
 				printer.printForce("Instances do not conform to the models ("+echo.timer.getTime("Conforms")+"ms).");
 		} else if (options.isGenerate()) {
 			printer.printTitle("Generating instance with size "+options.getOverallScope()+" but "+options.getScopes()+".");
-			success = echo.generate(Arrays.asList(options.getModels()),options.getScopes());
+			success = echo.generate(options.getModels()[0],options.getScopes());
 			echo.timer.setTime("Generate");
 			if (success)
 				printer.printForce("Intance generated ("+echo.timer.getTime("Generate")+"ms).");
@@ -131,7 +131,7 @@ public class CLIMain {
 			if (success) {
 				if (options.isGenerate())
 					for (String uri : options.getModels())
-						echo.writeAllInstances(uri);	
+						echo.writeAllInstances(uri,"new.xmi");	
 				else if(options.isRepair()&&options.isOverwrite())
 					echo.writeInstance(options.getDirection());	
 				else if(options.isEnforce()&&options.isOverwrite())

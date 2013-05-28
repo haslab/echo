@@ -1,7 +1,6 @@
 package pt.uminho.haslab.echo;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -112,27 +111,18 @@ public class EchoRunner {
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform 
 	 */
-	public boolean generate(List<String> uris, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorTransform {
-		if (options.getOverallScope() != 0) {
-			translator.createScopesFromSizes(options.getOverallScope(), scope);
+	public boolean generate(String mmuri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorTransform {
+			EClass cla = parser.getTopObject(mmuri).get(0);
+			if (scope.get(cla.getName()) == null)
+				scope.put(new SimpleEntry<String,String>(cla.getEPackage().getName(),cla.getName()),1);
+			translator.createScopesFromSizes(options.getOverallScope(), scope, mmuri);
 			runner = new AlloyRunner(translator);
-			runner.generate(uris);
-		}
-		else {
-			Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
-			for (String uri : uris){
-				EClass cla = parser.getTopObject(uri).get(0);
-				scopes.put(new SimpleEntry<String,String>(cla.getEPackage().getName(),cla.getName()),1);
-			}
-			translator.createScopesFromSizes(1, scopes);
-			runner = new AlloyRunner(translator);
-			runner.generate(uris);
+			runner.generate(mmuri);
 			while (!runner.getSolution().satisfiable()) {
 				runner.increment();
-				runner.generate(uris);
 			}
-		}
-		return runner.getSolution().satisfiable();				
+
+			return runner.getSolution().satisfiable();				
 	}
 	
 	/**
@@ -211,8 +201,8 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorAlloy 
 	 */
-	public void writeAllInstances (String mmuri) throws ErrorAlloy, ErrorTransform {
-		translator.writeAllInstances(runner.getSolution(), mmuri);
+	public void writeAllInstances (String mmuri, String uri) throws ErrorAlloy, ErrorTransform {
+		translator.writeAllInstances(runner.getSolution(), mmuri, uri);
 	}
 	
 	/**
@@ -232,6 +222,14 @@ public class EchoRunner {
 	
 	public int getCurrentDelta() {
 		return runner.getDelta();
+	}
+	
+	public boolean hasInstance(String uri) {
+		return translator.getInstanceFact(uri) != null;
+	}
+	
+	public boolean hasModel(String uri) {
+		return translator.getModelStateSig(uri) != null;
 	}
 }
 

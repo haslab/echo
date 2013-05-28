@@ -19,6 +19,7 @@ public class AlloyModelView extends ViewPart {
 	VizGUI viz;
 	A4Solution sol;
 	String pathToWrite;
+	String mmURI;
 	
 	
 	@Override
@@ -48,6 +49,11 @@ public class AlloyModelView extends ViewPart {
 		pathToWrite = path;
 	}
 	
+
+	public void setMetamodel(String mm)
+	{
+		mmURI = mm;
+	}
 
 	public void loadGraph()
 	{
@@ -80,7 +86,11 @@ public class AlloyModelView extends ViewPart {
 
 	public void saveInstance() {
 		try {
-			EchoPlugin.getInstance().getEchoRunner().writeInstance(pathToWrite);
+			if (EchoPlugin.getInstance().getEchoRunner().hasInstance(pathToWrite))
+				EchoPlugin.getInstance().getEchoRunner().writeInstance(pathToWrite);
+			else
+				EchoPlugin.getInstance().getEchoRunner().writeAllInstances(mmURI,pathToWrite);
+
 			pathToWrite = null;
 		} catch (ErrorAlloy | ErrorTransform e) {
 			// TODO Auto-generated catch block

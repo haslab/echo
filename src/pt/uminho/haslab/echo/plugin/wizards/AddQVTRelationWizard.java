@@ -14,12 +14,11 @@ import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 
 public class AddQVTRelationWizard extends Wizard implements INewWizard {
 
-	private RelationPage page;
+	private AddQVTRelationWizardPage page;
 	
 	private String qvt;
 	private ProjectProperties pp;
 	private Shell shell;
-	
 	
 	
 	public AddQVTRelationWizard(String qvtPath, ProjectProperties p)
@@ -32,7 +31,7 @@ public class AddQVTRelationWizard extends Wizard implements INewWizard {
 	@Override
 	public  void addPages()
 	{
-		page = new RelationPage(qvt);
+		page = new AddQVTRelationWizardPage(qvt);
 		addPage(page);
 	}
 	

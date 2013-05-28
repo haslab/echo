@@ -22,12 +22,12 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 import edu.mit.csail.sdg.alloy4graph.DotColor;
+import edu.mit.csail.sdg.alloy4viz.AlloyModel;
 import edu.mit.csail.sdg.alloy4viz.AlloyRelation;
 import edu.mit.csail.sdg.alloy4viz.AlloySet;
 import edu.mit.csail.sdg.alloy4viz.AlloyType;
@@ -94,11 +94,11 @@ public class AlloyRunner {
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 		}
 		Command cmd = null;
-		for (Sig sig : allsigs) {
+		/*for (Sig sig : allsigs) {
 			System.out.println(sig +" : "+((PrimSig)sig).parent);
 			for (Field f : sig.getFields())
 				System.out.println(f.label +" : "+f.type());
-		}
+		}*/
 		try {
 			cmd = new Command(true, overall, intscope, -1, finalfact);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
@@ -126,7 +126,7 @@ public class AlloyRunner {
 				PrimSig state = addInstanceSigs(uri);
 				if (uri.equals(dir)) {
 					original = state;
-					try { targetstate = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
+					try { targetstate = new PrimSig("'"+original.label, original.parent, Attr.ONE); }
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 					allsigs.add(targetstate);
 					sigs.add(targetstate);
@@ -146,14 +146,22 @@ public class AlloyRunner {
 	 * @param uris the URIs of the models
 	 * @throws ErrorAlloy 
 	 */
-	public void generate(List<String> uris) throws ErrorAlloy {
-		for (String uri : uris) {
-			allsigs.addAll(translator.getAllSigsFromURI(uri));
-			finalfact = finalfact.and(translator.getGenerateAllInstances(uri));
-		}
+	public void generate(String mmuri) throws ErrorAlloy {
+		allsigs.addAll(translator.getAllSigsFromURI(mmuri));			
 		scopes = translator.getScopes();
-		System.out.println(scopes);
+		//System.out.println(scopes);
+		
+		PrimSig state = (PrimSig) translator.getModelStateSig(translator.parser.getModelsFromUri(mmuri).getName());
+		try { 
+			targetstate = new PrimSig("'"+state, state, Attr.ONE); 
+		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+
+		finalfact = finalfact.and(translator.getGenerateInstance(mmuri,targetstate));
+		allsigs.add(targetstate);
+
 		try {
+			System.out.println(finalfact);
+			System.out.println(allsigs);
 			Command cmd = new Command(true, overall, intscope, -1, finalfact);
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
@@ -226,24 +234,30 @@ public class AlloyRunner {
 	 * @throws ErrorAlloy
 	 */
 	public void increment() throws ErrorAlloy {
-		if (overall != 0) {
+		Expr runfact = finalfact;
+		if (edelta.isSame(Sig.NONE.no())) {
 			scopes = AlloyUtil.incrementStringScopes(scopes);
 			overall++;
 			if (overall >= translator.options.getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.");
 		}
+		else {
+			try {
+				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
+				if(!translator.options.isOperationBased())
+					runfact = finalfact.and(edelta.equal(ExprConstant.makeNUMBER(delta)));
+				scopes = translator.incrementScopes(scopes);
+			} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+		}
 		try {
-			intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
-			Expr runfact = finalfact;
-			if(!translator.options.isOperationBased())
-				runfact = finalfact.and(edelta.equal(ExprConstant.makeNUMBER(delta)));
 			Command cmd = new Command(false, overall, intscope, -1, runfact);
-			scopes = translator.incrementScopes(scopes);
-			System.out.println(scopes);
 			cmd = cmd.change(scopes);
+			System.out.println("SCORE " + overall +" " + scopes);
+
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
-			if (sol.satisfiable()) System.out.println(sol.eval(edelta));
+			//if (sol.satisfiable()) System.out.println(sol.eval(edelta));
 			delta++;
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+
 	}
 	
 	/** 
@@ -277,9 +291,12 @@ public class AlloyRunner {
 	 */
 	public void generateTheme(VizState vizstate) {
 		List<DotColor> availablecolors = new ArrayList<DotColor>(Arrays.asList(DotColor.values()));
-		for (AlloyType t : vizstate.getCurrentModel().getTypes()){
+		AlloyModel model = vizstate.getCurrentModel();
+		for (AlloyType t : model.getTypes()){
+			AlloyType aux = model.getSuperType(t);
 			String label = vizstate.label.get(t);
-			if (label.split("_").length == 2) {
+			if (aux != null && model.getSuperType(aux) != null && model.getSuperType(aux).equals("State_")) {}
+			else if (label.split("_").length == 2) {
 				vizstate.label.put(t, label.split("_")[1]);
 				vizstate.hideUnconnected.put(t, true);
 				vizstate.nodeColor.put(t, availablecolors.get(0));
