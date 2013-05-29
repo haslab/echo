@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
@@ -56,16 +58,16 @@ public class ProjectProperties {
 	
 			
 	private IProject project;
-	private Set<String> conformList;
+	private Set<String> conformList = new HashSet<String>();
 	private String conformString;
 	
-	private Set<String> metaModels;
+	private Set<String> metaModels = new HashSet<String>();
 	private String metaModelsString;
 	
-	private Set<String> qvtRules;
+	private Set<String> qvtRules = new HashSet<String>();
 	private String qvtRulesString;
 	
-	private Set<QvtRelationProperty> qvtRelations;
+	private Set<QvtRelationProperty> qvtRelations =  new HashSet<QvtRelationProperty>();
 	private String qvtRelationsString;
 	
 	public ProjectProperties(IProject project){
@@ -121,18 +123,22 @@ public class ProjectProperties {
 		try {
 			qvtRulesString = project.getPersistentProperty(qnQvtRules);
 			if (qvtRulesString != null)
-				for(String s : qvtRulesString.split(";"))
-					if(s!=null)
-					{
-						try {
-							result.add(s);
-							er.addQVT(s);
-						} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
-								| ErrorParser e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+				for(String s : qvtRulesString.split(";")) {
+					IResource f = ResourcesPlugin.getWorkspace().getRoot().findMember(s);
+					if(s!=null) {
+						if (f != null && f.exists()) {
+							try {
+								result.add(s);
+								er.addQVT(s);
+							} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
+									| ErrorParser e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else
+							removeQVT(s);
 					}
+				}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		} 
@@ -147,19 +153,23 @@ public class ProjectProperties {
 		try {
 			metaModelsString = project.getPersistentProperty(qnMetaModels);
 			if (metaModelsString != null && metaModelsString != "")
-				for(String s : metaModelsString.split(";"))
-					if(s!=null && s!= "")
-					{
-						try {
-							result.add(s);
-							er.addModel(s);
-						} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
-								| ErrorParser e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					}
+				for(String s : metaModelsString.split(";")) {
+					IResource f = ResourcesPlugin.getWorkspace().getRoot().findMember(s);
+					System.out.println(s + " but " + f);
+					if(s!=null && s!= "") {
+						if(f != null && f.exists()) {
+							try {
+								result.add(s);
+								er.addModel(s);
+							} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
+									| ErrorParser e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else
+							removeMetaModel(s);
+					} 
+				}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		} 
@@ -174,18 +184,24 @@ public class ProjectProperties {
 		try {
 			conformString = project.getPersistentProperty(qnConformList);
 			if (conformString != null)
-				for(String s : conformString.split(";"))
-					if(s!=null)
-					{
-						try {
-							result.add(s);
-							er.addInstance(s);
-						} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
-								| ErrorParser e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+				for(String s : conformString.split(";")) {
+					IResource f = ResourcesPlugin.getWorkspace().getRoot().findMember(s);
+					System.out.println(s + " but " + f);
+					if(s!=null) {
+						if(f != null && f.exists()) {
+							try {
+								result.add(s);
+								er.addInstance(s);
+							} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
+									| ErrorParser e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else 
+							removeFromConformList(s);
 					}
+					
+				}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		} 
@@ -358,6 +374,15 @@ public class ProjectProperties {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	
+	public void removeQVT(String uri)
+	{
+		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		//er.remInstance(uri);
+		qvtRules.remove(uri);
+		
 	}
 	
 }

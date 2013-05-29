@@ -248,6 +248,7 @@ class ECore2Alloy {
 			else if((op != null && getFieldFromSFeature(op) != null && translator.options.isOptimize())) {}
 			else {
 				PrimSig trgsig = mapClassSig.get(reference.getEReferenceType());
+				System.out.println(reference.getName() + ", " + mapClassSig.keySet());
 				Field field;
 				try{field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),reference.getName()),trgsig.product(statesig));}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}

@@ -193,7 +193,7 @@
                         type="org.eclipse.core.resources.IFile">
                      <test
                            property="org.eclipse.core.resources.name"
-                           value="*.xmi">
+                           value="*.ecore">
                      </test>
                   </adapt>
                </iterate>

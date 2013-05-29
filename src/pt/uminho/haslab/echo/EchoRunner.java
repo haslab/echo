@@ -52,7 +52,8 @@ public class EchoRunner {
 	
 	public void remModel(String uri) {
 		EPackage mdl = parser.remModel(uri);
-		translator.remModel(mdl);
+		if (mdl != null)
+			translator.remModel(mdl);
 	}
 	
 	public boolean hasModel(String uri) {
@@ -75,7 +76,8 @@ public class EchoRunner {
 	
 	public void remInstance(String uri) {
 		EObject inst = parser.remInstance(uri);
-		translator.remInstance(inst);
+		if (inst != null)
+			translator.remInstance(inst);
 	}
 
 	public boolean hasInstance(String uri) {
