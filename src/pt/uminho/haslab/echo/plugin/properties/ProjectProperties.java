@@ -334,6 +334,8 @@ public class ProjectProperties {
 	
 	public void removeMetaModel(String uri)
 	{
+		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		er.remModel(uri);
 		metaModels.remove(uri);
 		metaModelsString = makeStringFromCollection(metaModels);
 		try {
@@ -346,6 +348,8 @@ public class ProjectProperties {
 	
 	public void removeFromConformList(String uri)
 	{
+		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		er.remInstance(uri);
 		conformList.remove(uri);
 		conformString = makeStringFromCollection(conformList);
 		try {

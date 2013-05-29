@@ -373,6 +373,16 @@ public class EMF2Alloy {
 		Func f = modeltrads.get(name).getConforms();
 		return f.call(modelstatesigs.get(name));
 	}
+	
+	public Expr remModel(EPackage pck) {
+		modeltrads.remove(pck.getName());
+		return modelstatesigs.remove(pck.getName());
+	}
+
+	public PrimSig remInstance(EObject obj) {
+		insttrads.remove(obj.eResource().getURI().toString());
+		return inststatesigs.remove(obj.eResource().getURI().toString());
+	}
 
 
 	/**

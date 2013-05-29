@@ -49,6 +49,15 @@ public class EchoRunner {
 		translator.createModelStateSigs(mdl);
 		translator.translateModel(mdl);
 	}
+	
+	public void remModel(String uri) {
+		EPackage mdl = parser.remModel(uri);
+		translator.remModel(mdl);
+	}
+	
+	public boolean hasModel(String uri) {
+		return translator.getModelStateSig(uri) != null;
+	}
 
 	/**
 	 * Parses and processes into Alloy a {@link EObject} instance from its URI
@@ -63,6 +72,16 @@ public class EchoRunner {
 		translator.createInstanceStateSigs(inst);
 		translator.translateInstance(inst);
 	}
+	
+	public void remInstance(String uri) {
+		EObject inst = parser.remInstance(uri);
+		translator.remInstance(inst);
+	}
+
+	public boolean hasInstance(String uri) {
+		return translator.getInstanceFact(uri) != null;
+	}
+	
 	
 	/**
 	 * Parses and processes into Alloy a QVT-R transformation from its URI
@@ -215,7 +234,6 @@ public class EchoRunner {
 		translator.writeInstance(runner.getSolution(), insturi,runner.getTargetStateSig());
 	}
 	
-	
 	public String backUpInstance (String insturi) {
 		return parser.backUpTarget(insturi);
 	}
@@ -224,12 +242,4 @@ public class EchoRunner {
 		return runner.getDelta();
 	}
 	
-	public boolean hasInstance(String uri) {
-		return translator.getInstanceFact(uri) != null;
-	}
-	
-	public boolean hasModel(String uri) {
-		return translator.getModelStateSig(uri) != null;
-	}
 }
-

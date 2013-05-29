@@ -108,6 +108,10 @@ public class EMFParser {
 		instances.put(uri,res);
 		return res;
 	}
+	
+	public EObject remInstance(String uri) {
+		return instances.remove(uri);
+	}
 
 	/**
 	 * Loads the EPackages its uri
@@ -121,6 +125,12 @@ public class EMFParser {
 		models.put(uri,res);	
 		modelpaths.put(uri, res.getName());
 		
+		return res;
+	}
+	
+	public EPackage remModel(String uri) {
+		EPackage res = models.remove(uri);	
+		modelpaths.remove(uri);
 		return res;
 	}
 	
