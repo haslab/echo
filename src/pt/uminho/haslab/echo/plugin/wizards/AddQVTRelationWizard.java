@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.plugin.wizards;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -56,6 +58,11 @@ public class AddQVTRelationWizard extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
 		
+		for (String s : page.getModels()) {
+			IResource f = ResourcesPlugin.getWorkspace().getRoot().findMember(s);
+			if (f == null || !f.exists()) MessageDialog.openInformation(shell, "ok", "new");
+
+		}
 		try {
 			pp.addQvtRelation(page.getQvt(), page.getModels());
 			boolean b =er.check(page.getQvt(), page.getModels());

@@ -4,17 +4,10 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.FileManageHandler"
             id="pt.uminho.haslab.echo.commands.filemanage"
             name="Manage file">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ModelRepairHandler"
-            id="pt.uminho.haslab.echo.commands.modelrepair"
-            name="Repair model">
-      </command>
-      <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ModelConformsHandler"
             id="pt.uminho.haslab.echo.commands.modelconforms"
             name="Conforms">
       </command>
@@ -29,17 +22,14 @@
             name="Next instance">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.QVTNewConstraintHandler"
             id="pt.uminho.haslab.echo.commands.qvtconstraint"
             name="New inter-model constraint">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
             id="pt.uminho.haslab.echo.commands.modelgenerate"
             name="Generate model">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.FileRemoveHandler"
             id="pt.uminho.haslab.echo.commands.fileremove"
             name="Remove file">
       </command>
@@ -76,7 +66,7 @@
                         type="org.eclipse.core.resources.IFile">
                      <test
                            property="org.eclipse.core.resources.name"
-                           value="*.qvtr">
+                           value="*.qvt">
                      </test>
                   </adapt>
                </iterate>
@@ -99,26 +89,8 @@
             </visibleWhen>
          </command>
          <command
-               commandId="pt.uminho.haslab.echo.commands.modelrepair"
-               label="Repair model"
-               style="push">
-            <visibleWhen>
-               <iterate>
-                  <and>
-                     <adapt
-                           type="org.eclipse.core.resources.IFile">
-                        <test
-                              forcePluginActivation="true"
-                              property="pt.uminho.haslab.echo.plugin.propertyTester.hasmark">
-                        </test>
-                    </adapt>
-                  </and>
-               </iterate>
-            </visibleWhen>
-         </command>
-         <command
                commandId="pt.uminho.haslab.echo.commands.modelconforms"
-               label="Conforms"
+               label="Check intra-model consistency"
                style="push">
             <visibleWhen>
                <iterate>
@@ -142,7 +114,7 @@
                         type="org.eclipse.core.resources.IFile">
                      <test
                            property="org.eclipse.core.resources.name"
-                           value="*.qvtr">
+                           value="*.qvt">
                      </test>
                   </adapt>
                </iterate>
@@ -194,6 +166,22 @@
                      <test
                            property="org.eclipse.core.resources.name"
                            value="*.ecore">
+                     </test>
+                  </adapt>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="pt.uminho.haslab.echo.commands.modelqvt"
+               label="Check inter-model consistency"
+               style="push">
+            <visibleWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.xmi">
                      </test>
                   </adapt>
                </iterate>
@@ -283,6 +271,29 @@
          markerType="pt.uminho.haslab.echo.plugin.interinconsistency"
          class="pt.uminho.haslab.echo.plugin.markers.EchoQuickFixer"/>
  </extension>
+<extension point="org.eclipse.ui.handlers">
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.FileRemoveHandler"
+           commandId="pt.uminho.haslab.echo.commands.fileremove">
+     <enabledWhen></enabledWhen>
+  </handler>
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.FileManageHandler"
+           commandId="pt.uminho.haslab.echo.commands.filemanage">
+  </handler>
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelRepairHandler"
+           commandId="pt.uminho.haslab.echo.commands.modelrepair">
+  </handler>
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelConformsHandler"
+           commandId="pt.uminho.haslab.echo.commands.modelconforms">
+  </handler>
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
+           commandId="pt.uminho.haslab.echo.commands.modelgenerate">
+  </handler>
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTNewConstraintHandler"
+           commandId="pt.uminho.haslab.echo.commands.qvtconstraint">
+  </handler>
+</extension>
+
+
  <extension
        point="org.eclipse.core.resources.variableResolvers">
  </extension>

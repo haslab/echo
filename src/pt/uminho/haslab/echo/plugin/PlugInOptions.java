@@ -6,6 +6,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 
 public class PlugInOptions implements EchoOptions {
 
+	boolean operationbased = false;
+	
 	public PlugInOptions(){
 		
 	}
@@ -48,8 +50,11 @@ public class PlugInOptions implements EchoOptions {
 
 	@Override
 	public boolean isOperationBased() {
-		// TODO Auto-generated method stub
-		return false;
+		return operationbased;
+	}
+	
+	public void setOperationBased(boolean b) {
+		operationbased = b;
 	}
 
 	@Override

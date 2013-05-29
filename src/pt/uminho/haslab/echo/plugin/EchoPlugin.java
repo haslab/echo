@@ -18,6 +18,7 @@ public class EchoPlugin extends Plugin {
 	private static EchoPlugin instance;
 	
 	private EchoRunner echoRunner;
+	public final PlugInOptions options;
 	
 	
 	private AlloyModelView AlloyView = null;
@@ -28,8 +29,9 @@ public class EchoPlugin extends Plugin {
 	{
 		super();
 		instance = this;
+		options = new PlugInOptions();
 		try {
-			echoRunner = new EchoRunner(new PlugInOptions());
+			echoRunner = new EchoRunner(options);
 		} catch (ErrorAlloy | ErrorTransform e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
