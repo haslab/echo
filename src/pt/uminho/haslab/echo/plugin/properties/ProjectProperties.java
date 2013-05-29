@@ -379,7 +379,7 @@ public class ProjectProperties {
 	
 	public void removeQVT(String uri)
 	{
-		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		//EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
 		//er.remInstance(uri);
 		qvtRules.remove(uri);
 		

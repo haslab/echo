@@ -9,7 +9,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import pt.uminho.haslab.echo.EchoRunner;
@@ -18,7 +17,7 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
 
-public class ModelGenerateWizard extends Wizard implements INewWizard {
+public class ModelGenerateWizard extends Wizard {
 
 	private ModelGenerateWizardPage page;
 	
@@ -39,7 +38,6 @@ public class ModelGenerateWizard extends Wizard implements INewWizard {
 		addPage(page);
 	}
 	
-	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 
 		shell = workbench.getModalDialogShellProvider().getShell();
