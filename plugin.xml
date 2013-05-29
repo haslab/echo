@@ -106,6 +106,7 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
+               icon="/icons/remove.gif"
                label="New inter-model constraint"
                style="push">
                <visibleWhen>
