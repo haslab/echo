@@ -136,7 +136,7 @@ class ECore2Alloy {
 		for (EClass c : classList)
 			processOperations(c.getEOperations());
 		
-		if (translator.options.isOperationBased()) createOrder(statesig);
+		createOrder(statesig);
 		
 	}
 	
@@ -177,7 +177,7 @@ class ECore2Alloy {
 	 * New fields: binary field if EInt or EString
 	 * New facts: multiplicity constraints for binary fields
 	 * @param attributes the list of attributes to translate
-	 * @throws ErrorUnsupported the attribute type is not supported
+	 * @throws ErrowrUnsupported the attribute type is not supported
 	 * @throws ErrorAlloy
 	 */
 	private void processAttributes(List<EAttribute> attributes) throws ErrorUnsupported, ErrorAlloy {

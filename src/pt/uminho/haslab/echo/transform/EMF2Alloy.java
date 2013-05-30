@@ -201,6 +201,7 @@ public class EMF2Alloy {
 			}
 		}
 		this.scopes = AlloyUtil.createScope(scopes,new HashMap<PrimSig, Integer>());
+		//System.out.println(this.scopes);
 	}	
 	
 	public ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
@@ -282,7 +283,9 @@ public class EMF2Alloy {
 
 	public List<PrimSig> getAllSigsFromName(String uri) throws ErrorAlloy{
 		ECore2Alloy e2a = modeltrads.get(uri);
+		
 		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getAllSigs());
+		
 		return aux;
 	}	
 

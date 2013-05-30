@@ -39,6 +39,7 @@
       <menuContribution
             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
          <menu
+               icon="/icons/echo.png"
                label="Echo">
                <command
                commandId="pt.uminho.haslab.echo.commands.filemanage"
@@ -106,7 +107,7 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
-               icon="/icons/remove.gif"
+               icon="/icons/qvtrel.gif"
                label="New inter-model constraint"
                style="push">
                <visibleWhen>
@@ -123,6 +124,7 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.modelgenerate"
+               icon="/icons/newmodel.gif"
                label="Generate model"
                style="push">
             <visibleWhen>
@@ -142,6 +144,7 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.fileremove"
+               icon="/icons/remove.gif"
                label="Remove model"
                style="push">
             <visibleWhen>
@@ -158,6 +161,7 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.fileremove"
+               icon="/icons/remove.gif"
                label="Remove meta-model"
                style="push">
             <visibleWhen>

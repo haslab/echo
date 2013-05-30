@@ -199,6 +199,7 @@ public class EMFParser {
 	}
 	
 	public RelationalTransformation getTransformation(String uri){
+		System.out.println("All "+transformations.keySet());
 		return transformations.get(uri);
 	}
 
@@ -213,6 +214,9 @@ public class EMFParser {
 		return res;
 	}*/
 
+	public String getModelURI(String name) {
+		return modelpaths.inverse().get(name);
+	}
 
 	public Collection<EPackage> getModels(){
 		return models.values();

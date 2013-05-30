@@ -68,7 +68,6 @@ public class AlloyRunner {
 	 */
 	public AlloyRunner (EMF2Alloy translator) {	
 		this.translator = translator;
-		this.overall = translator.options.getOverallScope();
 		rep = new A4Reporter() {
 			@Override public void warning(ErrorWarning msg) {
 				System.out.print("Relevance Warning:\n"+(msg.toString().trim())+"\n\n");
@@ -149,7 +148,6 @@ public class AlloyRunner {
 	public void generate(String mmuri) throws ErrorAlloy {
 		allsigs.addAll(translator.getAllSigsFromURI(mmuri));			
 		scopes = translator.getScopes();
-		//System.out.println(scopes);
 		
 		PrimSig state = (PrimSig) translator.getModelStateSig(translator.parser.getModelsFromUri(mmuri).getName());
 		try { 
@@ -179,12 +177,13 @@ public class AlloyRunner {
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
 		for (String uri : insturis) {
 			PrimSig state = addInstanceSigs(uri);
-			
 			sigs.add(state);
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 			finalfact = finalfact.and(translator.getConformsInstance(uri));
 		}
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
+		System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
+		System.out.println("SIGS "+allsigs);
 		try {
 			Command cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
@@ -202,7 +201,6 @@ public class AlloyRunner {
 		check(qvturi,insturis);
 		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
 		else {			
-			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
 			finalfact = Sig.NONE.no();
 			Func func = translator.getQVTFact(qvturi);
 			PrimSig original;
@@ -221,11 +219,45 @@ public class AlloyRunner {
 				} else {
 					sigs.add(state);			
 				}
+				System.out.println("INST "+translator.getInstanceFact(uri));
 				finalfact = finalfact.and(translator.getInstanceFact(uri));
-				//finalfact = finalfact.and(translator.getConformsInstance(uri));
 			}
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		} 
+	}
+	
+	
+	public void generateqvt(String qvturi, List<String> insturis, String diruri, String mmuri) throws ErrorAlloy {
+		ArrayList<String> insts = new ArrayList<String>(insturis);
+		insts.remove(diruri);
+		allsigs.addAll(translator.getAllSigsFromURI(mmuri));
+		scopes = translator.getScopes();
+		
+		List<PrimSig> sigs = new ArrayList<PrimSig>();
+
+		for (String uri : insturis) {
+			if (!uri.equals(diruri)) {
+				PrimSig state = addInstanceSigs(uri);
+				finalfact = finalfact.and(translator.getInstanceFact(uri));
+				sigs.add(state);			
+			} else {
+				PrimSig state = (PrimSig) translator.getModelStateSig(translator.parser.getModelsFromUri(mmuri).getName());
+				try { 
+					targetstate = new PrimSig("'"+state, state, Attr.ONE); 
+				} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+				sigs.add(targetstate);
+				finalfact = finalfact.and(translator.getGenerateInstance(mmuri,targetstate));
+				allsigs.add(targetstate);
+			}
+		}
+		Func func = translator.getQVTFact(qvturi);
+		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
+
+		try {
+			Command cmd = new Command(true, overall, intscope, -1, finalfact);
+			cmd = cmd.change(scopes);
+			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
 	
 	/**
@@ -234,6 +266,7 @@ public class AlloyRunner {
 	 * @throws ErrorAlloy
 	 */
 	public void increment() throws ErrorAlloy {
+		System.out.println(edelta);
 		Expr runfact = finalfact;
 		if (edelta.isSame(Sig.NONE.no())) {
 			scopes = AlloyUtil.incrementStringScopes(scopes);
@@ -241,6 +274,7 @@ public class AlloyRunner {
 			if (overall >= translator.options.getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.");
 		}
 		else {
+			
 			try {
 				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 				if(!translator.options.isOperationBased())
@@ -251,7 +285,9 @@ public class AlloyRunner {
 		try {
 			Command cmd = new Command(false, overall, intscope, -1, runfact);
 			cmd = cmd.change(scopes);
-			System.out.println("SCORE " + overall +" " + scopes);
+			System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
+			for (Sig s : allsigs)
+				System.out.println("sig "+s + " : " +((PrimSig) s).children());
 
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 			//if (sol.satisfiable()) System.out.println(sol.eval(edelta));

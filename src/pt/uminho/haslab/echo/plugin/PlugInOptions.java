@@ -27,7 +27,7 @@ public class PlugInOptions implements EchoOptions {
 	@Override
 	public boolean isOptimize() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

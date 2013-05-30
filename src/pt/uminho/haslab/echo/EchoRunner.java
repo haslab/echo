@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -139,10 +140,9 @@ public class EchoRunner {
 			translator.createScopesFromSizes(options.getOverallScope(), scope, mmuri);
 			runner = new AlloyRunner(translator);
 			runner.generate(mmuri);
-			while (!runner.getSolution().satisfiable()) {
+			while (!runner.getSolution().satisfiable())
 				runner.increment();
-			}
-
+			
 			return runner.getSolution().satisfiable();				
 	}
 	
@@ -168,13 +168,29 @@ public class EchoRunner {
 	 * @throws ErrorAlloy
 	 */
 	public boolean enforce(String qvturi, List<String> insturis, String targeturi) throws ErrorAlloy {
-		if (translator.options.isOperationBased())
+		if (translator.options.isOperationBased()) {
 			translator.createScopesFromOps(targeturi);
+			System.out.println("Operation-based.");
+		}
 		else
 			translator.createScopesFromURI(targeturi);
 		
 		runner = new AlloyRunner(translator);
+		System.out.println(qvturi + " over "+ insturis + " to "+targeturi	);
+
 		runner.enforce(qvturi, insturis, targeturi);
+		return runner.getSolution().satisfiable();
+	}
+	
+	public boolean generateqvt(String qvturi, String mmuri, List<String> insturis, String dir) throws ErrorAlloy {
+		Map<Entry<String,String>,Integer> scope = new HashMap<Entry<String,String>,Integer>();
+		EClass cla = parser.getTopObject(mmuri).get(0);
+		scope.put(new SimpleEntry<String,String>(cla.getEPackage().getName(),cla.getName()),1);
+		translator.createScopesFromSizes(options.getOverallScope(), scope, mmuri);
+		runner = new AlloyRunner(translator);
+		runner.generateqvt(qvturi, insturis, dir, mmuri);
+		while (!runner.getSolution().satisfiable())
+			runner.increment();
 		return runner.getSolution().satisfiable();
 	}
 	

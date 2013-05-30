@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.ui.IMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoRunner;
@@ -28,13 +30,20 @@ public class EchoInterQuickFix implements IMarkerResolution {
       
       public void run(IMarker marker) {
     	  EchoRunner echo = EchoPlugin.getInstance().getEchoRunner();
-    	  
+    	  ArrayList<String> list = new ArrayList<String>(1);
     	  IResource res = marker.getResource();
     	  String path = res.getFullPath().toString();
-    	  ArrayList<String> list = new ArrayList<String>(1);
-    	  list.add(path);
+
     	  try {
-			list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
+    		  RelationalTransformation trans = echo.parser.getTransformation(marker.getAttribute(EchoMarker.QVTR).toString());
+    		  String metadir = echo.translator.getInstanceStateSigFromURI(path).parent.label;
+    		  if (metadir.equals(trans.getModelParameter().get(0).getUsedPackage().get(0).getName())) {
+		    	  list.add(path);
+		    	  list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
+    		  } else {
+    	    	  list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
+    	    	  list.add(path);
+			  }
     	  } catch (CoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

@@ -111,7 +111,6 @@ public class ProjectProperties {
 					}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		} 
 		
 		return result;
@@ -155,7 +154,6 @@ public class ProjectProperties {
 			if (metaModelsString != null && metaModelsString != "")
 				for(String s : metaModelsString.split(";")) {
 					IResource f = ResourcesPlugin.getWorkspace().getRoot().findMember(s);
-					System.out.println(s + " but " + f);
 					if(s!=null && s!= "") {
 						if(f != null && f.exists()) {
 							try {
@@ -186,7 +184,6 @@ public class ProjectProperties {
 			if (conformString != null)
 				for(String s : conformString.split(";")) {
 					IResource f = ResourcesPlugin.getWorkspace().getRoot().findMember(s);
-					System.out.println(s + " but " + f);
 					if(s!=null) {
 						if(f != null && f.exists()) {
 							try {
@@ -232,7 +229,6 @@ public class ProjectProperties {
 	public void addQvtRelation(String qvtRule, List<String> models)
 	{
 		QvtRelationProperty qvtR = new QvtRelationProperty(qvtRule,models);
-		System.out.println(qvtR);
 		if(!qvtRelations.contains(qvtR)){
 			//EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
 			//er.addQVT(uri);
@@ -243,7 +239,7 @@ public class ProjectProperties {
 			try {
 				project.setPersistentProperty(qnRelations, qvtRelationsString);
 				
-				System.out.println("objecto: " + qvtR.toString() +"\nString: " + qvtRelationsString);
+				//System.out.println("objecto: " + qvtR.toString() +"\nString: " + qvtRelationsString);
 				qvtRelations.add(qvtR);
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
