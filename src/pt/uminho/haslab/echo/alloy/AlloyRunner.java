@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -162,6 +163,8 @@ public class AlloyRunner {
 			System.out.println(allsigs);
 			Command cmd = new Command(true, overall, intscope, -1, finalfact);
 			cmd = cmd.change(scopes);
+			System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
+
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
@@ -327,7 +330,9 @@ public class AlloyRunner {
 	 */
 	public void generateTheme(VizState vizstate) {
 		List<DotColor> availablecolors = new ArrayList<DotColor>(Arrays.asList(DotColor.values()));
+		availablecolors.remove(DotColor.BLACK);
 		AlloyModel model = vizstate.getCurrentModel();
+		vizstate.setFontSize(11);
 		for (AlloyType t : model.getTypes()){
 			AlloyType aux = model.getSuperType(t);
 			String label = vizstate.label.get(t);
@@ -366,7 +371,8 @@ public class AlloyRunner {
 					if (sf instanceof EAttribute) {
 						vizstate.edgeVisible.put(t, false);
 						vizstate.attribute.put(t, true);
-					}
+					} else if (sf instanceof EReference && !((EReference) sf).isContainment())
+						vizstate.layoutBack.put(t, true);
 					vizstate.label.put(t, ref);
 				} else {
 					vizstate.edgeVisible.put(t, false);

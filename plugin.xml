@@ -42,11 +42,21 @@
                icon="/icons/echo.png"
                label="Echo">
                <command
-               commandId="pt.uminho.haslab.echo.commands.filemanage"
-               label="Manage meta-model"
-               style="push">
+                     commandId="pt.uminho.haslab.echo.commands.filemanage"
+                     icon="icons/trackmeta.png"
+                     label="Track meta-model"
+                     style="push">
             <visibleWhen>
                <iterate>
+               <and>
+            	   <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.tracked"
+                           value="false">
+                     </test>
+                  </adapt>
                   <adapt
                         type="org.eclipse.core.resources.IFile">
                      <test
@@ -54,6 +64,7 @@
                            value="*.ecore">
                      </test>
                   </adapt>
+                  </and>
                </iterate>
             </visibleWhen>
          </command>
@@ -75,21 +86,32 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.filemanage"
-               label="Manage model"
+               icon="icons/trackmodel.png"
+               label="Track model"
                style="push">
             <visibleWhen>
                <iterate>
+               <and>
+              	 <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.tracked"
+                           value="false">
+                     </test>
+                  </adapt>
                   <adapt
                         type="org.eclipse.core.resources.IFile">
                      <test
                            property="org.eclipse.core.resources.name"
                            value="*.xmi">
                      </test>
-                  </adapt>
+                  </adapt>  
+                  </and>
                </iterate>
             </visibleWhen>
          </command>
-         <command
+ <!--        <command
                commandId="pt.uminho.haslab.echo.commands.modelconforms"
                label="Check intra-model consistency"
                style="push">
@@ -104,11 +126,11 @@
                   </adapt>
                </iterate>
             </visibleWhen>
-         </command>
+         </command> -->
          <command
                commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
                icon="/icons/qvtrel.gif"
-               label="New inter-model constraint"
+               label="New inter-model constraint..."
                style="push">
                <visibleWhen>
                <iterate>
@@ -125,7 +147,7 @@
          <command
                commandId="pt.uminho.haslab.echo.commands.modelgenerate"
                icon="/icons/newmodel.gif"
-               label="Generate model"
+               label="Generate model..."
                style="push">
             <visibleWhen>
                <iterate>
@@ -145,10 +167,11 @@
          <command
                commandId="pt.uminho.haslab.echo.commands.fileremove"
                icon="/icons/remove.gif"
-               label="Remove model"
+               label="Untrack model"
                style="push">
             <visibleWhen>
                <iterate>
+               <and>
                   <adapt
                         type="org.eclipse.core.resources.IFile">
                      <test
@@ -156,16 +179,25 @@
                            value="*.xmi">
                      </test>
                   </adapt>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.tracked">
+                     </test>
+                  </adapt>
+                  </and>
                </iterate>
             </visibleWhen>
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.fileremove"
                icon="/icons/remove.gif"
-               label="Remove meta-model"
+               label="Untrack meta-model"
                style="push">
             <visibleWhen>
                <iterate>
+               <and>
                   <adapt
                         type="org.eclipse.core.resources.IFile">
                      <test
@@ -173,10 +205,18 @@
                            value="*.ecore">
                      </test>
                   </adapt>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.tracked">
+                     </test>
+                  </adapt>
+                  </and>
                </iterate>
             </visibleWhen>
          </command>
-         <command
+<!--         <command
                commandId="pt.uminho.haslab.echo.commands.modelqvt"
                label="Check inter-model consistency"
                style="push">
@@ -191,7 +231,7 @@
                   </adapt>
                </iterate>
             </visibleWhen>
-         </command>d>
+         </command>-->
          </menu>
       </menuContribution>
       <menuContribution
@@ -247,7 +287,7 @@
             class="pt.uminho.haslab.echo.plugin.EchoPropertyTester"
             id="pt.uminho.haslab.echo.plugin.propertyTester"
             namespace="pt.uminho.haslab.echo.plugin.propertyTester"
-            properties="hasmark"
+            properties="hasmark,tracked,dependencies"
             type="org.eclipse.core.resources.IFile">
       </propertyTester>
    </extension>
@@ -277,21 +317,43 @@
          class="pt.uminho.haslab.echo.plugin.markers.EchoQuickFixer"/>
  </extension>
 <extension point="org.eclipse.ui.handlers">
-  <handler class="pt.uminho.haslab.echo.plugin.handlers.FileRemoveHandler"
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.FileUntrackHandler"
            commandId="pt.uminho.haslab.echo.commands.fileremove">
-     <enabledWhen></enabledWhen>
+           
+     
   </handler>
-  <handler class="pt.uminho.haslab.echo.plugin.handlers.FileManageHandler"
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.FileTrackHandler"
            commandId="pt.uminho.haslab.echo.commands.filemanage">
-  </handler>
-  <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelRepairHandler"
-           commandId="pt.uminho.haslab.echo.commands.modelrepair">
+           <enabledWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.dependencies"
+                           value="false">
+                     </test>
+                  </adapt>
+               </iterate>
+            </enabledWhen>
+
   </handler>
   <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelConformsHandler"
            commandId="pt.uminho.haslab.echo.commands.modelconforms">
   </handler>
   <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
            commandId="pt.uminho.haslab.echo.commands.modelgenerate">
+           <enabledWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.tracked">
+                     </test>
+                  </adapt>
+               </iterate>
+            </enabledWhen>
   </handler>
   <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTNewConstraintHandler"
            commandId="pt.uminho.haslab.echo.commands.qvtconstraint">
@@ -299,8 +361,5 @@
 </extension>
 
 
- <extension
-       point="org.eclipse.core.resources.variableResolvers">
- </extension>
 
 </plugin>

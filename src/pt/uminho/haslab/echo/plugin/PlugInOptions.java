@@ -15,7 +15,7 @@ public class PlugInOptions implements EchoOptions {
 	@Override
 	public boolean isVerbose() {
 		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override

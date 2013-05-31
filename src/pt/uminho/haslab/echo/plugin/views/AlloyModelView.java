@@ -1,6 +1,10 @@
 package pt.uminho.haslab.echo.plugin.views;
 
 import java.awt.Frame;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
@@ -25,6 +29,19 @@ public class AlloyModelView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
+		
+		File file = new File(".dummy.xml");
+		try {
+			file.createNewFile();
+			FileWriter fileWritter = new FileWriter(file.getName(),false);
+	        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+	        bufferWritter.write("<alloy><instance bitwidth=\"0\" maxseq=\"0\"></instance></alloy>");
+	        bufferWritter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		viz = new VizGUI(false, ".dummy.xml", null,null,null,false);
 		viz.doShowViz();
 		

@@ -75,10 +75,10 @@ public class ProjectProperties {
 		
 		this.project = project;
 		//cleanProperties();
-		metaModels = loadMetaModels();
-		conformList = loadConformList();
-		qvtRules = loadQvtRules();
-		qvtRelations = loadRelations();
+		//metaModels = loadMetaModels();
+		//conformList = loadConformList();
+		//qvtRules = loadQvtRules();
+		//qvtRelations = loadRelations();
 		mapIProject.put(project, this);
 	}
 	
@@ -375,7 +375,7 @@ public class ProjectProperties {
 	
 	public void removeQVT(String uri)
 	{
-		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		//EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
 		//er.remInstance(uri);
 		qvtRules.remove(uri);
 		

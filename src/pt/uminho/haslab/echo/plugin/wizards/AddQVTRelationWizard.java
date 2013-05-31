@@ -12,7 +12,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import pt.uminho.haslab.echo.EchoRunner;
@@ -21,7 +20,7 @@ import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
 
-public class AddQVTRelationWizard extends Wizard implements INewWizard {
+public class AddQVTRelationWizard extends Wizard  {
 
 	private AddQVTRelationWizardPage page;
 	
@@ -44,7 +43,7 @@ public class AddQVTRelationWizard extends Wizard implements INewWizard {
 		addPage(page);
 	}
 	
-	@Override
+	
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 
 		shell = workbench.getModalDialogShellProvider().getShell();

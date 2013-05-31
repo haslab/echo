@@ -10,6 +10,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import pt.uminho.haslab.echo.plugin.EchoPlugin;
+
 public class ModelGenerateWizardPage extends WizardPage {
 
 	//private String modelA = "";
@@ -17,11 +19,14 @@ public class ModelGenerateWizardPage extends WizardPage {
 	
 	private Text modelPath;
 	private Text scopes;
+	String metamodel;
 	
 	public ModelGenerateWizardPage(String metamodel) {
 		super("Generate new model instance");
 		setTitle("Generate new model instance");
-	    setDescription("Generate a new model instance conformant to the "+metamodel+"meta-model.");
+		this.metamodel = metamodel;
+		String name = EchoPlugin.getInstance().getEchoRunner().parser.getModelURI(metamodel);
+	    setDescription("Generate a new model instance conformant to the "+name+" meta-model.");
 	}
 
 	@Override
@@ -34,10 +39,10 @@ public class ModelGenerateWizardPage extends WizardPage {
 	    KeyListener kl = new KeyListenerHelper();
 	    
 	    Label labelA = new Label(container, SWT.NULL);
-	    labelA.setText("Model path:");
+	    labelA.setText("New model path: ");
 
 	    modelPath = new Text(container, SWT.BORDER | SWT.SINGLE);
-	    modelPath.setText("");
+	    modelPath.setText(metamodel.replace(".ecore", ".xmi"));
 	    modelPath.addKeyListener(kl);	    
 	    modelPath.setLayoutData(gd);
 	    

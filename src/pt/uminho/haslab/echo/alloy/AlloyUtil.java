@@ -89,7 +89,7 @@ public class AlloyUtil {
 		for (CommandScope scope : scopes)
 			try {
 				if (scope.sig.label.equals("String")) list.add(new CommandScope(scope.sig, true, scope.startingScope+1));
-				else list.add(new CommandScope(scope.sig, false, scope.startingScope));
+				else list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope));
 			} catch (ErrorSyntax e) { throw new ErrorAlloy(e.getMessage());}
 
 		return ConstList.make(list);
