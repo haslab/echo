@@ -70,22 +70,6 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.filemanage"
-               label="Manage QVT"
-               style="push">
-            <visibleWhen>
-               <iterate>
-                  <adapt
-                        type="org.eclipse.core.resources.IFile">
-                     <test
-                           property="org.eclipse.core.resources.name"
-                           value="*.qvt">
-                     </test>
-                  </adapt>
-               </iterate>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="pt.uminho.haslab.echo.commands.filemanage"
                icon="icons/trackmodel.png"
                label="Track model"
                style="push">
