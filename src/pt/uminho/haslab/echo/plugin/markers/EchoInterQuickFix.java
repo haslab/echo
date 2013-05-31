@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.ui.IMarkerResolution;
 

@@ -1,12 +1,10 @@
 package pt.uminho.haslab.echo.plugin.wizards;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map.Entry;
+
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -17,6 +15,7 @@ import org.eclipse.ui.IWorkbench;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
 
@@ -93,9 +92,16 @@ public class AddQVTRelationWizard extends Wizard  {
 			try {
 				pp.addQvtRelation(page.getQvt(), page.getModels());
 				boolean b =er.check(page.getQvt(), page.getModels());
-				MessageDialog.openInformation(shell, "ok", "Check = " + b);
+				if(!b)
+				{
+					IResource modelA,modelB;
+					modelA = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(0));
+					modelB = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(1));
+					EchoMarker.createInterMarker(modelA, modelB, page.getQvt());
+				}
+				//MessageDialog.openInformation(shell, "ok", "Check = " + b);
 				
-			} catch (ErrorAlloy e) {
+			} catch (ErrorAlloy | CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
