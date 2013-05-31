@@ -27,7 +27,7 @@ public class QVTNewConstraintHandler extends AbstractHandler {
 		if(firstElement instanceof IFile)
 		{	
 			IFile res = (IFile) firstElement;
-			String path = res.getRawLocation().toString();
+			String path = res.getFullPath().toString();
 
 			ProjectProperties p = ProjectProperties.getProjectProperties(res.getProject());
 			WizardDialog wizardDialog = new WizardDialog(shell.getShell(), 

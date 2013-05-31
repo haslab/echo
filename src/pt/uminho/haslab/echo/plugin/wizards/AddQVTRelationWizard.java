@@ -14,6 +14,9 @@ import org.eclipse.ui.IWorkbench;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
@@ -90,6 +93,9 @@ public class AddQVTRelationWizard extends Wizard  {
 			amv.setMetamodel(metamodeluri);
 		} else if (news == 0) {
 			try {
+				pp.addConformList(page.getModels().get(0));
+				pp.addConformList(page.getModels().get(1));
+				pp.addQvtRule(page.getQvt());
 				pp.addQvtRelation(page.getQvt(), page.getModels());
 				boolean b =er.check(page.getQvt(), page.getModels());
 				if(!b)
@@ -101,7 +107,7 @@ public class AddQVTRelationWizard extends Wizard  {
 				}
 				//MessageDialog.openInformation(shell, "ok", "Check = " + b);
 				
-			} catch (ErrorAlloy | CoreException e) {
+			} catch (ErrorAlloy | CoreException | ErrorUnsupported | ErrorTransform | ErrorParser e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
