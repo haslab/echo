@@ -2,6 +2,9 @@ package pt.uminho.haslab.echo.plugin.wizards;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -97,6 +100,19 @@ public class AddQVTRelationWizard extends Wizard  {
 				pp.addConformList(page.getModels().get(1));
 				pp.addQvtRule(page.getQvt());
 				pp.addQvtRelation(page.getQvt(), page.getModels());
+				
+				List<String> conformMeta = new ArrayList<String>(1);
+				conformMeta.add(page.getModels().get(0));
+				if(!er.conforms(conformMeta))
+					EchoMarker.createIntraMarker(ResourcesPlugin.getWorkspace().getRoot().findMember(conformMeta.get(0)));
+				conformMeta.remove(0);
+				conformMeta.add(page.getModels().get(1));
+				
+				if(!er.conforms(conformMeta))
+					EchoMarker.createIntraMarker(ResourcesPlugin.getWorkspace().getRoot().findMember(conformMeta.get(0)));
+				
+				
+				
 				boolean b =er.check(page.getQvt(), page.getModels());
 				if(!b)
 				{
