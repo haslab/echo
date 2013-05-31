@@ -107,6 +107,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 	    		String path = res.getFullPath().toString();
 				ArrayList<String> list = new ArrayList<String>(1);
 				list.add(path);
+				System.out.println(er.conforms(list));
 				if(er.conforms(list))
 					res.deleteMarkers(EchoMarker.INTRA_ERROR, false, 0);
 				else

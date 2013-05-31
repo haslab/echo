@@ -26,21 +26,33 @@ public class AlloyModelView extends ViewPart {
 	String mmURI;
 	
 	
+
+	public AlloyModelView()
+	{
+		 super();
+		 File file = new File(".dummy.xml");
+			try {
+				file.createNewFile();
+				FileWriter fileWritter = new FileWriter(file.getName(),false);
+		        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+		        bufferWritter.write("<alloy><instance bitwidth=\"0\" maxseq=\"0\"></instance></alloy>");
+		        bufferWritter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+
+		    EchoPlugin.getInstance().setAlloyView(this);
+	}
+	
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
 		
-		File file = new File(".dummy.xml");
-		try {
-			file.createNewFile();
-			FileWriter fileWritter = new FileWriter(file.getName(),false);
-	        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
-	        bufferWritter.write("<alloy><instance bitwidth=\"0\" maxseq=\"0\"></instance></alloy>");
-	        bufferWritter.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		
 		viz = new VizGUI(false, ".dummy.xml", null,null,null,false);
 		viz.doShowViz();
@@ -51,8 +63,10 @@ public class AlloyModelView extends ViewPart {
 
 	    //loadGraph();
 	    
-	    EchoPlugin.getInstance().setAlloyView(this);
 	}
+	
+	
+	
 
 	
 	public void refresh()
