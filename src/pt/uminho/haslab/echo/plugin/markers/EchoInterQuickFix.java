@@ -18,7 +18,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
       EchoInterQuickFix(String mode) {
     	  this.mode = mode;
     	  if (mode.equals(EchoMarker.OPS))
-    		  this.label = "Repair inter-model inconsistency through operation distance.";
+    		  this.label = "Repair inter-model inconsistency through operation-based distance.";
     	  else
     		  this.label = "Repair inter-model inconsistency through graph edit distance.";
       }

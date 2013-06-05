@@ -15,6 +15,7 @@ import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
 
 public class ModelGenerateWizard extends Wizard {
@@ -23,12 +24,14 @@ public class ModelGenerateWizard extends Wizard {
 	
 	private String metamodel;
 	private Shell shell;
+	private ProjectProperties pp;
 	
 	
-	public ModelGenerateWizard(String metamodel)
+	public ModelGenerateWizard(String metamodel, ProjectProperties pp)
 	{
 		super();
 		this.metamodel = metamodel;
+		this.pp = pp;
 	}
 	
 	@Override
@@ -75,6 +78,7 @@ public class ModelGenerateWizard extends Wizard {
 			amv.refresh();
 			amv.setPathToWrite(page.getPath());
 			amv.setMetamodel(metamodel);
+			amv.setProperties(pp);
 		} catch (ErrorAlloy | ErrorTransform /*| ErrorUnsupported | ErrorParser*/ e) {
 			MessageDialog.openInformation(shell, "Error generating instance", e.getMessage());
 		}

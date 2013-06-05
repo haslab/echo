@@ -212,7 +212,7 @@ public class AlloyRunner {
 				PrimSig state = addInstanceSigs(uri);
 				if (uri.equals(diruri)) {
 					original = state;
-					try { targetstate = new PrimSig(original.label+"_new_", original.parent, Attr.ONE); }
+					try { targetstate = new PrimSig("'"+original.label, original.parent, Attr.ONE); }
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 					allsigs.add(targetstate);
 					sigs.add(targetstate);
@@ -329,10 +329,16 @@ public class AlloyRunner {
 	 * @param vizstate the state where the instance is stored
 	 */
 	public void generateTheme(VizState vizstate) {
-		List<DotColor> availablecolors = new ArrayList<DotColor>(Arrays.asList(DotColor.values()));
-		availablecolors.remove(DotColor.BLACK);
+		List<DotColor> availablecolors = new ArrayList<DotColor>();
+		availablecolors.add(DotColor.GRAY);
+		availablecolors.add(DotColor.GREEN);
+		availablecolors.add(DotColor.BLUE);
+		availablecolors.add(DotColor.RED);
+		availablecolors.add(DotColor.YELLOW);
+		System.out.println("Colors: "+availablecolors);
 		AlloyModel model = vizstate.getCurrentModel();
 		vizstate.setFontSize(11);
+		int i = 0;
 		for (AlloyType t : model.getTypes()){
 			AlloyType aux = model.getSuperType(t);
 			String label = vizstate.label.get(t);
@@ -340,17 +346,17 @@ public class AlloyRunner {
 			else if (label.split("_").length == 2) {
 				vizstate.label.put(t, label.split("_")[1]);
 				vizstate.hideUnconnected.put(t, true);
-				vizstate.nodeColor.put(t, availablecolors.get(0));
-				availablecolors.remove(0);
+				vizstate.nodeColor.put(t, availablecolors.get(i));
 			} else if (label.split("_").length == 1) {
 				if (t.getName().equals("State_")) {
 					vizstate.project(t);
 				}
-				if (t.getName().equals("String") || t.getName().equals("Int"))
+				if (t.getName().equals("String") || t.getName().equals("Int") || t.getName().startsWith("ord"))
 					vizstate.nodeVisible.put(t, false);
 			} else if (label.split("_").length == 3) {
 				vizstate.label.put(t, label.split("_")[1] + label.split("_")[2]);
 			}		
+			if (++i >= availablecolors.size()) i = 0;
 		}
 		for (AlloySet t : vizstate.getCurrentModel().getSets()){
 			String label = vizstate.label.get(t);

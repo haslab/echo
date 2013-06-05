@@ -185,7 +185,7 @@ class ECore2Alloy {
 		Expr fact = null;
 		for(EAttribute attr : attributes) {
 			PrimSig classsig = mapClassSig.get(attr.getEContainingClass());
-
+			System.out.println(attr.getName());
 			if(attr.getEType().getName().equals("EBoolean")) {
 				try {
 					field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),attr.getName()),statesig.setOf());

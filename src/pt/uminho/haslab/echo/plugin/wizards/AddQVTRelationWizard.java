@@ -68,29 +68,39 @@ public class AddQVTRelationWizard extends Wizard  {
 		
 		int news = 0;
 		int newp = 0;
+		int orip = 0;
 		for (int i = 0; i<page.getModels().size(); i++) {
 			IResource f = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(i));
 			if (f == null || !f.exists()) {
 				news ++;
 				newp = i;
+			} else {
+				orip = i;
 			}
 		}
 		
 		if (news == 1) {
-			RelationalTransformation trans = er.parser.getTransformation(page.getQvt());
-			String metamodel = trans.getModelParameter().get(newp).getUsedPackage().get(0).getName();
-			String metamodeluri = er.parser.getModelURI(metamodel);
 			try {
+				pp.addConformList(page.getModels().get(orip));
+				pp.addQvtRule(page.getQvt());
+				pp.addQvtRelation(page.getQvt(), page.getModels());
+	
+				RelationalTransformation trans = er.parser.getTransformation(page.getQvt());
+				String metamodel = trans.getModelParameter().get(newp).getUsedPackage().get(0).getName();
+				String metamodeluri = er.parser.getModelURI(metamodel);
+	
 				er.generateqvt(page.getQvt(),metamodeluri,page.getModels(),page.getModels().get(newp));
-			} catch (ErrorAlloy e) {
+				AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
+				amv.refresh();
+				amv.setPathToWrite(page.getModels().get(newp));
+				amv.setMetamodel(metamodeluri);
+				amv.setProperties(pp);
+
+			} catch (ErrorAlloy | ErrorUnsupported | ErrorTransform | ErrorParser e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
-			amv.refresh();
-			amv.setPathToWrite(page.getModels().get(newp));
-			amv.setMetamodel(metamodeluri);
 		} else if (news == 0) {
 			try {
 				pp.addConformList(page.getModels().get(0));

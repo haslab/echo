@@ -20,7 +20,7 @@ public class AlloyNextHandler extends AbstractHandler {
 		try {
 			if (!EchoPlugin.getInstance().getEchoRunner().next())
 			{
-				MessageDialog.openInformation(shell, "Info", "A close intance couldn't be found.\nIncremented search range");
+				System.out.println("A close intance couldn't be found.\nIncremented search range");
 				while(!EchoPlugin.getInstance().getEchoRunner().increment());
 			}
 			

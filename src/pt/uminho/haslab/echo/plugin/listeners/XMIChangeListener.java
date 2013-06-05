@@ -109,8 +109,10 @@ public class XMIChangeListener implements IResourceChangeListener {
 				list.add(path);
 				if(er.conforms(list))
 					res.deleteMarkers(EchoMarker.INTRA_ERROR, false, 0);
-				else
-					EchoMarker.createIntraMarker(res);				
+				else {
+					EchoMarker.createIntraMarker(res);		
+					EchoPlugin.getInstance().getAlloyView().clean();
+				}
 	    	}
 	    	
 	    	private void conformQVT(EchoRunner er) throws ErrorAlloy, CoreException
@@ -137,8 +139,10 @@ public class XMIChangeListener implements IResourceChangeListener {
 	    								mk.getAttribute(EchoMarker.QVTR).equals(qrp.getQVTrule()))
 	    							mk.delete();
 	    				}
-	    				else
+	    				else {
 	    					EchoMarker.createInterMarker(res,partner,qrp.getQVTrule());
+	    					EchoPlugin.getInstance().getAlloyView().clean();
+	    				}
 	    			}
 	    		
 	    	}

@@ -6,14 +6,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
@@ -24,6 +28,7 @@ public class AlloyModelView extends ViewPart {
 	A4Solution sol;
 	String pathToWrite;
 	String mmURI;
+	ProjectProperties pp;
 	
 	
 	@Override
@@ -66,6 +71,11 @@ public class AlloyModelView extends ViewPart {
 		pathToWrite = path;
 	}
 	
+	public void setProperties(ProjectProperties pp)
+	{
+		this.pp = pp;
+	}
+	
 
 	public void setMetamodel(String mm)
 	{
@@ -100,16 +110,34 @@ public class AlloyModelView extends ViewPart {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public void clean () {
+		File file = new File(".dummy.xml");
+		try {
+			file.createNewFile();
+			FileWriter fileWritter = new FileWriter(file.getName(),false);
+	        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+	        bufferWritter.write("<alloy><instance bitwidth=\"0\" maxseq=\"0\"></instance></alloy>");
+	        bufferWritter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		viz.loadXML(".dummy.xml", true);
+		viz.doShowViz();
+	}
 
 	public void saveInstance() {
 		try {
 			if (EchoPlugin.getInstance().getEchoRunner().hasInstance(pathToWrite))
 				EchoPlugin.getInstance().getEchoRunner().writeInstance(pathToWrite);
-			else
+			else{
 				EchoPlugin.getInstance().getEchoRunner().writeAllInstances(mmURI,pathToWrite);
+				pp.addConformList(pathToWrite);
+			}
 
 			pathToWrite = null;
-		} catch (ErrorAlloy | ErrorTransform e) {
+		} catch (ErrorAlloy | ErrorTransform | ErrorUnsupported | ErrorParser e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
