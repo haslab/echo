@@ -92,11 +92,13 @@ java -jar -t -m <models>... -i <instances>...
 -->
 ## Examples
 
-Folder [examples](examples) contains QVT-R implementations of some typical bidirectional transformations. Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.
+Folder [examples](examples) contains QVT-R implementations of some typical bidirectional transformations. 
+
+<!--Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.-->
 
 ## Contributors
 * [Alcino Cunha] (http://di.uminho.pt/~mac)
 * Tiago Guimarães 
-* [Nuno Macedo] (http://alfa.di.uminho.pt/~nfmmacedo)
+* [Nuno Macedo] (http://di.uminho.pt/~nfmmacedo)
 
-The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho.
+The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho, and have developed this work under the [FATBiT](fatbit.di.uminho.pt) project.
