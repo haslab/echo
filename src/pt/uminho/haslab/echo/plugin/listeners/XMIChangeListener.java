@@ -26,9 +26,6 @@ import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.properties.QvtRelationProperty;
 
-
-
-
 public class XMIChangeListener implements IResourceChangeListener {
 
 	@Override
