@@ -1,32 +1,43 @@
 # Echo
 
-*Echo* is a tool for model repair and transformation based on the [Alloy](http://alloy.mit.edu) model finder, with support for bidirectional model transformations with the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) transformation language.
-It is able to both check and recover through minimal updates both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).
+*Echo* is a tool for model repair and transformation based on the [Alloy](http://alloy.mit.edu) model finder, with support for bidirectional model transformations. transformation language.
+It is able to both check and recover, through minimal updates, both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).
 
 ## Features
 
-For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
+Echo is meta-model independent, being able to process any meta-model specified in ECore and its respective instances in XMI. Additional constraints, as well as operations, are specified by embedding OCL in annotations, as prescribed by EMF. Inter-model consistency is specified by [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R).
 
-Current features include
+Over these constraints and models, Echo possesses the following features.
 
-* Model visualization;
-* Model generation;
-* Conformance check;
-* Model repair;
-* Inter-model consistency check;
-* Inter-model consistency repair;
+<dl>
+  <dt>Model visualization</dt>
+  <dd>Models are presented using the Alloy visualizer. For better readability, an Alloy theme is automatically inferred from the meta-model, although user-defined theme can also be provided if desired.</dd>
 
-* Implements the checking semantics from the QVT-R standard;
-* Implements the principle of least-change, returning all instances closest to the original;
-* Support for both "enforce" and "checkonly" modes;
-* Support for OCL constraints over the models;
-* Support for instance conformance testing.
+  <dt>Model generation</dt>
+  <dd>Given a meta-model and user-specified size, Echo can generate a new model conformant with the metamodel. Additional constraints can also be specified to generate instances with a parametrized shape.</dd>
 
-*Check mode* verifies if two models are consistent according to the given QVT-R specification.
+  <dt>Consistency check</dt>
+  <dd>Given a model, Echo can check if it conforms to the respective meta-model.</dd>
 
-*Enforce mode* updates the target instance to one of the closest consistent states. Echo presents all possible instances as Alloy models, which are translated back to xmi once the usar chooses the desired one. To measure the distance between instances, Alloy models are seen as graphs, and the graph edit distance is calculated (which counts node and edge deletions and creations).
+  <dt>Model repair</dt>
+  <dd>Given a model a that does not conform its meta-model, Echo can find a minimal repair that produces a consistent model.</dd>
 
-For more information about how the tool is implemented please read the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf), recently accepted for publication at [FASE'13](http://www.etaps.org/2013/fase13).
+  <dt>Inter-model consistency check</dt>
+  <dd>Given a QVT-R transformation and two models that are supposed to be consistent via it, Echo can check if such is the case. The checking semantics follows exactly the specified in the QVT standard.</dd>
+
+  <dt>Inter-model consistency repair</dt>
+  <dd>QVT-R specifications are interpreted as bidirectional transformations, thus given inconsistent models, Echo is able to repair either one to recover consistency.</dd>
+
+  <dt>Inter-model generation</dt>
+  <dd>Given a QVT-R transformation and an existing model, Echo can generate the minimal model consistent with existing model by the QVT-R transformation.</dd>
+</dl>
+
+For all generation and repair procedures, Echo presents *all* valid solutions, allowing the user to select the desired one.
+
+Repair procedures are always *minimal*, in the sense that the resulting consistent model is as close as possible to the original inconsistent one. The user is able to choose how to measure this distance: either through *graph edit distance*, a meta-model independent metric that sees models as graphs and counts modifications of edges and nodes, or through an *operation-based distance*, that counts the number of applications of user-defined operations required to obtain the new model.
+
+For more information about how the tool is implemented please consult the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf), accepted for publication at [FASE'13](http://www.etaps.org/2013/fase13). For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
+
 
 ## Installing
 
@@ -88,4 +99,4 @@ Folder [examples](examples) contains QVT-R implementations of some typical bidir
 * Tiago Guimarães 
 * [Nuno Macedo] (http://alfa.di.uminho.pt/~nfmmacedo)
 
-The contributors are members of the *High-Assurance Software Laboratory* (![alt text](https://github.com/haslab/echo/blob/master/icons/echo.png "HASLab") [HASLab](haslab.di.uminho.pt)) at University of Minho.
+The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho.
