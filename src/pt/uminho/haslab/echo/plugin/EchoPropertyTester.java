@@ -56,13 +56,13 @@ public class EchoPropertyTester extends PropertyTester {
 			IFile res = (IFile) receiver;
 			String uri = res.getFullPath().toString();
 			String ext = res.getFileExtension();
-			if(ext.equals("xmi")) {
+			/*if(ext.equals("xmi")) {
 				EchoRunner echo = EchoPlugin.getInstance().getEchoRunner();
 				EObject obj = echo.parser.loadInstance(res.getFullPath().toString());
 				String name = obj.eClass().getEPackage().getName();
 				return echo.parser.getModelURI(name) != null;
 
-			}
+			}*/
 		
 		}
 		return true;
