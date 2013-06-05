@@ -30,16 +30,13 @@ For more information about how the tool is implemented please read the paper [Im
 
 ## Installing
 
-Echo is available as both an Eclipse plug-in or as a command-line aplication.
-
-### Eclipse plugin
-
 Echo is deployed over the Eclipse Modeling Tools 4.3 (Kepler) (including the QVTd component, which, being in incubation phase, is not included in the standard package). The following steps assume a fresh instalation of Eclipse. If Eclipse Modeling Tools 4.3 is already installed, step 3 will suffice.
 
 1. Download the [Eclipse Modeling Tools 4.3 (Kepler)](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplerrc2);
-2. Install the  QVT Declarative (QVTd) 0.10.0 component in Eclipse (Help > Install New Software...) by downloading by downloading the [archive](http://www.eclipse.org/mmt/downloads/?showAll=1&hlbuild=S201305311516&project=qvtd#S201305311516) or through the [update site](http://download.eclipse.org/mmt/qvtd/updates/milestones);
-3. Install the  Echo 0.2.0 plugin in Eclipse (Help > Install New Software...) by downloading by downloading the [archive](http://haslab.github.io/echo/downloads/echo-0.2.0.zip) or through the [update site](http://haslab.github.io/echo/updates/);
+2. Install the  QVT Declarative (QVTd) 0.10.0RC2 component in Eclipse (Help > Install New Software...) by downloading by downloading the [archive](http://www.eclipse.org/mmt/downloads/?showAll=1&hlbuild=S201305311516&project=qvtd#S201305311516) or through the [update site](http://download.eclipse.org/mmt/qvtd/updates/milestones);
+3. Install the  Echo 0.2.0 plugin in Eclipse (Help > Install New Software...) by downloading the [archive](http://haslab.github.io/echo/downloads/echo-0.2.0.zip) or through the [update site](http://haslab.github.io/echo/updates/).
 
+<!---
 ### Command-line
 
 * Checkout the latest stable version (v0.1) from the git repository:
@@ -55,13 +52,12 @@ git checkout v0.1
 ./make.sh
 ```
 This will create the `echo.jar` file in the project's root directory.
-
+-->
 ## Running
 
-### Eclipse plugin
+The best way to get started with Echo is to watch this [video](https://vimeo.com/67716977).
 
-The best way to get started is to watch this [video](https://vimeo.com/67716977).
-
+<!---
 ### Command-line
 
 At the moment, Echo is available through an executable jar. The basic syntax is
@@ -82,7 +78,7 @@ Echo can also simply be run to check if the instances conform to the models as:
 ```sh
 java -jar -t -m <models>... -i <instances>...
 ```
-
+-->
 ## Examples
 
 Folder [examples](examples) contains QVT-R implementations of some typical bidirectional transformations. Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.
@@ -92,4 +88,4 @@ Folder [examples](examples) contains QVT-R implementations of some typical bidir
 * Tiago Guimarães 
 * [Nuno Macedo] (http://alfa.di.uminho.pt/~nfmmacedo)
 
-The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho.
+The contributors are members of the *High-Assurance Software Laboratory* (![alt text](https://github.com/haslab/echo/blob/master/icons/echo.png "HASLab") [HASLab](haslab.di.uminho.pt)) at University of Minho.
