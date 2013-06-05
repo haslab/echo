@@ -2,7 +2,8 @@
 <feature
       id="pt.uminho.haslab.echo.feature"
       label="Echo"
-      version="1.2.0.qualifier">
+      version="0.2.0"
+      provider-name="HASLab">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -20,6 +21,6 @@
          id="pt.uminho.haslab.echo"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.2.0"/>
 
 </feature>

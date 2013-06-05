@@ -284,7 +284,7 @@ class QVTRelation2Alloy {
 	private Field addRelationFields(Expr fact, List<Decl> mdecls) throws ErrorAlloy, ErrorTransform{
 		Field field = null;
 		try {
-			Sig type = (Sig) alloyrootvars.get(1).expr.type().toExpr();
+			//Sig type = (Sig) alloyrootvars.get(1).expr.type().toExpr();
 			Sig s = (Sig) alloyrootvars.get(0).expr.type().toExpr();
 			for (Field f : s.getFields()) {
 				if (f.label.equals(AlloyUtil.relationFieldName(rel,direction)))

@@ -75,10 +75,10 @@ public class ProjectProperties {
 		
 		this.project = project;
 		//cleanProperties();
-		//metaModels = loadMetaModels();
-		//conformList = loadConformList();
-		//qvtRules = loadQvtRules();
-		//qvtRelations = loadRelations();
+		metaModels = loadMetaModels();
+		conformList = loadConformList();
+		qvtRules = loadQvtRules();
+		qvtRelations = loadRelations();
 		mapIProject.put(project, this);
 	}
 	

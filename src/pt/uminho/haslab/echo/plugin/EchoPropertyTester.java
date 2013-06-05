@@ -4,9 +4,7 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.emf.ecore.EObject;
 
-import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 
@@ -53,10 +51,10 @@ public class EchoPropertyTester extends PropertyTester {
 		if(receiver instanceof IFile)
 
 {
-			IFile res = (IFile) receiver;
+			/*IFile res = (IFile) receiver;
 			String uri = res.getFullPath().toString();
 			String ext = res.getFileExtension();
-			/*if(ext.equals("xmi")) {
+			if(ext.equals("xmi")) {
 				EchoRunner echo = EchoPlugin.getInstance().getEchoRunner();
 				EObject obj = echo.parser.loadInstance(res.getFullPath().toString());
 				String name = obj.eClass().getEPackage().getName();
