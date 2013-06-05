@@ -34,6 +34,12 @@ Echo is available as both an Eclipse plug-in or as a command-line aplication.
 
 ### Eclipse plugin
 
+Echo is deployed over the Eclipse Modeling Tools 4.3 (Kepler) (including the QVTd component, which, being in incubation phase, is not included in the standard package). The following steps assume a fresh instalation of Eclipse. If Eclipse Modeling Tools 4.3 is already installed, step 3 will suffice.
+
+1. Download the [Eclipse Modeling Tools 4.3 (Kepler)](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplerrc2);
+2. Install the  QVT Declarative (QVTd) 0.10.0 component in Eclipse (Help > Install New Software...) by downloading by downloading the [archive](http://www.eclipse.org/mmt/downloads/?showAll=1&hlbuild=S201305311516&project=qvtd#S201305311516) or through the [update site](http://download.eclipse.org/mmt/qvtd/updates/milestones);
+3. Install the  Echo 0.2.0 plugin in Eclipse (Help > Install New Software...) by downloading by downloading the [archive](http://haslab.github.io/echo/downloads/echo-0.2.0.zip) or through the [update site](http://haslab.github.io/echo/updates/);
+
 ### Command-line
 
 * Checkout the latest stable version (v0.1) from the git repository:
