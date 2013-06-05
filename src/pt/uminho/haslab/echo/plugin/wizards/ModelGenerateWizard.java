@@ -63,12 +63,15 @@ public class ModelGenerateWizard extends Wizard {
 		
 		try {
 			Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
-			if (page.getScopes() != null) {
+			if (page.getScopes() != null && ! page.getScopes().equals("")) {
 				String[] args = page.getScopes().split(", ");
 				if (args != null) {
 					for (int i = 0; i < args.length ; i++) {
 						String[] aux = args[i].split(" ");
-						scopes.put(new SimpleEntry<String,String>(er.parser.getModelsFromUri(metamodel).getName(),aux[1]),Integer.parseInt(aux[0]));					
+						if (aux.length == 2)
+							scopes.put(new SimpleEntry<String,String>(er.parser.getModelsFromUri(metamodel).getName(),aux[1]),Integer.parseInt(aux[0]));					
+						else MessageDialog.openInformation(shell, "Scope error", "Invalid scopes.");
+
 					}
 				}		
 			}

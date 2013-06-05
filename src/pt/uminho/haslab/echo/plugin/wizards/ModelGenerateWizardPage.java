@@ -56,7 +56,7 @@ public class ModelGenerateWizardPage extends WizardPage {
 	    
 	    // Required to avoid an error in the system
 	    setControl(container);
-	    setPageComplete(false);
+	    setPageComplete(true);
 
 	}
 	
@@ -77,10 +77,10 @@ public class ModelGenerateWizardPage extends WizardPage {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if (!modelPath.getText().isEmpty()) {
+			if (!modelPath.getText().isEmpty())
 		          setPageComplete(true);
-		        }
-			else setPageComplete(false);
+			else 
+				setPageComplete(false);
 			
 		}
 		
