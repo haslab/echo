@@ -31,37 +31,106 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <h1>
+<a name="echo" class="anchor" href="#echo"><span class="octicon octicon-link"></span></a>Echo</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p><em>Echo</em> is a tool for model repair and transformation based on the <a href="http://alloy.mit.edu">Alloy</a> model finder, with support for bidirectional model transformations with the <a href="http://www.omg.org/spec/QVT/1.1/">QVT Relations</a> (QVT-R) transformation language.
+It is able to both check and recover through minimal updates both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<p>For an overview of Echo's features please watch this <a href="https://vimeo.com/67716977">video</a>.</p>
+
+<p>Current features include</p>
+
+<ul>
+<li>Model visualization;</li>
+<li>Model generation;</li>
+<li>Conformance check;</li>
+<li>Model repair;</li>
+<li>Inter-model consistency check;</li>
+<li><p>Inter-model consistency repair;</p></li>
+<li><p>Implements the checking semantics from the QVT-R standard;</p></li>
+<li><p>Implements the principle of least-change, returning all instances closest to the original;</p></li>
+<li><p>Support for both "enforce" and "checkonly" modes;</p></li>
+<li><p>Support for OCL constraints over the models;</p></li>
+<li><p>Support for instance conformance testing.</p></li>
+</ul><p><em>Check mode</em> verifies if two models are consistent according to the given QVT-R specification.</p>
+
+<p><em>Enforce mode</em> updates the target instance to one of the closest consistent states. Echo presents all possible instances as Alloy models, which are translated back to xmi once the usar chooses the desired one. To measure the distance between instances, Alloy models are seen as graphs, and the graph edit distance is calculated (which counts node and edge deletions and creations).</p>
+
+<p>For more information about how the tool is implemented please read the paper <a href="http://www3.di.uminho.pt/%7Emac/Publications/fase13.pdf">Implementing QVT-R Bidirectional Model Transformations Using Alloy</a>, recently accepted for publication at <a href="http://www.etaps.org/2013/fase13">FASE'13</a>.</p>
+
+<h2>
+<a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
+
+<p>Echo is available as both an Eclipse plug-in or as a command-line aplication.</p>
+
+<h3>
+<a name="eclipse-plugin" class="anchor" href="#eclipse-plugin"><span class="octicon octicon-link"></span></a>Eclipse plugin</h3>
+
+<h3>
+<a name="command-line" class="anchor" href="#command-line"><span class="octicon octicon-link"></span></a>Command-line</h3>
+
+<ul>
+<li>Checkout the latest stable version (v0.1) from the git repository:</li>
+</ul><pre><code>git clone https://github.com/haslab/echo.git
+cd echo
+git checkout v0.1
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<ul>
+<li>Compile the java source files into an executable jar by running <code>make.sh</code>:</li>
+</ul><pre><code>./make.sh
+</code></pre>
+
+<p>This will create the <code>echo.jar</code> file in the project's root directory.</p>
+
+<h2>
+<a name="running" class="anchor" href="#running"><span class="octicon octicon-link"></span></a>Running</h2>
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<a name="eclipse-plugin-1" class="anchor" href="#eclipse-plugin-1"><span class="octicon octicon-link"></span></a>Eclipse plugin</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>The best way to get started is to watch this <a href="https://vimeo.com/67716977">video</a>.</p>
 
 <h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<a name="command-line-1" class="anchor" href="#command-line-1"><span class="octicon octicon-link"></span></a>Command-line</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>At the moment, Echo is available through an executable jar. The basic syntax is</p>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<div class="highlight"><pre>java -jar echo.jar -check -q &lt;qvtr&gt; -m &lt;models&gt;... -i &lt;instances&gt;...
+java -jar echo.jar -enforce &lt;direction&gt; -q &lt;qvtr&gt; -m &lt;models&gt;... -i &lt;instances&gt;...
+</pre></div>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>for checkonly and enforce mode respectively. Metamodels should be presented in ECore, while instances should be xmi files conforming to the respective metamodels and presented in the order defined by the QVT-R transformation.</p>
+
+<p>Additional options include:</p>
+
+<pre><code>-d, --delta &lt;nat&gt;           maximum delta between the original and the new generated instances
+-o, --nooverwrite           do not overwrite the original instance xmi with the newly generated
+-t, --conformance           test if instances conform to the models before applying qvt
+</code></pre>
+
+<p>Echo can also simply be run to check if the instances conform to the models as:</p>
+
+<div class="highlight"><pre>java -jar -t -m &lt;models&gt;... -i &lt;instances&gt;...
+</pre></div>
+
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<p>Folder <a href="examples">examples</a> contains QVT-R implementations of some typical bidirectional transformations. Files <code>enforce</code> and <code>check</code> are example commands that perform consistency checks and enforcement executions, respectively.</p>
+
+<h2>
+<a name="contributors" class="anchor" href="#contributors"><span class="octicon octicon-link"></span></a>Contributors</h2>
+
+<ul>
+<li><a href="http://di.uminho.pt/%7Emac">Alcino Cunha</a></li>
+<li>Tiago Guimarães </li>
+<li><a href="http://alfa.di.uminho.pt/%7Enfmmacedo">Nuno Macedo</a></li>
+</ul><p>The contributors are members of the <em>High-Assurance Software Laboratory</em> (<a href="haslab.di.uminho.pt">HASLab</a>) at University of Minho.</p>
       </section>
     </div>
 
