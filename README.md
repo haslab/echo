@@ -1,9 +1,20 @@
 # Echo
 
-*Echo* is a bidirectional model transformation tool for the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) transformation language, based on the [Alloy](http://alloy.mit.edu) model finder and built over the Eclipse Modeling Framework.
-It can be used to check if instances of ECore models are consistent and, if not, update one of them to restore consistency. 
+*Echo* is a tool for model repair and transformation based on the [Alloy](http://alloy.mit.edu) model finder, with support for bidirectional model transformations with the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) transformation language.
+It is able to both check and recover through minimal updates both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).
 
 ## Features
+
+For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
+
+Current features include
+
+* Model visualization;
+* Model generation;
+* Conformance check;
+* Model repair;
+* Inter-model consistency check;
+* Inter-model consistency repair;
 
 * Implements the checking semantics from the QVT-R standard;
 * Implements the principle of least-change, returning all instances closest to the original;
@@ -18,6 +29,12 @@ It can be used to check if instances of ECore models are consistent and, if not,
 For more information about how the tool is implemented please read the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf), recently accepted for publication at [FASE'13](http://www.etaps.org/2013/fase13).
 
 ## Installing
+
+Echo is available as both an Eclipse plug-in or as a command-line aplication.
+
+### Eclipse plugin
+
+### Command-line
 
 * Checkout the latest stable version (v0.1) from the git repository:
 
@@ -34,6 +51,12 @@ git checkout v0.1
 This will create the `echo.jar` file in the project's root directory.
 
 ## Running
+
+### Eclipse plugin
+
+The best way to get started is to watch this [video](https://vimeo.com/67716977).
+
+### Command-line
 
 At the moment, Echo is available through an executable jar. The basic syntax is
 ```sh
