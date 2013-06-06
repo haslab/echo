@@ -96,6 +96,10 @@ Folder [examples](examples) contains QVT-R implementations of some typical bidir
 
 <!--Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.-->
 
+## Publications
+* N. Macedo, T. Guimarães and A. Cunha. *Model repair and transformation with Echo*. Submitted. 2013.
+* N. Macedo and A. Cunha. *Implementing QVT-R bidirectional model transformations using Alloy*. In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
+
 ## Contributors
 * [Alcino Cunha] (http://di.uminho.pt/~mac)
 * Tiago Guimarães 
@@ -106,4 +110,3 @@ The contributors are members of the *High-Assurance Software Laboratory* ([HASLa
 <img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE" height="100px"/>
 <img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px"/>
 <img src="http://haslab.github.io/echo/images/Logo_UE.jpg" alt="UE" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_FCT.png" alt="FCT" height="100px"/>
