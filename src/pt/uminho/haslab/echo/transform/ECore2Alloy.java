@@ -247,8 +247,8 @@ class ECore2Alloy {
 			else if((op != null && !reference.isContainment() && op.getLowerBound() == 1 && op.getUpperBound() == 1 && translator.options.isOptimize())) {}
 			else if((op != null && getFieldFromSFeature(op) != null && translator.options.isOptimize())) {}
 			else {
-				PrimSig trgsig = mapClassSig.get(reference.getEReferenceType());
-				System.out.println(reference.getName() + ", " + mapClassSig.keySet());
+				EClass cc = mapClassClass.get(reference.getEReferenceType().getName());
+				PrimSig trgsig = mapClassSig.get(cc);
 				Field field;
 				try{field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),reference.getName()),trgsig.product(statesig));}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}

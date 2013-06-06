@@ -98,7 +98,12 @@ public class EMF2Alloy {
 	public void translateModel(EPackage pck) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		ECore2Alloy mmtrans = new ECore2Alloy(pck,(PrimSig) modelstatesigs.get(pck.getName()),this);
 		modeltrads.put(pck.getName(),mmtrans);
-		mmtrans.translate();
+		try {
+			mmtrans.translate();
+		} catch (Exception e) {
+			modeltrads.remove(pck.getName());
+			throw e;
+		}
 	}
 
 	/** Translates XMI instances to the respective Alloy specs */
@@ -392,6 +397,7 @@ public class EMF2Alloy {
 	}
 	
 	public Expr remModel(EPackage pck) {
+		System.out.println("Removing " + pck.getName() + " at "+modeltrads.keySet() + " and "+modelstatesigs.keySet());
 		modeltrads.remove(pck.getName());
 		return modelstatesigs.remove(pck.getName());
 	}

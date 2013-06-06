@@ -128,6 +128,15 @@ public class EMFParser {
 
 		EPackage res = (EPackage) load_resource.getContents().get(0);
 		
+		System.out.println("HEELP"+resourceSet.getLoadOptions());
+		for(EClassifier e: res.getEClassifiers()) {
+			System.out.println(e);
+			for (EReference x : ((EClass)e).getEReferences())
+				System.out.println(x.getEReferenceType());
+		}
+		System.out.println("HEELP");
+		
+		
 		resourceSet.getPackageRegistry().put(res.getNsURI(),res);
 		models.put(uri,res);	
 		modelpaths.put(uri, res.getName());

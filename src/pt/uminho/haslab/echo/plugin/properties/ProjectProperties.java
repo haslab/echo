@@ -287,11 +287,16 @@ public class ProjectProperties {
 		}
 	}
 	
-	public void addMetaModel(String uri) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser
+	public void addMetaModel(String uri) throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform
 	{
 		if(!metaModels.contains(uri)){
 			EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-			er.addModel(uri);
+			try {
+				er.addModel(uri);
+			} catch (Exception e) {
+				er.remModel(uri);
+				throw e;
+			}
 			if(metaModelsString != null)
 				metaModelsString = metaModelsString + ";" + uri;
 			else metaModelsString = uri;
@@ -300,8 +305,9 @@ public class ProjectProperties {
 				project.setPersistentProperty(qnMetaModels, metaModelsString);
 				metaModels.add(uri);
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
+				er.remModel(uri);
 				e.printStackTrace();
+				throw new ErrorParser(e.getMessage());
 			}
 		}
 	}

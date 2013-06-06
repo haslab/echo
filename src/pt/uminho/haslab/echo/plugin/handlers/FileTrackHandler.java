@@ -34,26 +34,36 @@ public class FileTrackHandler extends AbstractHandler {
 			//String path = res.getRawLocation().toString();
 			String extension = res.getFileExtension();
 			
-			try {
-				ProjectProperties pp = ProjectProperties.getProjectProperties(res.getProject());
-				if(extension.equals("xmi"))
-				{			
+			ProjectProperties pp = ProjectProperties.getProjectProperties(res.getProject());
+			if(extension.equals("xmi")) {			
+				try {
 					pp.addConformList(path);
+				}catch(Exception e)	{
+					e.printStackTrace();
+					MessageDialog.openError(shell, "Error loading resource.", e.getMessage());
 				}
-				else if (extension.equals("ecore"))
-				{
-					pp.addMetaModel(path);
-				}else if (extension.equals("qvt") || extension.equals("qvtr"))
-					pp.addQvtRule(res.getRawLocation().toString());
-				else
-					MessageDialog.openInformation(shell, "Exception",extension + "not supported.");
-				
-				System.out.println("Tracked: "+extension + " at " + path);
-			}catch(Exception e)
-			{
-				//e.printStackTrace();
-				MessageDialog.openError(shell, "Error loading resource.", e.getMessage());
 			}
+			else if (extension.equals("ecore")) {
+				try {
+					pp.addMetaModel(path);
+				}catch(Exception e)	{
+					e.printStackTrace();
+					MessageDialog.openError(shell, "Error loading resource.", e.getMessage());
+				}
+			}
+			else if (extension.equals("qvt") || extension.equals("qvtr")) {
+				try {
+					pp.addQvtRule(res.getRawLocation().toString());
+				}catch(Exception e)	{
+					e.printStackTrace();
+					MessageDialog.openError(shell, "Error loading resource.", e.getMessage());
+				}
+			}
+			else
+				MessageDialog.openInformation(shell, "Exception",extension + "not supported.");
+			
+			System.out.println("Tracked: "+extension + " at " + path);
+		
 			
 		}
 		return null;

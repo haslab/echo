@@ -16,7 +16,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -30,8 +33,14 @@ import pt.uminho.haslab.echo.plugin.properties.QvtRelationProperty;
 
 public class XMIChangeListener implements IResourceChangeListener {
 
+	Shell shell;
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+		    public void run() {
+		    	shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			}
+		});
 		switch (event.getType()) {
 		case IResourceChangeEvent.POST_CHANGE:
       		//System.out.println("Resources have changed.");
@@ -110,7 +119,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 					EchoPlugin.getInstance().getEchoRunner().remInstance(res.getFullPath().toString());
 					ProjectProperties.getProjectProperties(res.getProject()).removeFromConformList(res.getFullPath().toString());
 				} catch (Exception e) {
-					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error reloading meta-model.",e.getMessage());
+					return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;
 			}
@@ -134,7 +143,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
 					ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
 				} catch (Exception e) {
-					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error reloading meta-model.",e.getMessage());
+					return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;
 			}
@@ -161,7 +170,14 @@ public class XMIChangeListener implements IResourceChangeListener {
 				} catch (Exception e) {
 					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
 					ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
-					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error reloading meta-model.",e.getMessage());
+					Display.getDefault().syncExec(new Runnable()
+					{
+						public void run()
+						{
+							MessageDialog.openError(shell, "Error reloading meta-model.", "Meta-model has been untracked.");
+						}
+					});
+					return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;
 			}
