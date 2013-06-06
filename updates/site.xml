@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/pt.uminho.haslab.echo.feature_0.2.0.201306062351.jar" id="pt.uminho.haslab.echo.feature" version="0.2.0.201306062351">
+   <feature url="features/pt.uminho.haslab.echo.feature_0.2.0.201306062354.jar" id="pt.uminho.haslab.echo.feature" version="0.2.0.201306062354">
       <category name="pt.uminho.haslab.echo.category"/>
    </feature>
    <category-def name="pt.uminho.haslab.echo.category" label="Echo"/>
