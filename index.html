@@ -31,98 +31,68 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>
-<a name="echo" class="anchor" href="#echo"><span class="octicon octicon-link"></span></a>Echo</h1>
+    
 
-<p><em>Echo</em> is a tool for model repair and transformation based on the <a href="http://alloy.mit.edu">Alloy</a> model finder, with support for bidirectional model transformations with the <a href="http://www.omg.org/spec/QVT/1.1/">QVT Relations</a> (QVT-R) transformation language.
-It is able to both check and recover through minimal updates both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).</p>
+<p><em>Echo</em> is a tool for model repair and transformation based on the <a href="http://alloy.mit.edu">Alloy</a> model finder, with support for bidirectional model transformations.
+It is able to both check and recover, through minimal updates, both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).</p>
 
 <h2>
 <a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
 
-<iframe src="http://player.vimeo.com/video/67716977" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe> <p><a href="http://vimeo.com/67716977">Echo Tool Demo</a> from <a href="http://vimeo.com/nmacedo">nmmacedo</a> on <a href="http://vimeo.com">Vimeo</a>.
+<p>Echo is meta-model independent, being able to process any meta-model specified in ECore and its respective instances in XMI. Additional constraints, as well as operations, are specified by embedding OCL in annotations, as prescribed by EMF. Inter-model consistency is specified by the <a href="http://www.omg.org/spec/QVT/1.1/">QVT Relations</a> (QVT-R) transformation language.</p>
 
+<p>Over these constraints and models, Echo possesses the following features.</p>
 
-<p>Current features include</p>
+<dl>
+<dt>Model visualization</dt>
+  <dd>Models are presented using the Alloy visualizer. For better readability, an Alloy theme is automatically inferred from the meta-model, although an user-defined theme can also be provided if desired.</dd>
 
-<ul>
-<li>Model visualization;</li>
-<li>Model generation;</li>
-<li>Conformance check;</li>
-<li>Model repair;</li>
-<li>Inter-model consistency check;</li>
-<li><p>Inter-model consistency repair;</p></li>
-<li><p>Implements the checking semantics from the QVT-R standard;</p></li>
-<li><p>Implements the principle of least-change, returning all instances closest to the original;</p></li>
-<li><p>Support for both "enforce" and "checkonly" modes;</p></li>
-<li><p>Support for OCL constraints over the models;</p></li>
-<li><p>Support for instance conformance testing.</p></li>
-</ul><p><em>Check mode</em> verifies if two models are consistent according to the given QVT-R specification.</p>
+  <dt>Model generation</dt>
+  <dd>Given a meta-model and user-specified size, Echo can generate a new model conformant with the metamodel. Additional constraints can also be specified to generate instances with a parametrized shape.</dd>
 
-<p><em>Enforce mode</em> updates the target instance to one of the closest consistent states. Echo presents all possible instances as Alloy models, which are translated back to xmi once the usar chooses the desired one. To measure the distance between instances, Alloy models are seen as graphs, and the graph edit distance is calculated (which counts node and edge deletions and creations).</p>
+  <dt>Consistency check</dt>
+  <dd>Given a model, Echo can check if it conforms to the respective meta-model.</dd>
 
-<p>For more information about how the tool is implemented please read the paper <a href="http://www3.di.uminho.pt/%7Emac/Publications/fase13.pdf">Implementing QVT-R Bidirectional Model Transformations Using Alloy</a>, recently accepted for publication at <a href="http://www.etaps.org/2013/fase13">FASE'13</a>.</p>
+  <dt>Model repair</dt>
+  <dd>Given a model that does not conform to its meta-model, Echo can find a minimal repair that produces a consistent model.</dd>
+
+  <dt>Inter-model consistency check</dt>
+  <dd>Given a QVT-R transformation and two models that are supposed to be consistent via it, Echo can check if such is the case. The checking semantics follows exactly the specified in the QVT standard.</dd>
+
+  <dt>Inter-model consistency repair</dt>
+  <dd>QVT-R specifications are interpreted as bidirectional transformations, thus, given inconsistent models, Echo is able to repair either one to recover consistency.</dd>
+
+  <dt>Inter-model generation</dt>
+  <dd>Given a QVT-R transformation and an existing model, Echo can generate the minimal model consistent with existing model by the QVT-R transformation.</dd>
+</dl><p>For all generation and repair procedures, Echo presents <em>all</em> valid solutions, allowing the user to select the desired one.</p>
+
+<p>Repair procedures are always <em>minimal</em>, in the sense that the resulting consistent model is as close as possible to the original inconsistent one. The user is able to choose how to measure this distance: either through <em>graph edit distance</em>, a meta-model independent metric that sees models as graphs and counts modifications of edges and nodes, or through an <em>operation-based distance</em>, that counts the number of applications of user-defined operations required to obtain the new model.</p>
+
+<p>For more information about how the tool is implemented please consult the paper <a href="http://www3.di.uminho.pt/%7Emac/Publications/fase13.pdf">Implementing QVT-R Bidirectional Model Transformations Using Alloy</a>, accepted for publication at <a href="http://www.etaps.org/2013/fase13">FASE'13</a>. For an overview of Echo's features please watch the video below.</p>
 
 <h2>
 <a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
 
-<p>Echo is available as both an Eclipse plug-in or as a command-line aplication.</p>
+<p>Echo is deployed over the Eclipse Modeling Tools 4.3 (Kepler) (including the QVTd component, which, being in incubation phase, is not included in the standard package). The following steps assume a fresh instalation of Eclipse. If Eclipse Modeling Tools 4.3 is already installed, step 3 will suffice.</p>
 
-<h3>
-<a name="eclipse-plugin" class="anchor" href="#eclipse-plugin"><span class="octicon octicon-link"></span></a>Eclipse plugin</h3>
-
-<h3>
-<a name="command-line" class="anchor" href="#command-line"><span class="octicon octicon-link"></span></a>Command-line</h3>
-
-<ul>
-<li>Checkout the latest stable version (v0.1) from the git repository:</li>
-</ul><pre><code>git clone https://github.com/haslab/echo.git
-cd echo
-git checkout v0.1
-</code></pre>
-
-<ul>
-<li>Compile the java source files into an executable jar by running <code>make.sh</code>:</li>
-</ul><pre><code>./make.sh
-</code></pre>
-
-<p>This will create the <code>echo.jar</code> file in the project's root directory.</p>
-
-<h2>
+<ol>
+<li>Download the <a href="http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplerrc2">Eclipse Modeling Tools 4.3 (Kepler)</a>;</li>
+<li>Install the  QVT Declarative (QVTd) 0.10.0RC2 component in Eclipse (Help &gt; Install New Software...) by downloading by downloading the <a href="http://www.eclipse.org/mmt/downloads/?showAll=1&amp;hlbuild=S201305311516&amp;project=qvtd#S201305311516">archive</a> or through the <a href="http://download.eclipse.org/mmt/qvtd/updates/milestones">update site</a>;</li>
+<li>Install the  Echo 0.2.0 plugin in Eclipse (Help &gt; Install New Software...) by downloading the <a href="http://haslab.github.io/echo/downloads/echo-0.2.0.zip">archive</a> or through the <a href="http://haslab.github.io/echo/updates/">update site</a>.</li>
+</ol><h2>
 <a name="running" class="anchor" href="#running"><span class="octicon octicon-link"></span></a>Running</h2>
 
-<h3>
-<a name="eclipse-plugin-1" class="anchor" href="#eclipse-plugin-1"><span class="octicon octicon-link"></span></a>Eclipse plugin</h3>
+<p>The best way to get started with Echo is to watch this <a href="https://vimeo.com/67716977">video</a> (follow the link for the HD version).</p>
 
-<p>The best way to get started is to watch this <a href="https://vimeo.com/67716977">video</a>.</p>
+<iframe src="http://player.vimeo.com/video/67716977" width="600" height="337" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 
-<h3>
-<a name="command-line-1" class="anchor" href="#command-line-1"><span class="octicon octicon-link"></span></a>Command-line</h3>
-
-<p>At the moment, Echo is available through an executable jar. The basic syntax is</p>
-
-<div class="highlight"><pre>java -jar echo.jar -check -q &lt;qvtr&gt; -m &lt;models&gt;... -i &lt;instances&gt;...
-java -jar echo.jar -enforce &lt;direction&gt; -q &lt;qvtr&gt; -m &lt;models&gt;... -i &lt;instances&gt;...
-</pre></div>
-
-<p>for checkonly and enforce mode respectively. Metamodels should be presented in ECore, while instances should be xmi files conforming to the respective metamodels and presented in the order defined by the QVT-R transformation.</p>
-
-<p>Additional options include:</p>
-
-<pre><code>-d, --delta &lt;nat&gt;           maximum delta between the original and the new generated instances
--o, --nooverwrite           do not overwrite the original instance xmi with the newly generated
--t, --conformance           test if instances conform to the models before applying qvt
-</code></pre>
-
-<p>Echo can also simply be run to check if the instances conform to the models as:</p>
-
-<div class="highlight"><pre>java -jar -t -m &lt;models&gt;... -i &lt;instances&gt;...
-</pre></div>
 
 <h2>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
 
-<p>Folder <a href="examples">examples</a> contains QVT-R implementations of some typical bidirectional transformations. Files <code>enforce</code> and <code>check</code> are example commands that perform consistency checks and enforcement executions, respectively.</p>
+<p>Folder <a href="examples">examples</a> contains QVT-R implementations of some typical bidirectional transformations. </p>
+
+
 
 <h2>
 <a name="contributors" class="anchor" href="#contributors"><span class="octicon octicon-link"></span></a>Contributors</h2>
@@ -130,8 +100,8 @@ java -jar echo.jar -enforce &lt;direction&gt; -q &lt;qvtr&gt; -m &lt;models&gt;.
 <ul>
 <li><a href="http://di.uminho.pt/%7Emac">Alcino Cunha</a></li>
 <li>Tiago Guimarães </li>
-<li><a href="http://alfa.di.uminho.pt/%7Enfmmacedo">Nuno Macedo</a></li>
-</ul><p>The contributors are members of the <em>High-Assurance Software Laboratory</em> (<a href="haslab.di.uminho.pt">HASLab</a>) at University of Minho.</p>
+<li><a href="http://di.uminho.pt/%7Enfmmacedo">Nuno Macedo</a></li>
+</ul><p>The contributors are members of the <em>High-Assurance Software Laboratory</em> (<a href="haslab.di.uminho.pt">HASLab</a>) at University of Minho, and have developed this work under the <a href="fatbit.di.uminho.pt">FATBiT</a> project.</p>
       </section>
     </div>
 
@@ -143,7 +113,17 @@ java -jar echo.jar -enforce &lt;direction&gt; -q &lt;qvtr&gt; -m &lt;models&gt;.
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-34834021-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
