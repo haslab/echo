@@ -47,6 +47,8 @@ Echo is deployed over the Eclipse Modeling Tools 4.3 (Kepler) (including the QVT
 2. Install the  QVT Declarative (QVTd) 0.10.0RC2 component in Eclipse (Help > Install New Software...) by downloading by downloading the [archive](http://www.eclipse.org/mmt/downloads/?showAll=1&hlbuild=S201305311516&project=qvtd#S201305311516) or through the [update site](http://download.eclipse.org/mmt/qvtd/updates/milestones);
 3. Install the  Echo 0.2.0 plugin in Eclipse (Help > Install New Software...) by downloading the [archive](http://haslab.github.io/echo/downloads/echo-0.2.0.zip) or through the [update site](http://haslab.github.io/echo/updates/).
 
+For Mac OS users, the current version of Java 7u21 has an issue with the bridge between AWT and SWT that does not allow the embedding of the Alloy Visualizer in Eclipse. This is fixed in the early access release of [Java 7u40](https://jdk7.java.net/download.html), being required to run Echo in Mac OS.
+
 <!---
 ### Command-line
 
