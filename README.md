@@ -110,4 +110,4 @@ The contributors are members of the *High-Assurance Software Laboratory* ([HASLa
 <img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE" height="100px"/>
 <img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px"/>
 <img src="http://haslab.github.io/echo/images/Logo_UE.jpg" alt="UE" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_FCT.png" alt="FCT" height="100px"/>
+<img src="http://haslab.github.io/echo/images/Logo_FCT.jpg" alt="FCT" height="100px"/>
