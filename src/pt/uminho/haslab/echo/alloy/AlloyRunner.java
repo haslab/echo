@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -62,6 +63,8 @@ public class AlloyRunner {
 	private ConstList<CommandScope> scopes;
 	/** the state signature of the target instance */	
 	private PrimSig targetstate;
+	
+	private Command cmd = null;
 
 	/** 
 	 * Constructs a new Alloy Runner that performs tests and generates instances
@@ -93,7 +96,7 @@ public class AlloyRunner {
 			finalfact = finalfact.and(translator.getConformsInstance(uri));
 			finalfact = finalfact.and(translator.getInstanceFact(uri));
 		}
-		Command cmd = null;
+		
 		/*for (Sig sig : allsigs) {
 			System.out.println(sig +" : "+((PrimSig)sig).parent);
 			for (Field f : sig.getFields())
@@ -117,7 +120,11 @@ public class AlloyRunner {
 		conforms(insturis);	
 		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
 		else {			
-			scopes = translator.getScopes();
+			try {
+				scopes = translator.getScopes(cmd.getAllStringConstants(allsigs).size());
+			} catch (Err e1) {
+				throw new ErrorAlloy(e1.getMessage());
+			}
 			allsigs = new HashSet<Sig>(Arrays.asList(EMF2Alloy.STATE));
 			finalfact = Sig.NONE.no();
 			PrimSig original;
@@ -188,7 +195,7 @@ public class AlloyRunner {
 		System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
 		System.out.println("SIGS "+allsigs);
 		try {
-			Command cmd = new Command(true, 0, intscope, -1, finalfact);
+			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
@@ -204,6 +211,11 @@ public class AlloyRunner {
 		check(qvturi,insturis);
 		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
 		else {			
+			try {
+				scopes = translator.getScopes(cmd.getAllStringConstants(allsigs).size());
+			} catch (Err e1) {
+				throw new ErrorAlloy(e1.getMessage());
+			}
 			finalfact = Sig.NONE.no();
 			Func func = translator.getQVTFact(qvturi);
 			PrimSig original;
@@ -217,7 +229,6 @@ public class AlloyRunner {
 					allsigs.add(targetstate);
 					sigs.add(targetstate);
 					edelta = translator.getModelDeltaExpr(original.parent.label).call(original, targetstate);
-					scopes = translator.getScopes();
 					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
 				} else {
 					sigs.add(state);			
@@ -329,6 +340,7 @@ public class AlloyRunner {
 	 * @param vizstate the state where the instance is stored
 	 */
 	public void generateTheme(VizState vizstate) {
+		//vizstate = new VizState(vizstate.getOriginalInstance());
 		List<DotColor> availablecolors = new ArrayList<DotColor>();
 		availablecolors.add(DotColor.GRAY);
 		availablecolors.add(DotColor.GREEN);
@@ -344,8 +356,15 @@ public class AlloyRunner {
 			String label = vizstate.label.get(t);
 			if (aux != null && model.getSuperType(aux) != null && model.getSuperType(aux).equals("State_")) {}
 			else if (label.split("_").length == 2) {
-				vizstate.label.put(t, label.split("_")[1]);
+				String pck = label.split("_")[0];	
+				String uri = translator.parser.getModelURI(pck);
+				List<EClass> tops =  translator.parser.getTopObject(uri);
+				System.out.println(tops);
 				vizstate.hideUnconnected.put(t, true);
+				for (EClass top : tops)
+					if (top.getName().equals(label.split("_")[1]))
+						vizstate.hideUnconnected.put(t, false);
+				vizstate.label.put(t, label.split("_")[1]);
 				vizstate.nodeColor.put(t, availablecolors.get(i));
 			} else if (label.split("_").length == 1) {
 				if (t.getName().equals("State_")) {

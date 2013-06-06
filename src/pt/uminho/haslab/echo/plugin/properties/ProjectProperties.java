@@ -71,10 +71,9 @@ public class ProjectProperties {
 	private String qvtRelationsString;
 	
 	public ProjectProperties(IProject project){
-	
 		
 		this.project = project;
-		//cleanProperties();
+		cleanProperties();
 		metaModels = loadMetaModels();
 		conformList = loadConformList();
 		qvtRules = loadQvtRules();
@@ -82,7 +81,7 @@ public class ProjectProperties {
 		mapIProject.put(project, this);
 	}
 	
-	/*private void cleanProperties(){
+	private void cleanProperties(){
 		try {
 			project.setPersistentProperty(qnConformList, null);
 		
@@ -93,7 +92,7 @@ public class ProjectProperties {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}*/
+	}
 	
 	private Set<QvtRelationProperty> loadRelations(){
 		

@@ -311,7 +311,7 @@ class OCL2Alloy {
 			res = src.intersect(oclExprToAlloy(expr.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("includes"))
 			res =(oclExprToAlloy(expr.getArgument().get(0))).in(src);
-		else if (expr.getReferredOperation().getName().equals("oclAsSet")) 
+		else if (expr.getReferredOperation().getName().equals("oclAsSet") || expr.getReferredOperation().getName().equals("asSet")) 
 			res = src;
 		else if (expr.getReferredOperation().getName().equals("+"))
 			res = src.iplus(oclExprToAlloy(expr.getArgument().get(0)));

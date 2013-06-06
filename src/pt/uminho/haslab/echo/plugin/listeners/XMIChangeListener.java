@@ -15,6 +15,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -40,7 +42,7 @@ public class XMIChangeListener implements IResourceChangeListener {
       			e.printStackTrace();
       		}
       		break;		
-		}
+	}
       
 	}
 	
@@ -60,19 +62,115 @@ public class XMIChangeListener implements IResourceChangeListener {
 	        				Job j = new ConformsJob(f);
 							j.setRule(f);
 							j.schedule();
-	        				 
+	        			 } else if(f!= null && f.getFileExtension().equals("ecore")){
+		        			System.out.println("Refreshing "+f);
+		        			Job j = new RefreshMetaJob(f);
+		        			j.setRule(f);
+							j.schedule();
 	        			 }
+
 	        		 }
 	             break;
+	          case IResourceDelta.REMOVED:
+	             if (res instanceof IFile) {
+	    			 IFile f = (IFile) res;
+	    			 if(f!= null && f.getFileExtension().equals("xmi")){
+	    				System.out.println("Deleting "+f);
+	    				Job j = new DeleteXMI(f);
+						j.setRule(f);
+						j.schedule();
+	    			 } else if(f!= null && f.getFileExtension().equals("ecore")){
+		    				System.out.println("Deleting "+f);
+	        			Job j = new DeleteMeta(f);
+	        			j.setRule(f);
+						j.schedule();
+	    			 }
+	
+	    		 }
+		        	 break;
 	       		}
 	       return true; // visit the children
 	    }
 	    
-	    class ConformsJob extends WorkspaceJob {
+	    class DeleteXMI extends WorkspaceJob {
 	    	private IResource res =null;
 	    	//private boolean bool;
 	    	
+	    	public DeleteXMI(IResource r)
+	    	{
+	    		super("Deleting instance.");
+	    		res = r;
+	    	}
+			
+	    	@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor)
+					throws CoreException {
+				
+				try {
+					EchoPlugin.getInstance().getEchoRunner().remInstance(res.getFullPath().toString());
+					ProjectProperties.getProjectProperties(res.getProject()).removeFromConformList(res.getFullPath().toString());
+				} catch (Exception e) {
+					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error reloading meta-model.",e.getMessage());
+				}
+				return Status.OK_STATUS;
+			}
+	    }
+	    
+	    class DeleteMeta extends WorkspaceJob {
+	    	private IResource res =null;
+	    	//private boolean bool;
 	    	
+	    	public DeleteMeta(IResource r)
+	    	{
+	    		super("Deleting meta-model.");
+	    		res = r;
+	    	}
+			
+	    	@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor)
+					throws CoreException {
+				
+				try {
+					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
+					ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
+				} catch (Exception e) {
+					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error reloading meta-model.",e.getMessage());
+				}
+				return Status.OK_STATUS;
+			}
+	    }
+	    
+	    
+	    class RefreshMetaJob extends WorkspaceJob {
+	    	private IResource res =null;
+	    	//private boolean bool;
+	    	
+	    	public RefreshMetaJob(IResource r)
+	    	{
+	    		super("Refreshing meta-model.");
+	    		res = r;
+	    	}
+			
+	    	@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor)
+					throws CoreException {
+				
+				try {
+					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
+					EchoPlugin.getInstance().getEchoRunner().addModel(res.getFullPath().toString());
+				} catch (Exception e) {
+					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
+					ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
+					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error reloading meta-model.",e.getMessage());
+				}
+				return Status.OK_STATUS;
+			}
+	    	
+	    }
+	    
+	    class ConformsJob extends WorkspaceJob {
+	    	private IResource res =null;
+	    	//private boolean bool;	    	
 	    	
 	    	public ConformsJob(IResource r)
 	    	{
@@ -87,7 +185,6 @@ public class XMIChangeListener implements IResourceChangeListener {
 				try {
 					EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
 					er.addInstance(res.getFullPath().toString());
-					System.out.println(res);
 					conformMeta(er);
 					conformQVT(er);
 					

@@ -78,10 +78,10 @@ public class ModelGenerateWizard extends Wizard {
 			er.generate(metamodel, scopes);
 			
 			AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
-			amv.refresh();
 			amv.setPathToWrite(page.getPath());
 			amv.setMetamodel(metamodel);
 			amv.setProperties(pp);
+			amv.refresh();
 		} catch (ErrorAlloy | ErrorTransform /*| ErrorUnsupported | ErrorParser*/ e) {
 			MessageDialog.openInformation(shell, "Error generating instance", e.getMessage());
 		}

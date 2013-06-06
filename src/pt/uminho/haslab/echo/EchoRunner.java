@@ -53,8 +53,10 @@ public class EchoRunner {
 	
 	public void remModel(String uri) {
 		EPackage mdl = parser.remModel(uri);
-		if (mdl != null)
+		if (mdl != null) {
+			System.out.println("Removing: "+mdl.getName() + " at "+uri);
 			translator.remModel(mdl);
+		}
 	}
 	
 	public boolean hasModel(String uri) {

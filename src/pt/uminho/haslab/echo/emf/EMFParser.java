@@ -117,8 +117,15 @@ public class EMFParser {
 	 * Loads the EPackages its uri
 	 */
 	public EPackage loadModel(String uri) {
-		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
-	
+		Resource load_resource = resourceSet.createResource(URI.createURI(uri));
+		
+		try {
+			load_resource.load(resourceSet.getLoadOptions());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		EPackage res = (EPackage) load_resource.getContents().get(0);
 		
 		resourceSet.getPackageRegistry().put(res.getNsURI(),res);
@@ -238,9 +245,6 @@ public class EMFParser {
 	}
 
 	public List<EClass> getTopObject(String m) {
-		System.out.println(m);
-		System.out.println(models.keySet());
-
 		EPackage pck = models.get(m);
 		List<EClass> classes = new ArrayList<EClass>();
 		for (EClassifier obj : pck.getEClassifiers())
@@ -249,8 +253,14 @@ public class EMFParser {
 			
 		for (EClass obj : classes) {
 			for (EReference ref : obj.getEReferences())
-				if (ref.isContainment()) candidates.remove(ref.getEReferenceType());
+				if (ref.isContainment()) 
+					candidates.remove(ref.getEReferenceType());
+			List<EClass> sups = obj.getESuperTypes();
+			if (sups != null && sups.size() != 0)
+				if (!candidates.contains(sups.get(0)))
+					candidates.remove(obj);				
 		}			
+		System.out.println("Tops: "+candidates);
 		return candidates;
 	}
 

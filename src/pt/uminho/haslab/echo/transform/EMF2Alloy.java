@@ -188,8 +188,10 @@ public class EMF2Alloy {
 		XMI2Alloy x2a = insttrads.get(uri);
 		ECore2Alloy e2a = x2a.translator;
 		Map<PrimSig,Integer> scopes = new HashMap<PrimSig,Integer>();
-
+		Map<PrimSig,Integer> exact = new HashMap<PrimSig,Integer>();
+		
 		for (PrimSig sig : e2a.getAllSigs()) {
+			System.out.println("SigMap: "+x2a.getSigMap());
 			int count = x2a.getSigMap().get(sig.label)==null?0:x2a.getSigMap().get(sig.label).size();
 			if (scopes.get(sig) == null) scopes.put(sig, count);
 			else scopes.put(sig, scopes.get(sig) + count);
@@ -200,7 +202,7 @@ public class EMF2Alloy {
 				up = up.parent;
 			}
 		}
-		this.scopes = AlloyUtil.createScope(scopes,new HashMap<PrimSig, Integer>());
+		this.scopes = AlloyUtil.createScope(scopes,exact);
 		//System.out.println(this.scopes);
 	}	
 	
@@ -255,10 +257,10 @@ public class EMF2Alloy {
 		Map<Object,Object> options = new HashMap<Object,Object>();
 		options.put(XMIResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
 		try{
-		     resource.save(options);
-		   }catch (IOException e) {
-		     e.printStackTrace();
-		   }
+		    resource.save(options);
+	    }catch (Exception e) {
+	    	throw new ErrorTransform(e.getMessage());
+	    }
 		
 	}
 	
@@ -281,6 +283,18 @@ public class EMF2Alloy {
 		return scopes;
 	}
 
+	public ConstList<CommandScope> getScopes(int strings) throws ErrorAlloy{
+		List<CommandScope> aux = new ArrayList<CommandScope>(scopes);
+		try {
+			aux.add(new CommandScope(PrimSig.STRING, true, strings));
+		} catch (ErrorSyntax e) {
+			throw new ErrorAlloy(e.getMessage());
+		}
+		scopes = ConstList.make(aux);
+		return scopes;
+	}
+
+	
 	public List<PrimSig> getAllSigsFromName(String uri) throws ErrorAlloy{
 		ECore2Alloy e2a = modeltrads.get(uri);
 		

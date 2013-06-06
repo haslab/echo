@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 
 public class FileUntrackHandler extends AbstractHandler {
@@ -38,6 +39,7 @@ public class FileUntrackHandler extends AbstractHandler {
 			else if (extension.equals("ecore"))
 			{
 				pp.removeMetaModel(path);
+				EchoPlugin.getInstance().getEchoRunner().remModel(path);
 			}else if (extension.equals("qvt") || extension.equals("qvtr"))
 				MessageDialog.openInformation(shell, "Not Right",extension + "\n" + path);
 			else

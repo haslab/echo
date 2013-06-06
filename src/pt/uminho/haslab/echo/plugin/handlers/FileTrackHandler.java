@@ -49,10 +49,10 @@ public class FileTrackHandler extends AbstractHandler {
 					MessageDialog.openInformation(shell, "Exception",extension + "not supported.");
 				
 				System.out.println("Tracked: "+extension + " at " + path);
-			}catch(ErrorUnsupported | ErrorAlloy | ErrorTransform | ErrorParser e)
+			}catch(Exception e)
 			{
-				e.printStackTrace();
-				MessageDialog.openInformation(shell, "Exception", e.getMessage());
+				//e.printStackTrace();
+				MessageDialog.openError(shell, "Error loading resource.", e.getMessage());
 			}
 			
 		}

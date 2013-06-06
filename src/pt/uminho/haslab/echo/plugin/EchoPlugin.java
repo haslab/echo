@@ -5,6 +5,8 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
 
 import pt.uminho.haslab.echo.EchoRunner;
@@ -59,7 +61,7 @@ public class EchoPlugin extends Plugin {
 	public void refreshView()
 	{
 		if(AlloyView != null)
-				AlloyView.refresh();
+			AlloyView.refresh();
 	}
 	
 	
@@ -78,6 +80,14 @@ public class EchoPlugin extends Plugin {
 	
 	public AlloyModelView getAlloyView()
 	{
+		if (AlloyView == null)
+			try {
+				AlloyView = (AlloyModelView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("pt.uminho.haslab.echo.alloymodelview");
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		return AlloyView;
 	}
 

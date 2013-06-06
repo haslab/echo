@@ -6,9 +6,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.ViewPart;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -41,12 +46,13 @@ public class AlloyModelView extends ViewPart {
 		        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
 		        bufferWritter.write("<alloy><instance bitwidth=\"0\" maxseq=\"0\"></instance></alloy>");
 		        bufferWritter.close();
+				viz = new VizGUI(false, ".dummy.xml", null,null,null,false);
+				viz.doShowViz();
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
 
 		    EchoPlugin.getInstance().setAlloyView(this);
 	}
@@ -58,8 +64,6 @@ public class AlloyModelView extends ViewPart {
 		
 		
 		
-		viz = new VizGUI(false, ".dummy.xml", null,null,null,false);
-		viz.doShowViz();
 		
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 	    Frame frame = SWT_AWT.new_Frame(composite);
@@ -76,7 +80,6 @@ public class AlloyModelView extends ViewPart {
 	public void refresh()
 	{
 		loadGraph();
-		pathToWrite = null;
 	}
 
 	public void setPathToWrite(String path)
@@ -145,13 +148,15 @@ public class AlloyModelView extends ViewPart {
 			if (EchoPlugin.getInstance().getEchoRunner().hasInstance(pathToWrite))
 				EchoPlugin.getInstance().getEchoRunner().writeInstance(pathToWrite);
 			else{
+				System.out.println(mmURI +" , "+pathToWrite);
 				EchoPlugin.getInstance().getEchoRunner().writeAllInstances(mmURI,pathToWrite);
 				pp.addConformList(pathToWrite);
 			}
 
 			pathToWrite = null;
-		} catch (ErrorAlloy | ErrorTransform | ErrorUnsupported | ErrorParser e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
+			Shell shell = this.getSite().getShell();
+			MessageDialog.openInformation(shell, "Error saving update.",e.getMessage());
 			e.printStackTrace();
 		}
 		
