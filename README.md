@@ -94,13 +94,13 @@ java -jar -t -m <models>... -i <instances>...
 -->
 ## Examples
 
-Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains QVT-R implementations of some typical bidirectional transformations. 
+Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains ECore meta-models and QVT-R implementations of some typical bidirectional transformations, as well some example XMI model instances.
 
 <!--Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.-->
 
 ## Publications
 * N. Macedo, T. Guimarães and A. Cunha. *Model repair and transformation with Echo*. Submitted. 2013.
-* N. Macedo and A. Cunha. *Implementing QVT-R bidirectional model transformations using Alloy*. In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
+* N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
 
 ## Contributors
 * [Alcino Cunha] (http://di.uminho.pt/~mac)
