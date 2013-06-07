@@ -31,8 +31,7 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-    
-
+        
 <p><em>Echo</em> is a tool for model repair and transformation based on the <a href="http://alloy.mit.edu">Alloy</a> model finder, with support for bidirectional model transformations.
 It is able to both check and recover, through minimal updates, both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).</p>
 
@@ -79,7 +78,11 @@ It is able to both check and recover, through minimal updates, both intra- and i
 <li>Download the <a href="http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplerrc2">Eclipse Modeling Tools 4.3 (Kepler)</a>;</li>
 <li>Install the  QVT Declarative (QVTd) 0.10.0RC2 component in Eclipse (Help &gt; Install New Software...) by downloading by downloading the <a href="http://www.eclipse.org/mmt/downloads/?showAll=1&amp;hlbuild=S201305311516&amp;project=qvtd#S201305311516">archive</a> or through the <a href="http://download.eclipse.org/mmt/qvtd/updates/milestones">update site</a>;</li>
 <li>Install the  Echo 0.2.0 plugin in Eclipse (Help &gt; Install New Software...) by downloading the <a href="http://haslab.github.io/echo/downloads/echo-0.2.0.zip">archive</a> or through the <a href="http://haslab.github.io/echo/updates/">update site</a>.</li>
-</ol><h2>
+</ol><p>For Mac OS users, the current version of Java 7u21 has an issue with the bridge between AWT and SWT that does not allow the embedding of the Alloy Visualizer in Eclipse. This is fixed in the early access release of <a href="https://jdk7.java.net/download.html">Java 7u40</a>, being required to run Echo in Mac OS.</p>
+
+
+
+<h2>
 <a name="running" class="anchor" href="#running"><span class="octicon octicon-link"></span></a>Running</h2>
 
 <p>The best way to get started with Echo is to watch this <a href="https://vimeo.com/67716977">video</a> (follow the link for the HD version).</p>
@@ -87,22 +90,32 @@ It is able to both check and recover, through minimal updates, both intra- and i
 <iframe src="http://player.vimeo.com/video/67716977" width="600" height="337" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 
 
+
 <h2>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
 
-<p>Folder <a href="examples">examples</a> contains QVT-R implementations of some typical bidirectional transformations. </p>
+<p>Folder <a href="http://github.com/haslab/echo/tree/master/examples">examples</a> contains ECore meta-models and QVT-R implementations of some typical bidirectional transformations, as well some example XMI model instances.</p>
 
 
 
 <h2>
+<a name="publications" class="anchor" href="#publications"><span class="octicon octicon-link"></span></a>Publications</h2>
+
+<ul>
+<li>N. Macedo, T. Guimarães and A. Cunha. <em>Model repair and transformation with Echo</em>. Submitted. 2013.</li>
+<li>N. Macedo and A. Cunha. <a href="http://www3.di.uminho.pt/%7Emac/Publications/fase13.pdf"><em>Implementing QVT-R Bidirectional Model Transformations Using Alloy</em></a>. In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.</li>
+</ul><h2>
 <a name="contributors" class="anchor" href="#contributors"><span class="octicon octicon-link"></span></a>Contributors</h2>
 
 <ul>
 <li><a href="http://di.uminho.pt/%7Emac">Alcino Cunha</a></li>
 <li>Tiago Guimarães </li>
 <li><a href="http://di.uminho.pt/%7Enfmmacedo">Nuno Macedo</a></li>
-</ul><p>The contributors are members of the <em>High-Assurance Software Laboratory</em> (<a href="haslab.di.uminho.pt">HASLab</a>) at University of Minho, and have developed this work under the <a href="fatbit.di.uminho.pt">FATBiT</a> project.</p>
-      </section>
+</ul><p>The contributors are members of the <em>High-Assurance Software Laboratory</em> (<a href="haslab.di.uminho.pt">HASLab</a>) at University of Minho, and have developed this work under the <a href="fatbit.di.uminho.pt">FATBiT</a> project, funded by the ERDF through the programme COMPETE and by the Portuguese Government through FCT (Foundation for Science and Technology), project reference FCOMP-01-0124-FEDER-020532.</p>
+<div id="logos">
+<p><img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE"><img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px" width="auto"><img src="http://haslab.github.io/echo/images/Logo_UE.jpg" alt="UE" height="100px" width="auto"><img src="http://haslab.github.io/echo/images/Logo_FCT.jpg" alt="FCT" height="100px" width="auto"></p>
+</div>
+</section>
     </div>
 
     <!-- FOOTER  -->
