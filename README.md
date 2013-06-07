@@ -94,7 +94,7 @@ java -jar -t -m <models>... -i <instances>...
 -->
 ## Examples
 
-Folder [examples](examples) contains QVT-R implementations of some typical bidirectional transformations. 
+Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains QVT-R implementations of some typical bidirectional transformations. 
 
 <!--Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.-->
 
