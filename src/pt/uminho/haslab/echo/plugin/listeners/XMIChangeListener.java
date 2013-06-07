@@ -164,21 +164,23 @@ public class XMIChangeListener implements IResourceChangeListener {
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
 				
-				try {
-					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
-					EchoPlugin.getInstance().getEchoRunner().addModel(res.getFullPath().toString());
-				} catch (Exception e) {
-					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
-					ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
-					Display.getDefault().syncExec(new Runnable()
-					{
-						public void run()
+	    		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+	    		if (er.hasModel(res.getFullPath().toString()))
+					try {
+						er.remModel(res.getFullPath().toString());
+						er.addModel(res.getFullPath().toString());
+					} catch (Exception e) {
+						er.remModel(res.getFullPath().toString());
+						ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
+						Display.getDefault().syncExec(new Runnable()
 						{
-							MessageDialog.openError(shell, "Error reloading meta-model.", "Meta-model has been untracked.");
-						}
-					});
-					return Status.CANCEL_STATUS;
-				}
+							public void run()
+							{
+								MessageDialog.openError(shell, "Error reloading meta-model.", "Meta-model has been untracked.");
+							}
+						});
+						return Status.CANCEL_STATUS;
+					}
 				return Status.OK_STATUS;
 			}
 	    	
@@ -200,10 +202,11 @@ public class XMIChangeListener implements IResourceChangeListener {
 				
 				try {
 					EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-					er.addInstance(res.getFullPath().toString());
-					conformMeta(er);
-					conformQVT(er);
-					
+					if (er.hasInstance(res.getFullPath().toString())) {
+						er.addInstance(res.getFullPath().toString());
+						conformMeta(er);
+						conformQVT(er);
+					}
 						
 				} catch (ErrorAlloy | ErrorUnsupported | ErrorTransform | ErrorParser e) {
 					e.printStackTrace();

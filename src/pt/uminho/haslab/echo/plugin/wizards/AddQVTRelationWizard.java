@@ -81,7 +81,7 @@ public class AddQVTRelationWizard extends Wizard  {
 				orip = i;
 			}
 		}
-		
+		System.out.println("News "+news + ": "+page.getModels().get(newp));
 		if (news == 1) {
 			try {
 				pp.addConformList(page.getModels().get(orip));
@@ -99,8 +99,8 @@ public class AddQVTRelationWizard extends Wizard  {
 				amv.setMetamodel(metamodeluri);
 				amv.setProperties(pp);
 
-			} catch (ErrorAlloy | ErrorUnsupported | ErrorTransform | ErrorParser e) {
-				// TODO Auto-generated catch block
+			} catch (Exception e) {
+				MessageDialog.openInformation(shell, "Error creating constraint", e.getMessage());
 				e.printStackTrace();
 			}
 			

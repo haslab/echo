@@ -358,14 +358,16 @@ public class AlloyRunner {
 			else if (label.split("_").length == 2) {
 				String pck = label.split("_")[0];	
 				String uri = translator.parser.getModelURI(pck);
-				List<EClass> tops =  translator.parser.getTopObject(uri);
-				System.out.println(tops);
-				vizstate.hideUnconnected.put(t, true);
-				for (EClass top : tops)
-					if (top.getName().equals(label.split("_")[1]))
-						vizstate.hideUnconnected.put(t, false);
-				vizstate.label.put(t, label.split("_")[1]);
-				vizstate.nodeColor.put(t, availablecolors.get(i));
+				if (uri != null) {
+					List<EClass> tops =  translator.parser.getTopObject(uri);
+					System.out.println(tops);
+					vizstate.hideUnconnected.put(t, true);
+					for (EClass top : tops)
+						if (top.getName().equals(label.split("_")[1]))
+							vizstate.hideUnconnected.put(t, false);
+					vizstate.label.put(t, label.split("_")[1]);
+					vizstate.nodeColor.put(t, availablecolors.get(i));
+				}
 			} else if (label.split("_").length == 1) {
 				if (t.getName().equals("State_")) {
 					vizstate.project(t);

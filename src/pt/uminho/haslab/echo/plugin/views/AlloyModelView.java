@@ -153,7 +153,7 @@ public class AlloyModelView extends ViewPart {
 				pp.addConformList(pathToWrite);
 			}
 
-			pathToWrite = null;
+			//pathToWrite = null;
 		} catch (Exception e) {
 			Shell shell = this.getSite().getShell();
 			MessageDialog.openInformation(shell, "Error saving update.",e.getMessage());

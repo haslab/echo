@@ -72,11 +72,13 @@ class Alloy2XMI {
 	private EObject createObject(ExprVar ex) throws ErrorAlloy
 	{
 		EClass ec = null;
+		PrimSig type = null;
 		try {
-			PrimSig type = (PrimSig)ex.type().toExpr();
+			type = (PrimSig)ex.type().toExpr();
 			if (instancesigs.contains(type)) ec = (EClass) e2a.getEClassFromSig(type.parent);
 			else ec = (EClass) e2a.getEClassFromSig(type);
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+		System.out.println(type + ", " +ec.getName() + " : " + ec);
 		EObject obj = e2a.epackage.getEFactoryInstance().create(ec);
 		mapExprObj.put(ex, obj);
 		Field field;

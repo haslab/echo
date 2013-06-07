@@ -255,6 +255,7 @@ public class EMFParser {
 
 	public List<EClass> getTopObject(String m) {
 		EPackage pck = models.get(m);
+		System.out.println(m + ", " +models.keySet());
 		List<EClass> classes = new ArrayList<EClass>();
 		for (EClassifier obj : pck.getEClassifiers())
 			if (obj instanceof EClass) classes.add((EClass) obj);
