@@ -44,6 +44,7 @@ public class ModelRepairHandler extends AbstractHandler {
 					
 				AlloyModelView amv = (AlloyModelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().showView("pt.uminho.haslab.echo.alloymodelview");
 				amv.refresh();
+				amv.setIsNew(false);
 				amv.setPathToWrite(path);
 				//er.writeInstance(path);
 			} catch (ErrorAlloy | PartInitException e) {

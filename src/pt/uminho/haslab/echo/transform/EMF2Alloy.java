@@ -182,7 +182,9 @@ public class EMF2Alloy {
 			}
 		}
 		scopesincrement.put(e2a.statesig,1);
+		scopesincrement.put(PrimSig.STRING,1);
 
+		
 		Map<PrimSig,Integer> aux = new HashMap<PrimSig, Integer>();
 		aux.put(e2a.statesig,1);
 
@@ -214,12 +216,16 @@ public class EMF2Alloy {
 	public ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
 		List<CommandScope> list = new ArrayList<CommandScope>();
 		
+		System.out.println("incs: "+scopesincrement);
+		System.out.println("scps: "+scopes);
 		if (!options.isOperationBased())
 			for (CommandScope scope : scopes)
 				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+1));
 		else
-			for (CommandScope scope : scopes) {
-				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+scopesincrement.get(scope.sig)));
+			for (CommandScope scope : scopes) {				
+				Integer i = scopesincrement.get(scope.sig);
+				if (i == null) i = 0;
+				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+i));
 				// need to manage inheritance
 			}		
 		return ConstList.make(list);

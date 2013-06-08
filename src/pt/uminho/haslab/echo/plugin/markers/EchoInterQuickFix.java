@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMarkerResolution;
+import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
@@ -15,7 +18,13 @@ import pt.uminho.haslab.echo.plugin.EchoPlugin;
 public class EchoInterQuickFix implements IMarkerResolution {
       String label;
       Object mode;
+      Shell shell;
       EchoInterQuickFix(String mode) {
+    	  PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+    		  public void run() {
+			    	shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				}
+    	  });
     	  this.mode = mode;
     	  if (mode.equals(EchoMarker.OPS))
     		  this.label = "Repair inter-model inconsistency through operation-based distance.";
@@ -43,9 +52,10 @@ public class EchoInterQuickFix implements IMarkerResolution {
     	    	  list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
     	    	  list.add(path);
 			  }
-    	  } catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+    	  } catch (Exception e1) {
+    		  MessageDialog.openError(shell, "Error loading QVT-R.",e1.getMessage());
+    		  e1.printStackTrace();
+    		  return;
     	  }
     	 
     	  EchoPlugin.getInstance().options.setOperationBased(mode.equals(EchoMarker.OPS));
@@ -53,10 +63,12 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		  try {
 			  b = echo.enforce(marker.getAttribute(EchoMarker.QVTR).toString(),list, res.getFullPath().toString());
 			  while(!b) b = echo.increment();
-		  } catch (ErrorAlloy | CoreException e) {
-			  // TODO Auto-generated catch block
+		  } catch (Exception e) {
+    		  MessageDialog.openError(shell, "Error loading QVT-R.",e.getMessage());
 			  e.printStackTrace();
+			  return;
 		  }
+		  EchoPlugin.getInstance().getAlloyView().setIsNew(false);
 		  EchoPlugin.getInstance().getAlloyView().refresh();
 		  EchoPlugin.getInstance().getAlloyView().setPathToWrite(path);
       }

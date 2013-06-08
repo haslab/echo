@@ -95,6 +95,7 @@ public class AddQVTRelationWizard extends Wizard  {
 				er.generateqvt(page.getQvt(),metamodeluri,page.getModels(),page.getModels().get(newp));
 				AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
 				amv.refresh();
+				amv.setIsNew(true);
 				amv.setPathToWrite(page.getModels().get(newp));
 				amv.setMetamodel(metamodeluri);
 				amv.setProperties(pp);

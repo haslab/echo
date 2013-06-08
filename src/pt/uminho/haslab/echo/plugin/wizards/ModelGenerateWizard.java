@@ -78,6 +78,7 @@ public class ModelGenerateWizard extends Wizard {
 			er.generate(metamodel, scopes);
 			
 			AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
+			amv.setIsNew(true);
 			amv.setPathToWrite(page.getPath());
 			amv.setMetamodel(metamodel);
 			amv.setProperties(pp);

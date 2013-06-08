@@ -33,7 +33,7 @@ public class AlloyModelView extends ViewPart {
 	String pathToWrite;
 	String mmURI;
 	ProjectProperties pp;
-	
+	boolean newinst;
 	
 
 	public AlloyModelView()
@@ -85,6 +85,11 @@ public class AlloyModelView extends ViewPart {
 	public void setPathToWrite(String path)
 	{
 		pathToWrite = path;
+	}
+	
+	public void setIsNew(boolean isn)
+	{
+		newinst = isn;
 	}
 	
 	public void setProperties(ProjectProperties pp)
@@ -145,7 +150,7 @@ public class AlloyModelView extends ViewPart {
 
 	public void saveInstance() {
 		try {
-			if (EchoPlugin.getInstance().getEchoRunner().hasInstance(pathToWrite))
+			if (!newinst)
 				EchoPlugin.getInstance().getEchoRunner().writeInstance(pathToWrite);
 			else{
 				System.out.println(mmURI +" , "+pathToWrite);

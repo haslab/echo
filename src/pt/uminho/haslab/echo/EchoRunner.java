@@ -123,7 +123,13 @@ public class EchoRunner {
 	 * @throws ErrorAlloy
 	 */
 	public boolean repair(List<String> uri, String dir) throws ErrorAlloy {
-		translator.createScopesFromURI(dir);
+		if (translator.options.isOperationBased()) {
+			translator.createScopesFromOps(dir);
+			System.out.println("Operation-based.");
+		}
+		else
+			translator.createScopesFromURI(dir);
+
 		runner = new AlloyRunner(translator);
 		runner.repair(uri,dir);
 		return runner.getSolution().satisfiable();

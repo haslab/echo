@@ -42,11 +42,11 @@ class Alloy2XMI {
 	
 	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo,PrimSig state, EchoOptions options,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform 
 	{
-		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom.");
+		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom: "+rootatom);
 		instancesigs = (instsigs==null)?new ArrayList<PrimSig>():instsigs;
 		e2a = metaInfo;
 		this.sol = sol;
-		this.state = state;
+		this.state = state;	
 		mapAtoms = buildMapAtoms();
 		this.options = options;
 		result = createObject(mapAtoms.get(sol.eval(rootatom).iterator().next().atom(0)));

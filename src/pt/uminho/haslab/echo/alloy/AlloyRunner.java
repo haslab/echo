@@ -192,8 +192,9 @@ public class AlloyRunner {
 			finalfact = finalfact.and(translator.getConformsInstance(uri));
 		}
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
-		System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
-		System.out.println("SIGS "+allsigs);
+		
+		System.out.println("Check: DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
+		System.out.println("Check: SIGS "+allsigs);
 		try {
 			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
@@ -300,8 +301,8 @@ public class AlloyRunner {
 			Command cmd = new Command(false, overall, intscope, -1, runfact);
 			cmd = cmd.change(scopes);
 			System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
-			for (Sig s : allsigs)
-				System.out.println("sig "+s + " : " +((PrimSig) s).children());
+			//for (Sig s : allsigs)
+			//	System.out.println("sig "+s + " : " +((PrimSig) s).children());
 
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 			//if (sol.satisfiable()) System.out.println(sol.eval(edelta));

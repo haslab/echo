@@ -108,7 +108,7 @@ class QVTRelation2Alloy {
 		for (TypedModel mdl : rel.getTransformation().getModelParameter()) {
 			Decl d;
 			try {
-				d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName()+(top?"a":"b"));
+				d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			mdecls.add(d);
 			String mname = mdl.getUsedPackage().get(0).getName();
@@ -124,8 +124,9 @@ class QVTRelation2Alloy {
 			//System.out.println("Pre-onepoint "+fact);
 			fact = opt.trading(fact);
 			fact = opt.onePoint(fact);
-			System.out.println("Pos-onepoint "+fact);
 		}
+		System.out.println("Pos-onepoint "+fact);
+		System.out.println(argsvars);
 		try {
 			if(top) {
 				func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact);	
@@ -268,6 +269,12 @@ class QVTRelation2Alloy {
 	 * @throws ErrorUnsupported
 	 */
 	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		String pck = domain.getTypedModel().getUsedPackage().get(0).getName();
+		//setting the respective statesig to first position
+		if (argsvars.get(pck).size() == 2 && argsvars.get(pck).get(1).toString().equals(domain.getTypedModel().getName()))
+			argsvars.get(pck).add(argsvars.get(pck).remove(0));
+		System.out.println("Translating relation domain: "+domain.getTypedModel() + argsvars);
+		
 		OCL2Alloy ocltrans = new OCL2Alloy(parentq,translator,decls,argsvars,null);
 		DomainPattern pattern = domain.getPattern();
 		ObjectTemplateExp temp = (ObjectTemplateExp) pattern.getTemplateExpression(); 		

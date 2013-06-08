@@ -42,6 +42,7 @@ public class EchoIntraQuickFix implements IMarkerResolution {
 			  // TODO Auto-generated catch block
 			  e.printStackTrace();
 		  }
+		  EchoPlugin.getInstance().getAlloyView().setIsNew(false);
 		  EchoPlugin.getInstance().getAlloyView().refresh();
 		  EchoPlugin.getInstance().getAlloyView().setPathToWrite(path);
       }	
