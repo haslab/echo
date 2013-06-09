@@ -9,4 +9,4 @@ Every top State on the expanded state diagram is matched to a State in the colla
 * [NHSM.ecore](NHSM.ecore) for collapsed (non-hierarchical) state diagrams.
 
 #### History
-This example is based on the running example from the paper *JTL: a bidirectional and change propagating transformation language"* by Antonio Cicchetti, Davide Di Ruscio, Romina Eramo and Alfonso Pierantonio.
+* This example is based on the running example from the paper *JTL: a bidirectional and change propagating transformation language"* by A. Cicchetti, D. Di Ruscio, R. Eramo and A. Pierantonio.
