@@ -9,5 +9,6 @@ Every persistent Class on the UML class diagram is matched to a Table in the rel
 * [RDBMS.ecore](RDBMS.ecore) for relational database schemes (without keys).
 
 #### History
-This example is a simplified version of the example illustrating the *MOF 2.0 Query/View/Transformation Specification*.
-This example has been used to illustrate the *Implementing QVT-R Bidirectional Model Transformations Using Alloy* paper as well as in the Echo demo video.
+* This example is a simplified version of the example illustrating the *MOF 2.0 Query/View/Transformation Specification*.
+* This example has been used to illustrate the *Implementing QVT-R Bidirectional Model Transformations Using Alloy* paper, by N. Macedo and A. Cunha.
+* This example has been used in the Echo demonstration [video](vimeo.com/67716977/).
