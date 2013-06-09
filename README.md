@@ -94,7 +94,7 @@ java -jar -t -m <models>... -i <instances>...
 -->
 ## Examples
 
-Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains ECore meta-models and QVT-R implementations of some typical bidirectional transformations, as well some example XMI model instances.
+Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains ECore meta-models and QVT-R implementations of some typical bidirectional transformations, as well some example XMI model instances. Alternatively, download this [archive](http://haslab.github.io/echo/downloads/echo-0.2.0_examples.zip) containing the same examples.
 
 <!--Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.-->
 
