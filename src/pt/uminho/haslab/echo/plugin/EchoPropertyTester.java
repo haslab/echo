@@ -36,6 +36,7 @@ public class EchoPropertyTester extends PropertyTester {
 			IFile res = (IFile) receiver;
 			String uri = res.getFullPath().toString();
 			String ext = res.getFileExtension();
+			if (ext == null) return false;
 			if(ext.equals("xmi"))
 				return ProjectProperties.getProjectProperties(res.getProject()).getConformList().contains(uri) == expected;
 		
