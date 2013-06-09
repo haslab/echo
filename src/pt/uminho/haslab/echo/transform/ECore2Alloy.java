@@ -152,11 +152,14 @@ class ECore2Alloy {
 	private void processClass(EClass ec) throws  ErrorAlloy, ErrorTransform {
 		PrimSig ecsig,parent = null;
 		Field statefield;
+		if (mapClassSig.get(ec) != null) return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
 		if(!superTypes.isEmpty()) {
 			parent = mapClassSig.get(superTypes.get(0));
-			if(parent == null) throw new ErrorTransform("Parent class not found: "+superTypes.get(0).getName()+".");	
+			if(parent == null) {
+				processClass(superTypes.get(0));	
+			}
 		}
 		String signame = AlloyUtil.pckPrefix(epackage.getName(),ec.getName());
 		try {
@@ -250,7 +253,10 @@ class ECore2Alloy {
 				EClass cc = mapClassClass.get(reference.getEReferenceType().getName());
 				PrimSig trgsig = mapClassSig.get(cc);
 				Field field;
-				try{field = classsig.addField(AlloyUtil.pckPrefix(epackage.getName(),reference.getName()),trgsig.product(statesig));}
+				try{
+					String aux = AlloyUtil.pckPrefix(epackage.getName(),reference.getName());
+					field = classsig.addField(aux,trgsig.product(statesig));
+				}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 				mapSfField.put(reference,field);
 				

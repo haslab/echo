@@ -48,7 +48,7 @@ public class FileTrackHandler extends AbstractHandler {
 					pp.addMetaModel(path);
 				}catch(Exception e)	{
 					e.printStackTrace();
-					MessageDialog.openError(shell, "Error loading resource.", e.getMessage());
+					MessageDialog.openError(shell, "Error loading resource.", "Error loading meta-model.\n"+e.getMessage());
 				}
 			}
 			else if (extension.equals("qvt") || extension.equals("qvtr")) {

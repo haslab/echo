@@ -73,7 +73,7 @@ public class ProjectProperties {
 	public ProjectProperties(IProject project){
 		
 		this.project = project;
-		cleanProperties();
+		//cleanProperties();
 		metaModels = loadMetaModels();
 		conformList = loadConformList();
 		qvtRules = loadQvtRules();
@@ -158,9 +158,8 @@ public class ProjectProperties {
 							try {
 								result.add(s);
 								er.addModel(s);
-							} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
-									| ErrorParser e) {
-								// TODO Auto-generated catch block
+							} catch (Exception e) {
+								removeMetaModel(s);
 								e.printStackTrace();
 							}
 						} else
@@ -188,10 +187,9 @@ public class ProjectProperties {
 							try {
 								result.add(s);
 								er.addInstance(s);
-							} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
-									| ErrorParser e) {
-								// TODO Auto-generated catch block
+							} catch (Exception e) {
 								e.printStackTrace();
+								this.removeFromConformList(s);
 							}
 						} else 
 							removeFromConformList(s);

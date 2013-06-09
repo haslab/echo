@@ -165,7 +165,8 @@ public class XMIChangeListener implements IResourceChangeListener {
 					throws CoreException {
 				
 	    		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-	    		if (er.hasModel(res.getFullPath().toString()))
+	    		if (er.hasModel(res.getFullPath().toString())){
+	    			System.out.println("Actually refreshing.");
 					try {
 						er.remModel(res.getFullPath().toString());
 						er.addModel(res.getFullPath().toString());
@@ -181,6 +182,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 						});
 						return Status.CANCEL_STATUS;
 					}
+	    		}
 				return Status.OK_STATUS;
 			}
 	    	
@@ -208,7 +210,14 @@ public class XMIChangeListener implements IResourceChangeListener {
 						conformQVT(er);
 					}
 						
-				} catch (ErrorAlloy | ErrorUnsupported | ErrorTransform | ErrorParser e) {
+				} catch (Exception e) {
+					Display.getDefault().syncExec(new Runnable()
+					{
+						public void run()
+						{
+							MessageDialog.openError(shell, "Error reloading meta-model.", "Meta-model has been untracked.");
+						}
+					});
 					e.printStackTrace();
 				}
 				return Status.OK_STATUS;
@@ -216,6 +225,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 	    	
 	    	private void conformMeta(EchoRunner er) throws ErrorAlloy, CoreException
 	    	{
+				EchoPlugin.getInstance().getAlloyView().clean();
 	    		System.out.println("conformmeta");
 	    		String path = res.getFullPath().toString();
 				ArrayList<String> list = new ArrayList<String>(1);
@@ -225,14 +235,13 @@ public class XMIChangeListener implements IResourceChangeListener {
 					res.deleteMarkers(EchoMarker.INTRA_ERROR, false, 0);
 				else {
 					EchoMarker.createIntraMarker(res);		
-					EchoPlugin.getInstance().getAlloyView().clean();
 				}
 	    	}
 	    	
 	    	private void conformQVT(EchoRunner er) throws ErrorAlloy, CoreException
 	    	{
 	    		ProjectProperties pp = ProjectProperties.getProjectProperties(res.getProject());
-	    		
+				EchoPlugin.getInstance().getAlloyView().clean();
 	    		for(QvtRelationProperty qrp : pp.getQvtRelations())
 	    			if(qrp.getModels().contains(res.getFullPath().toString()))
 	    			{
@@ -255,7 +264,6 @@ public class XMIChangeListener implements IResourceChangeListener {
 	    				}
 	    				else {
 	    					EchoMarker.createInterMarker(res,partner,qrp.getQVTrule());
-	    					EchoPlugin.getInstance().getAlloyView().clean();
 	    				}
 	    			}
 	    		

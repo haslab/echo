@@ -63,7 +63,7 @@ public class EchoRunner {
 	}
 	
 	public boolean hasModel(String uri) {
-		return translator.getModelStateSig(uri) != null;
+		return translator.parser.getModelsFromUri(uri) != null;
 	}
 
 	/**

@@ -116,26 +116,26 @@ public class EMFParser {
 	/**
 	 * Loads the EPackages its uri
 	 */
-	public EPackage loadModel(String uri) {
+	public EPackage loadModel(String uri) throws ErrorParser{
 		Resource load_resource = resourceSet.createResource(URI.createURI(uri));
 		
 		try {
 			load_resource.load(resourceSet.getLoadOptions());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ErrorParser(e.getMessage());
 		}
 
 		EPackage res = (EPackage) load_resource.getContents().get(0);
 		
 		System.out.println("HEELP"+resourceSet.getLoadOptions());
 		for(EClassifier e: res.getEClassifiers()) {
-			System.out.println(e);
+			System.out.println(e + ", " + e.getClassifierID());
 			for (EReference x : ((EClass)e).getEReferences())
-				System.out.println(x.getEReferenceType());
+				System.out.println(x.getEReferenceType() + ", " + x.getEReferenceType().getClassifierID());
 		}
 		System.out.println("HEELP");
 		
+		if (res.getNsURI() == null) throw new ErrorParser("nsUri required");
 		
 		resourceSet.getPackageRegistry().put(res.getNsURI(),res);
 		models.put(uri,res);	
@@ -256,22 +256,22 @@ public class EMFParser {
 	public List<EClass> getTopObject(String m) {
 		EPackage pck = models.get(m);
 		System.out.println(m + ", " +models.keySet());
-		List<EClass> classes = new ArrayList<EClass>();
+		Map<Integer,EClass> classes = new HashMap<Integer,EClass>();
 		for (EClassifier obj : pck.getEClassifiers())
-			if (obj instanceof EClass) classes.add((EClass) obj);
-		List<EClass> candidates = new ArrayList<EClass>(classes);
+			if (obj instanceof EClass) classes.put(obj.getClassifierID(),(EClass) obj);
+		Map<Integer,EClass> candidates = new HashMap<Integer,EClass>(classes);
 			
-		for (EClass obj : classes) {
+		for (EClass obj : classes.values()) {
 			for (EReference ref : obj.getEReferences())
 				if (ref.isContainment()) 
-					candidates.remove(ref.getEReferenceType());
+					candidates.remove(ref.getEReferenceType().getClassifierID());
 			List<EClass> sups = obj.getESuperTypes();
 			if (sups != null && sups.size() != 0)
-				if (!candidates.contains(sups.get(0)))
-					candidates.remove(obj);				
+				if (!candidates.keySet().contains(sups.get(0).getClassifierID()))
+					candidates.remove(obj.getClassifierID());				
 		}			
 		System.out.println("Tops: "+candidates);
-		return candidates;
+		return new ArrayList<EClass>(candidates.values());
 	}
 
 	public String backUpTarget(String uri){

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
@@ -108,7 +109,7 @@ class XMI2Alloy {
 		
 		ref = mapObjSig.get(obj);
 		
-		if(ref == null) ref=makeSigList(obj);
+		if(ref == null) ref = makeSigList(obj);
 
 		return ref;
 	}
@@ -135,9 +136,13 @@ class XMI2Alloy {
 		//List<Sig> listSiblings;
 		Expr aux = null;
 		Object eG;
-		PrimSig parent = translator.getSigFromEClass(it.eClass());
+		EClass cc = translator.getEClassFromName(it.eClass().getName());
+		PrimSig parent = translator.getSigFromEClass(cc);
 		PrimSig res;
-		try {res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);}
+		System.out.println(parent + ", " + counter);
+		try {
+			res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);
+		}
 		catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 		
 		/*listSiblings = mapContents.get(parent);
