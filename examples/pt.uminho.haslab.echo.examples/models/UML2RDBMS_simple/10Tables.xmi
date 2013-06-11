@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ASCII"?>
+<rdbms:Scheme
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:rdbms="RDBMS"
+    xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
+    name="Top">
+  <tables name="f">
+    <columns
+        name="c"/>
+    <columns
+        name="a"/>
+    <columns
+        name="f"/>
+  </tables>
+  <tables name="g">
+    <columns
+        name="c"/>
+    <columns
+        name="a"/>
+    <columns
+        name="g"/>
+  </tables>
+  <tables name="h">
+    <columns
+        name="b"/>
+    <columns
+        name="a"/>
+    <columns
+        name="h"/>
+    <columns
+        name="d"/>
+  </tables>
+  <tables name="i">
+    <columns
+        name="b"/>
+    <columns
+        name="a"/>
+    <columns
+        name="i"/>
+    <columns
+        name="d"/>
+  </tables>
+  <tables name="j">
+    <columns
+        name="b"/>
+    <columns
+        name="a"/>
+    <columns
+        name="j"/>
+    <columns
+        name="e"/>
+  </tables>
+</rdbms:Scheme>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ASCII"?>
+<uml:Package xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:uml="UML" name="Topp">
+  <classes name="a">
+    <attributes name="a"/>
+  </classes>
+  <classes name="b" super="//@classes.0">
+    <attributes name="b"/>
+  </classes>
+  <classes name="c" super="//@classes.0">
+    <attributes name="c"/>
+  </classes>
+  <classes name="d" super="//@classes.1">
+    <attributes name="d"/>
+  </classes>
+  <classes name="e" super="//@classes.1">
+    <attributes name="e"/>
+  </classes>
+  <classes name="f" persistent="true" super="//@classes.2">
+    <attributes name="f"/>
+  </classes>
+  <classes name="g" persistent="true" super="//@classes.2">
+    <attributes name="g"/>
+  </classes>
+  <classes name="h" persistent="true" super="//@classes.3">
+    <attributes name="h"/>
+  </classes>
+  <classes name="i" persistent="true" super="//@classes.3">
+    <attributes name="i"/>
+  </classes>
+  <classes name="j" persistent="true" super="//@classes.4">
+    <attributes name="x"/>
+  </classes>
+</uml:Package>

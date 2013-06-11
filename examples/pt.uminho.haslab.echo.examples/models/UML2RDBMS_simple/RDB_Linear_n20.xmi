@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="ASCII"?>
+<rdbms:Scheme
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:rdbms="RDBMS"
+    xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
+    name="&quot;String8&quot;">
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String11&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String8&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String8&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String8&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String8&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+  <tables name="&quot;String7&quot;">
+    <columns
+        name="&quot;String7&quot;"/>
+  </tables>
+</rdbms:Scheme>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ASCII"?>
+<uml:Package xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="UML" xsi:schemaLocation="UML UML.ecore" name="&quot;String8&quot;">
+  <classes name="&quot;String19&quot;" super="//@classes.2" child="//@classes.15 //@classes.21"/>
+  <classes name="&quot;String27&quot;" super="//@classes.6" child="//@classes.2 //@classes.32"/>
+  <classes name="&quot;String20&quot;" super="//@classes.1" child="//@classes.0 //@classes.34"/>
+  <classes name="&quot;String24&quot;" child="//@classes.12 //@classes.35"/>
+  <classes name="&quot;String21&quot;" super="//@classes.7" child="//@classes.33"/>
+  <classes name="&quot;String30&quot;" super="//@classes.8" child="//@classes.19 //@classes.36"/>
+  <classes name="&quot;String25&quot;" super="//@classes.9" child="//@classes.1 //@classes.23"/>
+  <classes name="&quot;String12&quot;" super="//@classes.13" child="//@classes.4 //@classes.37"/>
+  <classes name="&quot;String2&quot;" super="//@classes.10" child="//@classes.5 //@classes.28"/>
+  <classes name="&quot;String18&quot;" super="//@classes.11" child="//@classes.6 //@classes.27"/>
+  <classes name="&quot;String35&quot;" super="//@classes.14" child="//@classes.8 //@classes.31"/>
+  <classes name="&quot;String0&quot;" super="//@classes.12" child="//@classes.9 //@classes.25"/>
+  <classes name="&quot;String16&quot;" super="//@classes.3" child="//@classes.11 //@classes.30"/>
+  <classes name="&quot;String14&quot;" super="//@classes.16" child="//@classes.7 //@classes.29"/>
+  <classes name="&quot;String17&quot;" super="//@classes.15" child="//@classes.10 //@classes.26"/>
+  <classes name="&quot;String33&quot;" super="//@classes.0" child="//@classes.14 //@classes.20"/>
+  <classes name="&quot;String7&quot;" super="//@classes.17" child="//@classes.13 //@classes.39"/>
+  <classes name="&quot;String5&quot;" super="//@classes.18" child="//@classes.16 //@classes.24"/>
+  <classes name="&quot;String28&quot;" super="//@classes.19" child="//@classes.17 //@classes.22"/>
+  <classes name="&quot;String32&quot;" super="//@classes.5" child="//@classes.18 //@classes.38"/>
+  <classes name="&quot;String9&quot;" persistent="true" super="//@classes.15">
+    <attributes name="&quot;String9&quot;"/>
+  </classes>
+  <classes name="&quot;String39&quot;" persistent="true" super="//@classes.0">
+    <attributes name="&quot;String39&quot;"/>
+  </classes>
+  <classes name="&quot;String10&quot;" persistent="true" super="//@classes.18">
+    <attributes name="&quot;String10&quot;"/>
+  </classes>
+  <classes name="&quot;String37&quot;" persistent="true" super="//@classes.6">
+    <attributes name="&quot;String37&quot;"/>
+  </classes>
+  <classes name="&quot;String4&quot;" persistent="true" super="//@classes.17">
+    <attributes name="&quot;String4&quot;"/>
+  </classes>
+  <classes name="&quot;String23&quot;" persistent="true" super="//@classes.11">
+    <attributes name="&quot;String23&quot;"/>
+  </classes>
+  <classes name="&quot;String29&quot;" persistent="true" super="//@classes.14">
+    <attributes name="&quot;String29&quot;"/>
+  </classes>
+  <classes name="&quot;String22&quot;" persistent="true" super="//@classes.9">
+    <attributes name="&quot;String22&quot;"/>
+  </classes>
+  <classes name="&quot;String38&quot;" persistent="true" super="//@classes.8">
+    <attributes name="&quot;String38&quot;"/>
+  </classes>
+  <classes name="&quot;String3&quot;" persistent="true" super="//@classes.13">
+    <attributes name="&quot;String3&quot;"/>
+  </classes>
+  <classes name="&quot;String34&quot;" persistent="true" super="//@classes.12">
+    <attributes name="&quot;String34&quot;"/>
+  </classes>
+  <classes name="&quot;String1&quot;" persistent="true" super="//@classes.10">
+    <attributes name="&quot;String1&quot;"/>
+  </classes>
+  <classes name="&quot;String31&quot;" persistent="true" super="//@classes.1">
+    <attributes name="&quot;String31&quot;"/>
+  </classes>
+  <classes name="&quot;String36&quot;" persistent="true" super="//@classes.4">
+    <attributes name="&quot;String36&quot;"/>
+  </classes>
+  <classes name="&quot;String26&quot;" persistent="true" super="//@classes.2">
+    <attributes name="&quot;String26&quot;"/>
+  </classes>
+  <classes name="&quot;String13&quot;" persistent="true" super="//@classes.3">
+    <attributes name="&quot;String13&quot;"/>
+  </classes>
+  <classes name="&quot;String15&quot;" persistent="true" super="//@classes.5">
+    <attributes name="&quot;String15&quot;"/>
+  </classes>
+  <classes name="&quot;String6&quot;" persistent="true" super="//@classes.7">
+    <attributes name="&quot;String6&quot;"/>
+  </classes>
+  <classes name="&quot;String11&quot;" persistent="true" super="//@classes.19">
+    <attributes name="&quot;String11&quot;"/>
+  </classes>
+  <classes name="&quot;String8&quot;" persistent="true" super="//@classes.16">
+    <attributes name="&quot;String8&quot;"/>
+  </classes>
+</uml:Package>

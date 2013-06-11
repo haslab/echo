@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ASCII"?>
+<uml:Package xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="UML" xsi:schemaLocation="UML UML.ecore" name="&quot;String2&quot;">
+  <classes name="&quot;String7&quot;" child="//@classes.2 //@classes.7"/>
+  <classes name="&quot;String1&quot;" super="//@classes.2" child="//@classes.3 //@classes.6"/>
+  <classes name="&quot;String2&quot;" super="//@classes.0" child="//@classes.1 //@classes.5"/>
+  <classes name="&quot;String3&quot;" super="//@classes.1" child="//@classes.4"/>
+  <classes name="&quot;String4&quot;" persistent="true" super="//@classes.3">
+    <attributes name="&quot;String4&quot;"/>
+  </classes>
+  <classes name="&quot;String5&quot;" persistent="true" super="//@classes.2">
+    <attributes name="&quot;String5&quot;"/>
+  </classes>
+  <classes name="&quot;String6&quot;" persistent="true" super="//@classes.1">
+    <attributes name="&quot;String6&quot;"/>
+  </classes>
+  <classes name="&quot;String0&quot;" persistent="true" super="//@classes.0">
+    <attributes name="&quot;String0&quot;"/>
+  </classes>
+</uml:Package>

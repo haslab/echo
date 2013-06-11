@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ASCII"?>
+<rdbms:Scheme
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:rdbms="RDBMS"
+    xsi:schemaLocation="RDBMS RDBMS.ecore#RDBMS"
+    name="&quot;String7&quot;">
+  <tables name="&quot;String3&quot;">
+    <columns
+        name="&quot;String3&quot;"/>
+  </tables>
+  <tables name="&quot;String19&quot;">
+    <columns
+        name="&quot;String19&quot;"/>
+    <columns
+        name="&quot;String4&quot;"/>
+    <columns
+        name="&quot;String10&quot;"/>
+    <columns
+        name="&quot;String9&quot;"/>
+  </tables>
+  <tables name="&quot;String0&quot;">
+    <columns
+        name="&quot;String0&quot;"/>
+  </tables>
+  <tables name="&quot;String6&quot;">
+    <columns
+        name="&quot;String6&quot;"/>
+  </tables>
+  <tables name="&quot;String18&quot;">
+    <columns
+        name="&quot;String18&quot;"/>
+  </tables>
+  <tables name="&quot;String5&quot;">
+    <columns
+        name="&quot;String5&quot;"/>
+  </tables>
+  <tables name="&quot;String2&quot;">
+    <columns
+        name="&quot;String2&quot;"/>
+  </tables>
+  <tables name="&quot;String10&quot;">
+    <columns
+        name="&quot;String10&quot;"/>
+    <columns
+        name="&quot;String9&quot;"/>
+    <columns
+        name="&quot;String4&quot;"/>
+  </tables>
+  <tables name="&quot;String9&quot;">
+    <columns
+        name="&quot;String9&quot;"/>
+  </tables>
+  <tables name="&quot;String4&quot;">
+    <columns
+        name="&quot;String4&quot;"/>
+    <columns
+        name="&quot;String9&quot;"/>
+  </tables>
+</rdbms:Scheme>
