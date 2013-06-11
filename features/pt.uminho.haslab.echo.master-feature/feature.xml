@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="pt.uminho.haslab.echo.master"
+      label="Echo"
+      version="0.2.0.qualifier"
+      provider-name="HASLab">
+
+   <description url="http://haslab.github.io/echo">
+      Install this feature to use Echo.
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <url>
+      <update url="http://haslab.github.io/echo/updates/"/>
+   </url>
+
+   <plugin
+         id="pt.uminho.haslab.echo"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="pt.uminho.haslab.echo.plugin"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

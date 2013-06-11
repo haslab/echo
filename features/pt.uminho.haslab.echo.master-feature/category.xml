@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/pt.uminho.haslab.echo.master_0.2.0.qualifier.jar" id="pt.uminho.haslab.echo.master" version="0.2.0.qualifier">
+      <category name="pt.uminho.haslab.echo.category"/>
+   </feature>
+   <category-def name="pt.uminho.haslab.echo.category" label="Echo">
+      <description>
+         Echo features.
+      </description>
+   </category-def>
+</site>
