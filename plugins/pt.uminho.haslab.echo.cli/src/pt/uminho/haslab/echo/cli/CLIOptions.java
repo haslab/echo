@@ -139,7 +139,7 @@ public class CLIOptions extends Options implements EchoOptions{
 				throw new ErrorParser("Cannot perform tests and generate instances.");
 			if (isRepair() && (isQVT() || isConformance())) 
 				throw new ErrorParser("Cannot perform tests and repair instances.");
-			if (getModels() == null) 
+			if (getMetamodels() == null) 
 				throw new ErrorParser("Metamodels required","CLI Parser");
 			if (isQVT() && !(isCheck() || isEnforce()))
 				throw new ErrorParser("Applying QVT transformation requires running mode.");
@@ -208,15 +208,15 @@ public class CLIOptions extends Options implements EchoOptions{
 		return size;
 	}
 	
-	public String getQVTPath() {
+	public String getQVTURI() {
 		return cmd.getOptionValue("q");
 	}
 	
-	public String[] getModels() {
+	public String[] getMetamodels() {
 		return cmd.getOptionValues("m");
 	}
 
-	public String[] getInstances() {
+	public String[] getModels() {
 		String [] res = cmd.getOptionValues("i");
 		if (res == null) res = new String[0];
 		return res;

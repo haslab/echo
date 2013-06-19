@@ -29,18 +29,17 @@ public class CLIPrinter {
 
 	public String printModel(EMF2Alloy translator) throws ErrorAlloy{
 		StringBuilder sb = new StringBuilder();
-		for (String uri : options.getModels()) {
-			String name = translator.parser.getModelsFromUri(uri).getName();
-			sb.append("* Meta-model "+name+"\n");
-			sb.append("State sig: "+translator.getMetamodelStateSig(name)+"\n");
-			sb.append("Model sigs: "+translator.getModelSigs(name)+"\n");
-			sb.append("Enum sigs: "+translator.getEnumSigs(name)+"\n");
+		for (String uri : options.getMetamodels()) {
+			sb.append("* Meta-model "+uri+"\n");
+			sb.append("State sig: "+translator.getMetamodelStateSig(uri)+"\n");
+			sb.append("Meta-model sigs: "+translator.getMetamodelSigs(uri)+"\n");
+			sb.append("Enum sigs: "+translator.getEnumSigs(uri)+"\n");
 			ExprCall exp = (ExprCall) translator.getConformsAllInstances(uri);
 			sb.append("Constraints: "+exp.fun.getBody()+"\n");
-			sb.append("Delta exp: "+translator.getMetamodelDeltaExpr(name).getBody()+"\n");
+			sb.append("Delta exp: "+translator.getMetamodelDeltaExpr(uri).getBody()+"\n");
 		}
 		
-		for (String uri : options.getInstances()) {
+		for (String uri : options.getModels()) {
 			sb.append("* Instance model "+uri+"\n");
 			sb.append("State sig: "+translator.getModelStateSig(uri)+"\n");
 			sb.append("Instance sigs: "+translator.getInstanceSigs(uri)+"\n");
@@ -48,8 +47,8 @@ public class CLIPrinter {
 		}
 		
 		if (options.isQVT()) {
-			sb.append("* QVT-R transformation "+options.getQVTPath()+"\n");
-			ExprList x = (ExprList) translator.getQVTFact(options.getQVTPath()).getBody();
+			sb.append("* QVT-R transformation "+options.getQVTURI()+"\n");
+			ExprList x = (ExprList) translator.getQVTFact(options.getQVTURI()).getBody();
 			for (Expr y : x.args) {
 				if (y instanceof ExprCall)
 					sb.append("Constraint: "+y+" : "+((ExprCall) y).fun.getBody()+"\n");
