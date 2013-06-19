@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.swt.widgets.Shell;
@@ -12,7 +11,8 @@ import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.emf.EMFParser;
+import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 public class EchoInterQuickFix implements IMarkerResolution {
@@ -38,14 +38,15 @@ public class EchoInterQuickFix implements IMarkerResolution {
       
       public void run(IMarker marker) {
     	  EchoRunner echo = EchoPlugin.getInstance().getEchoRunner();
+    	  EMFParser parser = EchoPlugin.getInstance().getEchoParser();
     	  ArrayList<String> list = new ArrayList<String>(1);
     	  IResource res = marker.getResource();
     	  String path = res.getFullPath().toString();
 
     	  try {
-    		  RelationalTransformation trans = echo.parser.getTransformation(marker.getAttribute(EchoMarker.QVTR).toString());
-    		  String metadir = echo.translator.getInstanceStateSigFromURI(path).parent.label;
-    		  if (metadir.equals(trans.getModelParameter().get(0).getUsedPackage().get(0).getName())) {
+    		  RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.QVTR).toString());
+    		  String metadir = echo.translator.getModelStateSig(path).parent.label;
+    		  if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 		    	  list.add(path);
 		    	  list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
     		  } else {

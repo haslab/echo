@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
 import org.eclipse.ocl.examples.pivot.IfExp;
@@ -30,6 +31,7 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.emf.URIUtil;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -39,7 +41,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 class OCL2Alloy {
 
@@ -103,14 +104,15 @@ class OCL2Alloy {
 			Expr ocl = this.oclExprToAlloy(value);
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
-			String mdl = prop.getOwningType().getPackage().getName();
+			String metamodeluri = URIUtil.resolveURI(prop.getOwningType().getPackage().getEPackage().eResource());
 			ExprHasName aux = null;
-			if (posvars.get(mdl).size() == 2)
-				aux = posvars.get(mdl).remove(1);
-			Expr localfield = propertyToField(prop);
+			if (posvars.get(metamodeluri).size() == 2)
+				aux = posvars.get(metamodeluri).remove(1);
 			if (aux != null)
-				posvars.get(mdl).add(aux);
+				posvars.get(metamodeluri).add(aux);
 
+			Expr localfield = propertyToField(prop);
+			
 			// retrieves the Alloy root variable
 			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
 			Decl decl = null;
@@ -250,11 +252,11 @@ class OCL2Alloy {
 	}
 	
 	Expr oclExprToAlloy (TypeExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		String pck = expr.getReferredType().getPackage().getName();
-		Field field = translator.getStateFieldFromName(pck, expr.getReferredType().getName());
-		Expr state = (isPre?prevars:posvars).get(pck).get(0);
-		if ((isPre?prevars:posvars).get(pck).size() == 2)
-			state = state.plus((isPre?prevars:posvars).get(pck).get(1));
+		String metamodeluri = URIUtil.resolveURI(expr.getReferredType().getPackage().getEPackage().eResource());
+		Field field = translator.getStateFieldFromClassName(metamodeluri, expr.getReferredType().getName());
+		Expr state = (isPre?prevars:posvars).get(metamodeluri).get(0);
+		if ((isPre?prevars:posvars).get(metamodeluri).size() == 2)
+			state = state.plus((isPre?prevars:posvars).get(metamodeluri).get(1));
 		return field.join(state);
 	}
 	
@@ -336,26 +338,26 @@ class OCL2Alloy {
 				throw new ErrorTransform("oclIsNew may only occur in a \"one\" iteration");
 
 			
-			VariableExp x = (VariableExp) expr.getSource();
-			String cl = x.getType().getName();
-			String mdl = x.getType().getPackage().getName();
-
+			VariableExp var = (VariableExp) expr.getSource();
+			String cl = var.getType().getName();
+			String metamodeluri = URIUtil.resolveURI(var.getType().getPackage().getEPackage().eResource());
+			
 			Integer newi = news.get(cl);
 			if (newi == null) news.put(cl,1);
 			else news.put(cl,newi+1);
-
-			Field statefield = translator.getStateFieldFromName(mdl,cl);
+			
+			Field statefield = translator.getStateFieldFromClassName(metamodeluri,cl);
 			Expr pre = null;
 			Expr pos = null;
-			if (posvars != null && posvars.get(mdl) != null) {
-				pos = posvars.get(mdl).get(0);
-				if (posvars.get(mdl).size()==2) 
-					pos = pos.plus(posvars.get(mdl).get(1));
+			if (posvars != null && posvars.get(metamodeluri) != null) {
+				pos = posvars.get(metamodeluri).get(0);
+				if (posvars.get(metamodeluri).size()==2) 
+					pos = pos.plus(posvars.get(metamodeluri).get(1));
 			}
-			if (prevars != null && prevars.get(mdl) != null) {
-				pre = prevars.get(mdl).get(0);
-				if (prevars.get(mdl).size()==2) 
-					pos = pos.plus(prevars.get(mdl).get(1));
+			if (prevars != null && prevars.get(metamodeluri) != null) {
+				pre = prevars.get(metamodeluri).get(0);
+				if (prevars.get(metamodeluri).size()==2) 
+					pos = pos.plus(prevars.get(metamodeluri).get(1));
 			}
 			Expr pree = (src.in(statefield.join(pre))).not();
 			Expr pose = src.in(statefield.join(pos));
@@ -386,27 +388,29 @@ class OCL2Alloy {
 	
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	Expr propertyToField (Property prop) {
-		String mdl = prop.getOwningType().getPackage().getName();
+	Expr propertyToField (Property prop) {		
+		String metamodeluri = URIUtil.resolveURI(prop.getOwningType().getPackage().getEPackage().eResource());
+		
 		Expr exp;
 		Expr statesig = null;
 		if ((isPre?prevars:posvars) != null) {
-			statesig = (isPre?prevars:posvars).get(mdl).get(0);
-			if ((isPre?prevars:posvars).get(mdl).size() == 2)
-				statesig = statesig.plus((isPre?prevars:posvars).get(mdl).get(1));
+			statesig = (isPre?prevars:posvars).get(metamodeluri).get(0);
+			if ((isPre?prevars:posvars).get(metamodeluri).size() == 2)
+				statesig = statesig.plus((isPre?prevars:posvars).get(metamodeluri).get(1));
 		}
 		if (statesig == null) 
-			statesig = translator.getModelStateSig(mdl);
+			statesig = translator.getMetamodelStateSig(metamodeluri);
 
-		Field field = translator.getFieldFromName(mdl,prop.getOwningType().getName(),prop.getName());
+		Field field = translator.getFieldFromClassName(metamodeluri,prop.getOwningType().getName(),prop.getName());
 		if (field == null && prop.getOpposite() != null && translator.options.isOptimize()) {
-			field = translator.getFieldFromName(mdl,prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
+			field = translator.getFieldFromClassName(metamodeluri,prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
 			exp = (field.join(statesig)).transpose();
 		}
-		else 
+		else {
 			exp = (field.join(statesig));
+		}
 
-		if (exp == null) throw new Error ("Field not found: "+AlloyUtil.pckPrefix(mdl,prop.getName()));
+		if (exp == null) throw new Error ("Field not found: "+AlloyUtil.pckPrefix(metamodeluri,prop.getName()));
 		return exp;
 	}
 	
@@ -417,29 +421,29 @@ class OCL2Alloy {
 			for (VariableDeclaration ovar : ovars) {
 				try {
 					Sig range = Sig.NONE;
-					String mdl = ovar.getType().getPackage().getName();
-					Expr state = null;
-					if ((isPre?prevars:posvars) != null && (isPre?prevars:posvars).get(mdl) != null) {
-						state = (isPre?prevars:posvars).get(mdl).get(0);
-						if ((isPre?prevars:posvars).get(mdl).size() == 2)
-							state = state.plus((isPre?prevars:posvars).get(mdl).get(1));
-					}
-					if (state == null)
-						state = translator.getModelStateSig(mdl);
 					String type = ovar.getType().getName();
 					if (type.equals("String")) {
-					range = Sig.STRING;
-					avars.add(range.oneOf(ovar.getName()));
+						range = Sig.STRING;
+						avars.add(range.oneOf(ovar.getName()));
+					}
+					else if (type.equals("Int")) {
+						range = Sig.SIGINT;
+						avars.add(range.oneOf(ovar.getName()));
 					}
 					else  {
-						List<PrimSig> sigs = translator.getModelSigs(mdl);
-						for (Sig s : sigs)
-							if (s.label.equals(AlloyUtil.pckPrefix(ovar.getType().getPackage().getName(),type))) 
-								range = s;
-						if (range.equals(Sig.NONE)) throw new ErrorTransform ("Sig not found: "+type+sigs);
-						Decl d = AlloyUtil.localStateSig(range,state).oneOf(ovar.getName()); 
+						String metamodeluri = URIUtil.resolveURI(ovar.getType().getPackage().getEPackage().eResource());
+						Expr state = null;
+						if ((isPre?prevars:posvars) != null && (isPre?prevars:posvars).get(metamodeluri) != null) {
+							state = (isPre?prevars:posvars).get(metamodeluri).get(0);
+							if ((isPre?prevars:posvars).get(metamodeluri).size() == 2)
+								state = state.plus((isPre?prevars:posvars).get(metamodeluri).get(1));
+						}
+						if (state == null)
+							state = translator.getMetamodelStateSig(metamodeluri);
+						Decl d = (translator.getStateFieldFromClassName(metamodeluri, type).join(state)).oneOf(ovar.getName()); 
 						avars.add(d);
-					}
+					}					
+					
 				} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 			}
 			return avars;

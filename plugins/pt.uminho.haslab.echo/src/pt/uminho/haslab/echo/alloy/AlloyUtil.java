@@ -10,7 +10,6 @@ import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.Relation;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
-import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -22,6 +21,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprLet;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
@@ -30,35 +30,57 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class AlloyUtil {
-		
-	public static Expr localStateSig(Sig sig, Expr var) throws ErrorTransform, ErrorAlloy{
-		Expr exp = null;
-		
-		for (Field field : sig.getFields()) {
-			if (field.label.endsWith("_") && field.label.substring(0, field.label.length()-1).equals(sig.label) ){	
-				exp = field;
-			}
-		}
-		if (exp == null) throw new ErrorTransform ("State field not found.");
-		
-		return exp.join(var);
+	
+	/** the top state signature name */	
+	public static String STATESIGNAME = "State@";
+	public static String ORDNAME = "ord@";
+	public static String STRINGNAME = "String";
+	public static String INTNAME = "Int";
+	
+	/** retrieves the meta-model URI from an Alloy signature 
+	 * @param sig the Alloy signature
+	 * @return the meta-model URI
+	 */
+	public static String getMetamodelURIfromExpr(ExprHasName sig) {
+		return getMetamodelURIfromLabel(sig.label);
 	}
+	public static String getMetamodelURIfromLabel(String label) {
+		return label.split("@")[0];
+	}
+
+	public static String getClassOrFeatureName(String label) {
+		return label.split("@")[1];
+	}
+
+	public static boolean mayBeClassOrFeature(String label) {
+		return label.split("@").length == 2;
+	}
+	
+	public static boolean mayBeStateOrLiteral(String label) {
+		return label.split("@").length == 1 || label.startsWith(ORDNAME);
+	}
+	
+
+	public static boolean isStateField(String label) {
+		return mayBeClassOrFeature(label) && label.endsWith("@");
+	}
+	
+	
 	
 	// methods used to append prefixes to expressions
 	public static String pckPrefix (String mdl, String str) {
-		return (mdl + "_" + str);
+		return (mdl + "@" + str);
 	}
 
 	public static String stateFieldName (EPackage pck, EClass cls) {
-		return pck.getName() +"_"+ cls.getName() +"_";
+		return pck.eResource().getURI().path() +"@"+ cls.getName() +"@";
 	}
 	
 	public static String relationFieldName (Relation rel, TypedModel dir) {
-		return rel.getName() +"_"+dir.getName()+"_";
+		return rel.getName() +"@"+dir.getName()+"@";
 	}
 	
 	

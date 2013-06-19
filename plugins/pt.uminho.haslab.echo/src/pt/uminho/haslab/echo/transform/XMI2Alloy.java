@@ -64,14 +64,16 @@ class XMI2Alloy {
 	// initializes relations to n-ary none
 	private void initContent()
 	{
-		for(PrimSig s: translator.getClassSigs())
-			mapContent.put(translator.getStateFieldFromSig(s),Sig.NONE);
-		for(EStructuralFeature sf: translator.getSFeatures()){
-			if (sf instanceof EReference && ((EReference) sf).getEOpposite() != null &&((EReference) sf).getEOpposite().isContainment()) {}
-			else if(sf.getEType().getName().equals("EBoolean"))
-				mapContent.put(translator.getFieldFromSFeature(sf),Sig.NONE);
+		for(PrimSig s: translator.getAllSigs())
+			if (translator.getStateFieldFromSig(s) != null)
+				mapContent.put(translator.getStateFieldFromSig(s),Sig.NONE);
+		for(Field field: translator.getFields()){
+			EStructuralFeature sfeature = translator.getSFeatureFromField(field);
+			if (sfeature instanceof EReference && ((EReference) sfeature).getEOpposite() != null &&((EReference) sfeature).getEOpposite().isContainment()) {}
+			else if(sfeature.getEType().getName().equals("EBoolean"))
+				mapContent.put(field,Sig.NONE);
 			else
-				mapContent.put(translator.getFieldFromSFeature(sf),Sig.NONE.product(Sig.NONE));}
+				mapContent.put(field,Sig.NONE.product(Sig.NONE));}
 	}
 
 	

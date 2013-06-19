@@ -32,19 +32,19 @@ public class CLIPrinter {
 		for (String uri : options.getModels()) {
 			String name = translator.parser.getModelsFromUri(uri).getName();
 			sb.append("* Meta-model "+name+"\n");
-			sb.append("State sig: "+translator.getModelStateSig(name)+"\n");
+			sb.append("State sig: "+translator.getMetamodelStateSig(name)+"\n");
 			sb.append("Model sigs: "+translator.getModelSigs(name)+"\n");
-			sb.append("Enum sigs: "+translator.getEnumSigsFromName(name)+"\n");
+			sb.append("Enum sigs: "+translator.getEnumSigs(name)+"\n");
 			ExprCall exp = (ExprCall) translator.getConformsAllInstances(uri);
 			sb.append("Constraints: "+exp.fun.getBody()+"\n");
-			sb.append("Delta exp: "+translator.getModelDeltaExpr(name).getBody()+"\n");
+			sb.append("Delta exp: "+translator.getMetamodelDeltaExpr(name).getBody()+"\n");
 		}
 		
 		for (String uri : options.getInstances()) {
 			sb.append("* Instance model "+uri+"\n");
-			sb.append("State sig: "+translator.getInstanceStateSigFromURI(uri)+"\n");
+			sb.append("State sig: "+translator.getModelStateSig(uri)+"\n");
 			sb.append("Instance sigs: "+translator.getInstanceSigs(uri)+"\n");
-			sb.append("Constraints: "+translator.getInstanceFact(uri)+"\n");
+			sb.append("Constraints: "+translator.getModelFact(uri)+"\n");
 		}
 		
 		if (options.isQVT()) {

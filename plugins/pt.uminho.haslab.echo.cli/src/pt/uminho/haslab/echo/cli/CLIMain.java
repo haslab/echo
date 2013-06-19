@@ -8,11 +8,11 @@ import java.util.Arrays;
 
 import javax.swing.SwingUtilities;
 
-import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.alloy.AlloyRunner;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
@@ -38,15 +38,15 @@ public class CLIMain {
 		}
 		
 		CLIPrinter printer = new CLIPrinter(options);
-		EchoRunner echo = new EchoRunner(options);
+		AlloyRunner echo = new AlloyRunner(options);
 
 		printer.printTitle("Processing input files.");
 		
 		for (String uri : options.getModels())
-			echo.addModel(uri);
+			echo.addMetamodel(uri);
 		if (options.isQVT()) echo.addQVT(options.getQVTPath());
 		for (String uri : options.getInstances())
-			echo.addInstance(uri);
+			echo.addModel(uri);
 		
 		echo.timer.setTime("Translate");
 		printer.printForce("Files processed ("+echo.timer.getTime("Translate")+"ms).");

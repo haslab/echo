@@ -13,7 +13,7 @@ import org.eclipse.ui.IWorkbench;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
-import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
@@ -60,7 +60,6 @@ public class ModelGenerateWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-		
 		try {
 			Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
 			if (page.getScopes() != null && ! page.getScopes().equals("")) {
@@ -69,21 +68,25 @@ public class ModelGenerateWizard extends Wizard {
 					for (int i = 0; i < args.length ; i++) {
 						String[] aux = args[i].split(" ");
 						if (aux.length == 2)
-							scopes.put(new SimpleEntry<String,String>(er.parser.getModelsFromUri(metamodel).getName(),aux[1]),Integer.parseInt(aux[0]));					
+							scopes.put(new SimpleEntry<String,String>(metamodel,aux[1]),Integer.parseInt(aux[0]));					
 						else MessageDialog.openInformation(shell, "Scope error", "Invalid scopes.");
 
 					}
 				}		
 			}
-			er.generate(metamodel, scopes);
-			
+			try {
+				er.generate(metamodel, scopes);
+			} catch (ErrorUnsupported e) {
+				// TODO Auto-generated catch block
+				MessageDialog.openInformation(shell, "Error generating.", e.getMessage());
+			}
 			AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
 			amv.setIsNew(true);
 			amv.setPathToWrite(page.getPath());
 			amv.setMetamodel(metamodel);
 			amv.setProperties(pp);
 			amv.refresh();
-		} catch (ErrorAlloy | ErrorTransform /*| ErrorUnsupported | ErrorParser*/ e) {
+		} catch (ErrorAlloy /*| ErrorUnsupported | ErrorParser*/ e) {
 			MessageDialog.openInformation(shell, "Error generating instance", e.getMessage());
 		}
 		return true;

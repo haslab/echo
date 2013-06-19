@@ -11,14 +11,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.ViewPart;
 
+import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
@@ -58,10 +55,6 @@ public class AlloyModelView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
-		
-		
-		
-		
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 	    Frame frame = SWT_AWT.new_Frame(composite);
 	    frame.add(viz.getPanel());
@@ -102,19 +95,19 @@ public class AlloyModelView extends ViewPart {
 
 	public void loadGraph()
 	{
-		sol = EchoPlugin.getInstance().getEchoRunner().getAInstance();
-		   try {
-			   if(sol != null && sol.satisfiable())
-			   {
-				   sol.writeXML(".dummy.xml");
-				   viz.loadXML(".dummy.xml",true);
-				   EchoPlugin.getInstance().getEchoRunner().generateTheme(viz.getVizState());
-				   viz.doShowViz();
-			   }
-		   }catch (Err e) {
-			   // TODO Auto-generated catch block
-			   e.printStackTrace();
-		   }
+		EchoRunner runner = EchoPlugin.getInstance().getEchoRunner();
+		sol = runner.getAInstance();
+		try {
+			if(sol != null && sol.satisfiable()) {
+				sol.writeXML(".dummy.xml");
+				viz.loadXML(".dummy.xml",true);
+				runner.generateTheme(viz.getVizState());
+			   	viz.doShowViz();
+			}
+		} catch (Err e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public void dispose(){
 		EchoPlugin.getInstance().deleteView();
@@ -130,6 +123,7 @@ public class AlloyModelView extends ViewPart {
 	}
 	
 	public void clean () {
+		mmURI = null;
 		File file = new File(".dummy.xml");
 		try {
 			file.createNewFile();
@@ -146,19 +140,23 @@ public class AlloyModelView extends ViewPart {
 	}
 
 	public void saveInstance() {
+		EchoRunner runner = EchoPlugin.getInstance().getEchoRunner();
+
 		try {
-			if (!newinst)
-				EchoPlugin.getInstance().getEchoRunner().writeInstance(pathToWrite);
-			else{
-				System.out.println(mmURI +" , "+pathToWrite);
-				EchoPlugin.getInstance().getEchoRunner().writeAllInstances(mmURI,pathToWrite);
+			if (pathToWrite == null) {
+				Shell shell = this.getSite().getShell();
+				MessageDialog.openInformation(shell, "No instance to save.","No instance to save.");
+			}
+			else if (!newinst)
+				runner.writeInstance(pathToWrite);
+			else {
+				runner.writeAllInstances(mmURI,pathToWrite);
 				pp.addConformList(pathToWrite);
 			}
-
-			//pathToWrite = null;
+			pathToWrite = null;
 		} catch (Exception e) {
 			Shell shell = this.getSite().getShell();
-			MessageDialog.openInformation(shell, "Error saving update.",e.getMessage());
+			MessageDialog.openError(shell, "Error saving update.",e.getMessage());
 			e.printStackTrace();
 		}
 		

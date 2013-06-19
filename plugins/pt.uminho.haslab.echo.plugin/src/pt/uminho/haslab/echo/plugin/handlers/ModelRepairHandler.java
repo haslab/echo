@@ -1,7 +1,5 @@
 package pt.uminho.haslab.echo.plugin.handlers;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -36,10 +34,8 @@ public class ModelRepairHandler extends AbstractHandler {
 		{	
 			IFile res = (IFile) firstElement;
 			String path = res.getFullPath().toString();
-			ArrayList<String> list = new ArrayList<String>(1);
-			list.add(path);
 			try {
-				boolean b = er.repair(list, res.getFullPath().toString());
+				boolean b = er.repair(res.getFullPath().toString());
 				while(!b) b = er.increment();
 					
 				AlloyModelView amv = (AlloyModelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().showView("pt.uminho.haslab.echo.alloymodelview");

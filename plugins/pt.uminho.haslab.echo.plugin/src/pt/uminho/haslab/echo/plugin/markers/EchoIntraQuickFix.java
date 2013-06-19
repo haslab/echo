@@ -1,7 +1,5 @@
 package pt.uminho.haslab.echo.plugin.markers;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.IMarkerResolution;
@@ -29,14 +27,12 @@ public class EchoIntraQuickFix implements IMarkerResolution {
     	  EchoRunner echo = EchoPlugin.getInstance().getEchoRunner();
     	  IResource res = marker.getResource();
     	  String path = res.getFullPath().toString();
-    	  ArrayList<String> list = new ArrayList<String>(1);
-    	  list.add(path);
-	    
+       
     	  EchoPlugin.getInstance().options.setOperationBased(mode.equals(EchoMarker.OPS));
  
 		  boolean b;
 		  try {
-			  b = echo.repair(list, res.getFullPath().toString());
+			  b = echo.repair(res.getFullPath().toString());
 			  while(!b) b = echo.increment();
 		  } catch (ErrorAlloy e) {
 			  // TODO Auto-generated catch block

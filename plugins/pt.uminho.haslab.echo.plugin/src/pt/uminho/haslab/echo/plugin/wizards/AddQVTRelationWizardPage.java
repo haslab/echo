@@ -92,7 +92,7 @@ public class AddQVTRelationWizardPage extends WizardPage {
 	}
 	
 	public String getQvt(){
-		return ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toString() + tQvt.getText();
+		return tQvt.getText();
 	}
 	
 	public ArrayList<String> getModels()

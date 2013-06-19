@@ -39,7 +39,7 @@ public class FileUntrackHandler extends AbstractHandler {
 			else if (extension.equals("ecore"))
 			{
 				pp.removeMetaModel(path);
-				EchoPlugin.getInstance().getEchoRunner().remModel(path);
+				EchoPlugin.getInstance().getEchoRunner().remMetamodel(path);
 			}else if (extension.equals("qvt") || extension.equals("qvtr"))
 				MessageDialog.openInformation(shell, "Not Right",extension + "\n" + path);
 			else

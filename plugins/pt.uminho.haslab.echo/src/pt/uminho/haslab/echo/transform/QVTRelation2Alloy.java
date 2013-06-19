@@ -25,6 +25,7 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.emf.OCLUtil;
+import pt.uminho.haslab.echo.emf.URIUtil;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -107,13 +108,13 @@ class QVTRelation2Alloy {
 				
 		for (TypedModel mdl : rel.getTransformation().getModelParameter()) {
 			Decl d;
+			String metamodeluri = URIUtil.resolveURI(mdl.getUsedPackage().get(0).getEPackage().eResource());
 			try {
-				d = translator.getModelStateSig(mdl.getUsedPackage().get(0).getName()).oneOf(mdl.getName());
+				d = translator.getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			mdecls.add(d);
-			String mname = mdl.getUsedPackage().get(0).getName();
-			if (argsvars.get(mname) == null) argsvars.put(mname, new ArrayList<ExprHasName>());
-			argsvars.get(mname).add(d.get());
+			if (argsvars.get(metamodeluri) == null) argsvars.put(metamodeluri, new ArrayList<ExprHasName>());
+			argsvars.get(metamodeluri).add(d.get());
 		}
 		this.decls.addAll(mdecls);
 		initDomains();
@@ -121,12 +122,12 @@ class QVTRelation2Alloy {
 		Expr fact = calculateFact();
 		AlloyOptimizations opt = new AlloyOptimizations(translator);
 		if(translator.options.isOptimize()) {
-			//System.out.println("Pre-onepoint "+fact);
+			System.out.println("Pre-onepoint "+fact);
 			fact = opt.trading(fact);
 			fact = opt.onePoint(fact);
 		}
 		System.out.println("Pos-onepoint "+fact);
-		System.out.println(argsvars);
+		//System.out.println(argsvars);
 		try {
 			if(top) {
 				func = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact);	
@@ -269,11 +270,11 @@ class QVTRelation2Alloy {
 	 * @throws ErrorUnsupported
 	 */
 	private Expr patternToExpr (RelationDomain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		String pck = domain.getTypedModel().getUsedPackage().get(0).getName();
+		String metamodeluri = URIUtil.resolveURI(domain.getTypedModel().getUsedPackage().get(0).getEPackage().eResource());
 		//setting the respective statesig to first position
-		if (argsvars.get(pck).size() == 2 && argsvars.get(pck).get(1).toString().equals(domain.getTypedModel().getName()))
-			argsvars.get(pck).add(argsvars.get(pck).remove(0));
-		System.out.println("Translating relation domain: "+domain.getTypedModel() + argsvars);
+		if (argsvars.get(metamodeluri).size() == 2 && argsvars.get(metamodeluri).get(1).toString().equals(domain.getTypedModel().getName()))
+			argsvars.get(metamodeluri).add(argsvars.get(metamodeluri).remove(0));
+		//System.out.println("Translating relation domain: "+domain.getTypedModel() + argsvars);
 		
 		OCL2Alloy ocltrans = new OCL2Alloy(parentq,translator,decls,argsvars,null);
 		DomainPattern pattern = domain.getPattern();
@@ -300,8 +301,8 @@ class QVTRelation2Alloy {
 			if (field == null) {
 				field = s.addField(AlloyUtil.relationFieldName(rel,direction), /*type.setOf()*/Sig.UNIV.setOf());
 				Expr e = field.equal(fact.comprehensionOver(alloyrootvars.get(0), alloyrootvars.get(1)));
-				System.out.println(alloyrootvars.get(0).expr+", "+alloyrootvars.get(1).expr);
-				System.out.println("DEBUG "+e);
+				//System.out.println(alloyrootvars.get(0).expr+", "+alloyrootvars.get(1).expr);
+				//System.out.println("DEBUG "+e);
 				Func f = new Func(null, field.label+"def",mdecls,null,e);
 				parentq.addFieldFunc(f);
 			}

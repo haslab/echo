@@ -1,7 +1,5 @@
 package pt.uminho.haslab.echo.plugin.wizards;
 
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +18,7 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
@@ -68,6 +67,7 @@ public class AddQVTRelationWizard extends Wizard  {
 	@Override
 	public boolean performFinish() {
 		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		EMFParser parser = EchoPlugin.getInstance().getEchoParser();
 		
 		int news = 0;
 		int newp = 0;
@@ -88,10 +88,9 @@ public class AddQVTRelationWizard extends Wizard  {
 				pp.addQvtRule(page.getQvt());
 				pp.addQvtRelation(page.getQvt(), page.getModels());
 	
-				RelationalTransformation trans = er.parser.getTransformation(page.getQvt());
+				RelationalTransformation trans = parser.getTransformation(page.getQvt());
 				String metamodel = trans.getModelParameter().get(newp).getUsedPackage().get(0).getName();
-				String metamodeluri = er.parser.getModelURI(metamodel);
-	
+				String metamodeluri = parser.getModelURI(metamodel);
 				er.generateqvt(page.getQvt(),metamodeluri,page.getModels(),page.getModels().get(newp));
 				AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
 				amv.refresh();
@@ -107,10 +106,12 @@ public class AddQVTRelationWizard extends Wizard  {
 			
 		} else if (news == 0) {
 			try {
+				String qvturi = page.getQvt();
+				System.out.println(qvturi);
 				pp.addConformList(page.getModels().get(0));
 				pp.addConformList(page.getModels().get(1));
-				pp.addQvtRule(page.getQvt());
-				pp.addQvtRelation(page.getQvt(), page.getModels());
+				pp.addQvtRule(qvturi);
+				pp.addQvtRelation(qvturi, page.getModels());
 				
 				List<String> conformMeta = new ArrayList<String>(1);
 				conformMeta.add(page.getModels().get(0));
@@ -121,21 +122,19 @@ public class AddQVTRelationWizard extends Wizard  {
 				
 				if(!er.conforms(conformMeta))
 					EchoMarker.createIntraMarker(ResourcesPlugin.getWorkspace().getRoot().findMember(conformMeta.get(0)));
-				
-				
-				
-				boolean b =er.check(page.getQvt(), page.getModels());
+		
+				boolean b = er.check(qvturi, page.getModels());
 				if(!b)
 				{
 					IResource modelA,modelB;
 					modelA = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(0));
 					modelB = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(1));
-					EchoMarker.createInterMarker(modelA, modelB, page.getQvt());
+					EchoMarker.createInterMarker(modelA, modelB, qvturi);
 				}
 				//MessageDialog.openInformation(shell, "ok", "Check = " + b);
 				
-			} catch (ErrorAlloy | CoreException | ErrorUnsupported | ErrorTransform | ErrorParser e) {
-				// TODO Auto-generated catch block
+			} catch (Exception e) {
+				MessageDialog.openError(shell, "Error translating QVT-R", e.getMessage());
 				e.printStackTrace();
 			}
 		} else {

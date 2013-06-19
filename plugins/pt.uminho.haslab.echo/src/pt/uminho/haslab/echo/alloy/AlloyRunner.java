@@ -2,9 +2,13 @@ package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -12,6 +16,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.EMF2Alloy;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
@@ -87,14 +92,14 @@ public class AlloyRunner {
 
 	/**
 	 * Tests the conformity of instances
-	 * @param uris the URIs if the instances to be checked
+	 * @param modeluris the URIs if the instances to be checked
 	 * @throws ErrorAlloy
 	 */
-	public void conforms(List<String> uris) throws ErrorAlloy {
-		for (String uri : uris) {
-			addInstanceSigs(uri);
-			finalfact = finalfact.and(translator.getConformsInstance(uri));
-			finalfact = finalfact.and(translator.getInstanceFact(uri));
+	public void conforms(List<String> modeluris) throws ErrorAlloy {
+		for (String modeluri : modeluris) {
+			addInstanceSigs(modeluri);
+			finalfact = finalfact.and(translator.getConformsInstance(modeluri));
+			finalfact = finalfact.and(translator.getModelFact(modeluri));
 		}
 		
 		/*for (Sig sig : allsigs) {
@@ -112,12 +117,16 @@ public class AlloyRunner {
 
 	/**
 	 * Initializes a repair command
-	 * @param insturis the URIs of the instances
+	 * @param modeluris the URIs of the instances
 	 * @param dirarg the URI of the instance to repair
 	 * @throws ErrorAlloy
 	 */
-	public void repair(List<String> insturis, String dir) throws ErrorAlloy {
-		conforms(insturis);	
+	public void repair(String modeluri) throws ErrorAlloy {
+		if (translator.options.isOperationBased())
+			translator.createScopesFromOps(modeluri);
+		else
+			translator.createScopesFromURI(modeluri);
+		conforms(new ArrayList<String>(Arrays.asList(modeluri)));	
 		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
 		else {			
 			try {
@@ -129,22 +138,19 @@ public class AlloyRunner {
 			finalfact = Sig.NONE.no();
 			PrimSig original;
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
-			for (String uri : insturis) {
-				PrimSig state = addInstanceSigs(uri);
-				if (uri.equals(dir)) {
-					original = state;
-					try { targetstate = new PrimSig("'"+original.label, original.parent, Attr.ONE); }
-					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
-					allsigs.add(targetstate);
-					sigs.add(targetstate);
-					edelta = translator.getModelDeltaExpr(original.parent.label).call(original, targetstate);
-					translator.createScopesFromURI(uri);
-					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
-				} else {
-					sigs.add(state);			
-				}
-				finalfact = finalfact.and(translator.getInstanceFact(uri));
+			PrimSig state = addInstanceSigs(modeluri);
+			original = state;
+			try { 
+				targetstate = new PrimSig("'"+original.label, original.parent, Attr.ONE); 
 			}
+			catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+			allsigs.add(targetstate);
+			sigs.add(targetstate);
+			String metamodeluri = translator.getModelMetamodel(modeluri);
+			edelta = translator.getMetamodelDeltaExpr(metamodeluri).call(original, targetstate);
+			translator.createScopesFromURI(modeluri);
+			finalfact = finalfact.and(translator.getConformsInstance(modeluri, targetstate));
+			finalfact = finalfact.and(translator.getModelFact(modeluri));
 		} 
 	}
 	
@@ -152,25 +158,33 @@ public class AlloyRunner {
 	 * Generates instances conforming to given models
 	 * @param uris the URIs of the models
 	 * @throws ErrorAlloy 
+	 * @throws ErrorUnsupported 
 	 */
-	public void generate(String mmuri) throws ErrorAlloy {
-		allsigs.addAll(translator.getAllSigsFromURI(mmuri));			
+	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
+		List<EClass> rootobjects = translator.getRootClass(metamodeluri);
+		if (rootobjects.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootobjects);
+
+		if (scope.get(rootobjects.get(0).getName()) == null)
+			scope.put(new SimpleEntry<String,String>(rootobjects.get(0).getEPackage().eResource().getURI().path(),rootobjects.get(0).getName()),1);
+		translator.createScopesFromSizes(translator.options.getOverallScope(), scope, metamodeluri);
+		
+		allsigs.addAll(translator.getMetamodelSigs(metamodeluri));			
 		scopes = translator.getScopes();
 		
-		PrimSig state = (PrimSig) translator.getModelStateSig(translator.parser.getModelsFromUri(mmuri).getName());
+		PrimSig state = (PrimSig) translator.getMetamodelStateSig(metamodeluri);
 		try { 
 			targetstate = new PrimSig("'"+state, state, Attr.ONE); 
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 
-		finalfact = finalfact.and(translator.getGenerateInstance(mmuri,targetstate));
+		finalfact = finalfact.and(translator.getGenerateInstance(metamodeluri,targetstate));
 		allsigs.add(targetstate);
 
 		try {
-			System.out.println(finalfact);
-			System.out.println(allsigs);
+			//System.out.println(finalfact);
+			//System.out.println(allsigs);
 			Command cmd = new Command(true, overall, intscope, -1, finalfact);
 			cmd = cmd.change(scopes);
-			System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
+			//System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
 
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
@@ -188,13 +202,14 @@ public class AlloyRunner {
 		for (String uri : insturis) {
 			PrimSig state = addInstanceSigs(uri);
 			sigs.add(state);
-			finalfact = finalfact.and(translator.getInstanceFact(uri));
+			//System.out.println("Model fact: "+ translator.getModelFact(uri));
+			finalfact = finalfact.and(translator.getModelFact(uri));
 			finalfact = finalfact.and(translator.getConformsInstance(uri));
 		}
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		
-		System.out.println("Check: DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
-		System.out.println("Check: SIGS "+allsigs);
+		//System.out.println("Check: DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
+		//System.out.println("Check: SIGS "+allsigs);
 		try {
 			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
@@ -204,12 +219,16 @@ public class AlloyRunner {
 	/**
 	 * Initializes q QVT-R enforcement command
 	 * @param qvturi the URI of the QVT-R transformation
-	 * @param insturis the URIs of the instances
+	 * @param modeluris the URIs of the instances
 	 * @param diruri the URI of the target model
 	 * @throws ErrorAlloy
 	 */
-	public void enforce(String qvturi, List<String> insturis, String diruri) throws ErrorAlloy {
-		check(qvturi,insturis);
+	public void enforce(String qvturi, List<String> modeluris, String diruri) throws ErrorAlloy {
+		if (translator.options.isOperationBased())
+			translator.createScopesFromOps(diruri);
+		else
+			translator.createScopesFromURI(diruri);
+		check(qvturi,modeluris);
 		if (sol.satisfiable()) throw new ErrorAlloy ("Instances already consistent.");
 		else {			
 			try {
@@ -221,31 +240,42 @@ public class AlloyRunner {
 			Func func = translator.getQVTFact(qvturi);
 			PrimSig original;
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
-			for (String uri : insturis) {
-				PrimSig state = addInstanceSigs(uri);
-				if (uri.equals(diruri)) {
+			for (String modeluri : modeluris) {
+				PrimSig state = addInstanceSigs(modeluri);
+				if (modeluri.equals(diruri)) {
 					original = state;
-					try { targetstate = new PrimSig("'"+original.label, original.parent, Attr.ONE); }
+					try { 
+						targetstate = new PrimSig("'"+original.label, original.parent, Attr.ONE);
+					}
 					catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 					allsigs.add(targetstate);
 					sigs.add(targetstate);
-					edelta = translator.getModelDeltaExpr(original.parent.label).call(original, targetstate);
-					finalfact = finalfact.and(translator.getConformsInstance(uri, targetstate));
+					String metamodeluri = translator.getModelMetamodel(modeluri);
+					edelta = translator.getMetamodelDeltaExpr(metamodeluri).call(original, targetstate);
+					finalfact = finalfact.and(translator.getConformsInstance(modeluri, targetstate));
 				} else {
 					sigs.add(state);			
 				}
-				System.out.println("INST "+translator.getInstanceFact(uri));
-				finalfact = finalfact.and(translator.getInstanceFact(uri));
+				//System.out.println("INST "+translator.getModelFact(modeluri));
+				finalfact = finalfact.and(translator.getModelFact(modeluri));
 			}
+			System.out.println(sigs + " for "+ func.decls.get(0).expr + " , "+func.getBody());
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		} 
 	}
 	
 	
-	public void generateqvt(String qvturi, List<String> insturis, String diruri, String mmuri) throws ErrorAlloy {
+	public void generateqvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorAlloy, ErrorUnsupported {
+		Map<Entry<String,String>,Integer> scope = new HashMap<Entry<String,String>,Integer>();
+		
+		List<EClass> rootobjects = translator.getRootClass(metamodeluri);
+		if (rootobjects.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootobjects);
+		scope.put(new SimpleEntry<String,String>(rootobjects.get(0).getEPackage().eResource().getURI().path(),rootobjects.get(0).getName()),1);
+		translator.createScopesFromSizes(translator.options.getOverallScope(), scope, metamodeluri);
+	
 		ArrayList<String> insts = new ArrayList<String>(insturis);
 		insts.remove(diruri);
-		allsigs.addAll(translator.getAllSigsFromURI(mmuri));
+		allsigs.addAll(translator.getMetamodelSigs(metamodeluri));
 		scopes = translator.getScopes();
 		
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
@@ -253,15 +283,15 @@ public class AlloyRunner {
 		for (String uri : insturis) {
 			if (!uri.equals(diruri)) {
 				PrimSig state = addInstanceSigs(uri);
-				finalfact = finalfact.and(translator.getInstanceFact(uri));
+				finalfact = finalfact.and(translator.getModelFact(uri));
 				sigs.add(state);			
 			} else {
-				PrimSig state = (PrimSig) translator.getModelStateSig(translator.parser.getModelsFromUri(mmuri).getName());
+				PrimSig state = (PrimSig) translator.getMetamodelStateSig(metamodeluri);
 				try { 
 					targetstate = new PrimSig("'"+state, state, Attr.ONE); 
 				} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 				sigs.add(targetstate);
-				finalfact = finalfact.and(translator.getGenerateInstance(mmuri,targetstate));
+				finalfact = finalfact.and(translator.getGenerateInstance(metamodeluri,targetstate));
 				allsigs.add(targetstate);
 			}
 		}
@@ -281,7 +311,7 @@ public class AlloyRunner {
 	 * @throws ErrorAlloy
 	 */
 	public void increment() throws ErrorAlloy {
-		System.out.println(edelta);
+		//System.out.println(edelta);
 		Expr runfact = finalfact;
 		if (edelta.isSame(Sig.NONE.no())) {
 			scopes = AlloyUtil.incrementStringScopes(scopes);
@@ -301,8 +331,8 @@ public class AlloyRunner {
 			Command cmd = new Command(false, overall, intscope, -1, runfact);
 			cmd = cmd.change(scopes);
 			System.out.println("DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
-			//for (Sig s : allsigs)
-			//	System.out.println("sig "+s + " : " +((PrimSig) s).children());
+			for (Sig s : allsigs)
+				System.out.println("sig "+s + " : " +((PrimSig) s).children());
 
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 			//if (sol.satisfiable()) System.out.println(sol.eval(edelta));
@@ -322,17 +352,19 @@ public class AlloyRunner {
 	
 	/**
 	 * Adds the signatures of an instance to this.allsigs
-	 * @param uri the URI of the instance
+	 * @param modeluri the URI of the instance
 	 * @return the signature representing the instance
 	 * @throws ErrorAlloy 
 	 */
-	private PrimSig addInstanceSigs (String uri) throws ErrorAlloy {
-		for (List<PrimSig> x : translator.getInstanceSigs(uri).values())
+	private PrimSig addInstanceSigs (String modeluri) throws ErrorAlloy {
+		for (List<PrimSig> x : translator.getInstanceSigs(modeluri).values())
 			allsigs.addAll(x);
-		PrimSig state = translator.getInstanceStateSigFromURI(uri);		
+		PrimSig state = translator.getModelStateSig(modeluri);		
 		allsigs.add(state);
 		allsigs.add(state.parent);
-		allsigs.addAll(translator.getAllSigsFromName(state.parent.label));
+		String metamodeluri = translator.getModelMetamodel(modeluri);
+		allsigs.addAll(translator.getMetamodelSigs(metamodeluri));
+		//System.out.println("All sigs: "+allsigs);
 		return state;
 	}
 	
@@ -348,53 +380,46 @@ public class AlloyRunner {
 		availablecolors.add(DotColor.BLUE);
 		availablecolors.add(DotColor.RED);
 		availablecolors.add(DotColor.YELLOW);
-		System.out.println("Colors: "+availablecolors);
 		AlloyModel model = vizstate.getCurrentModel();
 		vizstate.setFontSize(11);
 		int i = 0;
 		for (AlloyType t : model.getTypes()){
 			AlloyType aux = model.getSuperType(t);
 			String label = vizstate.label.get(t);
-			if (aux != null && model.getSuperType(aux) != null && model.getSuperType(aux).equals("State_")) {}
-			else if (label.split("_").length == 2) {
-				String pck = label.split("_")[0];	
-				String uri = translator.parser.getModelURI(pck);
-				if (uri != null) {
-					List<EClass> tops =  translator.parser.getTopObject(uri);
-					System.out.println(tops);
-					vizstate.hideUnconnected.put(t, true);
-					for (EClass top : tops)
-						if (top.getName().equals(label.split("_")[1]))
-							vizstate.hideUnconnected.put(t, false);
-					vizstate.label.put(t, label.split("_")[1]);
-					vizstate.nodeColor.put(t, availablecolors.get(i));
-				}
-			} else if (label.split("_").length == 1) {
-				if (t.getName().equals("State_")) {
+			if (aux != null && model.getSuperType(aux) != null && model.getSuperType(aux).equals(AlloyUtil.STATESIGNAME)) {}
+			else if (AlloyUtil.mayBeClassOrFeature(label)) {
+				vizstate.hideUnconnected.put(t, true);
+				String metamodeluri = AlloyUtil.getMetamodelURIfromLabel(label);
+				List<EClass> rootobjects = translator.getRootClass(metamodeluri);
+				for (EClass rootobject : rootobjects)
+					if (rootobject.getName().equals(AlloyUtil.getClassOrFeatureName(label)))
+						vizstate.hideUnconnected.put(t, false);
+				vizstate.label.put(t, AlloyUtil.getClassOrFeatureName(label));
+				vizstate.nodeColor.put(t, availablecolors.get(i));
+			} else if (AlloyUtil.mayBeStateOrLiteral(label)) {
+				if (t.getName().equals(AlloyUtil.STATESIGNAME)) {
 					vizstate.project(t);
 				}
-				if (t.getName().equals("String") || t.getName().equals("Int") || t.getName().startsWith("ord"))
+				if (t.getName().equals(AlloyUtil.STRINGNAME) || t.getName().equals(AlloyUtil.INTNAME) || t.getName().startsWith(AlloyUtil.ORDNAME))
 					vizstate.nodeVisible.put(t, false);
-			} else if (label.split("_").length == 3) {
-				vizstate.label.put(t, label.split("_")[1] + label.split("_")[2]);
-			}		
+			}	
 			if (++i >= availablecolors.size()) i = 0;
 		}
 		for (AlloySet t : vizstate.getCurrentModel().getSets()){
 			String label = vizstate.label.get(t);
-			if (label.split("_").length == 2) {
-				vizstate.label.put(t, label.split("_")[1]);
-				if (label.endsWith("_")) vizstate.showAsLabel.put(t, false);
+			if (AlloyUtil.mayBeClassOrFeature(label)) {
+				vizstate.label.put(t, AlloyUtil.getClassOrFeatureName(label));
+				if (AlloyUtil.isStateField(label)) vizstate.showAsLabel.put(t, false);
 			}
 		}
 		for (AlloyRelation t : vizstate.getCurrentModel().getRelations()){
 			String label = vizstate.label.get(t);
-			if (label.split("_").length == 2) {
-				String pck = label.split("_")[0];
-				String ref = label.split("_")[1];
+			if (AlloyUtil.mayBeClassOrFeature(label)) {
+				String metamodeluri = AlloyUtil.getMetamodelURIfromLabel(label);
+				String ref = AlloyUtil.getClassOrFeatureName(label);
 				AlloyType sig = t.getTypes().get(0);
-				String cla = sig.getName().split("_")[1];
-				EStructuralFeature sf = translator.getESFeatureFromName(pck,cla,ref);
+				String cla = AlloyUtil.getClassOrFeatureName(sig.getName());
+				EStructuralFeature sf = translator.getESFeatureFromName(metamodeluri,cla,ref);
 				if (sf != null) {
 					if (sf instanceof EAttribute) {
 						vizstate.edgeVisible.put(t, false);

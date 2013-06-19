@@ -15,17 +15,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
@@ -116,7 +115,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 					throws CoreException {
 				
 				try {
-					EchoPlugin.getInstance().getEchoRunner().remInstance(res.getFullPath().toString());
+					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
 					ProjectProperties.getProjectProperties(res.getProject()).removeFromConformList(res.getFullPath().toString());
 				} catch (Exception e) {
 					return Status.CANCEL_STATUS;
@@ -140,7 +139,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 					throws CoreException {
 				
 				try {
-					EchoPlugin.getInstance().getEchoRunner().remModel(res.getFullPath().toString());
+					EchoPlugin.getInstance().getEchoRunner().remMetamodel(res.getFullPath().toString());
 					ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
 				} catch (Exception e) {
 					return Status.CANCEL_STATUS;
@@ -164,14 +163,16 @@ public class XMIChangeListener implements IResourceChangeListener {
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
 				
-	    		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-	    		if (er.hasModel(res.getFullPath().toString())){
+	    		EchoRunner runner = EchoPlugin.getInstance().getEchoRunner();
+	    		EMFParser parser = EchoPlugin.getInstance().getEchoParser();
+	    		if (runner.hasMetamodel(res.getFullPath().toString())){
 	    			System.out.println("Actually refreshing.");
 					try {
-						er.remModel(res.getFullPath().toString());
-						er.addModel(res.getFullPath().toString());
+						runner.remMetamodel(res.getFullPath().toString());
+						EPackage metamodel = parser.loadMetamodel(res.getFullPath().toString());
+						runner.addMetamodel(metamodel);
 					} catch (Exception e) {
-						er.remModel(res.getFullPath().toString());
+						runner.remMetamodel(res.getFullPath().toString());
 						ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
 						Display.getDefault().syncExec(new Runnable()
 						{
@@ -203,11 +204,13 @@ public class XMIChangeListener implements IResourceChangeListener {
 					throws CoreException {
 				
 				try {
-					EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-					if (er.hasInstance(res.getFullPath().toString())) {
-						er.addInstance(res.getFullPath().toString());
-						conformMeta(er);
-						conformQVT(er);
+					EchoRunner runner = EchoPlugin.getInstance().getEchoRunner();
+					EMFParser parser = EchoPlugin.getInstance().getEchoParser();
+					if (runner.hasModel(res.getFullPath().toString())) {
+						EObject model = parser.loadModel(res.getFullPath().toString());
+						runner.addModel(model);
+						conformMeta(runner);
+						conformQVT(runner);
 					}
 						
 				} catch (Exception e) {

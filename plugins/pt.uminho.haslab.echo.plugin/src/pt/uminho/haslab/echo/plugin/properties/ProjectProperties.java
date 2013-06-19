@@ -12,12 +12,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 
@@ -73,7 +77,7 @@ public class ProjectProperties {
 	public ProjectProperties(IProject project){
 		
 		this.project = project;
-		//cleanProperties();
+		cleanProperties();
 		metaModels = loadMetaModels();
 		conformList = loadConformList();
 		qvtRules = loadQvtRules();
@@ -116,7 +120,8 @@ public class ProjectProperties {
 	}
 	
 	private Set<String> loadQvtRules() {
-		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		EchoRunner runner = EchoPlugin.getInstance().getEchoRunner();
+		EMFParser parser = EchoPlugin.getInstance().getEchoParser();
 		Set<String> result = new HashSet<String>();
 		try {
 			qvtRulesString = project.getPersistentProperty(qnQvtRules);
@@ -127,7 +132,8 @@ public class ProjectProperties {
 						if (f != null && f.exists()) {
 							try {
 								result.add(s);
-								er.addQVT(s);
+								RelationalTransformation qvt = parser.loadQVT(s);
+								runner.addQVT(qvt);
 							} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
 									| ErrorParser e) {
 								// TODO Auto-generated catch block
@@ -147,6 +153,7 @@ public class ProjectProperties {
 	private Set<String> loadMetaModels()
 	{
 		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		EMFParser parser = EchoPlugin.getInstance().getEchoParser();
 		Set<String> result = new HashSet<String>();
 		try {
 			metaModelsString = project.getPersistentProperty(qnMetaModels);
@@ -157,7 +164,8 @@ public class ProjectProperties {
 						if(f != null && f.exists()) {
 							try {
 								result.add(s);
-								er.addModel(s);
+								EPackage metamodel = parser.loadMetamodel(s);
+								er.addMetamodel(metamodel);
 							} catch (Exception e) {
 								removeMetaModel(s);
 								e.printStackTrace();
@@ -176,6 +184,7 @@ public class ProjectProperties {
 	private Set<String> loadConformList()
 	{
 		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		EMFParser parser = EchoPlugin.getInstance().getEchoParser();
 		Set<String> result = new HashSet<String>();
 		try {
 			conformString = project.getPersistentProperty(qnConformList);
@@ -186,7 +195,8 @@ public class ProjectProperties {
 						if(f != null && f.exists()) {
 							try {
 								result.add(s);
-								er.addInstance(s);
+								EObject model = parser.loadModel(s);
+								er.addModel(model);
 							} catch (Exception e) {
 								e.printStackTrace();
 								this.removeFromConformList(s);
@@ -270,7 +280,9 @@ public class ProjectProperties {
 	{
 		if(!qvtRules.contains(uri)){
 			EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-			er.addQVT(uri);
+			EMFParser parser = EchoPlugin.getInstance().getEchoParser();
+			RelationalTransformation qvt = parser.loadQVT(uri);
+			er.addQVT(qvt);
 			if(qvtRulesString != null)
 				qvtRulesString = qvtRulesString + ";" + uri;
 			else qvtRulesString = uri;
@@ -289,10 +301,12 @@ public class ProjectProperties {
 	{
 		if(!metaModels.contains(uri)){
 			EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+			EMFParser parser = EchoPlugin.getInstance().getEchoParser();
 			try {
-				er.addModel(uri);
+				EPackage metamodel = parser.loadMetamodel(uri);
+				er.addMetamodel(metamodel);
 			} catch (Exception e) {
-				er.remModel(uri);
+				er.remMetamodel(uri);
 				throw e;
 			}
 			if(metaModelsString != null)
@@ -303,7 +317,7 @@ public class ProjectProperties {
 				project.setPersistentProperty(qnMetaModels, metaModelsString);
 				metaModels.add(uri);
 			} catch (CoreException e) {
-				er.remModel(uri);
+				er.remMetamodel(uri);
 				e.printStackTrace();
 				throw new ErrorParser(e.getMessage());
 			}
@@ -314,7 +328,9 @@ public class ProjectProperties {
 	{
 		if(!conformList.contains(uri)){
 			EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-			er.addInstance(uri);
+			EMFParser parser = EchoPlugin.getInstance().getEchoParser();
+			EObject model = parser.loadModel(uri);
+			er.addModel(model);
 			if(conformString != null)
 				conformString = conformString + ";" + uri;
 			else conformString = uri;
@@ -350,7 +366,7 @@ public class ProjectProperties {
 	public void removeMetaModel(String uri)
 	{
 		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-		er.remModel(uri);
+		er.remMetamodel(uri);
 		metaModels.remove(uri);
 		metaModelsString = makeStringFromCollection(metaModels);
 		try {
@@ -364,7 +380,7 @@ public class ProjectProperties {
 	public void removeFromConformList(String uri)
 	{
 		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
-		er.remInstance(uri);
+		er.remModel(uri);
 		conformList.remove(uri);
 		conformString = makeStringFromCollection(conformList);
 		try {

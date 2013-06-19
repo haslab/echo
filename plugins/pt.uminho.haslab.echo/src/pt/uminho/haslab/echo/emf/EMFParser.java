@@ -1,22 +1,19 @@
 package pt.uminho.haslab.echo.emf;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -26,10 +23,13 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.ocl.examples.domain.utilities.ProjectMap;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
 import org.eclipse.ocl.examples.xtext.base.utilities.CS2PivotResourceAdapter;
+import org.eclipse.ocl.examples.xtext.essentialocl.EssentialOCLStandaloneSetup;
+import org.eclipse.ocl.examples.xtext.essentialocl.services.EssentialOCLLinkingService;
 import org.eclipse.ocl.examples.xtext.oclinecore.OCLinEcoreStandaloneSetup;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
@@ -39,6 +39,7 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 
 import pt.uminho.haslab.echo.EchoOptions;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorTransform;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -47,7 +48,7 @@ import com.google.inject.Injector;
 public class EMFParser {
 
 	/** the ECore resource set */
-	private ResourceSet resourceSet = new ResourceSetImpl();
+	private XtextResourceSet resourceSet = new XtextResourceSet();
 
 	/** the loaded metamodels */
 	private Map<String,EPackage> models = new HashMap<String,EPackage>();
@@ -56,25 +57,17 @@ public class EMFParser {
 	/** the loaded QVT-R transformation */
 	private Map<String,RelationalTransformation> transformations = new HashMap<String, RelationalTransformation>();
 	private BiMap<String,String> modelpaths;
-	/** the prefix for the metamodels paths*/
-	private String metaModelsPrefix;
-	
-	public EMFParser(EchoOptions options){
-		/*
-		// register Pivot globally
-		org.eclipse.ocl.examples.pivot.OCL.kialize(resourceSet);
 
-		String oclDelegateURI = OCLDelegateDomain.OCL_DELEGATE_URI_PIVOT;
-		EOperation.Internal.InvocationDelegate.Factory.Registry.INSTANCE.put(oclDelegateURI,
-		    new OCLInvocationDelegateFactory.Global());
-		EStructuralFeature.Internal.SettingDelegate.Factory.Registry.INSTANCE.put(oclDelegateURI,
-		    new OCLSettingDelegateFactory.Global());
-		EValidator.ValidationDelegate.Registry.INSTANCE.put(oclDelegateURI,
-		    new OCLValidationDelegateFactory.Global());*/
-		
+	public EMFParser(EchoOptions options){	
 		OCLinEcoreStandaloneSetup.doSetup();
 		// install the OCL standard library 		
 		OCLstdlib.install();
+		QVTrelationStandaloneSetup.doSetup();
+		
+		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
+		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
+		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
+				
 		
 		// Register XML Factory implementation to handle files with ecore extension
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl());
@@ -84,20 +77,15 @@ public class EMFParser {
 		// Register XML Factory implementation to handle files with any extension
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*",new XMIResourceFactoryImpl());
 	
-		
-		
 		modelpaths = HashBiMap.create();
-		
-		metaModelsPrefix = options.getWorkspacePath();
-
 	}
 	
 	/**
 	 * Loads the EObject its uri
 	 */
-	public EObject loadInstance(String uri) {
-		Resource load_resource = resourceSet.createResource(URI.createURI(uri));
-		/*Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);*/
+	public EObject loadModel(String uri) {
+		//Resource load_resource = resourceSet.createResource(URI.createURI(uri));
+		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
 		try {
 			load_resource.load(resourceSet.getLoadOptions());
 		} catch (IOException e) {
@@ -116,7 +104,7 @@ public class EMFParser {
 	/**
 	 * Loads the EPackages its uri
 	 */
-	public EPackage loadModel(String uri) throws ErrorParser{
+	public EPackage loadMetamodel(String uri) throws ErrorParser{
 		Resource load_resource = resourceSet.createResource(URI.createURI(uri));
 		
 		try {
@@ -127,13 +115,11 @@ public class EMFParser {
 
 		EPackage res = (EPackage) load_resource.getContents().get(0);
 		
-		System.out.println("HEELP"+resourceSet.getLoadOptions());
-		for(EClassifier e: res.getEClassifiers()) {
+		/*for(EClassifier e: res.getEClassifiers()) {
 			System.out.println(e + ", " + e.getClassifierID());
 			for (EReference x : ((EClass)e).getEReferences())
 				System.out.println(x.getEReferenceType() + ", " + x.getEReferenceType().getClassifierID());
-		}
-		System.out.println("HEELP");
+		}*/
 		
 		if (res.getNsURI() == null) throw new ErrorParser("nsUri required");
 		
@@ -152,70 +138,36 @@ public class EMFParser {
 	
 	/**
 	 * Loads the QVT specification from the CLI argument
+	 * @throws ErrorTransform 
 	 */
-	public RelationalTransformation loadQVT(String uri) throws ErrorParser {
-		CS2PivotResourceAdapter adapter = null;
-
+	public RelationalTransformation loadQVT(String uri) throws ErrorParser, ErrorTransform {
 		
-		QVTrelationStandaloneSetup.doSetup();
-		
-		Injector injector = new QVTrelationStandaloneSetup().createInjectorAndDoEMFRegistration();
-		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
-		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
-		
-		try{
-			Scanner scan = new Scanner(new File(uri));
-			String qvtcontent = scan.useDelimiter("\\Z").next();
-			scan.close();
-			File qvtaux = new File("aux.qvtr");
-			qvtaux.createNewFile();
-			FileWriter out = new FileWriter(qvtaux, true);
-		    BufferedWriter fbw = new BufferedWriter(out);
-		    for (String u: models.keySet())
-		    	fbw.write("import "+models.get(u).getName()+" : \'"+metaModelsPrefix+u+"\'::"+models.get(u).getName()+";\n\n");
-
-		    fbw.write(qvtcontent);
-	        fbw.close();
-	        
-	        
-	        
-			BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(URI.createFileURI("aux.qvtr"), true);
-	        qvtaux.delete();
-		
-			String message = PivotUtil.formatResourceDiagnostics(xtextResource.getErrors(), "Error parsing QVT.", "\n\t");
+		Resource pivotResource;
+        try{
+        	CS2PivotResourceAdapter adapter = null;
+        	URI inputURI = URI.createPlatformResourceURI(uri, false);
+        	System.out.println(inputURI);
+            BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(inputURI, true);
+            adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
+            pivotResource = adapter.getPivotResource(xtextResource);
+            pivotResource.setURI(inputURI);
+            String message = PivotUtil.formatResourceDiagnostics(pivotResource.getErrors(), "Error parsing QVT.", "\n\t");
 			if (message != null) throw new ErrorParser (message,"QVT Parser");
 			
-			adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
-			Resource pivotResource = adapter.getPivotResource(xtextResource);
-					
+		} catch (Exception e) { throw new ErrorParser (e.getMessage(),"QVT Parser");}
+
+        try{	
 			RelationModel rm = (RelationModel) pivotResource.getContents().get(0);
 			RelationalTransformation transformation = (RelationalTransformation) rm.eContents().get(0);
-			/*argpaths = HashBiMap.create();
-			int j = 0;
-			for (int i = 0; i < transformation.getModelParameter().size(); i++){
-				String arg = transformation.getModelParameter().get(i).getName();
-				/* if (options.isNew() && arg.equals(options.getDirection())) {
-					String nuri = "New.xmi";
-					Package mdl = transformation.getModelParameter(options.getDirection()).getUsedPackage().get(0);
-					String mdluri = modelpaths.inverse().get(mdl.getName());
-					EPackage pck = models.get(mdluri);
-					Resource resource = resourceSet.createResource(URI.createURI(nuri));
-					EObject obj = pck.getEFactoryInstance().create(getTopObject(mdluri).get(0));
-					resource.getContents().add(obj);
-					argpaths.put(nuri, arg);
-					instances.put(nuri, obj);
-				}
-				else argpaths.put(args.get(j++),arg);	
-			}*/
 
 			transformations.put(uri, transformation);
 			return transformation;
-		} catch (Exception e) { throw new ErrorParser (e.getMessage(),"QVT Parser");}
+		} catch (Exception e) { throw new ErrorTransform(e.getMessage());}
 		
 	}
-	
+
 	public RelationalTransformation getTransformation(String uri){
-		System.out.println("All "+transformations.keySet());
+		//System.out.println("All "+transformations.keySet());
 		return transformations.get(uri);
 	}
 
@@ -253,26 +205,7 @@ public class EMFParser {
 		return instances.get(uri);
 	}
 
-	public List<EClass> getTopObject(String m) {
-		EPackage pck = models.get(m);
-		System.out.println(m + ", " +models.keySet());
-		Map<Integer,EClass> classes = new HashMap<Integer,EClass>();
-		for (EClassifier obj : pck.getEClassifiers())
-			if (obj instanceof EClass) classes.put(obj.getClassifierID(),(EClass) obj);
-		Map<Integer,EClass> candidates = new HashMap<Integer,EClass>(classes);
-			
-		for (EClass obj : classes.values()) {
-			for (EReference ref : obj.getEReferences())
-				if (ref.isContainment()) 
-					candidates.remove(ref.getEReferenceType().getClassifierID());
-			List<EClass> sups = obj.getESuperTypes();
-			if (sups != null && sups.size() != 0)
-				if (!candidates.keySet().contains(sups.get(0).getClassifierID()))
-					candidates.remove(obj.getClassifierID());				
-		}			
-		System.out.println("Tops: "+candidates);
-		return new ArrayList<EClass>(candidates.values());
-	}
+
 
 	public String backUpTarget(String uri){
 		StringBuilder sb = new StringBuilder(uri);
@@ -292,4 +225,6 @@ public class EMFParser {
 		return sb.toString();
 		
 	}
+
+
 }

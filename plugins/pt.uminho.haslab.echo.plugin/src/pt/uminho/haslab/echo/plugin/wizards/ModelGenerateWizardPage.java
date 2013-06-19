@@ -25,7 +25,7 @@ public class ModelGenerateWizardPage extends WizardPage {
 		super("Generate new model instance");
 		setTitle("Generate new model instance");
 		this.metamodel = metamodel;
-		String name = EchoPlugin.getInstance().getEchoRunner().parser.getModelURI(metamodel);
+		String name = EchoPlugin.getInstance().getEchoParser().getModelURI(metamodel);
 	    setDescription("Generate a new model instance conformant to the "+name+" meta-model.");
 	}
 

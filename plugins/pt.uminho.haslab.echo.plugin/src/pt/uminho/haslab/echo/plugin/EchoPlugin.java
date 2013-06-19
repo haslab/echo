@@ -12,6 +12,7 @@ import org.osgi.framework.BundleContext;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.emf.EMFParser;
 import pt.uminho.haslab.echo.plugin.listeners.XMIChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
@@ -20,6 +21,7 @@ public class EchoPlugin extends Plugin {
 	private static EchoPlugin instance;
 	
 	private EchoRunner echoRunner;
+	private EMFParser echoParser;
 	public final PlugInOptions options;
 	
 	
@@ -32,6 +34,7 @@ public class EchoPlugin extends Plugin {
 		instance = this;
 		options = new PlugInOptions();
 		try {
+			echoParser= new EMFParser(options);
 			echoRunner = new EchoRunner(options);
 		} catch (ErrorAlloy | ErrorTransform e) {
 			// TODO Auto-generated catch block
@@ -71,6 +74,10 @@ public class EchoPlugin extends Plugin {
 	
 	public EchoRunner getEchoRunner(){
 		return echoRunner;
+	}
+	
+	public EMFParser getEchoParser(){
+		return echoParser;
 	}
 
 	public void deleteView() {

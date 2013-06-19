@@ -170,9 +170,8 @@ public class AlloyOptimizations {
 								nr = ((ExprBinary) nr).right.join(Sig.UNIV);
 							else if (nr instanceof ExprBinary && ((ExprBinary) nr).right.isSame(v))
 								nr = Sig.UNIV.join(((ExprBinary) nr).left);
-							Expr r = rngs.get(v);
-							if (r == null) rngs.put(vars.get(v),nr);
-							else rngs.put(vars.get(v),r.minus(nr));
+							Expr r = rngs.get(vars.get(v));
+							rngs.put(vars.get(v),r.minus(nr));
 						}
 					}
        				return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,Sig.NONE.no());	
@@ -245,7 +244,7 @@ public class AlloyOptimizations {
 						TradeForm finder = new TradeForm(x.decls);
 						rngs = finder.visitThis(abody);
 						for (Decl d : rngs.getKey().keySet()) {
-							//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+							System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
 							Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
 							aux.add(d2);
 						}
