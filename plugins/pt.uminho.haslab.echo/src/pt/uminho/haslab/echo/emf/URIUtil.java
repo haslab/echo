@@ -1,0 +1,14 @@
+package pt.uminho.haslab.echo.emf;
+
+import org.eclipse.emf.ecore.resource.Resource;
+
+public class URIUtil {
+	
+	public static String resolveURI(Resource res) {
+		if (res.getURI().isPlatform())
+			return res.getURI().toPlatformString(true);
+		else
+			return res.getURI().path();
+	}
+	
+}
