@@ -1,5 +1,5 @@
 ### HSM2NHSM
-The [HSM2NHSM.qvt](HSM2NHSM.qvt) transformation specifies the collapse/expansion of state diagrams
+The [HSM2NHSM.qvtr](HSM2NHSM.qvtr) transformation specifies the collapse/expansion of state diagrams
 
 #### Overview
 Every top State on the expanded state diagram is matched to a State in the collapsed state diagram, with Transitions being pushed up from children States to the top States.
