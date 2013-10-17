@@ -1,0 +1,18 @@
+-- @atlcompiler emftvm
+-- @atlcompiler atl2006
+-- @nsURI UML=UML.ecore
+-- @nsURI RDBMS=RDBMS.ecore
+module UML2RDBMS;
+create OUT : RDBMS from IN : UML;
+
+rule Property {
+	from
+		class : UML!Class (
+			class.persistent = true
+		)
+	to
+		table : RDBMS!Table (
+			name <- class.name
+		)
+}
+

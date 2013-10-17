@@ -13,6 +13,8 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -68,12 +70,14 @@ class XMI2Alloy {
 			if (translator.getStateFieldFromSig(s) != null)
 				mapContent.put(translator.getStateFieldFromSig(s),Sig.NONE);
 		for(Field field: translator.getFields()){
+			//EchoReporter.getInstance().debug("FIELDS at XMI2Alloy: "+field);
 			EStructuralFeature sfeature = translator.getSFeatureFromField(field);
 			if (sfeature instanceof EReference && ((EReference) sfeature).getEOpposite() != null &&((EReference) sfeature).getEOpposite().isContainment()) {}
 			else if(sfeature.getEType().getName().equals("EBoolean"))
 				mapContent.put(field,Sig.NONE);
 			else
-				mapContent.put(field,Sig.NONE.product(Sig.NONE));}
+				mapContent.put(field,Sig.NONE.product(Sig.NONE));
+		}
 	}
 
 	
@@ -141,7 +145,7 @@ class XMI2Alloy {
 		EClass cc = translator.getEClassFromName(it.eClass().getName());
 		PrimSig parent = translator.getSigFromEClass(cc);
 		PrimSig res;
-		System.out.println(parent + ", " + counter);
+		//System.out.println(parent + ", " + counter);
 		try {
 			res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);
 		}
@@ -229,7 +233,7 @@ class XMI2Alloy {
 			mapContent.put(field, manos);
 		}else if(obj instanceof Integer)
 		{
-			Integer bitwidth = translator.translator.options.getBitwidth();
+			Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
 			Integer max = (int) (Math.pow(2, bitwidth) / 2);
 			if ((int) obj >= max || (int) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
 			Expr str = ExprConstant.makeNUMBER((Integer) obj);

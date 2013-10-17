@@ -4,17 +4,14 @@ Bundle-Name: Echo
 Bundle-SymbolicName: pt.uminho.haslab.echo;singleton:=true
 Bundle-Version: 0.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.eclipse.jdt.core;bundle-version="3.8.2",
- org.eclipse.core.resources;bundle-version="3.8.1",
+Require-Bundle: edu.mit.csail.sdg.alloy4;bundle-version="0.0.0",
  org.eclipse.core.runtime,
- org.eclipse.core.expressions;bundle-version="3.4.401",
- org.eclipse.ui,
- org.eclipse.qvtd.pivot.qvtrelation;bundle-version="0.10.0",
+ org.eclipse.m2m.atl.core;bundle-version="3.4.0",
  org.eclipse.ocl.examples.xtext.base;bundle-version="3.3.0",
+ org.eclipse.qvtd.pivot.qvtrelation;bundle-version="0.10.0",
  org.eclipse.qvtd.xtext.qvtrelation;bundle-version="0.10.0",
- org.eclipse.ui.ide,
  org.eclipse.ocl.examples.xtext.oclinecore;bundle-version="3.3.0",
- edu.mit.csail.sdg.alloy4;bundle-version="0.0.0"
+ org.eclipse.emf.ecore
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: src/
 Export-Package: pt.uminho.haslab.echo,

@@ -16,10 +16,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import pt.uminho.haslab.echo.EchoOptions;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
@@ -36,11 +36,10 @@ class Alloy2XMI {
 	private final A4Solution sol;
 	private final Expr state;
 	private final ECore2Alloy e2a;
-	private final EchoOptions options;
 	private final List<PrimSig> instancesigs;
 	private Map<String,ExprVar> mapAtoms;
 	
-	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo,PrimSig state, EchoOptions options,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform 
+	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo, PrimSig state, List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform 
 	{
 		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom: "+rootatom);
 		instancesigs = (instsigs==null)?new ArrayList<PrimSig>():instsigs;
@@ -48,7 +47,6 @@ class Alloy2XMI {
 		this.sol = sol;
 		this.state = state;	
 		mapAtoms = buildMapAtoms();
-		this.options = options;
 		result = createObject(mapAtoms.get(sol.eval(rootatom).iterator().next().atom(0)));
 	}
 	
@@ -75,10 +73,18 @@ class Alloy2XMI {
 		PrimSig type = null;
 		try {
 			type = (PrimSig)ex.type().toExpr();
-			if (instancesigs.contains(type)) ec = (EClass) e2a.getEClassFromSig(type.parent);
-			else ec = (EClass) e2a.getEClassFromSig(type);
+			if (instancesigs.contains(type)) {
+				ec = (EClass) e2a.getEClassFromSig(type.parent);
+			}
+			else {
+				ec = (EClass) e2a.getEClassFromSig(type);
+				if (ec == null)
+					ec = (EClass) e2a.getEClassFromSig(type.parent);
+			}
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+
 		EObject obj = ec.getEPackage().getEFactoryInstance().create(ec);
+
 		mapExprObj.put(ex, obj);
 		Field field;
 		ExprVar itExpr;
@@ -93,6 +99,7 @@ class Alloy2XMI {
 		
 			if(sf instanceof EAttribute)
 			{
+
 				att = (EAttribute) sf;
 				if(att.getEType() instanceof EEnum){
 					try {
@@ -105,6 +112,7 @@ class Alloy2XMI {
 				}
 				else if(att.getEType().getName().equals("EBoolean"))
 					try {
+
 						obj.eSet(sf,sol.eval(ex.in(field.join(state))));
 					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 				else if(att.getEType().getName().equals("EString")) {
@@ -124,12 +132,11 @@ class Alloy2XMI {
 			else if(sf instanceof EReference)
 			{
 				ref = (EReference) sf;
-				if (options.isOptimize() && ref.getEOpposite() != null && field == null) {}
+				if (EchoOptionsSetup.getInstance().isOptimize() && ref.getEOpposite() != null && field == null) {}
 				else {
 					try {
 						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
-
 					if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
 					{
 						itList = new BasicEList<EObject>();

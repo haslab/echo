@@ -8,9 +8,9 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.transform.EMF2Alloy;
-
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
@@ -32,11 +32,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 public class AlloyOptimizations {
 
-	private final EMF2Alloy translator;
-
-	public AlloyOptimizations (EMF2Alloy translator) {
-		this.translator = translator;
-	}
+	public AlloyOptimizations () {}
 	
 	public Expr trading(Expr expr) throws ErrorUnsupported {
 		TradeQnt trader = new TradeQnt();
@@ -244,7 +240,7 @@ public class AlloyOptimizations {
 						TradeForm finder = new TradeForm(x.decls);
 						rngs = finder.visitThis(abody);
 						for (Decl d : rngs.getKey().keySet()) {
-							System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+							EchoReporter.getInstance().debug("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
 							Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
 							aux.add(d2);
 						}
@@ -263,7 +259,7 @@ public class AlloyOptimizations {
 					TradeForm finder = new TradeForm(x.decls);
 					rngs = finder.visitThis(ebody);
 					for (Decl d : rngs.getKey().keySet()) {
-						//System.out.println("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+						EchoReporter.getInstance().debug("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
 						Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
 						aux.add(d2);
 					}
@@ -324,8 +320,8 @@ public class AlloyOptimizations {
 					for (int i = 0; i < decls.size() ; i++) {
 						Decl d = decls.get(i);
 	        			try {
-	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
-							if (translator.isFunctional(d.expr)) {
+	        				//EchoReporter.getInstance().debug("Onepointing "+d.get().label + " over "+d.expr+ " which is "+EchoTranslator.getInstance().isFunctional(d.expr));
+							if (EchoTranslator.getInstance().isFunctional(d.expr)) {
 								sub = AlloyUtil.replace(sub, d.get(), d.expr);
 								decls.remove(d);
 								for (int j = 0; j < decls.size() ; j++)
@@ -350,7 +346,7 @@ public class AlloyOptimizations {
 	        		for (Decl d : x.decls) {
 	        			try {
 	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
-							if (translator.isFunctional(d.expr)) {
+							if (EchoTranslator.getInstance().isFunctional(d.expr)) {
 								sub = AlloyUtil.replace(sub, d.get(), d.expr);
 								decls.remove(d);
 							}
@@ -424,7 +420,7 @@ public class AlloyOptimizations {
 					} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage()); }
 	    			for (ExprVar var : vars) {
 	    				try {
-	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(EMF2Alloy.STATE))) {
+	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(EchoTranslator.STATE))) {
 	    						//System.out.println ("var "+var.type().toExpr());
 	    						PushVar pusher = new PushVar(var);
 	    						Expr body = pusher.visitThis(x);

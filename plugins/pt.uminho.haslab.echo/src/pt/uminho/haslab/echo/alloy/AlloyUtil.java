@@ -1,16 +1,30 @@
 package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
-import org.eclipse.qvtd.pivot.qvtrelation.Relation;
+import org.eclipse.ocl.examples.pivot.Type;
+import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.consistency.Model;
+import pt.uminho.haslab.echo.consistency.Relation;
+import pt.uminho.haslab.echo.consistency.Variable;
+import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
+import pt.uminho.haslab.echo.emf.URIUtil;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
@@ -39,6 +53,8 @@ public class AlloyUtil {
 	public static String ORDNAME = "ord@";
 	public static String STRINGNAME = "String";
 	public static String INTNAME = "Int";
+	public static String NEWSNAME = "news@";
+
 	
 	/** retrieves the meta-model URI from an Alloy signature 
 	 * @param sig the Alloy signature
@@ -52,9 +68,15 @@ public class AlloyUtil {
 	}
 
 	public static String getClassOrFeatureName(String label) {
-		return label.split("@")[1];
+		String res = null;
+		String[] aux = label.split("@");
+		if (aux.length > 1) {
+			if (isElement(label)) res = aux[1].split("_")[0];
+			else res = aux[1];
+		}
+		return res;
 	}
-
+	
 	public static boolean mayBeClassOrFeature(String label) {
 		return label.split("@").length == 2;
 	}
@@ -63,7 +85,11 @@ public class AlloyUtil {
 		return label.split("@").length == 1 || label.startsWith(ORDNAME);
 	}
 	
-
+	public static boolean isElement(String label) {
+		return mayBeClassOrFeature(label) && label.split("_").length == 2 && label.endsWith("_");
+	}
+	
+	
 	public static boolean isStateField(String label) {
 		return mayBeClassOrFeature(label) && label.endsWith("@");
 	}
@@ -71,15 +97,15 @@ public class AlloyUtil {
 	
 	
 	// methods used to append prefixes to expressions
-	public static String pckPrefix (String mdl, String str) {
-		return (mdl + "@" + str);
+	public static String pckPrefix (EPackage pck, String str) {
+		return (URIUtil.resolveURI(pck.eResource()) + "@" + str);
 	}
 
 	public static String stateFieldName (EPackage pck, EClass cls) {
-		return pck.eResource().getURI().path() +"@"+ cls.getName() +"@";
+		return URIUtil.resolveURI(pck.eResource()) +"@"+ cls.getName() +"@";
 	}
 	
-	public static String relationFieldName (Relation rel, TypedModel dir) {
+	public static String relationFieldName (Relation rel, Model dir) {
 		return rel.getName() +"@"+dir.getName()+"@";
 	}
 	
@@ -305,4 +331,56 @@ public class AlloyUtil {
 
       }
 	
+	
+	// creates a list of Alloy declarations from a list of OCL variables
+		public static Map<String,Decl> variableListToExpr (Collection<Variable> ovars, Map<String,Entry<ExprHasName,String>> varstates, Map<String,ExprHasName> vars) throws ErrorTransform, ErrorAlloy {
+				Map<String,Decl> avars = new LinkedHashMap<String,Decl>();
+				
+				for (Variable ovar : ovars) {
+					try {
+						Sig range = Sig.NONE;
+						EObject t = ovar.getType();
+						String type = null;
+						if (t instanceof Type)
+							type = ((Type)t).getName();
+						else {
+							type = (String) t.eGet(t.eClass().getEStructuralFeature("name"));
+						}
+						if (type.equals("String")) {
+							range = Sig.STRING;
+							avars.put(ovar.getName(),range.oneOf(ovar.getName()));
+						}
+						else if (type.equals("Int")) {
+							range = Sig.SIGINT;
+							avars.put(ovar.getName(),range.oneOf(ovar.getName()));
+						}
+						else  {
+							String metamodeluri = null;
+							if (t instanceof Type) {
+								metamodeluri = URIUtil.resolveURI(((Type)t).getPackage().eResource());
+							}
+							else {
+								EObject aux = (EObject) t.eGet(t.eClass().getEStructuralFeature("model"));
+								metamodeluri = ATLTransformation.metamodeluris.get(aux.eGet(aux.eClass().getEStructuralFeature("name")));
+							}
+							Expr state = null;
+							if (varstates.get(ovar.getName()) != null && vars != null) 
+								state = vars.get(varstates.get(ovar.getName()).getValue());
+							
+							if (state == null)
+								state = EchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+							
+							//EchoReporter.getInstance().debug("AAA"+metamodeluri);
+
+							Decl d = (EchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, type).join(state)).oneOf(ovar.getName()); 
+							avars.put(d.get().label,d);
+						}					
+						
+					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+				}
+				return avars;
+			}
+	
+
+		
 }
