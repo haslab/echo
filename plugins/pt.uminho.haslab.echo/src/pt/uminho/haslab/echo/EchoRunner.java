@@ -96,6 +96,7 @@ public class EchoRunner {
 	public boolean hasQVT(String qvturi) {
 		return EchoTranslator.getInstance().getQVTFact(qvturi) != null;
 	}
+		
 	
 	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
 		EchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);

@@ -44,8 +44,10 @@ public class ResourceManager {
 	private EchoRunner runner = EchoRunner.getInstance();
 	private EchoParser parser = EchoParser.getInstance();
 
-	/** The map o managed model resources: MetamodelURI -> ListModelResources **/
+	/** The map of managed model resources: MetamodelURI -> ListModelResources **/
 	private Map<String, List<IResource>> tracked = new HashMap<String, List<IResource>>();
+	/** The map of managed qvtr constraints: QVTRURI -> ListModelResources **/
+	private Map<String, List<IResource>> constraints = new HashMap<String, List<IResource>>();
 
 	private IResource qvtwaiting;
 	private IResource fstwaiting;
@@ -257,6 +259,30 @@ public class ResourceManager {
 				.getFullPath().toString(), modeluris);
 		conformQVT(resqvt, resmodelfst, resmodelsnd);
 	}
+	
+	
+	/**
+	 * Removes a particular QVT-R constraint between two model resources
+	 * QVT-R representation (vs particular constraint) remains in the system
+	 * Model resources remain tracked
+	 * @param resqvt the qvt-r constraint
+	 * @param resmodelfst the first related model
+	 * @param resmodelsnd the seconde related model
+	 * @throws ErrorAlloy
+	 * @throws ErrorAPI
+	 * @throws ErrorParser 
+	 */
+	private void removeQVTConstraint(IResource resqvt, IResource resmodelfst,
+			IResource resmodelsnd) throws  ErrorParser, ErrorAPI {
+		List<String> modeluris = new ArrayList<String>();
+		modeluris.add(resmodelfst.getFullPath().toString());
+		modeluris.add(resmodelsnd.getFullPath().toString());
+		
+		EchoMarker.removeRelatedInterMarker(resmodelfst, resmodelsnd, resqvt);
+		EchoProjectPropertiesManager.remQVT(resqvt.getProject(), resqvt.getFullPath().toString(), modeluris);
+
+	}
+
 
 	
 	/**
