@@ -4,14 +4,18 @@ import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
+/**
+ * Implementation of the Echo options interface for the plugin
+ * 
+ * @author nmm
+ * 
+ */
 public class PlugInOptions implements EchoOptions {
 
 	boolean operationbased = false;
 
-	/**
-	 * Implementation of the Echo options interface for the plugin
-	 */
-	public PlugInOptions() {}
+	public PlugInOptions() {
+	}
 
 	@Override
 	public boolean isVerbose() {
