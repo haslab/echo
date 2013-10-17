@@ -5,7 +5,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
+import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 public class AlloySaveHandler extends AbstractHandler {
 
@@ -13,7 +13,7 @@ public class AlloySaveHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		// TODO Auto-generated method stub
 		
-		AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
+		GraphView amv = EchoPlugin.getInstance().getGraphView();
 		amv.saveInstance();
 		
 		return null;

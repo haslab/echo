@@ -24,7 +24,7 @@ public class ModelConformsHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		// TODO Auto-generated method stub
 		Shell shell = HandlerUtil.getActiveShell(event);
-		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		EchoRunner er = EchoRunner.getInstance();
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
 
@@ -45,7 +45,6 @@ public class ModelConformsHandler extends AbstractHandler {
 				else
 					res.deleteMarkers(EchoMarker.INTRA_ERROR, false, 0);
 				MessageDialog.openInformation(shell, "ok", "Conforms = " + b);
-				EchoPlugin.getInstance().refreshView();
 			} catch (ErrorAlloy | CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

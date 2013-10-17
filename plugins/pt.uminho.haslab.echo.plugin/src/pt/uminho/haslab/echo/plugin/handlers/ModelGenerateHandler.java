@@ -10,7 +10,6 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.wizards.ModelGenerateWizard;
 
 public class ModelGenerateHandler extends AbstractHandler {
@@ -27,11 +26,9 @@ public class ModelGenerateHandler extends AbstractHandler {
 		if(firstElement instanceof IFile)
 		{	
 			IFile res = (IFile) firstElement;
-			String path = res.getFullPath().toString();
-			ProjectProperties p = ProjectProperties.getProjectProperties(res.getProject());
 
 			WizardDialog wizardDialog = new WizardDialog(shell.getShell(), 
-					new ModelGenerateWizard(path,p));
+					new ModelGenerateWizard(res));
 			
 			wizardDialog.open();
 			

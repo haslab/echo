@@ -4,9 +4,10 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
+import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 public class AlloyNextHandler extends AbstractHandler {
 
@@ -15,15 +16,15 @@ public class AlloyNextHandler extends AbstractHandler {
 		// TODO Auto-generated method stub
 		//Shell shell = HandlerUtil.getActiveShell(event);
 		try {
-			if (!EchoPlugin.getInstance().getEchoRunner().next())
+			if (!EchoRunner.getInstance().next())
 			{
 				System.out.println("A close intance couldn't be found.\nIncremented search range");
-				while(!EchoPlugin.getInstance().getEchoRunner().increment());
+				while(!EchoRunner.getInstance().increment());
 			}
 			
-			AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
+			GraphView amv = EchoPlugin.getInstance().getGraphView();
 			if(amv!= null)
-				amv.loadGraph();
+				amv.drawGraph();
 				
 		} catch (ErrorAlloy e) {
 			// TODO Auto-generated catch block

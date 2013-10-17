@@ -4,14 +4,17 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
+import pt.uminho.haslab.echo.plugin.ResourceManager;
+import pt.uminho.haslab.echo.plugin.properties.EchoProjectPropertiesManager;
 
 public class FileUntrackHandler extends AbstractHandler {
 
@@ -31,17 +34,13 @@ public class FileUntrackHandler extends AbstractHandler {
 			//String path = res.getRawLocation().toString();
 			String extension = res.getFileExtension();
 			
-			ProjectProperties pp = ProjectProperties.getProjectProperties(res.getProject());
 			if(extension.equals("xmi"))
-			{			
-				pp.removeFromConformList(path);
-			}
-			else if (extension.equals("ecore"))
-			{
-				pp.removeMetaModel(path);
-				EchoPlugin.getInstance().getEchoRunner().remMetamodel(path);
-			}else if (extension.equals("qvt") || extension.equals("qvtr"))
-				MessageDialog.openInformation(shell, "Not Right",extension + "\n" + path);
+				try {
+					ResourceManager.getInstance().remModel(res);
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			else
 				MessageDialog.openInformation(shell, "Exception",extension + "not supported.");
 			

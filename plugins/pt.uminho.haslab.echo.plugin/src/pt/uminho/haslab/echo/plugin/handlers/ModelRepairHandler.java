@@ -14,7 +14,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
+import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 
 public class ModelRepairHandler extends AbstractHandler {
@@ -24,10 +24,9 @@ public class ModelRepairHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
-		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		EchoRunner er = EchoRunner.getInstance();
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
-	    
 	    
 	    Object firstElement = selection.getFirstElement();
 		if(firstElement instanceof IFile)
@@ -38,17 +37,15 @@ public class ModelRepairHandler extends AbstractHandler {
 				boolean b = er.repair(res.getFullPath().toString());
 				while(!b) b = er.increment();
 					
-				AlloyModelView amv = (AlloyModelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().showView("pt.uminho.haslab.echo.alloymodelview");
-				amv.refresh();
-				amv.setIsNew(false);
-				amv.setPathToWrite(path);
+				GraphView amv = (GraphView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().showView("pt.uminho.haslab.echo.alloymodelview");
+				amv.setTargetPath(path,false,null);
+				amv.drawGraph();
 				//er.writeInstance(path);
 			} catch (ErrorAlloy | PartInitException e) {
 		
 				e.printStackTrace();
 				MessageDialog.openInformation(shell, "Alloy Error, or view....", e.getMessage());
-			}
-			
+			}	
 		}
 		
 		

@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -13,31 +15,30 @@ import org.eclipse.ui.IWorkbench;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
-import pt.uminho.haslab.echo.plugin.views.AlloyModelView;
+import pt.uminho.haslab.echo.plugin.ResourceManager;
+import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 public class ModelGenerateWizard extends Wizard {
 
 	private ModelGenerateWizardPage page;
 	
-	private String metamodel;
 	private Shell shell;
-	private ProjectProperties pp;
-	
-	
-	public ModelGenerateWizard(String metamodel, ProjectProperties pp)
+	private IResource res;
+		
+	public ModelGenerateWizard(IResource res)
 	{
 		super();
-		this.metamodel = metamodel;
-		this.pp = pp;
+		this.res = res;
 	}
 	
 	@Override
 	public void addPages()
 	{
-		page = new ModelGenerateWizardPage(metamodel);
+		page = new ModelGenerateWizardPage(res.getFullPath().toString());
 		addPage(page);
 	}
 	
@@ -59,7 +60,7 @@ public class ModelGenerateWizard extends Wizard {
 	
 	@Override
 	public boolean performFinish() {
-		EchoRunner er = EchoPlugin.getInstance().getEchoRunner();
+		EchoRunner er = EchoRunner.getInstance();
 		try {
 			Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
 			if (page.getScopes() != null && ! page.getScopes().equals("")) {
@@ -68,24 +69,18 @@ public class ModelGenerateWizard extends Wizard {
 					for (int i = 0; i < args.length ; i++) {
 						String[] aux = args[i].split(" ");
 						if (aux.length == 2)
-							scopes.put(new SimpleEntry<String,String>(metamodel,aux[1]),Integer.parseInt(aux[0]));					
+							scopes.put(new SimpleEntry<String,String>(res.getFullPath().toString(),aux[1]),Integer.parseInt(aux[0]));					
 						else MessageDialog.openInformation(shell, "Scope error", "Invalid scopes.");
 
 					}
 				}		
 			}
 			try {
-				er.generate(metamodel, scopes);
-			} catch (ErrorUnsupported e) {
+				ResourceManager.getInstance().generate(res,scopes,page.getPath());
+			} catch (ErrorUnsupported | ErrorParser | ErrorTransform e) {
 				// TODO Auto-generated catch block
 				MessageDialog.openInformation(shell, "Error generating.", e.getMessage());
 			}
-			AlloyModelView amv = EchoPlugin.getInstance().getAlloyView();
-			amv.setIsNew(true);
-			amv.setPathToWrite(page.getPath());
-			amv.setMetamodel(metamodel);
-			amv.setProperties(pp);
-			amv.refresh();
 		} catch (ErrorAlloy /*| ErrorUnsupported | ErrorParser*/ e) {
 			MessageDialog.openInformation(shell, "Error generating instance", e.getMessage());
 		}

@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 public class ModelGenerateWizardPage extends WizardPage {
@@ -25,8 +26,7 @@ public class ModelGenerateWizardPage extends WizardPage {
 		super("Generate new model instance");
 		setTitle("Generate new model instance");
 		this.metamodel = metamodel;
-		String name = EchoPlugin.getInstance().getEchoParser().getModelURI(metamodel);
-	    setDescription("Generate a new model instance conformant to the "+name+" meta-model.");
+	    setDescription("Generate a new model instance conformant to the "+metamodel+" meta-model.");
 	}
 
 	@Override

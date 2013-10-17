@@ -20,6 +20,7 @@ public class EchoMarker {
 
 
 	public static IMarker createIntraMarker(IResource res) throws CoreException {
+		res.deleteMarkers(EchoMarker.INTRA_ERROR, true, 0);
 		IMarker mark = res.createMarker(EchoMarker.INTRA_ERROR);
 		mark.setAttribute(IMarker.MESSAGE, "Model instance does not conform to the meta-model.");
 		mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
@@ -27,9 +28,9 @@ public class EchoMarker {
 		return mark;
 	}
 	
-	public static IMarker createInterMarker(IResource res,IResource partner,String qvtRule) throws CoreException {
-		IMarker mark = createSingleInterMarker(res,partner,qvtRule);
-		createSingleInterMarker(partner,res,qvtRule);
+	public static IMarker createInterMarker(IResource res,IResource partner,IResource qvtRule) throws CoreException {
+		IMarker mark = createSingleInterMarker(res,partner,qvtRule.getFullPath().toString());
+		createSingleInterMarker(partner,res,qvtRule.getFullPath().toString());
 		return mark;
 	}
 	 private static IMarker createSingleInterMarker(IResource res,IResource partner,String qvtRule) throws CoreException{

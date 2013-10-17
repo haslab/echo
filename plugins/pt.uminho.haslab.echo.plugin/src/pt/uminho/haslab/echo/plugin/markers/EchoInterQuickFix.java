@@ -10,10 +10,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
 
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.emf.EMFParser;
+import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.PlugInOptions;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 public class EchoInterQuickFix implements IMarkerResolution {
       String label;
@@ -37,15 +41,15 @@ public class EchoInterQuickFix implements IMarkerResolution {
       }
       
       public void run(IMarker marker) {
-    	  EchoRunner echo = EchoPlugin.getInstance().getEchoRunner();
-    	  EMFParser parser = EchoPlugin.getInstance().getEchoParser();
+    	  EchoRunner echo = EchoRunner.getInstance();
+    	  EchoParser parser = EchoParser.getInstance();
     	  ArrayList<String> list = new ArrayList<String>(1);
     	  IResource res = marker.getResource();
     	  String path = res.getFullPath().toString();
 
     	  try {
     		  RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.QVTR).toString());
-    		  String metadir = echo.translator.getModelStateSig(path).parent.label;
+    		  String metadir = EchoTranslator.getInstance().getModelStateSig(path).parent.label;
     		  if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 		    	  list.add(path);
 		    	  list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
@@ -59,7 +63,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
     		  return;
     	  }
     	 
-    	  EchoPlugin.getInstance().options.setOperationBased(mode.equals(EchoMarker.OPS));
+    	  ((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(mode.equals(EchoMarker.OPS));
 		  boolean b;
 		  try {
 			  b = echo.enforce(marker.getAttribute(EchoMarker.QVTR).toString(),list, res.getFullPath().toString());
@@ -69,8 +73,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
 			  e.printStackTrace();
 			  return;
 		  }
-		  EchoPlugin.getInstance().getAlloyView().setIsNew(false);
-		  EchoPlugin.getInstance().getAlloyView().refresh();
-		  EchoPlugin.getInstance().getAlloyView().setPathToWrite(path);
+		  EchoPlugin.getInstance().getGraphView().setTargetPath(path,false,null);
+		  EchoPlugin.getInstance().getGraphView().drawGraph();
       }
 }

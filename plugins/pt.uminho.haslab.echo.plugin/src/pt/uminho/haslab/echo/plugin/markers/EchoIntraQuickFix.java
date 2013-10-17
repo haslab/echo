@@ -4,9 +4,12 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.IMarkerResolution;
 
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.PlugInOptions;
 
 public class EchoIntraQuickFix implements IMarkerResolution {
       String label;
@@ -24,11 +27,11 @@ public class EchoIntraQuickFix implements IMarkerResolution {
       }
       
       public void run(IMarker marker) {
-    	  EchoRunner echo = EchoPlugin.getInstance().getEchoRunner();
+    	  EchoRunner echo = EchoRunner.getInstance();
     	  IResource res = marker.getResource();
     	  String path = res.getFullPath().toString();
        
-    	  EchoPlugin.getInstance().options.setOperationBased(mode.equals(EchoMarker.OPS));
+    	  ((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(mode.equals(EchoMarker.OPS));
  
 		  boolean b;
 		  try {
@@ -38,9 +41,8 @@ public class EchoIntraQuickFix implements IMarkerResolution {
 			  // TODO Auto-generated catch block
 			  e.printStackTrace();
 		  }
-		  EchoPlugin.getInstance().getAlloyView().setIsNew(false);
-		  EchoPlugin.getInstance().getAlloyView().refresh();
-		  EchoPlugin.getInstance().getAlloyView().setPathToWrite(path);
+		  EchoPlugin.getInstance().getGraphView().setTargetPath(path,false,null);
+		  EchoPlugin.getInstance().getGraphView().drawGraph();
       }	
 	
 }

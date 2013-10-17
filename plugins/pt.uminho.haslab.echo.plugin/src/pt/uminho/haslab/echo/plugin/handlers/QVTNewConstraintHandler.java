@@ -10,16 +10,15 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.wizards.AddQVTRelationWizard;
 
 public class QVTNewConstraintHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		Shell shell = HandlerUtil.getActiveShell(event);
-		
+
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
 
@@ -29,15 +28,14 @@ public class QVTNewConstraintHandler extends AbstractHandler {
 			IFile res = (IFile) firstElement;
 			String path = res.getFullPath().toString();
 
-			ProjectProperties p = ProjectProperties.getProjectProperties(res.getProject());
 			WizardDialog wizardDialog = new WizardDialog(shell.getShell(), 
-					new AddQVTRelationWizard(path,p));
-			
+					new AddQVTRelationWizard(path,res.getProject()));
+
 			wizardDialog.open();
-			
-			
+
+
 		}
-		
+
 		return null;
 	}
 
