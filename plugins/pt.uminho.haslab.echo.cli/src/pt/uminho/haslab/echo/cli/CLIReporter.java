@@ -1,33 +1,59 @@
 package pt.uminho.haslab.echo.cli;
 
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorAlloy;
-import pt.uminho.haslab.echo.transform.EMF2Alloy;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 
-public class CLIPrinter {
-	CLIOptions options;
-	
-	public CLIPrinter(CLIOptions options) {
-		this.options = options;
+public class CLIReporter extends EchoReporter {
+		
+	private Map<Task,BigInteger> times = new HashMap<Task,BigInteger>();
+
+	public CLIReporter() {
+		super();
+		EchoReporter.init(this);
 	}
 	
-	public void printTitle(String o) {
-		System.out.println("** "+o);
+	
+	public void debug(String msg) {
+		super.debug(msg);
 	}
 	
-	public void print(String o) {
-		if (options.isVerbose())
-			System.out.println(o);
+	public void increment(int delta) {
+		super.iteration(delta);
 	}
 	
-	public void printForce(String o) {
-		System.out.println(o);
+	public long result(Task task, boolean result) {
+		BigInteger now = BigInteger.valueOf(System.currentTimeMillis());
+		BigInteger time = now.subtract(times.get(task));
+		times.put(task, time);
+		super.result(task,result,time.longValue());
+		return time.longValue();
+
+	}
+	
+	public void beginStage(Task task) {
+		BigInteger now = BigInteger.valueOf(System.currentTimeMillis());
+		times.put(task, now);
+		super.debug("Starting: "+ task);
 	}
 	
 
-	public String printModel(EMF2Alloy translator) throws ErrorAlloy{
+
+	public void askUser(String msg) {
+		System.out.println(msg);
+	}
+	public String printModel() throws ErrorAlloy{
+		EchoTranslator translator = EchoTranslator.getInstance();
+		CLIOptions options = (CLIOptions) EchoOptionsSetup.getInstance();
 		StringBuilder sb = new StringBuilder();
 		for (String uri : options.getMetamodels()) {
 			sb.append("* Meta-model "+uri+"\n");
@@ -48,7 +74,7 @@ public class CLIPrinter {
 		
 		if (options.isQVT()) {
 			sb.append("* QVT-R transformation "+options.getQVTURI()+"\n");
-			ExprList x = (ExprList) translator.getQVTFact(options.getQVTURI()).getBody();
+			ExprList x = (ExprList) translator.getQVTFact(((CLIOptions)EchoOptionsSetup.getInstance()).getQVTURI()).getBody();
 			for (Expr y : x.args) {
 				if (y instanceof ExprCall)
 					sb.append("Constraint: "+y+" : "+((ExprCall) y).fun.getBody()+"\n");

@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.cli;
 
+import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -12,13 +13,14 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
+import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.AlloyRunner;
-import pt.uminho.haslab.echo.emf.EMFParser;
+import pt.uminho.haslab.echo.emf.EchoParser;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
@@ -43,101 +45,100 @@ public class CLIMain {
 			return; 
 		}
 		
-		CLIPrinter printer = new CLIPrinter(options);
-		EMFParser parser = new EMFParser(options);
-		EchoRunner runner = new EchoRunner(options);
+		CLIReporter reporter = new CLIReporter();
+		EchoOptionsSetup.init(options);
+		reporter.beginStage(Task.ECHO_RUN);
+		EchoParser parser = EchoParser.getInstance();
+		EchoRunner runner = EchoRunner.getInstance();
 
-		printer.printTitle("Processing input files.");
-		
+		reporter.beginStage(Task.PROCESS_RESOURCES);		
 		for (String metamodeluri : options.getMetamodels()){
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
 			runner.addMetamodel(metamodel);
+			reporter.debug(metamodeluri + " loaded.");
 		}
 		if (options.isQVT()){
 			RelationalTransformation qvt = parser.loadQVT(options.getQVTURI());
 			runner.addQVT(qvt);
+			reporter.debug(options.getQVTURI() + " loaded.");
 		}
 		for (String modeluri : options.getModels()){
 			EObject model = parser.loadModel(modeluri);
 			runner.addModel(model);
+			reporter.debug(modeluri + " loaded.");
 		}
-		runner.timer.setTime("Translate");
-		printer.printForce("Files processed ("+runner.timer.getTime("Translate")+"ms).");
-		printer.print(printer.printModel(runner.translator));
+		reporter.result(Task.PROCESS_RESOURCES,true);
+		//reporter.debug(reporter.printModel());
 		
 		boolean conforms = true;
 		boolean success = false;
 		if (options.isConformance()) {
-			printer.printTitle("Testing instances conformity.");
+			reporter.beginStage(Task.CONFORMS_TASK);
 			conforms = runner.conforms(Arrays.asList(options.getModels()));
-			runner.timer.setTime("Conforms");
-			if (conforms)
-				printer.printForce("Instances conform to the models ("+runner.timer.getTime("Conforms")+"ms).");
-			else
-				printer.printForce("Instances do not conform to the models ("+runner.timer.getTime("Conforms")+"ms).");
+			reporter.result(Task.CONFORMS_TASK,conforms);
 		} else if (options.isGenerate()) {
-			printer.printTitle("Generating instance with size "+options.getOverallScope()+" but "+options.getScopes()+".");
+			reporter.beginStage(Task.GENERATE_TASK);
 			success = runner.generate(options.getMetamodels()[0],options.getScopes());
-			runner.timer.setTime("Generate");
-			if (success)
-				printer.printForce("Intance generated ("+runner.timer.getTime("Generate")+"ms).");
-			else
-				printer.printForce("No possible instances ("+runner.timer.getTime("Generate")+"ms).");
+			reporter.result(Task.GENERATE_TASK,success);
 		} else if (options.isRepair()) {
-			printer.printTitle("Repairing instance.");
+			reporter.beginStage(Task.REPAIR_TASK);
+			reporter.beginStage(Task.ITERATION);
 			success = runner.repair(options.getDirection());
+			reporter.result(Task.ITERATION,success);
 			while (!success) {
-				printer.printForce("No instance found for delta "+runner.getCurrentDelta()+".");
+				reporter.beginStage(Task.ITERATION);
 				success = runner.increment();			
+				reporter.result(Task.ITERATION,success);
 			}
-			runner.timer.setTime("Repair");
-			printer.printForce("Instance found ("+runner.timer.getTime("Repair")+"ms).");
+			reporter.result(Task.REPAIR_TASK,success);
 		}
 		if (options.isCheck() && conforms) {
-			printer.printTitle("Checking consistency.");
+			reporter.beginStage(Task.CHECK_TASK);
 			success = runner.check(options.getQVTURI(),Arrays.asList(options.getModels()));
-			runner.timer.setTime("Check");
-			if (success) printer.printForce("Instances consistent ("+runner.timer.getTime("Check")+"ms).");
-			else printer.printForce("Instances inconsistent ("+runner.timer.getTime("Check")+"ms).");
+			reporter.result(Task.CHECK_TASK,success);
 		} else if (options.isEnforce() && conforms) {
-			printer.printTitle("Enforcing consistency.");
+			reporter.beginStage(Task.ENFORCE_TASK);
 			/*if (options.isNew())
 				success = echo.enforcenew(options.getQVTPath(),Arrays.asList(options.getInstances()),options.getDirection());
 			else*/ 
+			reporter.beginStage(Task.ITERATION);
 			success = runner.enforce(options.getQVTURI(),Arrays.asList(options.getModels()),options.getDirection());
-			runner.timer.setTime("Enforce");
+			reporter.result(Task.ITERATION,success);
 			while (!success) {
-				printer.printForce("No instance found for delta "+(runner.getCurrentDelta()-1)+" ("+runner.timer.getTime("Enforce")+"ms).");
+				reporter.beginStage(Task.ITERATION);
 				success = runner.increment();			
-				runner.timer.setTime("Enforce");
+				reporter.result(Task.ITERATION,success);
 			}
-			printer.printForce("Instance found ("+runner.timer.getTime("Enforce")+"ms).");
+			reporter.result(Task.ENFORCE_TASK,success);
 		}
+		String next = "n";
+
 		if ((options.isEnforce() || options.isGenerate() || options.isRepair()) && success) {
 			/*if (options.isEnforce() && !options.isNew()) {
 				String sb = runner.backUpInstance(options.getDirection());
 				printer.print("Backup file created: " + sb);	
 			}*/
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
-			String end = "y";
+			next = "y";
 			A4Solution sol = runner.getAInstance();
 			sol.writeXML("alloy_output.xml");
-			VizGUI viz = new VizGUI(true, "alloy_output.xml", null,null,null,true);
-			
+			VizGUI viz = new VizGUI(true, "alloy_output.xml",null, null, null, true);
+			Window win = SwingUtilities.getWindowAncestor(viz.getPanel());
+			win.setVisible(true);
 			viz.loadXML("alloy_output.xml", true);
 			
 			runner.generateTheme(viz.getVizState());
 			viz.doShowViz();
-			printer.printForce("Search another instance? (y)");
-			end = in.readLine();
-			while (success&&end.equals("y")) {
+			reporter.askUser("Search another instance? (y)");
+			next = in.readLine();
+			while (success&&next.equals("y")) {
 				success = runner.next();
 				if (success) {
 					sol = runner.getAInstance();
 					sol.writeXML("alloy_output.xml");
 					viz.loadXML("alloy_output.xml", true);
-					printer.printForce("Search another instance? (y)");
-					end = in.readLine();
+					reporter.askUser("Search another instance? (y)");
+					next = in.readLine();
 				}
 			}  
 			in.close();
@@ -152,10 +153,8 @@ public class CLIMain {
 			}
 			SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();
 			new File("alloy_output.xml").delete();
-		
-			if (end.equals("y")) printer.printForce("No more instances.");
 		}
-		printer.printForce("Bye ("+runner.timer.getTotalTime()+"ms).");
+		reporter.result(Task.ECHO_RUN,next.equals("y"));
 	}
 
 	

@@ -35,10 +35,9 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="columns" lowerBound="1"
-        upperBound="-1" eType="ecore:EClass #//Column"
-        containment="true" eOpposite="#//Column/table"/>
+        upperBound="-1" eType="#//Column" containment="true" eOpposite="#//Column/table"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="scheme" lowerBound="1"
-        eType="ecore:EClass #//Scheme" eOpposite="#//Scheme/tables"/>
+        eType="#//Scheme" eOpposite="#//Scheme/tables"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Column">
     <eOperations name="setName">
@@ -54,7 +53,7 @@
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="ecore:EClass #//Table"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="#//Table"
         eOpposite="#//Table/columns"/>
   </eClassifiers>
 </ecore:EPackage>

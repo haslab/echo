@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ASCII"?>
-<nhsm:StateMachine
+<hsm:StateMachine
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:nhsm="NHSM"
-    xsi:schemaLocation="NHSM /uml2rdbms/model/NHSM.ecore#NHSM">
+    xmlns:hsm="HSM"
+    xsi:schemaLocation="HSM HSM.ecore#HSM">
   <states name="A"/>
   <states name="B"/>
   <transitions
@@ -13,4 +13,4 @@
   <transitions
       source="//@states.1"
       target="//@states.1"/>
-</nhsm:StateMachine>
+</hsm:StateMachine>

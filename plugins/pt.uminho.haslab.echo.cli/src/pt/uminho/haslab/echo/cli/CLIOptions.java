@@ -14,7 +14,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import pt.uminho.haslab.echo.EchoOptions;
+import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
 import pt.uminho.haslab.echo.ErrorParser;
 
 public class CLIOptions extends Options implements EchoOptions{
@@ -268,6 +268,11 @@ public class CLIOptions extends Options implements EchoOptions{
 	@Override
 	public String getWorkspacePath() {
 		return "";
+	}
+
+	@Override
+	public boolean isStandalone() {
+		return true;
 	}
 
 }

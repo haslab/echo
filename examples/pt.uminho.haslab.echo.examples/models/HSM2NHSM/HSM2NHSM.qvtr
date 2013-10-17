@@ -1,7 +1,6 @@
 import HSM : 'HSM.ecore' :: HSM;
-import NHSM : 'NHSM.ecore' :: NHSM;
 
-transformation hsm2nhsm (hm : HSM, nm : NHSM) {
+transformation hsm2nhsm (hm : HSM, nm : HSM) {
 
 	top relation State2State { 
     	n: String; 
@@ -12,7 +11,7 @@ transformation hsm2nhsm (hm : HSM, nm : NHSM) {
   	}
 
   	top relation Transition2Transition { 
-    	n: String; s,t, trg1, src1 : HSM::State; trg2, src2 : NHSM::State;
+    	n: String; s,t, trg1, src1 : HSM::State; trg2, src2 : HSM::State;
     	domain hm t1:Transition { 
       		target = trg1, source = src1};
     	domain nm t2:Transition { 
