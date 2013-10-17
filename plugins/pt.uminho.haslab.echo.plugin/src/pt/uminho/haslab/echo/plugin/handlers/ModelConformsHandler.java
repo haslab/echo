@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
@@ -45,7 +46,7 @@ public class ModelConformsHandler extends AbstractHandler {
 				else
 					res.deleteMarkers(EchoMarker.INTRA_ERROR, false, 0);
 				MessageDialog.openInformation(shell, "ok", "Conforms = " + b);
-			} catch (ErrorAlloy | CoreException e) {
+			} catch (ErrorAlloy | ErrorAPI | CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				MessageDialog.openInformation(shell, "Error", e.getMessage());

@@ -20,6 +20,7 @@ import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
@@ -163,7 +164,11 @@ public class XMIChangeListener implements IResourceChangeListener {
 					if (resmanager.hasMetamodel(res))
 						resmanager.reloadMetamodel(res);
 				} catch (Exception e) {
-					resmanager.remMetamodel(res);
+					try {
+						resmanager.remMetamodel(res);
+					} catch (ErrorAPI e1) {
+						e1.printStackTrace();
+					}
 					e.printStackTrace();
 					//ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
 					Display.getDefault().syncExec(new Runnable()

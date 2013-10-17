@@ -48,7 +48,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
     	  String path = res.getFullPath().toString();
 
     	  try {
-    		  RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.QVTR).toString());
+    		  RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
     		  String metadir = EchoTranslator.getInstance().getModelStateSig(path).parent.label;
     		  if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 		    	  list.add(path);
@@ -66,7 +66,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
     	  ((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(mode.equals(EchoMarker.OPS));
 		  boolean b;
 		  try {
-			  b = echo.enforce(marker.getAttribute(EchoMarker.QVTR).toString(),list, res.getFullPath().toString());
+			  b = echo.enforce(marker.getAttribute(EchoMarker.CONSTRAINT).toString(),list, res.getFullPath().toString());
 			  while(!b) b = echo.increment();
 		  } catch (Exception e) {
     		  MessageDialog.openError(shell, "Error loading QVT-R.",e.getMessage());

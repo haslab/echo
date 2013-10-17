@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
@@ -37,7 +38,7 @@ public class FileUntrackHandler extends AbstractHandler {
 			if(extension.equals("xmi"))
 				try {
 					ResourceManager.getInstance().remModel(res);
-				} catch (CoreException e) {
+				} catch (ErrorAPI e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
