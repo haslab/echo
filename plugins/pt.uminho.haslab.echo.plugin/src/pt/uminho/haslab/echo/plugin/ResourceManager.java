@@ -23,6 +23,8 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
+import pt.uminho.haslab.echo.plugin.properties.ConstraintManager;
+import pt.uminho.haslab.echo.plugin.properties.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.properties.EchoProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
@@ -47,7 +49,7 @@ public class ResourceManager {
 	/** The map of managed model resources: MetamodelURI -> ListModelResources **/
 	private Map<String, List<IResource>> tracked = new HashMap<String, List<IResource>>();
 	/** The map of managed qvtr constraints: QVTRURI -> ListModelResources **/
-	private Map<String, List<IResource>> constraints = new HashMap<String, List<IResource>>();
+	private ConstraintManager constraints = new ConstraintManager();
 
 	private IResource qvtwaiting;
 	private IResource fstwaiting;
@@ -136,8 +138,9 @@ public class ResourceManager {
 	 * @param resmodel
 	 *            the model resource to be untracked
 	 * @throws ErrorAPI 
+	 * @throws ErrorParser 
 	 */
-	public void remModel(IResource resmodel) throws ErrorAPI {
+	public void remModel(IResource resmodel) throws ErrorAPI, ErrorParser {
 		String modeluri = resmodel.getFullPath().toString();
 		EchoProjectPropertiesManager.removeModel(resmodel.getProject(),
 				modeluri);
@@ -149,6 +152,16 @@ public class ResourceManager {
 		runner.remModel(modeluri);
 		tracked.get(metamodeluri).remove(resmodel);
 
+		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsModel(modeluri));
+		for (Constraint c : constraints.getAllConstraintsModel(modeluri)) {
+			List<String> aux = new ArrayList<String>();
+			aux.add(c.fstmodel);
+			aux.add(c.sndmodel);
+			EchoProjectPropertiesManager.remQVT(resmodel.getProject(), c.constraint, aux);
+			constraints.removeConstraint(c);
+		}
+		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsModel(modeluri));
+		
 		EchoMarker.removeIntraMarkers(resmodel);
 		EchoMarker.removeInterMarkers(resmodel);
 
@@ -202,8 +215,9 @@ public class ResourceManager {
 	 * @param resmetamodel
 	 *            the metamodel to be untracked
 	 * @throws ErrorAPI 
+	 * @throws ErrorParser 
 	 */
-	public void remMetamodel(IResource resmetamodel) throws ErrorAPI {
+	public void remMetamodel(IResource resmetamodel) throws ErrorAPI, ErrorParser {
 		String metamodeluri = resmetamodel.getFullPath().toString();
 		runner.remMetamodel(metamodeluri);
 
@@ -252,6 +266,11 @@ public class ResourceManager {
 			runner.addQVT(qvt);
 			reporter.debug("QVT-R "+qvturi+" processed.");
 		}
+		
+		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsConstraint(resqvt.getFullPath().toString()));
+		constraints.addConstraint(resqvt.getFullPath().toString(),resmodelfst.getFullPath().toString(),resmodelsnd.getFullPath().toString());
+		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsConstraint(resqvt.getFullPath().toString()));
+		
 		List<String> modeluris = new ArrayList<String>();
 		modeluris.add(resmodelfst.getFullPath().toString());
 		modeluris.add(resmodelsnd.getFullPath().toString());
@@ -272,12 +291,13 @@ public class ResourceManager {
 	 * @throws ErrorAPI
 	 * @throws ErrorParser 
 	 */
-	private void removeQVTConstraint(IResource resqvt, IResource resmodelfst,
+	public void removeQVTConstraint(IResource resqvt, IResource resmodelfst,
 			IResource resmodelsnd) throws  ErrorParser, ErrorAPI {
+		
+		constraints.removeConstraint(resmodelfst.getFullPath().toString(), resmodelsnd.getFullPath().toString(), resqvt.getFullPath().toString());
 		List<String> modeluris = new ArrayList<String>();
 		modeluris.add(resmodelfst.getFullPath().toString());
 		modeluris.add(resmodelsnd.getFullPath().toString());
-		
 		EchoMarker.removeRelatedInterMarker(resmodelfst, resmodelsnd, resqvt);
 		EchoProjectPropertiesManager.remQVT(resqvt.getProject(), resqvt.getFullPath().toString(), modeluris);
 

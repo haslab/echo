@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAPI;
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
@@ -166,7 +167,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 				} catch (Exception e) {
 					try {
 						resmanager.remMetamodel(res);
-					} catch (ErrorAPI e1) {
+					} catch (ErrorAPI | ErrorParser e1) {
 						e1.printStackTrace();
 					}
 					e.printStackTrace();

@@ -38,7 +38,7 @@ public class FileUntrackHandler extends AbstractHandler {
 			if(extension.equals("xmi"))
 				try {
 					ResourceManager.getInstance().remModel(res);
-				} catch (ErrorAPI e) {
+				} catch (ErrorAPI | ErrorParser e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
