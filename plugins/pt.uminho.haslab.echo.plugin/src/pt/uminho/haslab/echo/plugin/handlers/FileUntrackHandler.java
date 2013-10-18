@@ -15,7 +15,7 @@ import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 public class FileUntrackHandler extends AbstractHandler {
 
@@ -37,7 +37,7 @@ public class FileUntrackHandler extends AbstractHandler {
 			
 			if(extension.equals("xmi"))
 				try {
-					ProjectProperties.getProperties(res.getProject()).remModel(res);
+					ProjectPropertiesManager.getProperties(res.getProject()).remModel(res);
 				} catch (ErrorAPI | ErrorParser e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

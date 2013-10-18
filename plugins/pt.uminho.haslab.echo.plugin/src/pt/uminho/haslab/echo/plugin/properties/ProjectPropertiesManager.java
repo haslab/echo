@@ -1,9 +1,7 @@
 package pt.uminho.haslab.echo.plugin.properties;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -11,12 +9,16 @@ import org.eclipse.core.runtime.QualifiedName;
 
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
-import pt.uminho.haslab.echo.plugin.properties.ConstraintManager.Constraint;
 
-
-public class ProjectProperties {
+/**
+ * This class stores and manages the project properties assigned to each project
+ * @author nmm
+ *
+ */
+public class ProjectPropertiesManager {
 	
 	private static QualifiedName ECHO_PROPERTIES = new QualifiedName("pt.uminho.haslab.echo","properties");
+	/** The project to properties map */
 	private static Map<IProject,ResourceManager> properties = new HashMap<IProject,ResourceManager>();
 	
 	public static ResourceManager getProperties(IProject project){
@@ -28,7 +30,12 @@ public class ProjectProperties {
 		return res;
 	} 
 	
-	public static ResourceManager loadProperties2(IProject project){
+	/**
+	 * Reads persistent properties
+	 * @param project
+	 * @return
+	 */
+	public static ResourceManager loadProperties(IProject project){
 		String propertiesstring = null;
 		try {
 			propertiesstring = project.getPersistentProperty(ECHO_PROPERTIES);
@@ -40,11 +47,16 @@ public class ProjectProperties {
 		if (propertiesstring != null) {
 		//	properties.readString(propertiesstring);
 		}
-		ProjectProperties.properties.put(project, properties);
+		ProjectPropertiesManager.properties.put(project, properties);
 		return properties;
 	}
 
-	private static void saveProjectProperties(IProject project) throws ErrorParser {
+	/**
+	 * Writes persistent properties
+	 * @param project
+	 * @throws ErrorParser
+	 */
+	public static void saveProjectProperties(IProject project) throws ErrorParser {
 		try {
 			project.setPersistentProperty(ECHO_PROPERTIES, properties.get(project).writeString());
 		} catch(CoreException e) { throw new ErrorParser(e.getMessage()); }		

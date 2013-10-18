@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import pt.uminho.haslab.echo.ErrorAPI;
+import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 
 public class EchoMarker {
 
@@ -64,14 +65,13 @@ public class EchoMarker {
 	 * @return the list of created markers
 	 * @throws ErrorAPI 
 	 */
-	public static List<IMarker> createInterMarker(IResource fstmodelres,
-			IResource partner, IResource constraintres) throws ErrorAPI {
+	public static List<IMarker> createInterMarker(Constraint c) throws ErrorAPI {
 		List<IMarker> marks = new ArrayList<IMarker>();
 		IMarker mark;
-		mark = createSingleInterMarker(fstmodelres, partner, constraintres
+		mark = createSingleInterMarker(c.fstmodel, c.sndmodel, c.constraint
 				.getFullPath().toString());
 		marks.add(mark);
-		mark = createSingleInterMarker(partner, fstmodelres, constraintres
+		mark = createSingleInterMarker(c.sndmodel, c.fstmodel, c.constraint
 				.getFullPath().toString());
 		marks.add(mark);
 		return marks;
@@ -130,18 +130,18 @@ public class EchoMarker {
 	 * @param constraintres the constraint relating them
 	 * @throws ErrorAPI
 	 */
-	public static void removeRelatedInterMarker(IResource fstmodelres, IResource sndmodelres, IResource constraintres) throws ErrorAPI {
-		String fstmodeluri = fstmodelres.getFullPath().toString();
-		String sndmodeluri = sndmodelres.getFullPath().toString();
-		String constrainturi = constraintres.getFullPath().toString();
+	public static void removeRelatedInterMarker(Constraint c) throws ErrorAPI {
+		String fstmodeluri = c.fstmodel.getFullPath().toString();
+		String sndmodeluri = c.sndmodel.getFullPath().toString();
+		String constrainturi = c.constraint.getFullPath().toString();
 
 		try {
-			for (IMarker mk : fstmodelres.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+			for (IMarker mk : c.fstmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
 				if (mk.getAttribute(EchoMarker.OPPOSITE).equals(sndmodeluri)
 						&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
 					mk.delete();
 
-			for (IMarker mk : sndmodelres.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+			for (IMarker mk : c.sndmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
 				if (mk.getAttribute(EchoMarker.OPPOSITE).equals(fstmodeluri)
 						&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
 					mk.delete();

@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.plugin.properties;
+package pt.uminho.haslab.echo.plugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class ConstraintManager {
 
 	private Map<IResource,List<Constraint>> cnsconstraints = new HashMap<IResource, List<Constraint>>();
 	private Map<IResource,List<Constraint>> mdlconstraints = new HashMap<IResource, List<Constraint>>();
-	
+
 	public Constraint addConstraint(IResource constraint, IResource fstmodel, IResource sndmodel){
 		List<Constraint> cs = cnsconstraints.get(constraint);
 		if (cs == null) cs = new ArrayList<Constraint>();
@@ -32,22 +32,22 @@ public class ConstraintManager {
 		if (cs == null) cs = new ArrayList<Constraint>();
 		cs.add(c);
 		mdlconstraints.put(fstmodel, cs);
-		
+
 		cs = mdlconstraints.get(sndmodel);
 		if (cs == null) cs = new ArrayList<Constraint>();
 		cs.add(c);
 		mdlconstraints.put(sndmodel, cs);	
-		
+
 		return c;
 	}
-	
+
 	public List<Constraint> getAllConstraints() {
 		List<Constraint> aux = new ArrayList<Constraint>();
 		for (List<Constraint> x : cnsconstraints.values())
 			aux.addAll(x);
 		return aux;	
-		}
-	
+	}
+
 	public List<Constraint> getAllConstraintsModel(String model) {
 		List<Constraint> res = mdlconstraints.get(model);
 		return res == null? new ArrayList<Constraint>() : res;
@@ -56,7 +56,7 @@ public class ConstraintManager {
 	public List<Constraint> getAllConstraintsConstraint(String constraint) {
 		return cnsconstraints.get(constraint);
 	}
-	
+
 	public Constraint removeConstraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
 		Constraint c = new Constraint(fstmodel, sndmodel, constraint);
 		removeConstraint(c);
@@ -78,23 +78,27 @@ public class ConstraintManager {
 				cs.add(c);
 		}
 		mdlconstraints.put(constraint.fstmodel, cs);
-		
+
 		cs = new ArrayList<Constraint>();
 		for (Constraint c : mdlconstraints.get(constraint.sndmodel)) {
 			if (!(c.equals(constraint)))
 				cs.add(c);
 		}
 		mdlconstraints.put(constraint.sndmodel, cs);
-		
-		
-}
 
+	}
+
+	/**
+	 * Represents a particular constraint
+	 * @author nmm
+	 *
+	 */
 	public class Constraint {
 		public final IResource fstmodel;
 		public final IResource sndmodel;
 		public final IResource constraint;
 
-		public Constraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
+		private Constraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
 			this.fstmodel = fstmodel;
 			this.sndmodel = sndmodel;
 			this.constraint = constraint;
@@ -108,9 +112,9 @@ public class ConstraintManager {
 			return (this.constraint.equals(constraint.constraint) && ((this.fstmodel
 					.equals(constraint.fstmodel) && this.sndmodel
 					.equals(constraint.sndmodel)) || (this.fstmodel
-					.equals(constraint.sndmodel) && this.sndmodel
-					.equals(constraint.fstmodel))));
+							.equals(constraint.sndmodel) && this.sndmodel
+							.equals(constraint.fstmodel))));
 		}	
-		
+
 	}
 }

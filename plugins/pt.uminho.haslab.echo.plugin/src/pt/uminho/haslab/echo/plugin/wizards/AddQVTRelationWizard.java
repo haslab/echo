@@ -20,9 +20,9 @@ import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
+import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
-import pt.uminho.haslab.echo.plugin.properties.ConstraintManager.Constraint;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 public class AddQVTRelationWizard extends Wizard  {
@@ -77,7 +77,7 @@ public class AddQVTRelationWizard extends Wizard  {
 				IResource ressource = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(orip));
 				IResource resqvt = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getQvt());
 
-				ProjectProperties.getProperties(resqvt.getProject()).addQVTgenerate(resqvt, ressource, page.getModels().get(newp), newp);
+				ProjectPropertiesManager.getProperties(resqvt.getProject()).addQVTgenerate(resqvt, ressource, page.getModels().get(newp), newp);
 			} catch (Exception e) {
 				MessageDialog.openInformation(shell, "Error creating constraint", e.getMessage());
 				e.printStackTrace();
@@ -88,7 +88,7 @@ public class AddQVTRelationWizard extends Wizard  {
 				IResource modelA = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(0));
 				IResource modelB = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getModels().get(1));
 				IResource resqvt = ResourcesPlugin.getWorkspace().getRoot().findMember(page.getQvt());
-				ProjectProperties.getProperties(resqvt.getProject()).addQVTConstraint(resqvt,modelA,modelB);
+				ProjectPropertiesManager.getProperties(resqvt.getProject()).addQVTConstraint(resqvt,modelA,modelB);
 					
 			} catch (Exception e) {
 				MessageDialog.openError(shell, "Error translating QVT-R", e.getMessage());

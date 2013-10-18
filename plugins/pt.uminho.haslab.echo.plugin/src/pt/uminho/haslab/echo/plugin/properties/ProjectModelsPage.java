@@ -24,9 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPropertyPage;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import pt.uminho.haslab.echo.ErrorAPI;
@@ -34,6 +32,7 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 public class ProjectModelsPage extends PropertyPage implements
 IWorkbenchPropertyPage {
@@ -48,7 +47,6 @@ IWorkbenchPropertyPage {
 		List<IResource> xmiresources = getAllXMI(project);	
 
 		Composite rootcomposite = new Composite(parent, SWT.NONE);
-
 		rootcomposite.setLayout(new GridLayout(1, false));
 		rootcomposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
@@ -71,9 +69,7 @@ IWorkbenchPropertyPage {
 
 		Composite buttonscomposite = new Composite(tablecomposite, SWT.NONE);
 		
-		GridData gd_compositeb = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
-		//gd_compositeb.widthHint = 150;
-		buttonscomposite.setLayoutData(gd_compositeb);
+		buttonscomposite.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1));
 		RowLayout rl_compositeb = new RowLayout(SWT.VERTICAL);
 		rl_compositeb.fill = true;
 		rl_compositeb.center = true;
@@ -82,13 +78,18 @@ IWorkbenchPropertyPage {
 		Button addButton = new Button(buttonscomposite,SWT.PUSH);
 		Button remButton = new Button(buttonscomposite,SWT.PUSH);
 		addButton.setText("Select all");
-		addButton.setVisible(false);
+		addButton.setEnabled(false);
 		remButton.setText("Select none");
-		remButton.setVisible(false);
+		remButton.setEnabled(false);
 		
 		return rootcomposite;	
 	}
 
+	/**
+	 * Retrieves all XMI resources from a project
+	 * @param p the project to be searched
+	 * @return the XMI resources
+	 */
 	private List<IResource> getAllXMI(IContainer p) {
 		List<IResource> modeluris = new ArrayList<IResource>();
 		try {
@@ -108,19 +109,19 @@ IWorkbenchPropertyPage {
 	protected void performApply() {
 		super.performApply();
 		for (Object x : modellist.getCheckedElements()) {
-			if (!ProjectProperties.getProperties(project).hasModel((IResource) x))
+			if (!ProjectPropertiesManager.getProperties(project).hasModel((IResource) x))
 				try {
-					ProjectProperties.getProperties(project).addModel((IResource) x);
+					ProjectPropertiesManager.getProperties(project).addModel((IResource) x);
 				} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
 						| ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
-		for (IResource x : ProjectProperties.getProperties(project).getModels()) {
+		for (IResource x : ProjectPropertiesManager.getProperties(project).getModels()) {
 			if (!Arrays.asList(modellist.getCheckedElements()).contains(x))
 				try {
-					ProjectProperties.getProperties(project).remModel(x);
+					ProjectPropertiesManager.getProperties(project).remModel(x);
 				} catch (ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -130,7 +131,6 @@ IWorkbenchPropertyPage {
 
 	@Override
 	public boolean performOk() {
-		super.performOk();
 		performApply();
 		return true;
 	}
@@ -141,8 +141,13 @@ IWorkbenchPropertyPage {
 		modellist.setInput(getAllXMI(project));
 
 	}
-
-	class ViewLabelProvider extends LabelProvider implements
+	
+	/**
+	 * Calculates table elements' text and images
+	 * @author nmm
+	 *
+	 */
+	private class ViewLabelProvider extends LabelProvider implements
 	ITableLabelProvider {
 		public String getColumnText(Object obj, int index) {
 			IResource todo = (IResource) obj;
@@ -154,12 +159,16 @@ IWorkbenchPropertyPage {
 		}
 
 		public Image getImage(Object obj) {
-			return PlatformUI.getWorkbench().getSharedImages()
-					.getImage(ISharedImages.IMG_OBJ_FILE);
+			return EchoPlugin.getInstance().getImageRegistry().get(EchoPlugin.XMI_ICON);
 		}
 
 	}
 
+	/**
+	 * Calculates table elements' check state
+	 * @author nmm
+	 *
+	 */
 	class CheckLabelProvider implements ICheckStateProvider {
 
 		IProject p;
@@ -168,12 +177,11 @@ IWorkbenchPropertyPage {
 		}
 		@Override
 		public boolean isChecked(Object element) {
-			return ProjectProperties.getProperties(p).hasModel((IResource) element);
+			return ProjectPropertiesManager.getProperties(p).hasModel((IResource) element);
 		}
 
 		@Override
 		public boolean isGrayed(Object element) {
-			// TODO Auto-generated method stub
 			return false;
 		}
 

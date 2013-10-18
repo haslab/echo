@@ -3,7 +3,7 @@ package pt.uminho.haslab.echo.plugin;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFile;
 
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 public class EchoPropertyTester extends PropertyTester {
 
@@ -37,7 +37,7 @@ public class EchoPropertyTester extends PropertyTester {
 			if (ext == null)
 				return false;
 			if (ext.equals("xmi"))
-				return ProjectProperties.getProperties(res.getProject()).hasModel(res);
+				return ProjectPropertiesManager.getProperties(res.getProject()).hasModel(res);
 		}
 		return false;
 	}

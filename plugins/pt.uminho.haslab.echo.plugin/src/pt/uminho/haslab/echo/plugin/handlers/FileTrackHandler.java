@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.plugin.ResourceManager;
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 public class FileTrackHandler extends AbstractHandler {
 
@@ -30,7 +30,7 @@ public class FileTrackHandler extends AbstractHandler {
 			
 			if(extension.equals("xmi")) {			
 				try {
-					ProjectProperties.getProperties(res.getProject()).addModel(res);
+					ProjectPropertiesManager.getProperties(res.getProject()).addModel(res);
 				} catch(Exception e) {
 					e.printStackTrace();
 					MessageDialog.openError(shell, "Error loading resource.", e.getMessage());

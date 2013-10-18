@@ -1,11 +1,9 @@
 package pt.uminho.haslab.echo.plugin.properties;
 
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -13,7 +11,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.internal.C;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -31,7 +29,8 @@ import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.plugin.properties.ConstraintManager.Constraint;
+import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
+import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 public class ProjectConstraintsPage extends PropertyPage implements
 IWorkbenchPropertyPage {
@@ -43,7 +42,7 @@ IWorkbenchPropertyPage {
 	protected Control createContents(Composite parent) {
 		project = (IProject) getElement().getAdapter(IProject.class);
 
-		List<Constraint> constraints = ProjectProperties.getProperties(project).getConstraints();
+		List<Constraint> constraints = ProjectPropertiesManager.getProperties(project).getConstraints();
 
 		Composite rootcomposite = new Composite(parent, SWT.NONE);
 
@@ -66,46 +65,28 @@ IWorkbenchPropertyPage {
 		TableViewerColumn qvtcol = new TableViewerColumn(constraintlist, SWT.NONE);
 		qvtcol.getColumn().setWidth(200);
 		qvtcol.getColumn().setText("Constraint");
-		qvtcol.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				Constraint qvt = (Constraint) element;
-				return qvt.constraint.getProjectRelativePath().toString();
-			}
-		});
+		qvtcol.setLabelProvider(new ViewLabelProvider(0));
+
 		TableViewerColumn fstcol = new TableViewerColumn(constraintlist, SWT.NONE);
 		fstcol.getColumn().setWidth(200);
 		fstcol.getColumn().setText("First model");
-		fstcol.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				Constraint qvt = (Constraint) element;
-				return qvt.fstmodel.getProjectRelativePath().toString();
-			}
-		});
+		fstcol.setLabelProvider(new ViewLabelProvider(1));
+
+
 		TableViewerColumn sndcol = new TableViewerColumn(constraintlist, SWT.NONE);
 		sndcol.getColumn().setWidth(200);
 		sndcol.getColumn().setText("Second model");
-		sndcol.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				Constraint qvt = (Constraint) element;
-				return qvt.sndmodel.getProjectRelativePath().toString();
-			}
-		});
+		sndcol.setLabelProvider(new ViewLabelProvider(2));
 
 		constraintlist.setContentProvider(new ArrayContentProvider());
 		constraintlist.setInput(constraints);
 
 		Composite buttonscomposite = new Composite(tablecomposite, SWT.NONE);
 
-		GridData gd_compositeb = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
-		//gd_compositeb.widthHint = 150;
-		buttonscomposite.setLayoutData(gd_compositeb);
+		buttonscomposite.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1));
 		RowLayout rl_compositeb = new RowLayout(SWT.VERTICAL);
 		rl_compositeb.fill = true;
 		rl_compositeb.center = true;
-		//rl_compositeb.justify = true;
 		buttonscomposite.setLayout(rl_compositeb);
 
 		Button addButton = new Button(buttonscomposite,SWT.PUSH);
@@ -137,27 +118,60 @@ IWorkbenchPropertyPage {
 		super.performApply();
 		for (TableItem x : constraintlist.getTable().getItems()) {
 			Constraint c = (Constraint) x.getData();
-			if (!ProjectProperties.getProperties(project).getConstraints().contains(c))
+			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
 				try {
-					ProjectProperties.getProperties(project).addQVTConstraint(c.constraint, c.fstmodel, c.sndmodel);;
+					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.fstmodel, c.sndmodel);;
 				} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
 						| ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
-		for (Constraint x : ProjectProperties.getProperties(project).getConstraints()) {
+		for (Constraint x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
 			boolean has = false;
 			for (TableItem y : constraintlist.getTable().getItems()) 
 				if (x.equals((Constraint) y.getData())) has = true;
 			if (!has) 
 				try {
-					ProjectProperties.getProperties(project).removeQVTConstraint(x.constraint, x.fstmodel, x.sndmodel);
+					ProjectPropertiesManager.getProperties(project).removeQVTConstraint(x);
 				} catch (ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}	
 	}
+	
+	/**
+	 * Calculates column elements' text and image
+	 * @author nmm
+	 *
+	 */
+	private class ViewLabelProvider extends ColumnLabelProvider  {
+		
+		private int i;
+		public ViewLabelProvider(int i) {
+			this.i = i;
+		}
 
+		public String getText(Object obj) {
+			Constraint qvt = (Constraint) obj;
+			switch (i) {
+			case 0:
+				return qvt.constraint.getProjectRelativePath().toString();
+			case 1:
+				return qvt.fstmodel.getProjectRelativePath().toString();
+			case 2:
+				return qvt.sndmodel.getProjectRelativePath().toString();
+			}
+			return null;
+		}
+
+		public Image getImage(Object obj) {
+			if (i==0)
+				return EchoPlugin.getInstance().getImageRegistry().get(EchoPlugin.QVT_ICON);			
+			else
+				return EchoPlugin.getInstance().getImageRegistry().get(EchoPlugin.XMI_ICON);
+		}
+
+	}
 }
