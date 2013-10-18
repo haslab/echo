@@ -25,7 +25,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
-import pt.uminho.haslab.echo.plugin.properties.EchoProjectPropertiesManager;
+import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 
 public class XMIChangeListener implements IResourceChangeListener {
 
@@ -113,7 +113,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 				
 				try {
 					EchoRunner.getInstance().remModel(res.getFullPath().toString());
-					EchoProjectPropertiesManager.removeModel(res.getProject(), res.getFullPath().toString());
+					ProjectProperties.getProperties(res.getProject()).remModel(res);
 				} catch (Exception e) {
 					return Status.CANCEL_STATUS;
 				}
@@ -160,7 +160,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
 	    		
-				ResourceManager resmanager = ResourceManager.getInstance();
+				ResourceManager resmanager = ProjectProperties.getProperties(res.getProject());
 				try {
 					if (resmanager.hasMetamodel(res))
 						resmanager.reloadMetamodel(res);
@@ -200,7 +200,7 @@ public class XMIChangeListener implements IResourceChangeListener {
 			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
 				
 				try {
-					ResourceManager resmanager = ResourceManager.getInstance();
+					ResourceManager resmanager = ProjectProperties.getProperties(res.getProject());
 					if (resmanager.hasModel(res))
 						resmanager.reloadModel(res);
 						

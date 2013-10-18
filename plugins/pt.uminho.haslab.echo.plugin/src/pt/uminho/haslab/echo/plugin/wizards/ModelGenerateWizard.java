@@ -20,6 +20,7 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
+import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 public class ModelGenerateWizard extends Wizard {
@@ -76,7 +77,7 @@ public class ModelGenerateWizard extends Wizard {
 				}		
 			}
 			try {
-				ResourceManager.getInstance().generate(res,scopes,page.getPath());
+				ProjectProperties.getProperties(res.getProject()).generate(res,scopes,page.getPath());
 			} catch (ErrorUnsupported | ErrorParser | ErrorTransform e) {
 				// TODO Auto-generated catch block
 				MessageDialog.openInformation(shell, "Error generating.", e.getMessage());

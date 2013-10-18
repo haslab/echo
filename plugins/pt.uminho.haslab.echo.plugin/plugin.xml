@@ -157,7 +157,7 @@
          point="org.eclipse.ui.propertyPages">
       <page
             class="pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesPage"
-            id="pt.uminho.haslab.echo.plugin.properties.projectProperties"
+            id="pt.uminho.haslab.echo.plugin.properties.echoProperty"
             name="Echo">
          <enabledWhen>
          	<adapt
@@ -165,6 +165,28 @@
             </adapt>
          </enabledWhen>
       </page>
+    <page
+        class="pt.uminho.haslab.echo.plugin.properties.ProjectModelsPage"
+        id="pt.uminho.haslab.echo.plugin.properties.echoPropertyModels"
+        name="Tracked models"
+        category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
+     <enabledWhen>
+     	<adapt
+     		type="org.eclipse.core.resources.IProject">
+        </adapt>
+     </enabledWhen>
+  </page>
+      <page
+        class="pt.uminho.haslab.echo.plugin.properties.ProjectConstraintsPage"
+        id="pt.uminho.haslab.echo.plugin.properties.echoPropertyConstraints"
+        name="QVT Constraints"
+        category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
+     <enabledWhen>
+     	<adapt
+     		type="org.eclipse.core.resources.IProject">
+        </adapt>
+     </enabledWhen>
+  </page>
    </extension>
 	<extension name="Echo intra-model inconsistency" id="pt.uminho.haslab.echo.plugin.intrainconsistency" point="org.eclipse.core.resources.markers">
 		<super type="org.eclipse.core.resources.problemmarker"/>

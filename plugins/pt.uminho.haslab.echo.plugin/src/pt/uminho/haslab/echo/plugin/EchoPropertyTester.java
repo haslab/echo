@@ -3,7 +3,7 @@ package pt.uminho.haslab.echo.plugin;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFile;
 
-import pt.uminho.haslab.echo.plugin.properties.EchoProjectPropertiesManager;
+import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
 
 public class EchoPropertyTester extends PropertyTester {
 
@@ -33,12 +33,11 @@ public class EchoPropertyTester extends PropertyTester {
 	private boolean testTracked(Object receiver) {
 		if (receiver instanceof IFile) {
 			IFile res = (IFile) receiver;
-			String uri = res.getFullPath().toString();
 			String ext = res.getFileExtension();
 			if (ext == null)
 				return false;
 			if (ext.equals("xmi"))
-				return EchoProjectPropertiesManager.hasModel(res.getProject(),uri);
+				return ProjectProperties.getProperties(res.getProject()).hasModel(res);
 		}
 		return false;
 	}

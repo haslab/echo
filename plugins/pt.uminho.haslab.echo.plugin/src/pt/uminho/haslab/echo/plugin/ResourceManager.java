@@ -3,7 +3,6 @@ package pt.uminho.haslab.echo.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -25,7 +24,6 @@ import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.properties.ConstraintManager;
 import pt.uminho.haslab.echo.plugin.properties.ConstraintManager.Constraint;
-import pt.uminho.haslab.echo.plugin.properties.EchoProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 /**
@@ -36,11 +34,7 @@ import pt.uminho.haslab.echo.plugin.views.GraphView;
  */
 public class ResourceManager {
 
-	private static ResourceManager instance = new ResourceManager();
-
-	public static ResourceManager getInstance() {
-		return instance;
-	}
+	
 
 	private EchoReporter reporter = EchoReporter.getInstance();
 	private EchoRunner runner = EchoRunner.getInstance();
@@ -49,7 +43,7 @@ public class ResourceManager {
 	/** The map of managed model resources: MetamodelURI -> ListModelResources **/
 	private Map<String, List<IResource>> tracked = new HashMap<String, List<IResource>>();
 	/** The map of managed qvtr constraints: QVTRURI -> ListModelResources **/
-	private ConstraintManager constraints = new ConstraintManager();
+	public ConstraintManager constraints = new ConstraintManager();
 
 	private IResource qvtwaiting;
 	private IResource fstwaiting;
@@ -102,7 +96,6 @@ public class ResourceManager {
 			aux = new ArrayList<IResource>();
 		aux.add(resmodel);
 		tracked.put(metamodeluri, aux);
-		EchoProjectPropertiesManager.addModel(resmodel.getProject(), modeluri);
 		conformMeta(resmodel);
 	}
 
@@ -142,8 +135,6 @@ public class ResourceManager {
 	 */
 	public void remModel(IResource resmodel) throws ErrorAPI, ErrorParser {
 		String modeluri = resmodel.getFullPath().toString();
-		EchoProjectPropertiesManager.removeModel(resmodel.getProject(),
-				modeluri);
 
 		EObject model = parser.getModelFromUri(modeluri);
 		String metamodeluri = parser.getMetamodelURI(model.eClass()
@@ -152,15 +143,9 @@ public class ResourceManager {
 		runner.remModel(modeluri);
 		tracked.get(metamodeluri).remove(resmodel);
 
-		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsModel(modeluri));
 		for (Constraint c : constraints.getAllConstraintsModel(modeluri)) {
-			List<String> aux = new ArrayList<String>();
-			aux.add(c.fstmodel);
-			aux.add(c.sndmodel);
-			EchoProjectPropertiesManager.remQVT(resmodel.getProject(), c.constraint, aux);
 			constraints.removeConstraint(c);
 		}
-		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsModel(modeluri));
 		
 		EchoMarker.removeIntraMarkers(resmodel);
 		EchoMarker.removeInterMarkers(resmodel);
@@ -177,6 +162,13 @@ public class ResourceManager {
 	 */
 	public boolean hasModel(IResource resmodel) {
 		return runner.hasModel(resmodel.getFullPath().toString());
+	}
+	
+	public List<IResource> getModels() {
+		List<IResource> aux = new ArrayList<IResource>();
+		for (List<IResource> x : tracked.values())
+			aux.addAll(x);
+		return aux;
 	}
 
 	/**
@@ -267,15 +259,8 @@ public class ResourceManager {
 			reporter.debug("QVT-R "+qvturi+" processed.");
 		}
 		
-		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsConstraint(resqvt.getFullPath().toString()));
 		constraints.addConstraint(resqvt.getFullPath().toString(),resmodelfst.getFullPath().toString(),resmodelsnd.getFullPath().toString());
-		reporter.debug("CONSTRINT: "+constraints.getAllConstraintsConstraint(resqvt.getFullPath().toString()));
 		
-		List<String> modeluris = new ArrayList<String>();
-		modeluris.add(resmodelfst.getFullPath().toString());
-		modeluris.add(resmodelsnd.getFullPath().toString());
-		EchoProjectPropertiesManager.addQVT(resqvt.getProject(), resqvt
-				.getFullPath().toString(), modeluris);
 		conformQVT(resqvt, resmodelfst, resmodelsnd);
 	}
 	
@@ -295,15 +280,15 @@ public class ResourceManager {
 			IResource resmodelsnd) throws  ErrorParser, ErrorAPI {
 		
 		constraints.removeConstraint(resmodelfst.getFullPath().toString(), resmodelsnd.getFullPath().toString(), resqvt.getFullPath().toString());
-		List<String> modeluris = new ArrayList<String>();
-		modeluris.add(resmodelfst.getFullPath().toString());
-		modeluris.add(resmodelsnd.getFullPath().toString());
+	
 		EchoMarker.removeRelatedInterMarker(resmodelfst, resmodelsnd, resqvt);
-		EchoProjectPropertiesManager.remQVT(resqvt.getProject(), resqvt.getFullPath().toString(), modeluris);
 
 	}
 
-
+	
+	public List<Constraint> getConstraints() {
+		return constraints.getAllConstraints();
+	}
 	
 	/**
 	 * Running tests
@@ -355,35 +340,29 @@ public class ResourceManager {
 	private void conformAllQVT(IResource res) throws ErrorAlloy, ErrorAPI {
 		EchoPlugin.getInstance().getGraphView().clearGraph();
 		String modeluri = res.getFullPath().toString();
-		Map<String, Set<String>> related = EchoProjectPropertiesManager.getQVTsModelFst(res.getProject(), modeluri);
+		List<Constraint> cs = constraints.getAllConstraintsModel(modeluri);
+
 		List<String> modeluris = new ArrayList<String>();
 		modeluris.add(modeluri);
-		for (String qvturi : related.keySet()) {
-			for (String relateduri : related.get(qvturi)) {
-				IResource partner = res.getWorkspace().getRoot().findMember(relateduri);
-				IResource qvt = res.getWorkspace().getRoot().findMember(qvturi);
-				modeluris.add(1, relateduri);
-				if (runner.check(qvturi, modeluris))
-					EchoMarker.removeRelatedInterMarker(res, partner, qvt);	
-				else
-					EchoMarker.createInterMarker(res, partner, qvt);
-				modeluris.remove(1);
+		for (Constraint c : cs) {
+			IResource qvt = res.getWorkspace().getRoot().findMember(c.constraint);
+			IResource partner;
+			int i;
+			if (c.fstmodel.equals(modeluri)) {
+				partner = res.getWorkspace().getRoot().findMember(c.sndmodel);
+				i = 1;
+			} else {
+				partner = res.getWorkspace().getRoot().findMember(c.fstmodel);
+				i = 0;
 			}
+			modeluris.add(i, partner.getFullPath().toString());
+			if (runner.check(c.constraint, modeluris))
+				EchoMarker.removeRelatedInterMarker(res, partner, qvt);	
+			else
+				EchoMarker.createInterMarker(res, partner, qvt);
+			modeluris.remove(i);
 		}
 
-		related = EchoProjectPropertiesManager.getQVTsModelSnd(res.getProject(), modeluri);
-		for (String qvturi : related.keySet()) {
-			for (String relateduri : related.get(qvturi)) {
-				IResource partner = res.getWorkspace().getRoot().findMember(relateduri);
-				IResource qvt = res.getWorkspace().getRoot().findMember(qvturi);
-				modeluris.add(0, relateduri);
-				if (runner.check(qvturi, modeluris))
-					EchoMarker.removeRelatedInterMarker(res, partner, qvt);	
-				else
-					EchoMarker.createInterMarker(res, partner, qvt);
-				modeluris.remove(0);
-			}
-		}
 	}
 
 	public void generate(IResource resmetamodel,
@@ -458,4 +437,21 @@ public class ResourceManager {
 		sndwaiting = null;
 	}
 
+	public String writeString() {
+		StringBuilder builder = new StringBuilder();
+		for (IResource res: getModels()) {
+			builder.append(res.getFullPath().toString());
+			builder.append(",");
+		}
+		builder.append(";");
+		for (Constraint c : getConstraints()) {
+			builder.append(c.constraint);
+			builder.append("@");
+			builder.append(c.fstmodel);
+			builder.append("@");
+			builder.append(c.sndmodel);
+			builder.append(",");
+		}
+		return builder.toString();
+	}
 }
