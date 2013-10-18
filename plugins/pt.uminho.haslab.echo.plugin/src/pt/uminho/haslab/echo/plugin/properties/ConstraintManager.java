@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IResource;
+
 /**
  * Manages a set of inter-model constraints
  * @author nmm
@@ -12,10 +14,10 @@ import java.util.Map;
  */
 public class ConstraintManager {
 
-	private Map<String,List<Constraint>> cnsconstraints = new HashMap<String, List<Constraint>>();
-	private Map<String,List<Constraint>> mdlconstraints = new HashMap<String, List<Constraint>>();
+	private Map<IResource,List<Constraint>> cnsconstraints = new HashMap<IResource, List<Constraint>>();
+	private Map<IResource,List<Constraint>> mdlconstraints = new HashMap<IResource, List<Constraint>>();
 	
-	public Constraint addConstraint(String constraint, String fstmodel, String sndmodel){
+	public Constraint addConstraint(IResource constraint, IResource fstmodel, IResource sndmodel){
 		List<Constraint> cs = cnsconstraints.get(constraint);
 		if (cs == null) cs = new ArrayList<Constraint>();
 		for (Constraint c : cs) {
@@ -41,7 +43,7 @@ public class ConstraintManager {
 	
 	public List<Constraint> getAllConstraints() {
 		List<Constraint> aux = new ArrayList<Constraint>();
-		for (List<Constraint> x : mdlconstraints.values())
+		for (List<Constraint> x : cnsconstraints.values())
 			aux.addAll(x);
 		return aux;	
 		}
@@ -55,7 +57,7 @@ public class ConstraintManager {
 		return cnsconstraints.get(constraint);
 	}
 	
-	public Constraint removeConstraint(String fstmodel, String sndmodel, String constraint) {
+	public Constraint removeConstraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
 		Constraint c = new Constraint(fstmodel, sndmodel, constraint);
 		removeConstraint(c);
 		return c;
@@ -88,11 +90,11 @@ public class ConstraintManager {
 }
 
 	public class Constraint {
-		public final String fstmodel;
-		public final String sndmodel;
-		public final String constraint;
+		public final IResource fstmodel;
+		public final IResource sndmodel;
+		public final IResource constraint;
 
-		public Constraint(String fstmodel, String sndmodel, String constraint) {
+		public Constraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
 			this.fstmodel = fstmodel;
 			this.sndmodel = sndmodel;
 			this.constraint = constraint;

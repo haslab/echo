@@ -259,7 +259,7 @@ public class ResourceManager {
 			reporter.debug("QVT-R "+qvturi+" processed.");
 		}
 		
-		constraints.addConstraint(resqvt.getFullPath().toString(),resmodelfst.getFullPath().toString(),resmodelsnd.getFullPath().toString());
+		constraints.addConstraint(resqvt,resmodelfst,resmodelsnd);
 		
 		conformQVT(resqvt, resmodelfst, resmodelsnd);
 	}
@@ -279,7 +279,7 @@ public class ResourceManager {
 	public void removeQVTConstraint(IResource resqvt, IResource resmodelfst,
 			IResource resmodelsnd) throws  ErrorParser, ErrorAPI {
 		
-		constraints.removeConstraint(resmodelfst.getFullPath().toString(), resmodelsnd.getFullPath().toString(), resqvt.getFullPath().toString());
+		constraints.removeConstraint(resmodelfst, resmodelsnd, resqvt);
 	
 		EchoMarker.removeRelatedInterMarker(resmodelfst, resmodelsnd, resqvt);
 
@@ -345,18 +345,18 @@ public class ResourceManager {
 		List<String> modeluris = new ArrayList<String>();
 		modeluris.add(modeluri);
 		for (Constraint c : cs) {
-			IResource qvt = res.getWorkspace().getRoot().findMember(c.constraint);
+			IResource qvt = c.constraint;
 			IResource partner;
 			int i;
 			if (c.fstmodel.equals(modeluri)) {
-				partner = res.getWorkspace().getRoot().findMember(c.sndmodel);
+				partner = c.sndmodel;
 				i = 1;
 			} else {
-				partner = res.getWorkspace().getRoot().findMember(c.fstmodel);
+				partner = c.fstmodel;
 				i = 0;
 			}
 			modeluris.add(i, partner.getFullPath().toString());
-			if (runner.check(c.constraint, modeluris))
+			if (runner.check(c.constraint.getFullPath().toString(), modeluris))
 				EchoMarker.removeRelatedInterMarker(res, partner, qvt);	
 			else
 				EchoMarker.createInterMarker(res, partner, qvt);

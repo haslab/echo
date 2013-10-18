@@ -55,11 +55,11 @@ IWorkbenchPropertyPage {
 		Label grouptitle = new Label(rootcomposite, SWT.NONE);
 		grouptitle.setText("Tracked model resources.");
 
-		Composite tablecomposite = new Composite(rootcomposite, SWT.BORDER);
+		Composite tablecomposite = new Composite(rootcomposite, SWT.NONE);
 		tablecomposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tablecomposite.setLayout(new GridLayout(2, false));
 
-		Composite argh = new Composite(tablecomposite, SWT.BORDER);
+		Composite argh = new Composite(tablecomposite, SWT.NONE);
 		argh.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		argh.setLayout(new FillLayout(SWT.VERTICAL));
 
@@ -69,23 +69,23 @@ IWorkbenchPropertyPage {
 		modellist.setCheckStateProvider(new CheckLabelProvider(project));
 		modellist.setInput(xmiresources);
 
-		Composite buttonscomposite = new Composite(tablecomposite, SWT.BORDER);
-		buttonscomposite.setLayout(new RowLayout(SWT.VERTICAL));
-		//((RowLayout) buttonscomposite.getLayout()).marginTop = 1;
+		Composite buttonscomposite = new Composite(tablecomposite, SWT.NONE);
+		
+		GridData gd_compositeb = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
+		//gd_compositeb.widthHint = 150;
+		buttonscomposite.setLayoutData(gd_compositeb);
+		RowLayout rl_compositeb = new RowLayout(SWT.VERTICAL);
+		rl_compositeb.fill = true;
+		rl_compositeb.center = true;
+		buttonscomposite.setLayout(rl_compositeb);
 
 		Button addButton = new Button(buttonscomposite,SWT.PUSH);
 		Button remButton = new Button(buttonscomposite,SWT.PUSH);
 		addButton.setText("Select all");
-		//RowData x = new RowData();
-		//x.width = 150;
-		//addButton.setLayoutData(x);
-
-		//addButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
+		addButton.setVisible(false);
 		remButton.setText("Select none");
-		//remButton.setLayoutData(x);
-
-		//remButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-
+		remButton.setVisible(false);
+		
 		return rootcomposite;	
 	}
 
@@ -131,25 +131,7 @@ IWorkbenchPropertyPage {
 	@Override
 	public boolean performOk() {
 		super.performOk();
-		for (Object x : modellist.getCheckedElements()) {
-			if (!ProjectProperties.getProperties(project).hasModel((IResource) x))
-				try {
-					ProjectProperties.getProperties(project).addModel((IResource) x);
-				} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
-						| ErrorParser | ErrorAPI e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}
-		for (IResource x : ProjectProperties.getProperties(project).getModels()) {
-			if (!Arrays.asList(modellist.getCheckedElements()).contains(x))
-				try {
-					ProjectProperties.getProperties(project).remModel(x);
-				} catch (ErrorParser | ErrorAPI e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}
+		performApply();
 		return true;
 	}
 
