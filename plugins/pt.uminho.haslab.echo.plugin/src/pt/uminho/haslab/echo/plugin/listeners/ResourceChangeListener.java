@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
@@ -84,19 +83,22 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			case IResourceDelta.REMOVED:
 				if (res instanceof IFile) {
 					IFile f = (IFile) res;
-					if (f != null && f.getFileExtension().equals("xmi")) {
-						// EchoReporter.getInstance().debug("Deleting "+f);
-						Job j = new DeleteXMI(f);
+					if (p.isManagedModel(res)) {
+						EchoReporter.getInstance().debug("Tracked model was removed");
+						Job j = new ModelDeletedJob(f);
 						j.setRule(f);
 						j.schedule();
-					} else if (f != null
-							&& f.getFileExtension().equals("ecore")) {
-						// EchoReporter.getInstance().debug("Deleting "+f);
-						Job j = new DeleteMeta(f);
+					} else if (p.isManagedMetamodel(res)) {
+						EchoReporter.getInstance().debug("Tracked metamodel was removed");
+						Job j = new MetaModelChangedJob(f);
 						j.setRule(f);
 						j.schedule();
-					}
-
+					} else if (p.isManagedQVT(res)) {
+					    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
+						Job j = new QVTDeletedJob(f);
+						j.setRule(f);
+						j.schedule();
+					} 
 				}
 				break;
 			}
@@ -104,14 +106,16 @@ public class ResourceChangeListener implements IResourceChangeListener {
 		}
 
 
-
-		class DeleteXMI extends WorkspaceJob {
+		/**
+		 * Model deleted job: untracks the model
+		 * @author nmm
+		 *
+		 */
+		class ModelDeletedJob extends WorkspaceJob {
 			private IResource res = null;
 
-			// private boolean bool;
-
-			public DeleteXMI(IResource r) {
-				super("Deleting instance.");
+			public ModelDeletedJob(IResource r) {
+				super("Deleting model.");
 				res = r;
 			}
 
@@ -119,22 +123,30 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
 
+				ResourceManager resmanager = ProjectPropertiesManager
+						.getProperties(res.getProject());
+
 				try {
-					EchoRunner.getInstance().remModel(
-							res.getFullPath().toString());
-					ProjectPropertiesManager.getProperties(res.getProject())
-					.remModel(res);
+					resmanager.remModel(res);
 				} catch (Exception e) {
+					MessageDialog.openError(null,
+							"Error removing model.",
+							"Model failed to be untracked.");
 					return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;
 			}
 		}
 
-		class DeleteMeta extends WorkspaceJob {
+		/**
+		 * Metamodel deleted job: untracks meta-model (and consequently all dependant models)
+		 * @author nmm
+		 *
+		 */
+		class MetamodelDeletedJob extends WorkspaceJob {
 			private IResource res = null;
 
-			public DeleteMeta(IResource r) {
+			public MetamodelDeletedJob(IResource r) {
 				super("Deleting meta-model.");
 				res = r;
 			}
@@ -142,12 +154,46 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
+				ResourceManager resmanager = ProjectPropertiesManager
+						.getProperties(res.getProject());
 
 				try {
-					EchoRunner.getInstance().remMetamodel(
-							res.getFullPath().toString());
-					// ProjectProperties.getProjectProperties(res.getProject()).removeMetaModel(res.getFullPath().toString());
+					resmanager.remMetamodel(res);
 				} catch (Exception e) {
+					MessageDialog.openError(null,
+							"Error removing meta-model.",
+							"Meta-model failed to be untracked.");
+					return Status.CANCEL_STATUS;
+				}
+				return Status.OK_STATUS;
+			}
+		}
+		
+		/**
+		 * QVT resourced deleted job: removes all constraints
+		 * @author nmm
+		 *
+		 */
+		class QVTDeletedJob extends WorkspaceJob {
+			private IResource res = null;
+
+			public QVTDeletedJob(IResource r) {
+				super("Deleting QVT resource.");
+				res = r;
+			}
+
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor)
+					throws CoreException {
+				ResourceManager resmanager = ProjectPropertiesManager
+						.getProperties(res.getProject());
+
+				try {
+					resmanager.removeAllQVTConstraint(res);
+				} catch (Exception e) {
+					MessageDialog.openError(null,
+							"Error removing QVT resourced.",
+							"Failed to remove associated QVT constraints.");
 					return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;

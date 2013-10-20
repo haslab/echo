@@ -280,6 +280,12 @@ public class ResourceManager {
 		EchoMarker.removeRelatedInterMarker(c);
 	}
 	
+	public void removeAllQVTConstraint(IResource r) throws  ErrorParser, ErrorAPI {
+		for (Constraint c : constraints.getAllConstraintsConstraint(r))
+			this.removeQVTConstraint(c);
+	}
+
+	
 	public List<Constraint> getConstraints() {
 		return constraints.getAllConstraints();
 	}
