@@ -115,8 +115,8 @@ IWorkbenchPropertyPage {
 	
 	@Override
 	protected void performApply() {
-		super.performApply();
 		for (TableItem x : constraintlist.getTable().getItems()) {
+			System.out.println("BUH?");
 			Constraint c = (Constraint) x.getData();
 			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
 				try {
@@ -128,6 +128,7 @@ IWorkbenchPropertyPage {
 				}
 		}
 		for (Constraint x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
+			System.out.println("BUH?");
 			boolean has = false;
 			for (TableItem y : constraintlist.getTable().getItems()) 
 				if (x.equals((Constraint) y.getData())) has = true;
@@ -140,6 +141,13 @@ IWorkbenchPropertyPage {
 				}
 		}	
 	}
+	
+	@Override
+	public boolean performOk() {
+		performApply();
+		return true;
+	}
+
 	
 	/**
 	 * Calculates column elements' text and image

@@ -5,7 +5,7 @@ public class EchoOptionsSetup {
 	public static int DEFAULT_BITWIDTH = 2;
 	public static int DEFAULT_SCOPE = 1;
 	public static int DEFAULT_DELTA = 20;
-	public static boolean DEFAULT_VERBOSE = false;
+	public static boolean DEFAULT_VERBOSE = true;
 	public static boolean DEFAULT_OPTIMIZE = true;
 	public static boolean DEFAULT_OVERWRITE = true;
 	

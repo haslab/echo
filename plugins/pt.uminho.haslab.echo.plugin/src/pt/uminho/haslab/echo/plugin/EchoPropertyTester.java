@@ -37,7 +37,7 @@ public class EchoPropertyTester extends PropertyTester {
 			if (ext == null)
 				return false;
 			if (ext.equals("xmi"))
-				return ProjectPropertiesManager.getProperties(res.getProject()).hasModel(res);
+				return ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res);
 		}
 		return false;
 	}

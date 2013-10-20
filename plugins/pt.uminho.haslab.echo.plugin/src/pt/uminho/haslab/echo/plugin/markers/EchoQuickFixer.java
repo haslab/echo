@@ -5,6 +5,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator;
 
+/**
+ * Generates resolutions for Echo error markers
+ * @author nmm
+ *
+ */
 public class EchoQuickFixer implements IMarkerResolutionGenerator {
     public IMarkerResolution[] getResolutions(IMarker mk) {
        try {
@@ -12,12 +17,12 @@ public class EchoQuickFixer implements IMarkerResolutionGenerator {
           if (problem.equals(EchoMarker.INTRA_ERROR))
 	          return new IMarkerResolution[] {
 	             new EchoIntraQuickFix(EchoMarker.GED),
-	             new EchoIntraQuickFix(EchoMarker.OPS),
+	             new EchoIntraQuickFix(EchoMarker.OBD),
 	          };
           else if (problem.equals(EchoMarker.INTER_ERROR)) {
         	  return new IMarkerResolution[] {
  	             new EchoInterQuickFix(EchoMarker.GED),
- 	             new EchoInterQuickFix(EchoMarker.OPS),
+ 	             new EchoInterQuickFix(EchoMarker.OBD),
         	  };
           }
           else return new IMarkerResolution[0];

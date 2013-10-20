@@ -120,6 +120,15 @@ public class EchoParser {
         	else 
         		inputURI = URI.createPlatformResourceURI(uri,true);
             BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(inputURI, true);
+            
+            xtextResource.unload();
+    		try {
+    			xtextResource.load(resourceSet.getLoadOptions());
+    		} catch (IOException e) {
+    			throw new ErrorParser(e.getMessage());
+    		}
+
+            
             adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
             pivotResource = adapter.getPivotResource(xtextResource);
             pivotResource.setURI(URI.createURI(uri));

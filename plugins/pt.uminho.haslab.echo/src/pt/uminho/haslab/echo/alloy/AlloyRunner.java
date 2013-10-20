@@ -218,10 +218,11 @@ public class AlloyRunner {
 		for (String uri : insturis) {
 			PrimSig state = addInstanceSigs(uri);
 			sigs.add(state);
-			//System.out.println("Model fact: "+ EMF2Alloy.getInstance().getModelFact(uri));
+			System.out.println("Model fact: "+ uri);
 			finalfact = finalfact.and(EchoTranslator.getInstance().getModelFact(uri));
 			finalfact = finalfact.and(EchoTranslator.getInstance().getConformsInstance(uri));
 		}
+		EchoReporter.getInstance().debug("Check: FACT "+func.getBody());
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		
 		//EchoReporter.getInstance().debug("Check: DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);

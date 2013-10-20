@@ -20,7 +20,7 @@ import org.osgi.framework.BundleContext;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.plugin.listeners.XMIChangeListener;
+import pt.uminho.haslab.echo.plugin.listeners.ResourceChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
@@ -71,7 +71,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 			if (p.isOpen())
 				ProjectPropertiesManager.getProperties(p);
 
-		IResourceChangeListener listener = new XMIChangeListener();
+		IResourceChangeListener listener = new ResourceChangeListener();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(listener,
 				IResourceChangeEvent.POST_CHANGE);
 	}

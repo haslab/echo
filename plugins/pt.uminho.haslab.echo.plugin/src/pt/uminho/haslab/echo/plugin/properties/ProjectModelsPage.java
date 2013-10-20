@@ -107,9 +107,8 @@ IWorkbenchPropertyPage {
 
 	@Override
 	protected void performApply() {
-		super.performApply();
 		for (Object x : modellist.getCheckedElements()) {
-			if (!ProjectPropertiesManager.getProperties(project).hasModel((IResource) x))
+			if (!ProjectPropertiesManager.getProperties(project).isManagedModel((IResource) x))
 				try {
 					ProjectPropertiesManager.getProperties(project).addModel((IResource) x);
 				} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
@@ -177,7 +176,7 @@ IWorkbenchPropertyPage {
 		}
 		@Override
 		public boolean isChecked(Object element) {
-			return ProjectPropertiesManager.getProperties(p).hasModel((IResource) element);
+			return ProjectPropertiesManager.getProperties(p).isManagedModel((IResource) element);
 		}
 
 		@Override

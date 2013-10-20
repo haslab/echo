@@ -153,6 +153,12 @@ public class EchoTranslator {
 		Transformation2Alloy qvtrans = new Transformation2Alloy(q);	
 		String qvturi = URIUtil.resolveURI(qvt.eResource());
 		qvtalloys.put(qvturi, qvtrans);
+		EchoReporter.getInstance().debug("QVT insts: "+qvtalloys.values());
+	}
+	
+	public boolean remQVT(String qvturi)  {
+		qvtalloys.remove(qvturi);
+		return true;
 	}
 		
 	public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap, String uri) throws ErrorAlloy {

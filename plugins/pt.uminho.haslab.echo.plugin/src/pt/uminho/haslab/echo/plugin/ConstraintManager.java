@@ -48,12 +48,12 @@ public class ConstraintManager {
 		return aux;	
 	}
 
-	public List<Constraint> getAllConstraintsModel(String model) {
+	public List<Constraint> getAllConstraintsModel(IResource model) {
 		List<Constraint> res = mdlconstraints.get(model);
 		return res == null? new ArrayList<Constraint>() : res;
 	}
 
-	public List<Constraint> getAllConstraintsConstraint(String constraint) {
+	public List<Constraint> getAllConstraintsConstraint(IResource constraint) {
 		return cnsconstraints.get(constraint);
 	}
 
@@ -114,7 +114,17 @@ public class ConstraintManager {
 					.equals(constraint.sndmodel)) || (this.fstmodel
 							.equals(constraint.sndmodel) && this.sndmodel
 							.equals(constraint.fstmodel))));
-		}	
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder s = new StringBuilder(constraint.getName());
+			s.append(": ");
+			s.append(fstmodel.getName());
+			s.append(" <-> ");
+			s.append(sndmodel.getName());
+			return s.toString();
+		}
 
 	}
 }

@@ -323,10 +323,10 @@ public class Relation2Alloy {
 			}
 			if (field == null) {
 				field = s.addField(AlloyUtil.relationFieldName(rel,direction), /*type.setOf()*/Sig.UNIV.setOf());
-				Expr e = field.equal(fact.comprehensionOver(fst,snd));
-				Func f = new Func(null, field.label+"def",mdecls,null,e);
-				parentq.addFieldFunc(f);
 			}
+			Expr e = field.equal(fact.comprehensionOver(fst,snd));
+			Func f = new Func(null, field.label+"def",mdecls,null,e);
+			parentq.addFieldFunc(f);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 		return field;
 	}

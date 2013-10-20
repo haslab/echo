@@ -33,8 +33,6 @@ import pt.uminho.haslab.echo.plugin.views.GraphView;
  */
 public class ResourceManager {
 
-	
-
 	private EchoReporter reporter = EchoReporter.getInstance();
 	private EchoRunner runner = EchoRunner.getInstance();
 	private EchoParser parser = EchoParser.getInstance();
@@ -68,7 +66,7 @@ public class ResourceManager {
 	public void addModel(IResource resmodel) throws ErrorUnsupported,
 			ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
 
-		if (hasModel(resmodel)) {
+		if (isManagedModel(resmodel)) {
 			reloadModel(resmodel);
 			return;
 		}
@@ -142,8 +140,9 @@ public class ResourceManager {
 		runner.remModel(modeluri);
 		tracked.get(metamodeluri).remove(resmodel);
 
-		for (Constraint c : constraints.getAllConstraintsModel(modeluri)) {
-			constraints.removeConstraint(c);
+		for (Constraint c : constraints.getAllConstraintsModel(resmodel)) {
+			reporter.debug("Will remove  " + c.constraint);
+			this.removeQVTConstraint(c);
 		}
 		
 		EchoMarker.removeIntraMarkers(resmodel);
@@ -159,7 +158,7 @@ public class ResourceManager {
 	 *            the resource model to be tested
 	 * @return if {@code resmodel} is being tracked
 	 */
-	public boolean hasModel(IResource resmodel) {
+	public boolean isManagedModel(IResource resmodel) {
 		return runner.hasModel(resmodel.getFullPath().toString());
 	}
 	
@@ -196,7 +195,6 @@ public class ResourceManager {
 			reloadModel(resmodel);
 
 		reporter.debug("Metamodel " + metamodeluri + " reloaded.");
-
 	}
 
 	/**
@@ -225,7 +223,7 @@ public class ResourceManager {
 	 *            the metamodel resource to be tested
 	 * @return if {@code resmetamodel} is being tracked
 	 */
-	public boolean hasMetamodel(IResource resmetamodel) {
+	public boolean isManagedMetamodel(IResource resmetamodel) {
 		return runner.hasMetamodel(resmetamodel.getFullPath().toString());
 	}
 
@@ -249,8 +247,8 @@ public class ResourceManager {
 			IResource resmodelsnd) throws ErrorUnsupported, ErrorAlloy,
 			ErrorTransform, ErrorParser, ErrorAPI {
 		String qvturi = resqvt.getFullPath().toString();
-		if (!hasModel(resmodelfst)) addModel(resmodelfst);
-		if (!hasModel(resmodelsnd)) addModel(resmodelsnd);
+		if (!isManagedModel(resmodelfst)) addModel(resmodelfst);
+		if (!isManagedModel(resmodelsnd)) addModel(resmodelsnd);
 		if (!runner.hasQVT(qvturi)) {
 			RelationalTransformation qvt = parser.loadQVT(qvturi);
 			reporter.debug("QVT-R "+qvturi+" parsed.");
@@ -275,12 +273,12 @@ public class ResourceManager {
 	 * @throws ErrorParser 
 	 */
 	public void removeQVTConstraint(Constraint c) throws  ErrorParser, ErrorAPI {
-		
 		constraints.removeConstraint(c);
+		if (constraints.getAllConstraintsConstraint(c.constraint) == null ||
+				constraints.getAllConstraintsConstraint(c.constraint).size() == 0)
+			runner.remQVT(c.constraint.getFullPath().toString());
 		EchoMarker.removeRelatedInterMarker(c);
-
 	}
-
 	
 	public List<Constraint> getConstraints() {
 		return constraints.getAllConstraints();
@@ -327,6 +325,35 @@ public class ResourceManager {
 	}
 
 	/**
+	 * Reloads a QVT constraint
+	 * Assumes QVT constraint was previously in the system
+	 * Does not reload related models nor meta-models
+	 * Launches inter-model checks
+	 * @param res the updated qvt resource
+	 * @throws ErrorParser 
+	 * @throws ErrorTransform 
+	 * @throws ErrorAlloy 
+	 * @throws ErrorUnsupported 
+	 * @throws ErrorAPI 
+	 */
+	public void reloadQVTConstraint(IResource res) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
+		String uri = res.getFullPath().toString();
+		runner.remQVT(uri);
+		RelationalTransformation qvt = parser.loadQVT(uri);
+		runner.addQVT(qvt);
+		
+		for (Constraint c : constraints.getAllConstraintsConstraint(res)) {
+			reporter.debug("Checking " + c);
+			conformQVT(c);
+		}
+		reporter.debug("QVT " + uri + " reloaded.");
+	}
+
+	public boolean isManagedQVT(IResource qvtres) {
+		return runner.hasQVT(qvtres.getFullPath().toString());
+	}
+	
+	/**
 	 * Tests all QVT constraints over a single model
 	 * @param res the model over which QVT constraints are tested
 	 * @throws ErrorAlloy
@@ -335,14 +362,14 @@ public class ResourceManager {
 	private void conformAllQVT(IResource res) throws ErrorAlloy, ErrorAPI {
 		EchoPlugin.getInstance().getGraphView().clearGraph();
 		String modeluri = res.getFullPath().toString();
-		List<Constraint> cs = constraints.getAllConstraintsModel(modeluri);
-
+		List<Constraint> cs = constraints.getAllConstraintsModel(res);
+		EchoReporter.getInstance().debug("DEBUG: "+cs);
 		List<String> modeluris = new ArrayList<String>();
 		modeluris.add(modeluri);
 		for (Constraint c : cs) {
 			IResource partner;
 			int i;
-			if (c.fstmodel.equals(modeluri)) {
+			if (c.fstmodel.equals(res)) {
 				partner = c.sndmodel;
 				i = 1;
 			} else {
@@ -358,6 +385,8 @@ public class ResourceManager {
 		}
 
 	}
+
+
 
 	public void generate(IResource resmetamodel,
 			Map<Entry<String, String>, Integer> scopes, String target)
@@ -378,7 +407,7 @@ public class ResourceManager {
 			String target, int newp) throws ErrorParser, ErrorUnsupported,
 			ErrorAlloy, ErrorTransform, ErrorAPI {
 
-		if (!hasModel(ressource))
+		if (!isManagedModel(ressource))
 			addModel(ressource);
 		RelationalTransformation trans;
 		String metamodeluri = null;
@@ -419,6 +448,7 @@ public class ResourceManager {
 		amv.drawGraph();
 	}
 
+	
 	public void go(IResource resmodel) throws ErrorUnsupported, ErrorAlloy,
 			ErrorTransform, ErrorParser, ErrorAPI {
 		addModel(resmodel);

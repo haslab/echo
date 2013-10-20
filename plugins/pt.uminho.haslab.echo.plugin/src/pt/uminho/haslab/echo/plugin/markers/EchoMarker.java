@@ -10,16 +10,27 @@ import org.eclipse.core.runtime.CoreException;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 
+/**
+ * Manages Echo error markers
+ * @author nmm
+ *
+ */
 public class EchoMarker {
 
+	/** intra-model error marker */
 	public final static String INTRA_ERROR = "pt.uminho.haslab.echo.plugin.intrainconsistency";
+	/** inter-model error marker */
 	public final static String INTER_ERROR = "pt.uminho.haslab.echo.plugin.interinconsistency";
 
+	/** inter-model error marker constraint attribute */
 	public final static String CONSTRAINT = "constraint";
+	/** inter-model error marker opposite model attribute */
 	public final static String OPPOSITE = "opposite";
 
+	/** graph edit distance */
 	public final static String GED = "ged";
-	public final static String OPS = "ops";
+	/** operation-based distance */
+	public final static String OBD = "obd";
 
 	/**
 	 * Creates a intra-model error marker in a model resource
@@ -55,23 +66,19 @@ public class EchoMarker {
 		}
 	}
 	
-
-
 	/**
 	 * Creates inter-model error markers between two model resources
-	 * @param fstmodelres the first model
-	 * @param partner the second model
-	 * @param constraintres the constraint relating them
+	 * @param constraint the constraint that raised the error
 	 * @return the list of created markers
 	 * @throws ErrorAPI 
 	 */
-	public static List<IMarker> createInterMarker(Constraint c) throws ErrorAPI {
+	public static List<IMarker> createInterMarker(Constraint constraint) throws ErrorAPI {
 		List<IMarker> marks = new ArrayList<IMarker>();
 		IMarker mark;
-		mark = createSingleInterMarker(c.fstmodel, c.sndmodel, c.constraint
+		mark = createSingleInterMarker(constraint.fstmodel, constraint.sndmodel, constraint.constraint
 				.getFullPath().toString());
 		marks.add(mark);
-		mark = createSingleInterMarker(c.sndmodel, c.fstmodel, c.constraint
+		mark = createSingleInterMarker(constraint.sndmodel, constraint.fstmodel, constraint.constraint
 				.getFullPath().toString());
 		marks.add(mark);
 		return marks;
@@ -125,23 +132,21 @@ public class EchoMarker {
 
 	/**
 	 * Removes the inter-model error markers of two model resources related by a particular constraint
-	 * @param fstmodelres the first model to remove marker
-	 * @param sndmodelres the second model to remove marker
-	 * @param constraintres the constraint relating them
+	 * @param constraint the constraint to be removed
 	 * @throws ErrorAPI
 	 */
-	public static void removeRelatedInterMarker(Constraint c) throws ErrorAPI {
-		String fstmodeluri = c.fstmodel.getFullPath().toString();
-		String sndmodeluri = c.sndmodel.getFullPath().toString();
-		String constrainturi = c.constraint.getFullPath().toString();
+	public static void removeRelatedInterMarker(Constraint constraint) throws ErrorAPI {
+		String fstmodeluri = constraint.fstmodel.getFullPath().toString();
+		String sndmodeluri = constraint.sndmodel.getFullPath().toString();
+		String constrainturi = constraint.constraint.getFullPath().toString();
 
 		try {
-			for (IMarker mk : c.fstmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+			for (IMarker mk : constraint.fstmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
 				if (mk.getAttribute(EchoMarker.OPPOSITE).equals(sndmodeluri)
 						&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
 					mk.delete();
 
-			for (IMarker mk : c.sndmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+			for (IMarker mk : constraint.sndmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
 				if (mk.getAttribute(EchoMarker.OPPOSITE).equals(fstmodeluri)
 						&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
 					mk.delete();
