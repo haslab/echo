@@ -42,8 +42,12 @@ public class ResourceManager {
 	/** The map of managed qvtr constraints: QVTRURI -> ListModelResources **/
 	public ConstraintManager constraints = new ConstraintManager();
 
+	/** the following are temporary variables that store resources while the user is selecting the new model
+	/** temporary qvt constraint resource */
 	private IResource qvtwaiting;
+	/** temporary first model resource */
 	private IResource fstwaiting;
+	/** temporary second model resource */
 	private IResource sndwaiting;
 
 	/**
@@ -291,6 +295,35 @@ public class ResourceManager {
 	}
 	
 	/**
+	 * Reloads a QVT constraint
+	 * Assumes QVT constraint was previously in the system
+	 * Does not reload related models nor meta-models
+	 * Launches inter-model checks
+	 * @param res the updated qvt resource
+	 * @throws ErrorParser 
+	 * @throws ErrorTransform 
+	 * @throws ErrorAlloy 
+	 * @throws ErrorUnsupported 
+	 * @throws ErrorAPI 
+	 */
+	public void reloadQVTConstraint(IResource res) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
+		String uri = res.getFullPath().toString();
+		runner.remQVT(uri);
+		RelationalTransformation qvt = parser.loadQVT(uri);
+		runner.addQVT(qvt);
+		
+		for (Constraint c : constraints.getAllConstraintsConstraint(res)) {
+			reporter.debug("Checking " + c);
+			conformQVT(c);
+		}
+		reporter.debug("QVT " + uri + " reloaded.");
+	}
+
+	public boolean isManagedQVT(IResource qvtres) {
+		return runner.hasQVT(qvtres.getFullPath().toString());
+	}
+	
+	/**
 	 * Running tests
 	 */
 	
@@ -331,35 +364,6 @@ public class ResourceManager {
 	}
 
 	/**
-	 * Reloads a QVT constraint
-	 * Assumes QVT constraint was previously in the system
-	 * Does not reload related models nor meta-models
-	 * Launches inter-model checks
-	 * @param res the updated qvt resource
-	 * @throws ErrorParser 
-	 * @throws ErrorTransform 
-	 * @throws ErrorAlloy 
-	 * @throws ErrorUnsupported 
-	 * @throws ErrorAPI 
-	 */
-	public void reloadQVTConstraint(IResource res) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
-		String uri = res.getFullPath().toString();
-		runner.remQVT(uri);
-		RelationalTransformation qvt = parser.loadQVT(uri);
-		runner.addQVT(qvt);
-		
-		for (Constraint c : constraints.getAllConstraintsConstraint(res)) {
-			reporter.debug("Checking " + c);
-			conformQVT(c);
-		}
-		reporter.debug("QVT " + uri + " reloaded.");
-	}
-
-	public boolean isManagedQVT(IResource qvtres) {
-		return runner.hasQVT(qvtres.getFullPath().toString());
-	}
-	
-	/**
 	 * Tests all QVT constraints over a single model
 	 * @param res the model over which QVT constraints are tested
 	 * @throws ErrorAlloy
@@ -392,16 +396,13 @@ public class ResourceManager {
 
 	}
 
-
-
 	public void generate(IResource resmetamodel,
 			Map<Entry<String, String>, Integer> scopes, String target)
-			throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform {
+			throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorAPI {
 		String metamodeluri = resmetamodel.getFullPath().toString();
-		if (!runner.hasMetamodel(metamodeluri)) {
-			EPackage metamodel = parser.loadMetamodel(metamodeluri);
-			runner.addMetamodel(metamodel);
-		}
+		if (!isManagedMetamodel(resmetamodel))
+			addModel(resmetamodel);
+
 		runner.generate(metamodeluri, scopes);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
@@ -417,9 +418,10 @@ public class ResourceManager {
 			addModel(ressource);
 		RelationalTransformation trans;
 		String metamodeluri = null;
-		if (!runner.hasQVT(resqvt.getFullPath().toString())) {
+		
+		if (!isManagedQVT(resqvt))
 			trans = parser.loadQVT(resqvt.getFullPath().toString());
-		} else
+		else
 			trans = parser.loadQVT(resqvt.getFullPath().toString());
 
 		EPackage metamodel = trans.getModelParameter().get(newp)
@@ -454,8 +456,16 @@ public class ResourceManager {
 		amv.drawGraph();
 	}
 
-	
-	public void go(IResource resmodel) throws ErrorUnsupported, ErrorAlloy,
+	/**
+	 * Warns the manager that the new model was selected, creating the constraint over it
+	 * @param resmodel
+	 * @throws ErrorUnsupported
+	 * @throws ErrorAlloy
+	 * @throws ErrorTransform
+	 * @throws ErrorParser
+	 * @throws ErrorAPI
+	 */
+	public void modelGenerated(IResource resmodel) throws ErrorUnsupported, ErrorAlloy,
 			ErrorTransform, ErrorParser, ErrorAPI {
 		addModel(resmodel);
 		if (qvtwaiting != null && fstwaiting != null)
@@ -467,7 +477,8 @@ public class ResourceManager {
 		sndwaiting = null;
 	}
 
-	public String writeString() {
+	
+	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		for (IResource res: getModels()) {
 			builder.append(res.getFullPath().toString());

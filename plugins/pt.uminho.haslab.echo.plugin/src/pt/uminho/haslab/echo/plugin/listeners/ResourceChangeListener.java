@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.ResourceManager;

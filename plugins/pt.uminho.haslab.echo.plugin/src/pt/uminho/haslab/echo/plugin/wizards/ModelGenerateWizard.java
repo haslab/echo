@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
@@ -78,7 +79,7 @@ public class ModelGenerateWizard extends Wizard {
 			}
 			try {
 				ProjectPropertiesManager.getProperties(res.getProject()).generate(res,scopes,page.getPath());
-			} catch (ErrorUnsupported | ErrorParser | ErrorTransform e) {
+			} catch (ErrorUnsupported | ErrorParser | ErrorTransform | ErrorAPI e) {
 				// TODO Auto-generated catch block
 				MessageDialog.openInformation(shell, "Error generating.", e.getMessage());
 			}

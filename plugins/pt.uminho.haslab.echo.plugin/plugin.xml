@@ -12,12 +12,12 @@
             name="Conforms">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AlloySaveHandler"
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.SolutionSelectHandler"
             id="pt.uminho.haslab.echo.commands.alloysave"
             name="Save instance">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AlloyNextHandler"
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.SolutionNextHandler"
             id="pt.uminho.haslab.echo.commands.alloynext"
             name="Next instance">
       </command>
@@ -254,7 +254,7 @@
            commandId="pt.uminho.haslab.echo.commands.modelgenerate">
            
   </handler>
-  <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTNewConstraintHandler"
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTConstraintAddHandler"
            commandId="pt.uminho.haslab.echo.commands.qvtconstraint">
   </handler>
 </extension>

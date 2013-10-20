@@ -12,18 +12,22 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.plugin.wizards.AddQVTRelationWizard;
 
-public class QVTNewConstraintHandler extends AbstractHandler {
+/**
+ * Handles the "add new QVT constraint" event
+ * @author nmm
+ *
+ */
+public class QVTConstraintAddHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		Shell shell = HandlerUtil.getActiveShell(event);
-
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
-
 	    Object firstElement = selection.getFirstElement();
-		if(firstElement instanceof IFile)
+
+	    if(firstElement instanceof IFile)
 		{	
 			IFile res = (IFile) firstElement;
 			String path = res.getFullPath().toString();
@@ -32,8 +36,6 @@ public class QVTNewConstraintHandler extends AbstractHandler {
 					new AddQVTRelationWizard(path,res.getProject()));
 
 			wizardDialog.open();
-
-
 		}
 
 		return null;

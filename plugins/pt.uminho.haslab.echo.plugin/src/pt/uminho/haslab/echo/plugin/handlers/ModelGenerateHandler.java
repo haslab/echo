@@ -12,6 +12,11 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.plugin.wizards.ModelGenerateWizard;
 
+/**
+ * Handles the "generate model" event
+ * @author nmm
+ *
+ */
 public class ModelGenerateHandler extends AbstractHandler {
 
 	@Override
@@ -21,18 +26,14 @@ public class ModelGenerateHandler extends AbstractHandler {
 		
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
-
 	    Object firstElement = selection.getFirstElement();
-		if(firstElement instanceof IFile)
+
+	    if(firstElement instanceof IFile)
 		{	
 			IFile res = (IFile) firstElement;
-
 			WizardDialog wizardDialog = new WizardDialog(shell.getShell(), 
-					new ModelGenerateWizard(res));
-			
+					new ModelGenerateWizard(res));			
 			wizardDialog.open();
-			
-			
 		}
 		
 		return null;

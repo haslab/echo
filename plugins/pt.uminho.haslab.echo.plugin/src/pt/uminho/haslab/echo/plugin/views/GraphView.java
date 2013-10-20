@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -18,8 +17,6 @@ import org.eclipse.ui.part.ViewPart;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
-import pt.uminho.haslab.echo.plugin.ResourceManager;
-import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -134,7 +131,7 @@ public class GraphView extends ViewPart {
 						targetPath);
 				IResource modelA = ResourcesPlugin.getWorkspace().getRoot()
 						.findMember(targetPath);
-				ProjectPropertiesManager.getProperties(modelA.getProject()).go(modelA);
+				ProjectPropertiesManager.getProperties(modelA.getProject()).modelGenerated(modelA);
 			}
 			targetPath = null;
 		} catch (Exception e) {

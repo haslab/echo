@@ -58,7 +58,7 @@ public class ProjectPropertiesManager {
 	 */
 	public static void saveProjectProperties(IProject project) throws ErrorParser {
 		try {
-			project.setPersistentProperty(ECHO_PROPERTIES, properties.get(project).writeString());
+			project.setPersistentProperty(ECHO_PROPERTIES, properties.get(project).toString());
 		} catch(CoreException e) { throw new ErrorParser(e.getMessage()); }		
 	}
 	

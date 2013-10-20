@@ -10,14 +10,17 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.plugin.ResourceManager;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
+/**
+ * Handles the "track model" event
+ * @author nmm
+ *
+ */
 public class FileTrackHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// TODO Auto-generated method stub
 		
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
@@ -32,8 +35,8 @@ public class FileTrackHandler extends AbstractHandler {
 				try {
 					ProjectPropertiesManager.getProperties(res.getProject()).addModel(res);
 				} catch(Exception e) {
+					MessageDialog.openError(shell, "Failed to track resource.", e.getMessage());
 					e.printStackTrace();
-					MessageDialog.openError(shell, "Error loading resource.", e.getMessage());
 				}
 			}
 			else
