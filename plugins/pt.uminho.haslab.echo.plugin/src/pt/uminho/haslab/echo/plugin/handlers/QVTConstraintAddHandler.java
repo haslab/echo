@@ -10,7 +10,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.plugin.wizards.AddQVTRelationWizard;
+import pt.uminho.haslab.echo.plugin.wizards.QVTConstraintAddWizard;
 
 /**
  * Handles the "add new QVT constraint" event
@@ -30,10 +30,9 @@ public class QVTConstraintAddHandler extends AbstractHandler {
 	    if(firstElement instanceof IFile)
 		{	
 			IFile res = (IFile) firstElement;
-			String path = res.getFullPath().toString();
 
 			WizardDialog wizardDialog = new WizardDialog(shell.getShell(), 
-					new AddQVTRelationWizard(path,res.getProject()));
+					new QVTConstraintAddWizard(res));
 
 			wizardDialog.open();
 		}

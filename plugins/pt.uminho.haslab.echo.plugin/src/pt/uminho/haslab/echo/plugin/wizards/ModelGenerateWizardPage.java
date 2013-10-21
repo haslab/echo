@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.plugin.wizards;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -10,19 +12,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import pt.uminho.haslab.echo.emf.EchoParser;
-import pt.uminho.haslab.echo.plugin.EchoPlugin;
-
 public class ModelGenerateWizardPage extends WizardPage {
 
-	//private String modelA = "";
-	//private String modelB = "";
-	
 	private Text modelPath;
 	private Text scopes;
-	String metamodel;
+	private IResource metamodel;
 	
-	public ModelGenerateWizardPage(String metamodel) {
+	public ModelGenerateWizardPage(IResource metamodel) {
 		super("Generate new model instance");
 		setTitle("Generate new model instance");
 		this.metamodel = metamodel;
@@ -32,9 +28,7 @@ public class ModelGenerateWizardPage extends WizardPage {
 	@Override
 	public void createControl(Composite parent) {
 	 	Composite container = new Composite(parent, SWT.NULL);
-	    GridLayout layout = new GridLayout();
-	    container.setLayout(layout);
-	    layout.numColumns = 2;
+	    container.setLayout(new GridLayout(2,false));
 	    GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 	    KeyListener kl = new KeyListenerHelper();
 	    
@@ -42,7 +36,7 @@ public class ModelGenerateWizardPage extends WizardPage {
 	    labelA.setText("New model path: ");
 
 	    modelPath = new Text(container, SWT.BORDER | SWT.SINGLE);
-	    modelPath.setText(metamodel.replace(".ecore", ".xmi"));
+	    modelPath.setText(metamodel.getFullPath().toString().replace(".ecore", ".xmi"));
 	    modelPath.addKeyListener(kl);	    
 	    modelPath.setLayoutData(gd);
 	    
@@ -77,13 +71,25 @@ public class ModelGenerateWizardPage extends WizardPage {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if (!modelPath.getText().isEmpty())
-		          setPageComplete(true);
-			else 
-				setPageComplete(false);
-			
+			isValid();			
 		}
 		
+	}
+	
+	private boolean isValid() {
+		IResource resource = ResourcesPlugin.getWorkspace().getRoot()
+				.findMember(modelPath.getText());
+		
+		if (resource != null) {
+			setMessage("Resource already exists, will be overwritten.", WARNING);
+		} else {
+			setMessage(null,NONE);
+			if (modelPath.getText() == null)
+				setPageComplete(false);
+			else
+				setPageComplete(true);
+		}
+	return true;
 	}
 
 }

@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,6 +31,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
+import pt.uminho.haslab.echo.plugin.wizards.QVTConstraintAddWizard;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 public class ProjectConstraintsPage extends PropertyPage implements
@@ -72,7 +74,6 @@ IWorkbenchPropertyPage {
 		fstcol.getColumn().setText("First model");
 		fstcol.setLabelProvider(new ViewLabelProvider(1));
 
-
 		TableViewerColumn sndcol = new TableViewerColumn(constraintlist, SWT.NONE);
 		sndcol.getColumn().setWidth(200);
 		sndcol.getColumn().setText("Second model");
@@ -93,7 +94,15 @@ IWorkbenchPropertyPage {
 		Button remButton = new Button(buttonscomposite,SWT.PUSH);
 		Button allButton = new Button(buttonscomposite,SWT.PUSH);
 		addButton.setText("Add constraint");
-		addButton.setEnabled(false);
+		addButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				WizardDialog wizardDialog = new WizardDialog(e.display.getActiveShell(), 
+						new QVTConstraintAddWizard());
+				wizardDialog.open();		
+				constraintlist.setInput(ProjectPropertiesManager.getProperties(project).getConstraints());
+			}
+		});
 		remButton.setText("Remove constraint");
 		remButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -108,7 +117,7 @@ IWorkbenchPropertyPage {
 				constraintlist.getTable().removeAll();
 			}
 		});
-
+		
 		return rootcomposite;	
 
 	}
