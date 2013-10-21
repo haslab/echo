@@ -24,6 +24,7 @@ import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 /**
  * Manages the project resources being tracked by Echo
@@ -67,19 +68,18 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	public void addModel(IResource resmodel) throws ErrorUnsupported,
+	public EObject addModel(IResource resmodel) throws ErrorUnsupported,
 			ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
 
 		if (isManagedModel(resmodel)) {
-			reloadModel(resmodel);
-			return;
+			return reloadModel(resmodel);
 		}
 
 		String modeluri = resmodel.getFullPath().toString();
 
 		EObject model = parser.loadModel(modeluri);
 		reporter.debug("Model " + modeluri + " parsed.");
-
+		
 		String metamodeluri = URIUtil.resolveURI(model.eClass().getEPackage()
 				.eResource());
 
@@ -98,6 +98,8 @@ public class ResourceManager {
 		aux.add(resmodel);
 		tracked.put(metamodeluri, aux);
 		conformMeta(resmodel);
+		
+		return model;
 	}
 
 	/**
@@ -112,7 +114,7 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	public void reloadModel(IResource resmodel) throws ErrorUnsupported,
+	public EObject reloadModel(IResource resmodel) throws ErrorUnsupported,
 			ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
 
 		String modeluri = resmodel.getFullPath().toString();
@@ -122,6 +124,7 @@ public class ResourceManager {
 		reporter.debug("Model " + modeluri + " re-processed.");
 		conformMeta(resmodel);
 		conformAllQVT(resmodel);
+		return model;
 	}
 
 	
@@ -247,21 +250,37 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	public void addQVTConstraint(IResource resqvt, IResource resmodelfst,
+	public Constraint addQVTConstraint(IResource resqvt, IResource resmodelfst,
 			IResource resmodelsnd) throws ErrorUnsupported, ErrorAlloy,
 			ErrorTransform, ErrorParser, ErrorAPI {
 		String qvturi = resqvt.getFullPath().toString();
 		if (!isManagedModel(resmodelfst)) addModel(resmodelfst);
 		if (!isManagedModel(resmodelsnd)) addModel(resmodelsnd);
+		EObject fst = parser.getModelFromUri(resmodelfst.getFullPath().toString());
+		EObject snd = parser.getModelFromUri(resmodelsnd.getFullPath().toString());
+		String mmfst = parser.getMetamodelURI(fst.eClass().getEPackage().getName());
+		String mmsnd = parser.getMetamodelURI(snd.eClass().getEPackage().getName());
+		RelationalTransformation qvt;
 		if (!runner.hasQVT(qvturi)) {
-			RelationalTransformation qvt = parser.loadQVT(qvturi);
+			qvt = parser.loadQVT(qvturi);
 			reporter.debug("QVT-R "+qvturi+" parsed.");
 			runner.addQVT(qvt);
 			reporter.debug("QVT-R "+qvturi+" processed.");
+		} else {
+			qvt = parser.getTransformation(qvturi);
 		}
+		
+		String mmqvtfst = URIUtil.resolveURI(qvt.getModelParameter().get(0)
+				.getUsedPackage().get(0).getEPackage().eResource());
+		String mmqvtsnd = URIUtil.resolveURI(qvt.getModelParameter().get(1)
+				.getUsedPackage().get(0).getEPackage().eResource());
+
+		if (!mmqvtfst.equals(mmfst) || !mmqvtsnd.equals(mmsnd))
+			throw new ErrorParser("Model parameters do not type-check");
 		
 		Constraint c = constraints.addConstraint(resqvt,resmodelfst,resmodelsnd);
 		conformQVT(c);
+		return c;
 	}
 	
 	
@@ -426,6 +445,7 @@ public class ResourceManager {
 
 		EPackage metamodel = trans.getModelParameter().get(newp)
 				.getUsedPackage().get(0).getEPackage();
+		
 		metamodeluri = URIUtil.resolveURI(metamodel.eResource());
 		metamodel = parser.loadMetamodel(metamodeluri);
 		if (!runner.hasMetamodel(metamodeluri))
