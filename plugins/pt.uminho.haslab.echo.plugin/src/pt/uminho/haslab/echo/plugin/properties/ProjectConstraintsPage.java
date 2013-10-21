@@ -39,6 +39,7 @@ IWorkbenchPropertyPage {
 
 	private TableViewer constraintlist;
 	private IProject project;
+	public final static String ID = "pt.uminho.haslab.echo.plugin.properties.constraints";
 
 	@Override
 	protected Control createContents(Composite parent) {

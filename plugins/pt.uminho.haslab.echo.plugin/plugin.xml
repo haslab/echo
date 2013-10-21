@@ -4,8 +4,18 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="pt.uminho.haslab.echo.commands.filemanage"
-            name="Manage file">
+            id="pt.uminho.haslab.echo.commands.modeltrack"
+            name="Track model">
+      </command>
+      <command
+            id="pt.uminho.haslab.echo.commands.modelsmanage"
+            name="Manage models">
+        
+      </command>
+      <command
+            id="pt.uminho.haslab.echo.commands.constraintsmanage"
+            name="Manage constraints">
+        
       </command>
       <command
             id="pt.uminho.haslab.echo.commands.modelconforms"
@@ -39,7 +49,7 @@
          <menu icon="/icons/echo.png"
                label="Echo">
          	<command
-               commandId="pt.uminho.haslab.echo.commands.filemanage"
+               commandId="pt.uminho.haslab.echo.commands.modeltrack"
                icon="icons/trackmodel.png"
                label="Track model"
                style="push">
@@ -155,6 +165,18 @@
                id="pt.uminho.haslab.echo.plugin.toolbar"
                label="Echo toolbar">
             <command
+                  commandId="pt.uminho.haslab.echo.commands.modelsmanage"
+                  icon="icons/trackmodel.png"
+                  label="Manage models"
+                  style="push">
+            </command>
+            <command
+                  commandId="pt.uminho.haslab.echo.commands.constraintsmanage"
+                  icon="icons/qvtrel.gif"
+                  label="Manage constraints"
+                  style="push">
+            </command>
+            <command
                   commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
                   icon="/icons/qvtrel.gif"
                   label="New QVT constraint"
@@ -183,7 +205,7 @@
       </page>
     <page
         class="pt.uminho.haslab.echo.plugin.properties.ProjectModelsPage"
-        id="pt.uminho.haslab.echo.plugin.properties.echoPropertyModels"
+        id="pt.uminho.haslab.echo.plugin.properties.models"
         name="Tracked models"
         category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
      <enabledWhen>
@@ -194,7 +216,7 @@
   </page>
       <page
         class="pt.uminho.haslab.echo.plugin.properties.ProjectConstraintsPage"
-        id="pt.uminho.haslab.echo.plugin.properties.echoPropertyConstraints"
+        id="pt.uminho.haslab.echo.plugin.properties.constraints"
         name="QVT Constraints"
         category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
      <enabledWhen>
@@ -227,7 +249,7 @@
             class="pt.uminho.haslab.echo.plugin.EchoPropertyTester"
             id="pt.uminho.haslab.echo.plugin.propertyTester"
             namespace="pt.uminho.haslab.echo.plugin.propertyTester"
-            properties="tracked"
+            properties="tracked,has_project"
             type="org.eclipse.core.resources.IFile">
       </propertyTester>
    </extension>
@@ -263,12 +285,35 @@
      
   </handler>
   <handler class="pt.uminho.haslab.echo.plugin.handlers.FileTrackHandler"
-           commandId="pt.uminho.haslab.echo.commands.filemanage">
-
+           commandId="pt.uminho.haslab.echo.commands.modeltrack">
   </handler>
+    <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelsManageHandler"
+           commandId="pt.uminho.haslab.echo.commands.modelsmanage">
+                <activeWhen>
+               <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.has_project"
+                           value="true">
+                     </test>
+               </iterate>
+            </activeWhen>
+  </handler>
+      <handler class="pt.uminho.haslab.echo.plugin.handlers.ConstraintsManageHandler"
+           commandId="pt.uminho.haslab.echo.commands.constraintsmanage">
+                <activeWhen>
+               <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.has_project"
+                           value="true">
+                     </test>
+               </iterate>
+            </activeWhen>
+  </handler>
+  
   <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
-           commandId="pt.uminho.haslab.echo.commands.modelgenerate">
-           
+           commandId="pt.uminho.haslab.echo.commands.modelgenerate">           
   </handler>
   <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTConstraintAddHandler"
            commandId="pt.uminho.haslab.echo.commands.qvtconstraint">

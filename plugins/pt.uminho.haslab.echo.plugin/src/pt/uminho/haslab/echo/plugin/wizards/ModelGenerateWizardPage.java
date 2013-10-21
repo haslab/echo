@@ -121,7 +121,7 @@ public class ModelGenerateWizardPage extends WizardPage {
 		if (mresource == null) {
 			setMessage("Invalid meta-model.", ERROR);
 			setPageComplete(false);
-		} else if (modelPath.getText() != "" && modelPath.getText() != null && resource != null) {
+		} else if (resource instanceof IFile) {
 			setMessage("Resource already exists, will be overwritten.", WARNING);
 			setPageComplete(true);
 		} else {

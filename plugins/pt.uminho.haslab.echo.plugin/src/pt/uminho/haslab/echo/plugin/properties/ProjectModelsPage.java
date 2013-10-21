@@ -43,6 +43,7 @@ IWorkbenchPropertyPage {
 
 	private CheckboxTableViewer modellist;
 	private IProject project;
+	public final static String ID = "pt.uminho.haslab.echo.plugin.properties.models";
 
 	@Override
 	protected Control createContents(Composite parent) {
