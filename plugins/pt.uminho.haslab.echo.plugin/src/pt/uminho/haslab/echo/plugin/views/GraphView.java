@@ -32,6 +32,8 @@ public class GraphView extends ViewPart {
 	private IResource resmetamodel;
 	/** If the generated target model is a new model */
 	private boolean isNewModel;
+	
+	public final static String ID = "pt.uminho.haslab.echo.graphviewer";
 
 	/**
 	 * Initializes a graph visualizer View with a dummy xml instance

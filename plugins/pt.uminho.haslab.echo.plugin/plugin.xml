@@ -34,15 +34,11 @@
             name="Remove file">
       </command>
    </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
-         <menu
-               icon="/icons/echo.png"
+   <extension point="org.eclipse.ui.menus">
+      <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu">
+         <menu icon="/icons/echo.png"
                label="Echo">
-          
-         <command
+         	<command
                commandId="pt.uminho.haslab.echo.commands.filemanage"
                icon="icons/trackmodel.png"
                label="Track model"
@@ -138,7 +134,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:pt.uminho.haslab.echo.alloymodelview">
+            locationURI="toolbar:pt.uminho.haslab.echo.graphviewer">
          <command
                commandId="pt.uminho.haslab.echo.commands.alloynext"
                icon="icons/next.gif"
@@ -151,6 +147,26 @@
                label="Save instance"
                style="push">
          </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar"> >
+         <toolbar
+               id="pt.uminho.haslab.echo.plugin.toolbar"
+               label="Echo toolbar">
+            <command
+                  commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
+                  icon="/icons/qvtrel.gif"
+                  label="New QVT constraint"
+                  style="push">
+            </command>
+            <command
+                  commandId="pt.uminho.haslab.echo.commands.modelgenerate"
+                  icon="/icons/newmodel.gif"
+                  label="Generate model"
+                  style="push">
+            </command>
+         </toolbar>
       </menuContribution>
    </extension>
    <extension
@@ -220,12 +236,12 @@
        <category 
            id="pt.uminho.haslab.echo.viewcategory"
            name="Echo">
-        </category>
+        </category> 
     <view
           category="pt.uminho.haslab.echo.viewcategory"
           class="pt.uminho.haslab.echo.plugin.views.GraphView"
-          id="pt.uminho.haslab.echo.alloymodelview"
-          name="Alloy Model"
+          id="pt.uminho.haslab.echo.graphviewer"
+          name="Echo solution"
           icon="icons/alloy.png"
           restorable="true">
     </view>
@@ -259,6 +275,13 @@
   </handler>
 </extension>
 
-
+<extension point="org.eclipse.ui.perspectives">
+   <perspective
+         name="Echo"
+         class="pt.uminho.haslab.echo.plugin.views.EchoPerspective"
+         id="pt.uminho.haslab.echo.plugin.views.echoperspective"
+         icon="/icons/echo.png">
+   </perspective>
+</extension>
 
 </plugin>

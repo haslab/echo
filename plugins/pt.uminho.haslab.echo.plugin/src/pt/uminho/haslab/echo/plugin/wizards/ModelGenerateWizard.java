@@ -37,6 +37,11 @@ public class ModelGenerateWizard extends Wizard {
 		this.res = res;
 	}
 	
+	public ModelGenerateWizard()
+	{
+		super();
+	}
+	
 	@Override
 	public void addPages()
 	{
@@ -54,6 +59,7 @@ public class ModelGenerateWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		try {
+			res = page.getMetamodel();
 			Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
 			if (page.getScopes() != null && ! page.getScopes().equals("")) {
 				String[] args = page.getScopes().split(", ");

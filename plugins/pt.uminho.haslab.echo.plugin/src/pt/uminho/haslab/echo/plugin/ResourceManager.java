@@ -24,7 +24,6 @@ import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 /**
  * Manages the project resources being tracked by Echo
@@ -80,11 +79,10 @@ public class ResourceManager {
 		EObject model = parser.loadModel(modeluri);
 		reporter.debug("Model " + modeluri + " parsed.");
 		
-		String metamodeluri = URIUtil.resolveURI(model.eClass().getEPackage()
-				.eResource());
+		String metamodeluri = URIUtil.resolveURI(model.eClass().getEPackage().eResource());
 
 		if (!runner.hasMetamodel(metamodeluri)) {
-			reporter.debug("Model's metamodel still not tracked.");
+			reporter.debug("Model's metamodel "+metamodeluri+"still not tracked.");
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
 			reporter.debug("Metamodel " + metamodeluri + " parsed.");
 			runner.addMetamodel(metamodel);
@@ -419,9 +417,11 @@ public class ResourceManager {
 			Map<Entry<String, String>, Integer> scopes, String target)
 			throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorAPI {
 		String metamodeluri = resmetamodel.getFullPath().toString();
-		if (!isManagedMetamodel(resmetamodel))
-			addModel(resmetamodel);
-
+		if (!isManagedMetamodel(resmetamodel)) {
+			EPackage metamodel = parser.loadMetamodel(metamodeluri);
+			runner.addMetamodel(metamodel);
+		}
+			
 		runner.generate(metamodeluri, scopes);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();

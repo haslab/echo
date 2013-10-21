@@ -86,7 +86,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 			try {
 				graphView = (GraphView) PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getActivePage()
-						.showView("pt.uminho.haslab.echo.alloymodelview");
+						.showView(GraphView.ID);
 			} catch (PartInitException e) {
 				MessageDialog.openError(PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getShell(), "Error",

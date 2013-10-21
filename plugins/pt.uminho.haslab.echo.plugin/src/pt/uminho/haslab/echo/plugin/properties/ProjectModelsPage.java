@@ -14,7 +14,10 @@ import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -33,6 +36,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.echo.plugin.wizards.ModelGenerateWizard;
 
 public class ProjectModelsPage extends PropertyPage implements
 IWorkbenchPropertyPage {
@@ -81,7 +85,19 @@ IWorkbenchPropertyPage {
 		addButton.setEnabled(false);
 		remButton.setText("Select none");
 		remButton.setEnabled(false);
-		
+
+		Button genButton = new Button(buttonscomposite,SWT.PUSH);
+		genButton.setText("Generate model");
+		genButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				WizardDialog wizardDialog = new WizardDialog(e.display.getActiveShell(), 
+						new ModelGenerateWizard());
+				wizardDialog.open();		
+				//modellist.setInput(getAllXMI(e));
+			}
+		});
+
 		return rootcomposite;	
 	}
 

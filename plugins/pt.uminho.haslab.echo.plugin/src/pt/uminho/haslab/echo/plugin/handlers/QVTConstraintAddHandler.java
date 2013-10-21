@@ -24,18 +24,21 @@ public class QVTConstraintAddHandler extends AbstractHandler {
 
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
-	    IStructuredSelection selection = (IStructuredSelection) sel;
-	    Object firstElement = selection.getFirstElement();
-
-	    if(firstElement instanceof IFile)
+		IStructuredSelection selection = (IStructuredSelection) sel;
+	    
+		WizardDialog wizardDialog;
+	    if(selection != null && selection.getFirstElement() instanceof IFile)
 		{	
-			IFile res = (IFile) firstElement;
+			IFile res = (IFile) selection.getFirstElement();
 
-			WizardDialog wizardDialog = new WizardDialog(shell.getShell(), 
+			wizardDialog = new WizardDialog(shell.getShell(), 
 					new QVTConstraintAddWizard(res));
-
-			wizardDialog.open();
-		}
+		} else {
+			
+		} wizardDialog = new WizardDialog(shell.getShell(), 
+				new QVTConstraintAddWizard());
+				    
+	    wizardDialog.open();
 
 		return null;
 	}
