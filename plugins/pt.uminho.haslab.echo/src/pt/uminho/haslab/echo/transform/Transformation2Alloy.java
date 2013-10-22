@@ -1,13 +1,16 @@
 package pt.uminho.haslab.echo.transform;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.consistency.Model;
 import pt.uminho.haslab.echo.consistency.Relation;
 import pt.uminho.haslab.echo.consistency.Transformation;
@@ -24,6 +27,13 @@ class Transformation2Alloy {
 	/** the Alloy expression rising from this QVT Transformation*/
 	private Func func;
 	private Transformation transformation;
+	
+	/** the additional facts, defining the fields of internal QVT calls */
+	private Map<String,Func> recRelationDefs = new HashMap<String,Func>();
+	private Map<String,Func> recRelationRecCalls = new HashMap<String,Func>();
+	private Map<String,Func> recRelationTopCalls = new HashMap<String,Func>();
+
+	
 	
 	/** Constructs a new QVT Transformation to Alloy translator.
 	 * A {@code QVTRelation2Alloy} is called for every top QVT Relation and direction.
@@ -48,7 +58,6 @@ class Transformation2Alloy {
 			Decl d;
 			try {
 				String metamodeluri = mdl.getMetamodelURI();
-
 				d = EchoTranslator.getInstance().getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			argsdecls.put(mdl.getName(), d);
@@ -60,13 +69,16 @@ class Transformation2Alloy {
 			if (rel.isTop()) {
 				for (Model mdl : transformation.getModels()) {
 					//TypedModel mdl = qvt.getModelParameter().get(0);
-					Relation2Alloy trans = new Relation2Alloy(mdl,rel);
-					fact = fact.and(trans.getFunc().call(vars.toArray(new ExprVar[vars.size()])));
-					for (Func f : trans.getFieldFunc()) {
-						fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
-					}
+					new Relation2Alloy(this,mdl,rel);
 				}
 			}
+		for (Func f : recRelationTopCalls.values()) {
+			fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
+		}		
+		for (Func f : recRelationDefs.values()) {
+			fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
+		}
+
 		try {
 			func = new Func(null, transformation.getName(), decls, null, fact);		
 		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); } 
@@ -82,6 +94,28 @@ class Transformation2Alloy {
 
 	Transformation getTransformation() {
 		return transformation;
+	}
+	
+	/** 
+	 * Adds a new Alloy function defining a non-top QVT relation field
+	 * should be used by descendants on parent
+	 */
+	void addRecRelationDef(Func x) {
+		recRelationDefs.put(x.label, x);
+	}
+	
+	void addRecRelationCall(Func x) {
+		recRelationRecCalls.put(x.label, x);
+	}
+	
+	void addTopRelationCall(Func x) {
+		recRelationTopCalls.put(x.label, x);
+	}
+	
+	
+	Func getRecRelationCall(Relation n, Model dir) {
+		Func f = recRelationRecCalls.get(AlloyUtil.relationFieldName(n,dir));
+		return f;
 	}
 
 }

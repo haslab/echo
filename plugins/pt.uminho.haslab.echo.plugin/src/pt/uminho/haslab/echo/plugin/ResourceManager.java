@@ -390,7 +390,7 @@ public class ResourceManager {
 		EchoPlugin.getInstance().getGraphView().clearGraph();
 		String modeluri = res.getFullPath().toString();
 		List<Constraint> cs = constraints.getAllConstraintsModel(res);
-		EchoReporter.getInstance().debug("DEBUG: "+cs);
+		//EchoReporter.getInstance().debug("DEBUG: "+cs);
 		List<String> modeluris = new ArrayList<String>();
 		modeluris.add(modeluri);
 		for (Constraint c : cs) {

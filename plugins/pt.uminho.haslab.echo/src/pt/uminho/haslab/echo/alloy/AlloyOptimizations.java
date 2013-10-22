@@ -240,7 +240,7 @@ public class AlloyOptimizations {
 						TradeForm finder = new TradeForm(x.decls);
 						rngs = finder.visitThis(abody);
 						for (Decl d : rngs.getKey().keySet()) {
-							EchoReporter.getInstance().debug("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+							//EchoReporter.getInstance().debug("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
 							Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
 							aux.add(d2);
 						}
@@ -259,7 +259,7 @@ public class AlloyOptimizations {
 					TradeForm finder = new TradeForm(x.decls);
 					rngs = finder.visitThis(ebody);
 					for (Decl d : rngs.getKey().keySet()) {
-						EchoReporter.getInstance().debug("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
+						//EchoReporter.getInstance().debug("trading on var "+d.get()+" with range "+rngs.getKey().get(d));
 						Decl d2 = new Decl(null,null,null,d.names,rngs.getKey().get(d));
 						aux.add(d2);
 					}

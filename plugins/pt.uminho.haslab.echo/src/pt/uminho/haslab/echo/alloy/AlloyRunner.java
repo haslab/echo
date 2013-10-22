@@ -11,10 +11,7 @@ import java.util.Set;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
@@ -33,18 +30,11 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
-import edu.mit.csail.sdg.alloy4graph.DotColor;
-import edu.mit.csail.sdg.alloy4viz.AlloyModel;
-import edu.mit.csail.sdg.alloy4viz.AlloyRelation;
-import edu.mit.csail.sdg.alloy4viz.AlloySet;
-import edu.mit.csail.sdg.alloy4viz.AlloyType;
-import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class AlloyRunner {
 	
@@ -218,11 +208,11 @@ public class AlloyRunner {
 		for (String uri : insturis) {
 			PrimSig state = addInstanceSigs(uri);
 			sigs.add(state);
-			System.out.println("Model fact: "+ uri);
+			//System.out.println("Model fact: "+ uri);
 			finalfact = finalfact.and(EchoTranslator.getInstance().getModelFact(uri));
 			finalfact = finalfact.and(EchoTranslator.getInstance().getConformsInstance(uri));
 		}
-		EchoReporter.getInstance().debug("Check: FACT "+func.getBody());
+		//EchoReporter.getInstance().debug("Check: FACT "+func.getBody());
 		finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 		
 		//EchoReporter.getInstance().debug("Check: DELTA "+delta+", SCOPE " + overall +" " + intscope+" "+ scopes);
