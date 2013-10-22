@@ -29,15 +29,14 @@ public class QVTConstraintAddHandler extends AbstractHandler {
 		WizardDialog wizardDialog;
 	    if(selection != null && selection.getFirstElement() instanceof IFile)
 		{	
-			IFile res = (IFile) selection.getFirstElement();
+	    	IFile res = (IFile) selection.getFirstElement();
 
 			wizardDialog = new WizardDialog(shell.getShell(), 
 					new QVTConstraintAddWizard(res));
 		} else {
-			
-		} wizardDialog = new WizardDialog(shell.getShell(), 
+			 wizardDialog = new WizardDialog(shell.getShell(), 
 				new QVTConstraintAddWizard());
-				    
+		}	    
 	    wizardDialog.open();
 
 		return null;

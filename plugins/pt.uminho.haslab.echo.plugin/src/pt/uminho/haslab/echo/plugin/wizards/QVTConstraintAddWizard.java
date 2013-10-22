@@ -20,11 +20,12 @@ public class QVTConstraintAddWizard extends Wizard {
 
 	private QVTConstraintAddWizardPage page;
 
-	private IResource qvt_resource;
+	private final IResource qvt_resource;
 	private Shell shell;
 
 	public QVTConstraintAddWizard() {
 		super();
+		qvt_resource = null;
 	}
 
 	public QVTConstraintAddWizard(IResource qvt_resource) {

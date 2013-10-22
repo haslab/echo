@@ -3,7 +3,9 @@ package pt.uminho.haslab.echo.plugin.markers;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMarkerResolution;
+import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
@@ -17,7 +19,7 @@ import pt.uminho.haslab.echo.plugin.PlugInOptions;
  * @author nmm
  * 
  */
-public class EchoIntraQuickFix implements IMarkerResolution {
+public class EchoIntraQuickFix extends WorkbenchMarkerResolution implements IMarkerResolution {
 	/** The quick fix message */
 	private String message;
 	/** The model distance metric */
@@ -57,6 +59,22 @@ public class EchoIntraQuickFix implements IMarkerResolution {
 		EchoPlugin.getInstance().getGraphView()
 				.setTargetPath(path, false, null);
 		EchoPlugin.getInstance().getGraphView().drawGraph();
+	}
+
+	@Override
+	public String getDescription() {
+		return "teste";
+	}
+
+	@Override
+	public Image getImage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IMarker[] findOtherMarkers(IMarker[] markers) {
+		return new IMarker[0];
 	}
 
 }

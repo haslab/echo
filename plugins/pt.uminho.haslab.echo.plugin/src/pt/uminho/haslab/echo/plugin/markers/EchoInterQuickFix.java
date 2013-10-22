@@ -6,7 +6,9 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMarkerResolution;
+import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
@@ -21,7 +23,7 @@ import pt.uminho.haslab.echo.transform.EchoTranslator;
  * @author nmm
  *
  */
-public class EchoInterQuickFix implements IMarkerResolution {
+public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMarkerResolution {
 	/** The quick fix message */  
 	private String message;
 	/** The model distance metric */
@@ -79,5 +81,21 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		}
 		EchoPlugin.getInstance().getGraphView().setTargetPath(path,false,null);
 		EchoPlugin.getInstance().getGraphView().drawGraph();
+	}
+
+	@Override
+	public String getDescription() {
+		return "teste";
+	}
+
+	@Override
+	public Image getImage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IMarker[] findOtherMarkers(IMarker[] markers) {
+		return new IMarker[0];
 	}
 }

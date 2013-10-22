@@ -34,6 +34,7 @@ public class QVTConstraintAddWizardPage extends WizardPage {
 		setTitle("Add inter-model consistency");
 	    setDescription(DEFAULT_MESSAGE);
 	    this.resources[QVT] = qvt_resource;
+
 	}
 
 	@Override
@@ -79,6 +80,7 @@ public class QVTConstraintAddWizardPage extends WizardPage {
 	    bQVT.setText("Browse");
 	    
 	    if (resources[QVT] != null) {
+		    System.out.println("trd"+resources[QVT]);
 	    	text_boxes[QVT].setText(resources[QVT].getFullPath().toString());
 	    	text_boxes[QVT].setEnabled(false);
 		    bQVT.setEnabled(false);

@@ -8,7 +8,6 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 public class EchoPropertyTester extends PropertyTester {
@@ -54,7 +53,6 @@ public class EchoPropertyTester extends PropertyTester {
 	}
 	
 	private boolean testHasProject(Object receiver) {
-		EchoReporter.getInstance().debug("TESTE");
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		if (page == null) return false;
 		IEditorPart editor = page.getActiveEditor();
@@ -62,10 +60,8 @@ public class EchoPropertyTester extends PropertyTester {
 		
 		IEditorInput input = editor.getEditorInput();
 		if (input == null) return false;
-		System.out.println(input);
 		
 		IFile res = ((IFileEditorInput)input).getFile();
-		System.out.println(res);
 		return res != null;
 	}
 
