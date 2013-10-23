@@ -14,12 +14,9 @@ This version of HSM2NHSM relies on the *recursion* to retrieve Transitions from 
 * [NHSM.ecore](NHSM.ecore) for collapsed (non-hierarchical) state diagrams.
 
 #### Models
-* [HSM_example.xmi](HSM_example.xmi);
-
-<img src="HSM_model.png" alt="HSM model" width="250px" align="middle"/>
-* [NHM_example.xmi](NHM_example.xmi);
-
-<img src="NHM_model.png" alt="NHSM model" width="200px" align="middle"/>
+| [HSM_example.xmi](HSM_example.xmi) | [NHM_example.xmi](NHM_example.xmi) |
+| --- | --- | --- |
+| <img src="HSM_model.png" alt="HSM model" width="250px" align="middle"/> | <img src="NHM_model.png" alt="NHSM model" width="200px" align="middle"/> |
 
 #### History
 * This example is based on the running example from the paper *JTL: a bidirectional and change propagating transformation language* by A. Cicchetti, D. Di Ruscio, R. Eramo and A. Pierantonio.
