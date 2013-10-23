@@ -7,11 +7,9 @@ Every top-level State on the expanded state diagram is matched to a State in the
 This version of HSM2NHSM relies on the *transitive closure* to retrieve Transitions from nested states. A *resursive* is also available [here](../HSM2NHSM_recursion/).
 
 #### Meta-models
-* [HSM.ecore](HSM.ecore) for expanded (hierarchical) state diagrams;
-
-<img src="HSM_metamodel.png" alt="HSM metamodel" width="400px" align="middle"/>
-
-* [NHSM.ecore](NHSM.ecore) for collapsed (non-hierarchical) state diagrams.
+| [HSM.ecore](HSM.ecore) for expanded (hierarchical) state diagrams | [NHSM.ecore](NHSM.ecore) for collapsed (non-hierarchical) state diagrams |
+| --- | --- | --- |
+| <img src="HSM_metamodel.png" alt="HSM metamodel" width="400px"> | <img src="NHM_metamodel.png" alt="NHSM metamodel" width="400px"> |
 
 #### Models
 | [HSM_example.xmi](HSM_example.xmi) | [NHM_example.xmi](NHM_example.xmi) |
