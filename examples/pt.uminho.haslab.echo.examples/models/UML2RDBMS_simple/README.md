@@ -12,3 +12,4 @@ Every persistent Class on the UML class diagram is matched to a Table in the rel
 * This example is a simplified version of the example illustrating the *MOF 2.0 Query/View/Transformation Specification*.
 * This example has been used to illustrate the *Implementing QVT-R Bidirectional Model Transformations Using Alloy* paper, by N. Macedo and A. Cunha.
 * This example has been used in the Echo demonstration [video](vimeo.com/67716977/).
+* This example is used as a running example in the submitted paper *Least-change Bidirectional Model Transformation with QVT-R and ATL* by N. Macedo and A. Cunha.
