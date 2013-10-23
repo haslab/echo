@@ -45,10 +45,11 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import pt.uminho.haslab.echo.transform.OCLTranslator;
 
 import java.util.AbstractMap.SimpleEntry;
 
-public class OCL2Alloy {
+public class OCL2Alloy implements OCLTranslator{
 
 	private Map<String,Entry<ExprHasName,String>> varstates;
 	private Map<String,ExprHasName> posvars;

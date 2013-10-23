@@ -19,8 +19,9 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import pt.uminho.haslab.echo.transform.OCLTranslator;
 
-public class OCL2Alloy2 {
+public class OCL2Alloy2 implements OCLTranslator{
 
 	private Map<String,Entry<ExprHasName,String>> varstates;
 	private Map<String,ExprHasName> posvars;
