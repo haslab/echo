@@ -52,9 +52,9 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import pt.uminho.haslab.echo.transform.Translator;
+import pt.uminho.haslab.echo.transform.TranslatorEngine;
 
-public class EchoTranslator implements Translator{
+public class EchoTranslator implements TranslatorEngine{
 	
 	private static EchoTranslator instance = new EchoTranslator();
 	

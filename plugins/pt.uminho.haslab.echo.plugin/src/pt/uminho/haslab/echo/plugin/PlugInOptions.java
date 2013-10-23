@@ -1,6 +1,6 @@
 package pt.uminho.haslab.echo.plugin;
 
-import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
+import pt.uminho.haslab.echo.EchoOptions;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
