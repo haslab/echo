@@ -55,14 +55,14 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import pt.uminho.haslab.echo.transform.TranslatorEngine;
 
 public class EchoTranslator implements TranslatorEngine{
-	
-	private static EchoTranslator instance = new EchoTranslator();
-	
-	private EchoTranslator () {}
-	
-	public static EchoTranslator getInstance() {
-		return instance;
-	}
+
+    private EchoTranslator () {}
+
+    private static EchoTranslator instance = new EchoTranslator();
+
+    public static EchoTranslator getInstance() {
+        return instance;
+    }
 
 	/** maps metamodels to the respective state signatures (should be "abstract")*/
 	private Map<String,Expr> metamodelstatesigs = new HashMap<String,Expr>();
@@ -444,26 +444,36 @@ public class EchoTranslator implements TranslatorEngine{
 	private final class IsFunctionalQuery extends VisitQuery<Boolean> {
 
 		IsFunctionalQuery() {}
-		@Override public final Boolean visit(ExprQt x) { return false; };
-		@Override public final Boolean visit(ExprBinary x) throws Err { 
+		@Override public final Boolean visit(ExprQt x) { return false; }
+
+        @Override public final Boolean visit(ExprBinary x) throws Err {
 			switch (x.op) {
 				case JOIN : 
 					//System.out.println("DEBUG FUNC JOIN: " + x.right + " is "+visitThis(x.right)+", "+x.left + " is "+visitThis(x.left));
 					return (visitThis(x.right) && visitThis(x.left));
 				default : return false;
 			}
-		};
-        @Override public final Boolean visit(ExprCall x) { return false; };
-        @Override public final Boolean visit(ExprList x) { return false; };
-        @Override public final Boolean visit(ExprConstant x) { return false; };
-        @Override public final Boolean visit(ExprITE x) { return false; };
-        @Override public final Boolean visit(ExprLet x) { return false; };
-        @Override public final Boolean visit(ExprUnary x) { return false; };
-        @Override public final Boolean visit(ExprVar x) { return true; };
-        @Override public final Boolean visit(Sig x) { 
+		}
+
+        @Override public final Boolean visit(ExprCall x) { return false; }
+
+        @Override public final Boolean visit(ExprList x) { return false; }
+
+        @Override public final Boolean visit(ExprConstant x) { return false; }
+
+        @Override public final Boolean visit(ExprITE x) { return false; }
+
+        @Override public final Boolean visit(ExprLet x) { return false; }
+
+        @Override public final Boolean visit(ExprUnary x) { return false; }
+
+        @Override public final Boolean visit(ExprVar x) { return true; }
+
+        @Override public final Boolean visit(Sig x) {
         	return x.attributes.contains(Attr.ONE);
-        };
-        @Override public final Boolean visit(Sig.Field x) { 
+        }
+
+        @Override public final Boolean visit(Sig.Field x) {
         	String metamodeluri = AlloyUtil.getMetamodelURIfromExpr(x);
         	ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
         	if (e2a == null) return false;
@@ -473,8 +483,8 @@ public class EchoTranslator implements TranslatorEngine{
         	if (sf instanceof EAttribute && !sf.getEType().getName().equals("EBoolean")) return true;
         	if (sf.getLowerBound() == 1 && sf.getUpperBound() == 1) return true;
         	return false;
-       };
-	}
+       }
+    }
 
 	public void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, ErrorParser {
 		ATLTransformation a = new ATLTransformation(atl,mdl1,mdl2);

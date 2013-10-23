@@ -166,7 +166,7 @@ public class Relation2Alloy {
 			if (alloytargetvars.size() == 1)
 				targetexpr = targetexpr.forSome(alloytargetvars.values().iterator().next());	
 			else if (alloytargetvars.size() > 1) {
-				arraydecl = (Decl[]) alloytargetvars.values().toArray(new Decl[alloytargetvars.size()]);
+				arraydecl = alloytargetvars.values().toArray(new Decl[alloytargetvars.size()]);
 				targetexpr = targetexpr.forSome(arraydecl[0],Arrays.copyOfRange(arraydecl, 1, arraydecl.length));	
 			}
 
@@ -177,7 +177,7 @@ public class Relation2Alloy {
 			if (alloysourcevars.size() == 1)
 				fact = fact.forAll(alloysourcevars.values().iterator().next());	
 			else if (alloysourcevars.size() > 1) {
-				arraydecl = (Decl[]) alloysourcevars.values().toArray(new Decl[alloysourcevars.size()]);
+				arraydecl = alloysourcevars.values().toArray(new Decl[alloysourcevars.size()]);
 				fact = fact.forAll(arraydecl[0],Arrays.copyOfRange(arraydecl, 1, arraydecl.length));	
 			}
 			

@@ -205,7 +205,8 @@ public class AlloyUtil {
 
            	    return x.op.make(null, null, decls, sub); 
         	}
-        };		
+        }
+
         @Override public final Expr visit(ExprBinary x) throws Err { 
         	if (x.isSame(find)) return replace;
         	else {
@@ -213,16 +214,18 @@ public class AlloyUtil {
            		Expr right = visitThis(x.right);
            	    return x.op.make(null, null, left, right); 
         	}
-        };
-        @Override public final Expr visit(ExprCall x) throws Err { 
+        }
+
+        @Override public final Expr visit(ExprCall x) throws Err {
         	List<Expr> aux = new ArrayList<Expr>();
         	for (Expr e : x.args) {
         		aux.add(visitThis(e));
         	}
         	return ExprCall.make(null, null, x.fun, aux, 0);
 
-        };
-        @Override public final Expr visit(ExprList x) throws Err { 
+        }
+
+        @Override public final Expr visit(ExprList x) throws Err {
         	if (x.isSame(find)) return replace;
         	else {
         		List<Expr> args = new ArrayList<Expr>();
@@ -230,38 +233,45 @@ public class AlloyUtil {
         			args.add(visitThis(arg));
            	    return ExprList.make(null, null, x.op, args); 
         	}
-        };
-        @Override public final Expr visit(ExprConstant x) { 
+        }
+
+        @Override public final Expr visit(ExprConstant x) {
         	if (x.isSame(find)) return replace;
         	else return x;
-        };
-        @Override public final Expr visit(ExprITE x) throws Err {         	
+        }
+
+        @Override public final Expr visit(ExprITE x) throws Err {
         	throw new ErrorFatal("Failed to replace: "+x);
-        };
-        @Override public final Expr visit(ExprLet x) throws Err { 
+        }
+
+        @Override public final Expr visit(ExprLet x) throws Err {
         	throw new ErrorFatal("Failed to replace: "+x);
-        };
-        @Override public final Expr visit(ExprUnary x) throws Err { 
+        }
+
+        @Override public final Expr visit(ExprUnary x) throws Err {
         	if (x.isSame(find)) return replace;
         	else {
         		Expr sub = visitThis(x.sub);
         		return x.op.make(null, sub); 
         	}
-        };
-        @Override public final Expr visit(ExprVar x) { 
+        }
+
+        @Override public final Expr visit(ExprVar x) {
         	if (x.isSame(find)) return replace;
         	else return x;
-        };
-        @Override public final Expr visit(Sig x) {       
-        	if (x.isSame(find)) return replace;
-        	else return x; 
-        };
-        @Override public final Expr visit(Sig.Field x) { 
-        	if (x.isSame(find)) return replace;
-        	else return x; 
-        };
+        }
 
-      }
+        @Override public final Expr visit(Sig x) {
+        	if (x.isSame(find)) return replace;
+        	else return x; 
+        }
+
+        @Override public final Expr visit(Sig.Field x) {
+        	if (x.isSame(find)) return replace;
+        	else return x; 
+        }
+
+    }
 	
 	public static List<ExprVar> getVars(Expr in) throws ErrorUnsupported {
 		VarGetter getter = new VarGetter();
@@ -282,50 +292,60 @@ public class AlloyUtil {
          	for (Decl d : x.decls)
             	aux.addAll(visitThis(d.expr));
          	return aux;
-        };		
+        }
+
         @Override public final List<ExprVar> visit(ExprBinary x) throws Err { 
         	List<ExprVar> aux = new ArrayList<ExprVar>();
         	aux.addAll(visitThis(x.left));
         	aux.addAll(visitThis(x.right));
         	return aux;
-        };
-        @Override public final List<ExprVar> visit(ExprCall x) throws Err { 
+        }
+
+        @Override public final List<ExprVar> visit(ExprCall x) throws Err {
         	List<ExprVar> aux = new ArrayList<ExprVar>();
         	for (Expr exp : x.args)
             	aux.addAll(visitThis(exp));
         	return aux;
-        };
-        @Override public final List<ExprVar> visit(ExprList x) throws Err { 
+        }
+
+        @Override public final List<ExprVar> visit(ExprList x) throws Err {
         	List<ExprVar> aux = new ArrayList<ExprVar>();
         	for (Expr arg : x.args)
        			aux.addAll(visitThis(arg));
        		return aux;
-        };
-        @Override public final List<ExprVar> visit(ExprConstant x) { 
+        }
+
+        @Override public final List<ExprVar> visit(ExprConstant x) {
         	return new ArrayList<ExprVar>();
-        };
-        @Override public final List<ExprVar> visit(ExprITE x) throws Err {         	
+        }
+
+        @Override public final List<ExprVar> visit(ExprITE x) throws Err {
         	throw new ErrorFatal("Failed to get vars: "+x);
-        };
-        @Override public final List<ExprVar> visit(ExprLet x) throws Err { 
+        }
+
+        @Override public final List<ExprVar> visit(ExprLet x) throws Err {
         	throw new ErrorFatal("Failed to get vars: "+x);
-        };
-        @Override public final List<ExprVar> visit(ExprUnary x) throws Err { 
+        }
+
+        @Override public final List<ExprVar> visit(ExprUnary x) throws Err {
         	return visitThis(x.sub);
-        };
-        @Override public final List<ExprVar> visit(ExprVar x) { 
+        }
+
+        @Override public final List<ExprVar> visit(ExprVar x) {
         	List<ExprVar> aux = new ArrayList<ExprVar>();
         	aux.add(x);
         	return aux;
-        };
-        @Override public final List<ExprVar> visit(Sig x) {       
-        	return new ArrayList<ExprVar>();
-        };
-        @Override public final List<ExprVar> visit(Sig.Field x) { 
-        	return new ArrayList<ExprVar>();
-        };
+        }
 
-      }
+        @Override public final List<ExprVar> visit(Sig x) {
+        	return new ArrayList<ExprVar>();
+        }
+
+        @Override public final List<ExprVar> visit(Sig.Field x) {
+        	return new ArrayList<ExprVar>();
+        }
+
+    }
 	
 	
 	// creates a list of Alloy declarations from a list of OCL variables

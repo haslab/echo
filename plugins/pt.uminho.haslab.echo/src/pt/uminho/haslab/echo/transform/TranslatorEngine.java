@@ -7,4 +7,6 @@ package pt.uminho.haslab.echo.transform;
  * Time: 6:26 PM
  */
 public interface TranslatorEngine {
+
+    //TODO
 }

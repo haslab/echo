@@ -106,9 +106,9 @@ public class OCL2Alloy implements OCLTranslator{
 
 			
 			// retrieves the Alloy root variable
-			String varname = ((ObjectTemplateExp) temp).getBindsTo().getName();
+			String varname = temp.getBindsTo().getName();
 			ExprHasName var = varstates.get(varname).getKey();
-			if (var == null) throw new ErrorTransform ("Variable not declared: "+((ObjectTemplateExp) temp).getBindsTo());
+			if (var == null) throw new ErrorTransform ("Variable not declared: "+ temp.getBindsTo());
 
 			Expr localfield = propertyToField(prop,var);
 

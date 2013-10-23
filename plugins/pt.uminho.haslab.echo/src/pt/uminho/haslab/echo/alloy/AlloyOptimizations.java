@@ -93,7 +93,7 @@ public class AlloyOptimizations {
 			switch(x.op){
         		case EQUALS:
         			if (x.right instanceof ExprVar) {
-						Decl d = vars.get((ExprVar) x.right);
+						Decl d = vars.get(x.right);
 						if (d != null) {
 							Expr r = rngs.get(d);
 //							if (r.isSame(PrimSig.STRING)) rngs.put(d,x.left);
@@ -120,7 +120,7 @@ public class AlloyOptimizations {
 					}
         		case IN: 
 					if (x.left instanceof ExprVar) {
-						Decl d = vars.get((ExprVar) x.left);
+						Decl d = vars.get(x.left);
 						if (d != null) {
 							Expr r = rngs.get(d);
 //							if (r.isSame(PrimSig.STRING)) rngs.put(d,x.right);
@@ -149,13 +149,19 @@ public class AlloyOptimizations {
 					}
         		default: return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x);
         	}
-        };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprCall x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprConstant x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprITE x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprLet x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprQt x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprUnary x) throws Err { 
+        }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprCall x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprConstant x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprITE x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprLet x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprQt x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprUnary x) throws Err {
 			switch(x.op){
         		case NO:
         			for (ExprVar v : vars.keySet()) {
@@ -173,12 +179,15 @@ public class AlloyOptimizations {
        				return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,Sig.NONE.no());	
         		default: return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x);
         	}
-        };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprVar x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(Sig x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
-        @Override public final Entry<Map<Decl,Expr>,Expr> visit(Sig.Field x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); };
+        }
 
-	}
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(ExprVar x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(Sig x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+        @Override public final Entry<Map<Decl,Expr>,Expr> visit(Sig.Field x) { return new SimpleEntry<Map<Decl,Expr>,Expr>(rngs,x); }
+
+    }
 	
 	
 	private final class PushVar extends VisitQuery<Expr> {
@@ -207,19 +216,29 @@ public class AlloyOptimizations {
 
         		default: return x;
         	}
-        };
-        @Override public final Expr visit(ExprCall x) { return x; };
-        @Override public final Expr visit(ExprList x) { return x; };
-        @Override public final Expr visit(ExprConstant x) { return x; };
-        @Override public final Expr visit(ExprITE x) { return x; };
-        @Override public final Expr visit(ExprLet x) { return x; };
-        @Override public final Expr visit(ExprQt x) { return x; };
-        @Override public final Expr visit(ExprUnary x) { return x; };
-        @Override public final Expr visit(ExprVar x) { return x; };
-        @Override public final Expr visit(Sig x) { return x; };
-        @Override public final Expr visit(Sig.Field x) { return x; };
+        }
 
-      }
+        @Override public final Expr visit(ExprCall x) { return x; }
+
+        @Override public final Expr visit(ExprList x) { return x; }
+
+        @Override public final Expr visit(ExprConstant x) { return x; }
+
+        @Override public final Expr visit(ExprITE x) { return x; }
+
+        @Override public final Expr visit(ExprLet x) { return x; }
+
+        @Override public final Expr visit(ExprQt x) { return x; }
+
+        @Override public final Expr visit(ExprUnary x) { return x; }
+
+        @Override public final Expr visit(ExprVar x) { return x; }
+
+        @Override public final Expr visit(Sig x) { return x; }
+
+        @Override public final Expr visit(Sig.Field x) { return x; }
+
+    }
 
 	/** Finds quantifications and applies trading on the respective quantifications 
 	 * */
@@ -291,24 +310,33 @@ public class AlloyOptimizations {
         	default: return x;
         	}
 
-        };
-		
+        }
+
         @Override public final Expr visit(ExprBinary x) throws Err { 
         	Expr left = visitThis(x.left);
         	Expr right = visitThis(x.right);
         	return x.op.make(null, null, left, right); 
-        };
-        @Override public final Expr visit(ExprCall x) { return x; };
-        @Override public final Expr visit(ExprList x) { return x; };
-        @Override public final Expr visit(ExprConstant x) { return x; };
-        @Override public final Expr visit(ExprITE x) { return x; };
-        @Override public final Expr visit(ExprLet x) { return x; };
-        @Override public final Expr visit(ExprUnary x) { return x; };
-        @Override public final Expr visit(ExprVar x) { return x; };
-        @Override public final Expr visit(Sig x) { return x; };
-        @Override public final Expr visit(Sig.Field x) { return x; };
+        }
 
-      }
+        @Override public final Expr visit(ExprCall x) { return x; }
+
+        @Override public final Expr visit(ExprList x) { return x; }
+
+        @Override public final Expr visit(ExprConstant x) { return x; }
+
+        @Override public final Expr visit(ExprITE x) { return x; }
+
+        @Override public final Expr visit(ExprLet x) { return x; }
+
+        @Override public final Expr visit(ExprUnary x) { return x; }
+
+        @Override public final Expr visit(ExprVar x) { return x; }
+
+        @Override public final Expr visit(Sig x) { return x; }
+
+        @Override public final Expr visit(Sig.Field x) { return x; }
+
+    }
 
 
 	private final class OnePointQnt extends VisitQuery<Expr> {
@@ -358,23 +386,32 @@ public class AlloyOptimizations {
 	        	default: return x;
 	        	}
 
-	        };
-			
-	        @Override public final Expr visit(ExprBinary x) throws Err { 
+	        }
+
+        @Override public final Expr visit(ExprBinary x) throws Err {
 	        	Expr left = visitThis(x.left);
 	        	Expr right = visitThis(x.right);
 	        	return x.op.make(null, null, left, right); 
-	        };
-	        @Override public final Expr visit(ExprCall x) { return x; };
-	        @Override public final Expr visit(ExprList x) { return x; };
-	        @Override public final Expr visit(ExprConstant x) { return x; };
-	        @Override public final Expr visit(ExprITE x) { return x; };
-	        @Override public final Expr visit(ExprLet x) { return x; };
-	        @Override public final Expr visit(ExprUnary x) { return x; };
-	        @Override public final Expr visit(ExprVar x) { return x; };
-	        @Override public final Expr visit(Sig x) { return x; };
-	        @Override public final Expr visit(Sig.Field x) { return x; };
-	}
+	        }
+
+        @Override public final Expr visit(ExprCall x) { return x; }
+
+        @Override public final Expr visit(ExprList x) { return x; }
+
+        @Override public final Expr visit(ExprConstant x) { return x; }
+
+        @Override public final Expr visit(ExprITE x) { return x; }
+
+        @Override public final Expr visit(ExprLet x) { return x; }
+
+        @Override public final Expr visit(ExprUnary x) { return x; }
+
+        @Override public final Expr visit(ExprVar x) { return x; }
+
+        @Override public final Expr visit(Sig x) { return x; }
+
+        @Override public final Expr visit(Sig.Field x) { return x; }
+    }
 	
 	private Expr cutExists(Expr e) throws ErrorUnsupported, Err {
 		CutExists cutter = new CutExists();
@@ -409,9 +446,9 @@ public class AlloyOptimizations {
 	}	
 	
 	private final class CutExists extends VisitQuery<Entry<Expr,List<ExprVar>>> {
-		   	@Override public final Entry<Expr,List<ExprVar>> visit(ExprQt x) throws Err { return null;  };
-			
-	       	@Override public final Entry<Expr,List<ExprVar>> visit(ExprBinary x) throws Err { 
+		   	@Override public final Entry<Expr,List<ExprVar>> visit(ExprQt x) throws Err { return null;  }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprBinary x) throws Err {
 	       		switch (x.op) {
 	       		case JOIN : 
 	    			List<ExprVar> vars;
@@ -458,16 +495,25 @@ public class AlloyOptimizations {
 
 	    		default : return null;
 	    		}
-	       	};
-	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprCall x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprList x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprConstant x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprITE x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprLet x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprUnary x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(ExprVar x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(Sig x) { return null; };
-	        @Override public final Entry<Expr,List<ExprVar>> visit(Sig.Field x) { return null; };
-	}
+	       	}
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprCall x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprList x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprConstant x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprITE x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprLet x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprUnary x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(ExprVar x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(Sig x) { return null; }
+
+        @Override public final Entry<Expr,List<ExprVar>> visit(Sig.Field x) { return null; }
+    }
 	
 }

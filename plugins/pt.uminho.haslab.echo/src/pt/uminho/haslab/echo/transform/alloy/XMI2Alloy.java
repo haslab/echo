@@ -213,7 +213,7 @@ class XMI2Alloy {
 		{
 			Boolean b = (Boolean) obj;
 			
-			if(b.booleanValue())
+			if(b)
 			{
 				manos = manos.plus(it);
 				mapContent.put(field, manos);
