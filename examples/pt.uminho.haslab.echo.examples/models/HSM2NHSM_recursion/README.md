@@ -11,5 +11,5 @@ This version of HSM2NHSM relies on the *recursion* to retrieve Transitions from 
 * [NHSM.ecore](NHSM.ecore) for collapsed (non-hierarchical) state diagrams.
 
 #### History
-* This example is used in the submitted paper *Least-change Bidirectional Model Transformation with QVT-R and ATL* by N. Macedo and A. Cunha.
 * This example is based on the running example from the paper *JTL: a bidirectional and change propagating transformation language* by A. Cicchetti, D. Di Ruscio, R. Eramo and A. Pierantonio.
+* This example is used as a running example in the submitted paper *Least-change Bidirectional Model Transformation with QVT-R and ATL* by N. Macedo and A. Cunha.
