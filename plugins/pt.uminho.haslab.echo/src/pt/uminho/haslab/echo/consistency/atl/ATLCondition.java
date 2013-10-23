@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EObject;
 
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -16,9 +15,8 @@ import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.emf.OCLUtil;
-import pt.uminho.haslab.echo.transform.OCL2Alloy;
-import pt.uminho.haslab.echo.transform.OCL2Alloy2;
-import pt.uminho.haslab.echo.transform.Relation2Alloy;
+import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy2;
+import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;

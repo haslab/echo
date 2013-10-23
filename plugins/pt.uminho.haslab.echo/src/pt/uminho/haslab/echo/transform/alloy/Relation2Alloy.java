@@ -1,17 +1,13 @@
-package pt.uminho.haslab.echo.transform;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import org.eclipse.ocl.examples.pivot.OCLExpression;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
@@ -25,9 +21,6 @@ import pt.uminho.haslab.echo.consistency.Domain;
 import pt.uminho.haslab.echo.consistency.Model;
 import pt.uminho.haslab.echo.consistency.Relation;
 import pt.uminho.haslab.echo.consistency.Variable;
-import pt.uminho.haslab.echo.consistency.qvt.QVTRelation;
-import pt.uminho.haslab.echo.emf.OCLUtil;
-import pt.uminho.haslab.echo.emf.URIUtil;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;

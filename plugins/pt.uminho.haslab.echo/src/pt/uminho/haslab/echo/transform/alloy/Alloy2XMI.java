@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.transform;
+package pt.uminho.haslab.echo.transform.alloy;
 
 
 import java.util.ArrayList;
@@ -17,7 +17,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import edu.mit.csail.sdg.alloy4.Err;

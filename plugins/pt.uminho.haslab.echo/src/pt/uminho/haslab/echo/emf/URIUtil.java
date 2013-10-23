@@ -2,7 +2,7 @@ package pt.uminho.haslab.echo.emf;
 
 import org.eclipse.emf.ecore.resource.Resource;
 
-import pt.uminho.haslab.echo.EchoReporter;
+
 
 public class URIUtil {
 	

@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.emf.URIUtil;
 
 public class ATLModel implements Model {
 

@@ -3,15 +3,12 @@ package pt.uminho.haslab.echo.consistency.qvt;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.ocl.examples.pivot.OCLExpression;
 import org.eclipse.qvtd.pivot.qvtbase.Pattern;
 import org.eclipse.qvtd.pivot.qvtbase.Predicate;
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.consistency.Domain;
 import pt.uminho.haslab.echo.consistency.Relation;
 

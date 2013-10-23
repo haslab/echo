@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.transform;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,8 +52,9 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+import pt.uminho.haslab.echo.transform.Translator;
 
-public class EchoTranslator {
+public class EchoTranslator implements Translator{
 	
 	private static EchoTranslator instance = new EchoTranslator();
 	
@@ -101,7 +102,7 @@ public class EchoTranslator {
 		metamodelalloys.put(URIUtil.resolveURI(metamodel.eResource()),mmtrans);
 		try {
 			mmtrans.translate();
-		} catch (Exception e) {
+		} catch (ErrorUnsupported | ErrorAlloy |ErrorTransform |ErrorParser e) {
 			metamodelalloys.remove(URIUtil.resolveURI(metamodel.eResource()));
 			throw e;
 		}
@@ -430,13 +431,13 @@ public class EchoTranslator {
 	 * returns true is able to determine determinism;
 	 * false otherwise
 	 * @param exp
-	 * @return
+	 * @return true if able to determine determinism, false otherwise
 	 * @throws ErrorUnsupported 
 	 */
-	public Boolean isFunctional(Expr e) throws ErrorUnsupported {
+	public Boolean isFunctional(Expr exp) throws ErrorUnsupported {
 		IsFunctionalQuery q = new IsFunctionalQuery();
 		try {
-			return q.visitThis(e);
+			return q.visitThis(exp);
 		} catch (Err e1) { throw new ErrorUnsupported(e1.getMessage()); }
 	}
 	

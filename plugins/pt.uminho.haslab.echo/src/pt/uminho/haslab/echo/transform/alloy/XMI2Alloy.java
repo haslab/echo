@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.transform;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -235,7 +234,7 @@ class XMI2Alloy {
 		{
 			Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
 			Integer max = (int) (Math.pow(2, bitwidth) / 2);
-			if ((int) obj >= max || (int) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
+			if ((Integer) obj >= max || (Integer) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
 			Expr str = ExprConstant.makeNUMBER((Integer) obj);
 			
 			manos = manos.plus(it.product(str));

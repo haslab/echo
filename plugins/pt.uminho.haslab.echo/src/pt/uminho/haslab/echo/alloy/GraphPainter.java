@@ -9,8 +9,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import pt.uminho.haslab.echo.transform.alloy.EchoTranslator;
 import edu.mit.csail.sdg.alloy4graph.DotColor;
 import edu.mit.csail.sdg.alloy4graph.DotShape;
 import edu.mit.csail.sdg.alloy4viz.AlloyModel;
