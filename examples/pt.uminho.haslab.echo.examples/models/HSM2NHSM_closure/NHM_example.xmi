@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="ASCII"?>
-<hsm:StateMachine
+<nhsm:StateMachine
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:hsm="HSM"
-    xsi:schemaLocation="HSM HSM.ecore#HSM">
-  <states name="A"/>
-  <states name="B"/>
+    xmlns:nhsm="NHSM"
+    xsi:schemaLocation="NHSM NHSM.ecore#NHSM"
+    name="machine">
+  <states name="Idle"/>
+  <states name="Active"/>
   <transitions
       source="//@states.0"
       target="//@states.1"/>
   <transitions
       source="//@states.1"
-      target="//@states.1"/>
-</hsm:StateMachine>
+      target="//@states.0"/>
+</nhsm:StateMachine>
