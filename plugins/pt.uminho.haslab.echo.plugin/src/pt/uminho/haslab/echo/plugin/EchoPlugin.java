@@ -90,7 +90,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 				graphView = (GraphView) PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getActivePage()
 						.showView(GraphView.ID);
-			} catch (PartInitException e) {
+			} catch (Exception e) {
 				MessageDialog.openError(PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getShell(), "Error",
 						"Could not find or launch Graph view.");

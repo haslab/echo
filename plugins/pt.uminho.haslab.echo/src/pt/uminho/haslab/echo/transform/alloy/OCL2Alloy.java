@@ -104,7 +104,6 @@ public class OCL2Alloy implements OCLTranslator{
 			// retrieves the Alloy field
 			Property prop = part.getReferredProperty();
 
-			
 			// retrieves the Alloy root variable
 			String varname = temp.getBindsTo().getName();
 			ExprHasName var = varstates.get(varname).getKey();

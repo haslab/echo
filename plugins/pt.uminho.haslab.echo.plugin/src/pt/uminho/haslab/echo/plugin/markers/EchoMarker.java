@@ -47,6 +47,16 @@ public class EchoMarker {
 					"Model instance does not conform to the meta-model.");
 			mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
 			mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			
+			for (IMarker pre : res.findMarkers(INTER_ERROR, false, 0)) {
+				IResource related = res.getWorkspace().getRoot().findMember((String) pre.getAttribute(OPPOSITE));
+				for (IMarker pre2 : related.findMarkers(INTER_ERROR, false, 0)) {
+					if (pre2.getAttribute(OPPOSITE).equals(res.getFullPath().toString()))
+						pre2.delete();
+				}
+			}
+				
+			
 		} catch (CoreException e) {
 			throw new ErrorAPI("Failed to create marker.");
 		}
@@ -75,12 +85,21 @@ public class EchoMarker {
 	public static List<IMarker> createInterMarker(Constraint constraint) throws ErrorAPI {
 		List<IMarker> marks = new ArrayList<IMarker>();
 		IMarker mark;
-		mark = createSingleInterMarker(constraint.fstmodel, constraint.sndmodel, constraint.constraint
-				.getFullPath().toString());
-		marks.add(mark);
-		mark = createSingleInterMarker(constraint.sndmodel, constraint.fstmodel, constraint.constraint
-				.getFullPath().toString());
-		marks.add(mark);
+		try {
+			if (constraint.sndmodel.findMarkers(INTRA_ERROR,false,0).length == 0) {
+				mark = createSingleInterMarker(constraint.fstmodel, constraint.sndmodel, constraint.constraint
+						.getFullPath().toString());
+				marks.add(mark);
+			}
+			if (constraint.fstmodel.findMarkers(INTRA_ERROR,false,0).length == 0) {
+				mark = createSingleInterMarker(constraint.sndmodel, constraint.fstmodel, constraint.constraint
+					.getFullPath().toString());
+			marks.add(mark);
+			}
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return marks;
 	}
 
@@ -95,7 +114,14 @@ public class EchoMarker {
 	private static IMarker createSingleInterMarker(IResource modelres,
 			IResource relatedres, String qvtRule) throws ErrorAPI {
 		IMarker mark;
+		
+		
 		try {
+			for (IMarker pre : modelres.findMarkers(INTER_ERROR, false, 0)) {
+				if (pre.getAttribute(CONSTRAINT).equals(qvtRule) && pre.getAttribute(OPPOSITE).equals(relatedres.getFullPath().toString()))
+					pre.delete();
+			}
+			
 			mark = modelres.createMarker(EchoMarker.INTER_ERROR);
 			mark.setAttribute(IMarker.MESSAGE,
 					"Model instance is not consistent with a QVT relation");
