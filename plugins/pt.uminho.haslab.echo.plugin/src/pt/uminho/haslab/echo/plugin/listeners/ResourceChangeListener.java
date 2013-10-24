@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.plugin.listeners;
 
+import java.rmi.server.UID;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -13,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAPI;
@@ -226,7 +229,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 					} catch (ErrorAPI | ErrorParser e1) {
 						e1.printStackTrace();
 					}
-					MessageDialog.openError(null,
+					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 									"Error reloading meta-model.",
 									"Meta-model has been untracked.");
 					return Status.CANCEL_STATUS;

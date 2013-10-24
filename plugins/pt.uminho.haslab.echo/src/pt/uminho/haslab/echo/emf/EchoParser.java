@@ -13,7 +13,12 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMLContentHandlerImpl.XMI;
+import org.eclipse.emf.ecore.xmi.impl.XMLResourceFactoryImpl;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
@@ -127,10 +132,10 @@ public class EchoParser {
     		} catch (IOException e) {
     			throw new ErrorParser(e.getMessage());
     		}
-
             
-            adapter = CS2PivotResourceAdapter.getAdapter(xtextResource, null);
-            pivotResource = adapter.getPivotResource(xtextResource);
+    		adapter = xtextResource.getCS2ASAdapter(null);
+            //adapter = BaseCSResource.getCS2ASAdapter(xtextResource, null);
+            pivotResource = adapter.getASResource(xtextResource);
             pivotResource.setURI(URI.createURI(uri));
             String message = PivotUtil.formatResourceDiagnostics(pivotResource.getErrors(), "Error parsing QVT.", "\n\t");
 			if (message != null) throw new ErrorParser (message,"QVT Parser");

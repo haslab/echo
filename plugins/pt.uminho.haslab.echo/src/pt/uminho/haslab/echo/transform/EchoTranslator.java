@@ -356,6 +356,8 @@ public class EchoTranslator {
 	}
 	
 	public Field getStateFieldFromClassName(String metamodeluri, String classname) {
+		System.out.println("looking for "+metamodeluri);
+		System.out.println("having "+metamodelalloys.keySet());
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
 		EClass ecl =  e2a.getEClassFromName(classname);
 		return e2a.getStateFieldFromSig(e2a.getSigFromEClass(ecl));

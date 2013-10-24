@@ -8,7 +8,6 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.m2m.atl.core.IModel;
 
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
