@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.alloy;
 import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,6 +21,6 @@ public class AlloyFactory extends EngineFactory {
 
     @Override
     public EchoTranslator createTranslator() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+       return new AlloyEchoTranslator();
     }
 }

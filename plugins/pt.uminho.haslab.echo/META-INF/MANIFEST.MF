@@ -14,5 +14,7 @@ Require-Bundle: edu.mit.csail.sdg.alloy4;bundle-version="0.0.0",
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: src/
 Export-Package: pt.uminho.haslab.echo,
+ pt.uminho.haslab.echo.alloy,
  pt.uminho.haslab.echo.emf,
- pt.uminho.haslab.echo.transform
+ pt.uminho.haslab.echo.transform,
+ pt.uminho.haslab.echo.transform.alloy
