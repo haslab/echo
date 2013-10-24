@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;

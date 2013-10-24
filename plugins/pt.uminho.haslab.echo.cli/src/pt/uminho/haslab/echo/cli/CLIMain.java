@@ -16,7 +16,7 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;

@@ -9,7 +9,7 @@ import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 
@@ -47,11 +47,10 @@ public class EchoIntraQuickFix extends WorkbenchMarkerResolution implements IMar
 		((PlugInOptions) EchoOptionsSetup.getInstance())
 				.setOperationBased(metric.equals(EchoMarker.OBD));
 
-		boolean b;
+
 		try {
-			b = echo.repair(path);
-			while (!b)
-				b = echo.increment();
+            echo.repair(path);
+
 		} catch (ErrorAlloy e) {
 			MessageDialog.openError(null, "Error loading QVT-R.",e.getMessage());
 			e.printStackTrace();

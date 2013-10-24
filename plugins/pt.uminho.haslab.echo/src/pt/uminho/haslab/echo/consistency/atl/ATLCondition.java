@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EObject;
 
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;

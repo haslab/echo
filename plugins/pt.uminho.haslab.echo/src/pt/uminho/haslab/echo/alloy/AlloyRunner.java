@@ -64,7 +64,6 @@ public class AlloyRunner implements EngineRunner{
 
 	/** 
 	 * Constructs a new Alloy Runner that performs tests and generates instances
-	 * @param translator the translator containing information about the EMF artifacts
 	 */
 	public AlloyRunner () {	
 		rep = new A4Reporter() {
@@ -119,8 +118,7 @@ public class AlloyRunner implements EngineRunner{
 
 	/**
 	 * Initializes a repair command
-	 * @param modeluris the URIs of the instances
-	 * @param dirarg the URI of the instance to repair
+	 * @param modeluri the URIs of the instances
 	 * @throws ErrorAlloy
 	 */
 	public void repair(String modeluri) throws ErrorAlloy {
@@ -154,32 +152,33 @@ public class AlloyRunner implements EngineRunner{
 			AlloyEchoTranslator.getInstance().createScopesFromURI(modeluri);
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getConformsInstance(modeluri, targetstate));
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getModelFact(modeluri));
+            while(!sol.satisfiable()) increment();
 		} 
 	}
 	
 	/** 
 	 * Generates instances conforming to given models
-	 * @param uris the URIs of the models
+	 * @param metaModelUri the URIs of the models
 	 * @throws ErrorAlloy 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
-		List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metamodeluri);
+	public void generate(String metaModelUri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
+		List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metaModelUri);
 		if (rootobjects.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootobjects);
 
 		if (scope.get(rootobjects.get(0).getName()) == null)
 			scope.put(new SimpleEntry<String,String>(URIUtil.resolveURI(rootobjects.get(0).getEPackage().eResource()),rootobjects.get(0).getName()),1);
-		AlloyEchoTranslator.getInstance().createScopesFromSizes(EchoOptionsSetup.getInstance().getOverallScope(), scope, metamodeluri);
+		AlloyEchoTranslator.getInstance().createScopesFromSizes(EchoOptionsSetup.getInstance().getOverallScope(), scope, metaModelUri);
 		
-		allsigs.addAll(AlloyEchoTranslator.getInstance().getMetamodelSigs(metamodeluri));
+		allsigs.addAll(AlloyEchoTranslator.getInstance().getMetamodelSigs(metaModelUri));
 		scopes = AlloyEchoTranslator.getInstance().getScopes();
 		
-		PrimSig state = (PrimSig) AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+		PrimSig state = (PrimSig) AlloyEchoTranslator.getInstance().getMetamodelStateSig(metaModelUri);
 		try { 
 			targetstate = new PrimSig("'"+state, state, Attr.ONE); 
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 
-		finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getGenerateInstance(metamodeluri,targetstate));
+		finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getGenerateInstance(metaModelUri,targetstate));
 		allsigs.add(targetstate);
 
 		try {
@@ -191,6 +190,8 @@ public class AlloyRunner implements EngineRunner{
 
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+        while (!sol.satisfiable())
+            increment();
 	}
 		
 	/** 
@@ -278,6 +279,7 @@ public class AlloyRunner implements EngineRunner{
 			}
 			//System.out.println(sigs + " for "+ func.decls.get(0).expr + " , "+func.getBody());
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
+            while(!sol.satisfiable()) increment();
 		} 
 	}
 	
@@ -320,6 +322,7 @@ public class AlloyRunner implements EngineRunner{
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+        while(!sol.satisfiable()) increment();
 	}
 	
 	/**
@@ -327,7 +330,7 @@ public class AlloyRunner implements EngineRunner{
 	 * Increments the overall scope if different than zero and the concrete scopes if any
 	 * @throws ErrorAlloy
 	 */
-	public void increment() throws ErrorAlloy {
+	private void increment() throws ErrorAlloy {
 		//System.out.println(edelta);
 		Expr runfact = finalfact;
 		if (edelta.isSame(Sig.NONE.no())) {
@@ -365,7 +368,13 @@ public class AlloyRunner implements EngineRunner{
 	 * @throws ErrorAlloy 
 	 */
 	public void nextInstance() throws ErrorAlloy  {
-		try { sol = sol.next(); }
+		try {
+            sol = sol.next();
+            while(!sol.satisfiable()){
+                EchoReporter.getInstance().debug("No more instances: delta increased.");
+                increment();
+            }
+        }
 		catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 	}
 	

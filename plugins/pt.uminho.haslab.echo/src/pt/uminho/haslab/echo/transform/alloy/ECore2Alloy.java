@@ -30,7 +30,7 @@ import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;

@@ -10,7 +10,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 
 public class CLIReporter extends EchoReporter {

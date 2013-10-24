@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.alloy.GraphPainter;
 import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -29,7 +30,7 @@ public class EchoRunner {
 	 * Translates a meta-model into Alloy
 	 * @param metamodel the EPackage representing the meta-model to translate
 	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws pt.uminho.haslab.echo.alloy.ErrorAlloy
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
@@ -128,10 +129,9 @@ public class EchoRunner {
 	 * @return true if the model was successfully repaired
 	 * @throws ErrorAlloy
 	 */
-	public boolean repair(String targeturi) throws ErrorAlloy {
+	public void repair(String targeturi) throws ErrorAlloy {
 		runner = new AlloyRunner();
 		runner.repair(targeturi);
-		return runner.getSolution().satisfiable();
 	}
 
 	/**
@@ -143,12 +143,9 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public boolean generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
+	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
 		runner = new AlloyRunner();	
 		runner.generate(metamodeluri,scope);
-		while (!runner.getSolution().satisfiable())
-			runner.increment();
-		return runner.getSolution().satisfiable();				
 	}
 
 	/**
@@ -172,10 +169,9 @@ public class EchoRunner {
 	 * @return true if able to generate model
 	 * @throws ErrorAlloy
 	 */
-	public boolean enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorAlloy {
+	public void enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorAlloy {
 		runner = new AlloyRunner();
 		runner.enforce(qvturi, modeluris, targeturi);
-		return runner.getSolution().satisfiable();
 	}
 
 	/**
@@ -184,38 +180,23 @@ public class EchoRunner {
 	 * @param metamodeluri the URI of the meta-model
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @param targeturi the URI of the new model
-	 * @return true if able to generate conforming model
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public boolean generateqvt(String qvturi, String metamodeluri, List<String> modeluris, String targeturi) throws ErrorAlloy, ErrorUnsupported {
+	public void generateQvt(String qvturi, String metamodeluri, List<String> modeluris, String targeturi) throws ErrorAlloy, ErrorUnsupported {
 		runner = new AlloyRunner();
 		runner.generateqvt(qvturi, modeluris, targeturi, metamodeluri);
-		while (!runner.getSolution().satisfiable())
-			runner.increment();
-		return runner.getSolution().satisfiable();
 	}
 
-	/**
-	 * Searches for a model with larger bounds and delta (if defined)
-	 * Can be used for model generation (no delta) or QVT-R enforcement
-	 * @return true if able to generate model
-	 * @throws ErrorAlloy
-	 */
-	public boolean increment() throws ErrorAlloy {
-		runner.increment();
-		return runner.getSolution().satisfiable();
-	}
 
 	/**
 	 * Shows the next Alloy instance, if any
 	 * @return true if able to generate another instance
 	 * @throws ErrorAlloy 
 	 */
-	public boolean next() throws ErrorAlloy {
+	public void next() throws ErrorAlloy {
 		runner.nextInstance();
-		return runner.getSolution().satisfiable();
 	}
 
 	/**

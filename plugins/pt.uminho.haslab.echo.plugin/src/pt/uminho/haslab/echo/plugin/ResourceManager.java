@@ -15,7 +15,7 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -468,8 +468,8 @@ public class ResourceManager {
 			modeluris.add(target);
 			fstwaiting = ressource;
 		}
-		runner.generateqvt(resqvt.getFullPath().toString(), metamodeluri,
-				modeluris, target);
+		runner.generateQvt(resqvt.getFullPath().toString(), metamodeluri,
+                modeluris, target);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
 		amv.setTargetPath(target, true, resmetamodel);

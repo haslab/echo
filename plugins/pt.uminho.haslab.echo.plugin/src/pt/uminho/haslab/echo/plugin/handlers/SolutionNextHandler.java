@@ -6,7 +6,7 @@ import org.eclipse.core.commands.ExecutionException;
 
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
@@ -21,11 +21,7 @@ public class SolutionNextHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		try {
-			if (!EchoRunner.getInstance().next())
-			{
-				EchoReporter.getInstance().debug("No more instances: delta increased.");
-				while(!EchoRunner.getInstance().increment());
-			}
+			EchoRunner.getInstance().next();
 			
 			GraphView amv = EchoPlugin.getInstance().getGraphView();
 			if(amv!= null) amv.drawGraph();

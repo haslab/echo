@@ -70,10 +70,8 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 		}
 
 		((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
-		boolean b;
 		try {
-			b = echo.enforce(marker.getAttribute(EchoMarker.CONSTRAINT).toString(),list, path);
-			while(!b) b = echo.increment();
+			echo.enforce(marker.getAttribute(EchoMarker.CONSTRAINT).toString(),list, path);
 		} catch (Exception e) {
 			MessageDialog.openError(null, "Error loading QVT-R.",e.getMessage());
 			e.printStackTrace();
