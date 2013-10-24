@@ -20,7 +20,7 @@ import pt.uminho.haslab.echo.consistency.Relation;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
 import pt.uminho.haslab.echo.emf.URIUtil;
-import pt.uminho.haslab.echo.transform.alloy.EchoTranslator;
+import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
@@ -384,11 +384,11 @@ public class AlloyUtil {
 								state = vars.get(varstates.get(ovar.getName()).getValue());
 							
 							if (state == null)
-								state = EchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+								state = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
 							
 							//EchoReporter.getInstance().debug("AAA"+metamodeluri);
 
-							Decl d = (EchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, type).join(state)).oneOf(ovar.getName()); 
+							Decl d = (AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, type).join(state)).oneOf(ovar.getName());
 							avars.put(d.get().label,d);
 						}					
 						

@@ -8,9 +8,8 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.transform.alloy.EchoTranslator;
+import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
@@ -348,8 +347,8 @@ public class AlloyOptimizations {
 					for (int i = 0; i < decls.size() ; i++) {
 						Decl d = decls.get(i);
 	        			try {
-	        				//EchoReporter.getInstance().debug("Onepointing "+d.get().label + " over "+d.expr+ " which is "+EchoTranslator.getInstance().isFunctional(d.expr));
-							if (EchoTranslator.getInstance().isFunctional(d.expr)) {
+	        				//EchoReporter.getInstance().debug("Onepointing "+d.get().label + " over "+d.expr+ " which is "+AlloyEchoTranslator.getInstance().isFunctional(d.expr));
+							if (AlloyEchoTranslator.getInstance().isFunctional(d.expr)) {
 								sub = AlloyUtil.replace(sub, d.get(), d.expr);
 								decls.remove(d);
 								for (int j = 0; j < decls.size() ; j++)
@@ -374,7 +373,7 @@ public class AlloyOptimizations {
 	        		for (Decl d : x.decls) {
 	        			try {
 	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
-							if (EchoTranslator.getInstance().isFunctional(d.expr)) {
+							if (AlloyEchoTranslator.getInstance().isFunctional(d.expr)) {
 								sub = AlloyUtil.replace(sub, d.get(), d.expr);
 								decls.remove(d);
 							}
@@ -457,7 +456,7 @@ public class AlloyOptimizations {
 					} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage()); }
 	    			for (ExprVar var : vars) {
 	    				try {
-	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(EchoTranslator.STATE))) {
+	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(AlloyEchoTranslator.STATE))) {
 	    						//System.out.println ("var "+var.type().toExpr());
 	    						PushVar pusher = new PushVar(var);
 	    						Expr body = pusher.visitThis(x);

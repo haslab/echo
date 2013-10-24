@@ -11,7 +11,7 @@ import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorAlloy;
-import pt.uminho.haslab.echo.transform.alloy.EchoTranslator;
+import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 
 public class CLIReporter extends EchoReporter {
 		
@@ -52,7 +52,7 @@ public class CLIReporter extends EchoReporter {
 		System.out.println(msg);
 	}
 	public String printModel() throws ErrorAlloy{
-		EchoTranslator translator = EchoTranslator.getInstance();
+		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
 		CLIOptions options = (CLIOptions) EchoOptionsSetup.getInstance();
 		StringBuilder sb = new StringBuilder();
 		for (String uri : options.getMetamodels()) {

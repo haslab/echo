@@ -3,7 +3,6 @@ package pt.uminho.haslab.echo.transform.alloy;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -101,7 +100,7 @@ public class Relation2Alloy {
 			Decl d;
 			String metamodeluri = mdl.getMetamodelURI();
 			try {
-				d = EchoTranslator.getInstance().getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
+				d = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			mdecls.add(d);
 			statevars.put(mdl.getName(),d.get());

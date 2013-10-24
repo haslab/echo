@@ -10,7 +10,7 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
 import pt.uminho.haslab.echo.alloy.GraphPainter;
-import pt.uminho.haslab.echo.transform.alloy.EchoTranslator;
+import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
@@ -34,7 +34,7 @@ public class EchoRunner {
 	 * @throws ErrorParser
 	 */
 	public void addMetamodel(EPackage metamodel) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		EchoTranslator.getInstance().translateMetaModel(metamodel);
+		AlloyEchoTranslator.getInstance().translateMetaModel(metamodel);
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class EchoRunner {
 	 * @param metamodeluri the URI of the meta-model to remove
 	 */
 	public void remMetamodel(String metamodeluri) {
-		EchoTranslator.getInstance().remMetamodel(metamodeluri);
+		AlloyEchoTranslator.getInstance().remMetamodel(metamodeluri);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class EchoRunner {
 	 * @param metamodeluri the URI of the meta-model
 	 */
 	public boolean hasMetamodel(String metamodeluri) {
-		return EchoTranslator.getInstance().getMetamodelStateSig(metamodeluri) != null;
+		return AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri) != null;
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class EchoRunner {
 	 * @throws ErrorParser
 	 */
 	public void addModel(EObject model) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		EchoTranslator.getInstance().translateModel(model);
+		AlloyEchoTranslator.getInstance().translateModel(model);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class EchoRunner {
 	 * @param modeluri the URI of the model to remove
 	 */
 	public void remModel(String modeluri) {
-		EchoTranslator.getInstance().remModel(modeluri);
+		AlloyEchoTranslator.getInstance().remModel(modeluri);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class EchoRunner {
 	 * @param modeluri the URI of the model
 	 */
 	public boolean hasModel(String modeluri) {
-		return EchoTranslator.getInstance().getModelStateSig(modeluri) != null;
+		return AlloyEchoTranslator.getInstance().getModelStateSig(modeluri) != null;
 	}
 
 	/**
@@ -90,22 +90,22 @@ public class EchoRunner {
 	 * @throws ErrorParser
 	 */
 	public void addQVT(RelationalTransformation qvt) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		EchoTranslator.getInstance().translateQVT(qvt);
+		AlloyEchoTranslator.getInstance().translateQVT(qvt);
 	}
 
 	public boolean hasQVT(String qvturi) {
-		return EchoTranslator.getInstance().getQVTFact(qvturi) != null;
+		return AlloyEchoTranslator.getInstance().getQVTFact(qvturi) != null;
 	}
 	
 	public boolean remQVT(String qvturi) {
-		return EchoTranslator.getInstance().remQVT(qvturi);
+		return AlloyEchoTranslator.getInstance().remQVT(qvturi);
 	}
 	
 	
 		
 	
 	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		EchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
+		AlloyEchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
 	}
 
 
@@ -244,7 +244,7 @@ public class EchoRunner {
 	 * @throws ErrorUnsupported 
 	 */
 	public void writeAllInstances (String metamodeluri, String modeluri) throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
-		EchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri,runner.getTargetStateSig());
+		AlloyEchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri,runner.getTargetStateSig());
 	}
 
 	/**
@@ -254,7 +254,7 @@ public class EchoRunner {
 	 * @throws ErrorAlloy 
 	 */
 	public void writeInstance (String modeluri) throws ErrorAlloy, ErrorTransform {
-		EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri,runner.getTargetStateSig());
+		AlloyEchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri,runner.getTargetStateSig());
 	}
 	
 	public enum Task {

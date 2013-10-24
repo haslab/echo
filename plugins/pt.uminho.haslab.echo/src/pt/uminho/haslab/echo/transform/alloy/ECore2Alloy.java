@@ -409,7 +409,7 @@ class ECore2Alloy {
 				decls.add(self);
 				sd.put(self.get().label, new SimpleEntry<ExprHasName,String>(self.get(),statesig.label));
 				for (EParameter p : operation.getEParameters()) {
-					PrimSig type = EchoTranslator.getInstance().getClassifierFromSig(p.getEType());
+					PrimSig type = AlloyEchoTranslator.getInstance().getClassifierFromSig(p.getEType());
 					Decl d = type.oneOf(p.getName());
 					decls.add(d);
 					sd.put(d.get().label, new SimpleEntry<ExprHasName,String>(d.get(),statesig.label));

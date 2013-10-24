@@ -75,7 +75,7 @@ public class OCL2Alloy2 implements OCLTranslator{
 			e.printStackTrace();
 		}
 		String metamodeluri = str[0];
-		EStructuralFeature feature = EchoTranslator.getInstance().getESFeatureFromName(metamodeluri, str[1], (String) expr.eGet(oname));
+		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, str[1], (String) expr.eGet(oname));
 		Expr aux = propertyToField((String) expr.eGet(oname),var);
 
 		String nameo = feature.getEType().getName();
@@ -111,7 +111,7 @@ public class OCL2Alloy2 implements OCLTranslator{
 			e.printStackTrace();
 		}
 		String metamodeluri = str[0];
-		EStructuralFeature feature = EchoTranslator.getInstance().getESFeatureFromName(metamodeluri, str[1], (String) expr.eGet(oname));
+		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, str[1], (String) expr.eGet(oname));
 		Expr aux = propertyToField((String) expr.eGet(oname),var);
 
 		String nameo = feature.getEType().getName();
@@ -210,7 +210,7 @@ public class OCL2Alloy2 implements OCLTranslator{
 			if (newi == null) news.put(cl,1);
 			else news.put(cl,newi+1);
 			
-			Field statefield = EchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri,cl);
+			Field statefield = AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri,cl);
 			Expr pre = Sig.NONE;
 			Expr pos = Sig.NONE;
 			if (varstates.get(var.toString()) != null && varstates.get(var.toString()).getValue() != null) {
@@ -264,18 +264,18 @@ public class OCL2Alloy2 implements OCLTranslator{
 			e.printStackTrace();
 		}
 		String metamodeluri = str[0];
-		EStructuralFeature feature = EchoTranslator.getInstance().getESFeatureFromName(metamodeluri, str[1], propn);
-		Field field = EchoTranslator.getInstance().getFieldFromClassName(metamodeluri, str[1], propn);
+		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, str[1], propn);
+		Field field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri, str[1], propn);
 		Expr exp = null;
 		
 		Expr statesig = null;
 		if ((isPre?prevars:posvars) != null && var instanceof ExprHasName) 
 			statesig = (isPre?prevars:posvars).get(varstates.get(((ExprHasName)var).label).getValue());
 		if (statesig == null)
-			statesig = EchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+			statesig = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
 
 		if (field == null && feature instanceof EchoReporter && ((EReference) feature).getEOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
-			field = EchoTranslator.getInstance().getFieldFromClassName(metamodeluri,((EReference) feature).getEOpposite().getEContainingClass().getName(),((EReference) feature).getEOpposite().getName());
+			field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri,((EReference) feature).getEOpposite().getEContainingClass().getName(),((EReference) feature).getEOpposite().getName());
 			exp = (field.join(statesig)).transpose();
 		}
 		else {

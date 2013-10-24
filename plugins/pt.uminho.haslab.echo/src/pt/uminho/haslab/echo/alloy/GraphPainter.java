@@ -9,7 +9,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.transform.alloy.EchoTranslator;
+import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4graph.DotColor;
 import edu.mit.csail.sdg.alloy4graph.DotShape;
 import edu.mit.csail.sdg.alloy4viz.AlloyModel;
@@ -63,8 +63,8 @@ public class GraphPainter {
 				vizstate.hideUnconnected.put(atype, true);
 				String metamodeluri = AlloyUtil.getMetamodelURIfromLabel(label);
 				String classname = AlloyUtil.getClassOrFeatureName(label);
-				if (classname != null && EchoTranslator.getInstance().getSigFromClassName(metamodeluri, classname) != null) {
-					List<EClass> rootobjects = EchoTranslator.getInstance().getRootClass(metamodeluri);
+				if (classname != null && AlloyEchoTranslator.getInstance().getSigFromClassName(metamodeluri, classname) != null) {
+					List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metamodeluri);
 					for (EClass rootobject : rootobjects)
 						if (rootobject.getName().equals(classname))
 							vizstate.hideUnconnected.put(atype, false);
@@ -104,7 +104,7 @@ public class GraphPainter {
 				String ref = AlloyUtil.getClassOrFeatureName(label);
 				AlloyType sig = t.getTypes().get(0);
 				String cla = AlloyUtil.getClassOrFeatureName(sig.getName());
-				EStructuralFeature sf = EchoTranslator.getInstance().getESFeatureFromName(metamodeluri,cla,ref);
+				EStructuralFeature sf = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri,cla,ref);
 				if (sf != null) {
 					if (sf instanceof EAttribute) {
 						vizstate.edgeVisible.put(t, false);

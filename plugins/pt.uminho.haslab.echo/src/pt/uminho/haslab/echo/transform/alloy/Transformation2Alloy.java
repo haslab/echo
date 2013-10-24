@@ -1,7 +1,6 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,7 @@ class Transformation2Alloy {
 			Decl d;
 			try {
 				String metamodeluri = mdl.getMetamodelURI();
-				d = EchoTranslator.getInstance().getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
+				d = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			argsdecls.put(mdl.getName(), d);
 			decls.add(d);

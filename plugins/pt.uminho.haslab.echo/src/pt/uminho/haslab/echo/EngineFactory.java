@@ -1,7 +1,8 @@
 package pt.uminho.haslab.echo;
 
-import pt.uminho.haslab.echo.transform.OCLTranslator;
-import pt.uminho.haslab.echo.transform.TranslatorEngine;
+import pt.uminho.haslab.echo.alloy.AlloyFactory;
+import pt.uminho.haslab.echo.kodkod.KodkodFactory;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,11 +13,15 @@ import pt.uminho.haslab.echo.transform.TranslatorEngine;
 public abstract class EngineFactory {
 
 
+    public static final EngineFactory ALLOY = new AlloyFactory();
+    public static final EngineFactory KODKOD = new KodkodFactory();
+
+
     public abstract EngineRunner createRunner();
 
-    public abstract TranslatorEngine createTranslator();
+    public abstract EchoTranslator createTranslator();
 
-    //public abstract OCLTranslator createOCLTraslator();
+    //public abstract OCLTranslator createOCLTranslator();
 
 
 }

@@ -47,6 +47,7 @@ public class CLIMain {
 		
 		CLIReporter reporter = new CLIReporter();
 		EchoOptionsSetup.init(options);
+
 		reporter.beginStage(Task.ECHO_RUN);
 		EchoParser parser = EchoParser.getInstance();
 		EchoRunner runner = EchoRunner.getInstance();
