@@ -50,7 +50,7 @@
                label="Echo">
          	<command
                commandId="pt.uminho.haslab.echo.commands.modeltrack"
-               icon="icons/trackmodel.png"
+               icon="icons/model_add.png"
                label="Track model"
                style="push">
             <visibleWhen>
@@ -78,7 +78,7 @@
  
          <command
                commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
-               icon="/icons/qvtrel.gif"
+               icon="/icons/constraint_add.gif"
                label="New inter-model constraint..."
                style="push">
                <visibleWhen>
@@ -95,7 +95,7 @@
          </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.modelgenerate"
-               icon="/icons/newmodel.gif"
+               icon="/icons/model_gen.gif"
                label="Generate model..."
                style="push">
             <visibleWhen>
@@ -166,25 +166,25 @@
                label="Echo toolbar">
             <command
                   commandId="pt.uminho.haslab.echo.commands.modelsmanage"
-                  icon="icons/trackmodel.png"
+                  icon="icons/model_manage.png"
                   label="Manage models"
                   style="push">
             </command>
             <command
                   commandId="pt.uminho.haslab.echo.commands.constraintsmanage"
-                  icon="icons/qvtrel.gif"
+                  icon="icons/constraint_manage.gif"
                   label="Manage constraints"
                   style="push">
             </command>
             <command
                   commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
-                  icon="/icons/qvtrel.gif"
+                  icon="/icons/constraint_add.gif"
                   label="New QVT constraint"
                   style="push">
             </command>
             <command
                   commandId="pt.uminho.haslab.echo.commands.modelgenerate"
-                  icon="/icons/newmodel.gif"
+                  icon="/icons/model_gen.gif"
                   label="Generate model"
                   style="push">
             </command>

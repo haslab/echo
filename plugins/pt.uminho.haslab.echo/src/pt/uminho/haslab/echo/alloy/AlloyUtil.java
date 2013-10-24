@@ -384,10 +384,11 @@ public class AlloyUtil {
 							
 							if (state == null)
 								state = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
-							
+
 							//EchoReporter.getInstance().debug("AAA"+metamodeluri);
 
 							Decl d = (AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, type).join(state)).oneOf(ovar.getName());
+
 							avars.put(d.get().label,d);
 						}					
 						
