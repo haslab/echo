@@ -56,7 +56,7 @@ import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 public class AlloyEchoTranslator extends EchoTranslator {
 
-    private AlloyEchoTranslator() {}
+    public AlloyEchoTranslator() {}
 
     //private static AlloyEchoTranslator instance = new AlloyEchoTranslator();
 
