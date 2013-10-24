@@ -7,11 +7,15 @@ import org.eclipse.core.commands.ExecutionException;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
-public class AlloySaveHandler extends AbstractHandler {
+/**
+ * Handles the "select solution" event
+ * @author nmm
+ *
+ */
+public class SolutionSelectHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// TODO Auto-generated method stub
 		
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
 		amv.saveInstance();

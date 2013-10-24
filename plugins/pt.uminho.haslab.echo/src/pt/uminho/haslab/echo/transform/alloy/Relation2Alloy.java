@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.transform.alloy;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,17 +68,15 @@ public class Relation2Alloy {
 	private Map<String,ExprHasName> statevars = new LinkedHashMap<String,ExprHasName>();
 	private Map<String,ExprHasName> varvar = new LinkedHashMap<String,ExprHasName>();
 	private Map<String,String> varsstate = new LinkedHashMap<String,String>();
-	/** the additional facts, defining the fields of internal QVT calls */
-	private List<Func> fieldFacts = new ArrayList<Func>();
-
-	private Func func;
+		
+	public final Transformation2Alloy transformation_trans;
 	
 	public Relation2Alloy (Relation2Alloy q2a, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		this (false,q2a,q2a.getDirection(),rel);
+		this (q2a.transformation_trans, false,q2a,q2a.getDirection(),rel);
 	}
 
-	public Relation2Alloy (Model mdl, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		this (true,null,mdl,rel);
+	public Relation2Alloy (Transformation2Alloy t, Model mdl, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		this (t,true,null,mdl,rel);
 	}
 
 	/** 
@@ -90,10 +89,11 @@ public class Relation2Alloy {
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 */
-	Relation2Alloy (Boolean top, Relation2Alloy q2a, Model direction, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Relation2Alloy (Transformation2Alloy t, Boolean top, Relation2Alloy q2a, Model direction, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		this.rel = rel;
 		this.direction = direction;
 		this.top = top;
+		this.transformation_trans = t;
 		this.parentq = top?this:q2a;
 		List<Decl> mdecls = new ArrayList<Decl>();
 				
@@ -112,10 +112,19 @@ public class Relation2Alloy {
 		}
 		initDomains();
 		initVariableLists();
+		Field field = null;
+		if (!top) {
+			try {
+				field = addRelationFields(mdecls);
+				transformation_trans.addRecRelationCall(new Func(null, AlloyUtil.relationFieldName(rel,direction), mdecls, field.type().toExpr(), field));
+			} catch (Err e) {
+				e.printStackTrace();
+			}	
+		}
 		Expr fact = calculateFact();
 		AlloyOptimizations opt = new AlloyOptimizations();
 		if(EchoOptionsSetup.getInstance().isOptimize()&&true) {
-			EchoReporter.getInstance().debug("Pre-onepoint "+fact);
+			//EchoReporter.getInstance().debug("Pre-onepoint "+fact);
 			fact = opt.trading(fact);
 			//EchoReporter.getInstance().debug("Mid-onepoint "+fact);
 			fact = opt.onePoint(fact);
@@ -123,11 +132,10 @@ public class Relation2Alloy {
 		EchoReporter.getInstance().debug("Pos-onepoint "+fact);
 		try {
 			if(top) {
-				func  = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact);	
+				transformation_trans.addTopRelationCall(new Func(null, rel.getName()+"_"+direction.getName(), mdecls, null, fact));	
 			}
 			else {
-				Field field = addRelationFields(fact,mdecls);
-				func  = new Func(null, rel.getName()+"_"+direction.getName(), mdecls, field.type().toExpr(), field);	
+				addRelationDef(fact, field, mdecls);
 			}
 		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }	
 	}
@@ -245,12 +253,12 @@ public class Relation2Alloy {
 				sourcevariables.remove(x);
 			}
 		}
-	    EchoReporter.getInstance().debug(top+"");
+	    /*EchoReporter.getInstance().debug(top+"");
 
 	    EchoReporter.getInstance().debug("sourcevariables: "+sourcevariables);
 	    EchoReporter.getInstance().debug("whenvariables: "+whenvariables);
 	    EchoReporter.getInstance().debug("targetvariables: "+targetvariables);
-	    EchoReporter.getInstance().debug("rootvariables: "+rootvariables);
+	    EchoReporter.getInstance().debug("rootvariables: "+rootvariables);*/
 
 	    for (Variable s : sourcevariables.keySet())
 			varsstate.put(s.getName(),sourcevariables.get(s));
@@ -298,13 +306,13 @@ public class Relation2Alloy {
 	}
 	
 	/** 
-	 * Generates the QVT Relation field.
+	 * Generates the QVT Relation field over the model sigs.
 	 * @return the Alloy field for this QVT Relation
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
 	 * @todo Support for n models
 	 */
-	private Field addRelationFields(Expr fact, List<Decl> mdecls) throws ErrorAlloy, ErrorTransform{
+	private Field addRelationFields(List<Decl> mdecls) throws ErrorAlloy, ErrorTransform{
 		Field field = null;
 		Decl fst = alloyrootvars.get(rel.getDomains().get(0).getVariable().getName());
 		Decl snd = alloyrootvars.get(rel.getDomains().get(1).getVariable().getName());
@@ -316,40 +324,25 @@ public class Relation2Alloy {
 			}
 			if (field == null) {
 				field = s.addField(AlloyUtil.relationFieldName(rel,direction), /*type.setOf()*/Sig.UNIV.setOf());
-				Expr e = field.equal(fact.comprehensionOver(fst,snd));
-				Func f = new Func(null, field.label+"def",mdecls,null,e);
-				parentq.addFieldFunc(f);
 			}
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+			} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 		return field;
 	}
 	
-	/** 
-	 * Returns the Alloy function corresponding to this QVT Relation
-	 * @return this.func
-	 * @throws ErrorUnsupported 
-	 * @throws ErrorAlloy 
-	 * @throws ErrorTransform 
-	 */
-	public Func getFunc() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-		return func;
+	private void addRelationDef(Expr fact, Field field, List<Decl> mdecls) throws ErrorAlloy, ErrorTransform{
+		Decl fst = alloyrootvars.get(rel.getDomains().get(0).getVariable().getName());
+		Decl snd = alloyrootvars.get(rel.getDomains().get(1).getVariable().getName());
+		Func f;
+		try {
+			Expr e = field.equal(fact.comprehensionOver(fst,snd));
+			f = new Func(null, field.label+"def",mdecls,null,e);
+			transformation_trans.addRecRelationDef(f);
+		} catch (Err e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 	
-	/** 
-	 * Adds a new Alloy functions defining a non-top QVT relation field
-	 * should be used by descendants on parent
-	 */
-	void addFieldFunc(Func x) {
-		fieldFacts.add(x);
-	}
-	
-	/** 
-	 * Returns the additional facts, defining the fields of internal non-top QVT calls
-	 * @returns this.fieldFacts
-	 */
-	List<Func> getFieldFunc() {
-		return fieldFacts;
-	}
 
 	Model getDirection() {
 		return direction;

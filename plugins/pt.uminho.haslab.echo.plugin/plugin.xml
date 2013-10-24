@@ -4,20 +4,30 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="pt.uminho.haslab.echo.commands.filemanage"
-            name="Manage file">
+            id="pt.uminho.haslab.echo.commands.modeltrack"
+            name="Track model">
+      </command>
+      <command
+            id="pt.uminho.haslab.echo.commands.modelsmanage"
+            name="Manage models">
+        
+      </command>
+      <command
+            id="pt.uminho.haslab.echo.commands.constraintsmanage"
+            name="Manage constraints">
+        
       </command>
       <command
             id="pt.uminho.haslab.echo.commands.modelconforms"
             name="Conforms">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AlloySaveHandler"
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.SolutionSelectHandler"
             id="pt.uminho.haslab.echo.commands.alloysave"
             name="Save instance">
       </command>
       <command
-            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.AlloyNextHandler"
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.SolutionNextHandler"
             id="pt.uminho.haslab.echo.commands.alloynext"
             name="Next instance">
       </command>
@@ -34,16 +44,12 @@
             name="Remove file">
       </command>
    </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
-         <menu
-               icon="/icons/echo.png"
+   <extension point="org.eclipse.ui.menus">
+      <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu">
+         <menu icon="/icons/echo.png"
                label="Echo">
-          
-         <command
-               commandId="pt.uminho.haslab.echo.commands.filemanage"
+         	<command
+               commandId="pt.uminho.haslab.echo.commands.modeltrack"
                icon="icons/trackmodel.png"
                label="Track model"
                style="push">
@@ -138,7 +144,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:pt.uminho.haslab.echo.alloymodelview">
+            locationURI="toolbar:pt.uminho.haslab.echo.graphviewer">
          <command
                commandId="pt.uminho.haslab.echo.commands.alloynext"
                icon="icons/next.gif"
@@ -151,6 +157,38 @@
                label="Save instance"
                style="push">
          </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar"> >
+         <toolbar
+               id="pt.uminho.haslab.echo.plugin.toolbar"
+               label="Echo toolbar">
+            <command
+                  commandId="pt.uminho.haslab.echo.commands.modelsmanage"
+                  icon="icons/trackmodel.png"
+                  label="Manage models"
+                  style="push">
+            </command>
+            <command
+                  commandId="pt.uminho.haslab.echo.commands.constraintsmanage"
+                  icon="icons/qvtrel.gif"
+                  label="Manage constraints"
+                  style="push">
+            </command>
+            <command
+                  commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
+                  icon="/icons/qvtrel.gif"
+                  label="New QVT constraint"
+                  style="push">
+            </command>
+            <command
+                  commandId="pt.uminho.haslab.echo.commands.modelgenerate"
+                  icon="/icons/newmodel.gif"
+                  label="Generate model"
+                  style="push">
+            </command>
+         </toolbar>
       </menuContribution>
    </extension>
    <extension
@@ -167,7 +205,7 @@
       </page>
     <page
         class="pt.uminho.haslab.echo.plugin.properties.ProjectModelsPage"
-        id="pt.uminho.haslab.echo.plugin.properties.echoPropertyModels"
+        id="pt.uminho.haslab.echo.plugin.properties.models"
         name="Tracked models"
         category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
      <enabledWhen>
@@ -178,7 +216,7 @@
   </page>
       <page
         class="pt.uminho.haslab.echo.plugin.properties.ProjectConstraintsPage"
-        id="pt.uminho.haslab.echo.plugin.properties.echoPropertyConstraints"
+        id="pt.uminho.haslab.echo.plugin.properties.constraints"
         name="QVT Constraints"
         category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
      <enabledWhen>
@@ -211,7 +249,7 @@
             class="pt.uminho.haslab.echo.plugin.EchoPropertyTester"
             id="pt.uminho.haslab.echo.plugin.propertyTester"
             namespace="pt.uminho.haslab.echo.plugin.propertyTester"
-            properties="tracked"
+            properties="tracked,has_project"
             type="org.eclipse.core.resources.IFile">
       </propertyTester>
    </extension>
@@ -220,12 +258,12 @@
        <category 
            id="pt.uminho.haslab.echo.viewcategory"
            name="Echo">
-        </category>
+        </category> 
     <view
           category="pt.uminho.haslab.echo.viewcategory"
           class="pt.uminho.haslab.echo.plugin.views.GraphView"
-          id="pt.uminho.haslab.echo.alloymodelview"
-          name="Alloy Model"
+          id="pt.uminho.haslab.echo.graphviewer"
+          name="Echo solution"
           icon="icons/alloy.png"
           restorable="true">
     </view>
@@ -247,18 +285,48 @@
      
   </handler>
   <handler class="pt.uminho.haslab.echo.plugin.handlers.FileTrackHandler"
-           commandId="pt.uminho.haslab.echo.commands.filemanage">
-
+           commandId="pt.uminho.haslab.echo.commands.modeltrack">
   </handler>
+    <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelsManageHandler"
+           commandId="pt.uminho.haslab.echo.commands.modelsmanage">
+                <activeWhen>
+               <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.has_project"
+                           value="true">
+                     </test>
+               </iterate>
+            </activeWhen>
+  </handler>
+      <handler class="pt.uminho.haslab.echo.plugin.handlers.ConstraintsManageHandler"
+           commandId="pt.uminho.haslab.echo.commands.constraintsmanage">
+                <activeWhen>
+               <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.has_project"
+                           value="true">
+                     </test>
+               </iterate>
+            </activeWhen>
+  </handler>
+  
   <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
-           commandId="pt.uminho.haslab.echo.commands.modelgenerate">
-           
+           commandId="pt.uminho.haslab.echo.commands.modelgenerate">           
   </handler>
-  <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTNewConstraintHandler"
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTConstraintAddHandler"
            commandId="pt.uminho.haslab.echo.commands.qvtconstraint">
   </handler>
 </extension>
 
-
+<extension point="org.eclipse.ui.perspectives">
+   <perspective
+         name="Echo"
+         class="pt.uminho.haslab.echo.plugin.views.EchoPerspective"
+         id="pt.uminho.haslab.echo.plugin.views.echoperspective"
+         icon="/icons/echo.png">
+   </perspective>
+</extension>
 
 </plugin>

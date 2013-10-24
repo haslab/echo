@@ -1,22 +1,37 @@
 package pt.uminho.haslab.echo.plugin;
 
+import java.net.URL;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.plugin.listeners.XMIChangeListener;
-import pt.uminho.haslab.echo.plugin.properties.ProjectProperties;
+import pt.uminho.haslab.echo.plugin.listeners.ResourceChangeListener;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
-public class EchoPlugin extends Plugin {
+public class EchoPlugin extends AbstractUIPlugin {
+	
+    public final static String ID = "pt.uminho.haslab.echo.plugin";
+    public final static String ICONS_PATH = "icons/";
+    public final static String QVT_ICON = "qvt.gif";
+    public final static String XMI_ICON = "xmi.gif";
+
+
 
 	/** the current EchoPlugin instance **/
 	private static EchoPlugin instance;
@@ -54,9 +69,9 @@ public class EchoPlugin extends Plugin {
 		for (IProject p : ResourcesPlugin.getWorkspace().getRoot()
 				.getProjects())
 			if (p.isOpen())
-				ProjectProperties.getProperties(p);
+				ProjectPropertiesManager.getProperties(p);
 
-		IResourceChangeListener listener = new XMIChangeListener();
+		IResourceChangeListener listener = new ResourceChangeListener();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(listener,
 				IResourceChangeEvent.POST_CHANGE);
 	}
@@ -71,7 +86,7 @@ public class EchoPlugin extends Plugin {
 			try {
 				graphView = (GraphView) PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getActivePage()
-						.showView("pt.uminho.haslab.echo.alloymodelview");
+						.showView(GraphView.ID);
 			} catch (PartInitException e) {
 				MessageDialog.openError(PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getShell(), "Error",
@@ -89,4 +104,23 @@ public class EchoPlugin extends Plugin {
 	public void setGraphView(GraphView graphView) {
 		this.graphView = graphView;
 	}
+	
+	/**
+	 * Initializes and populates the Image Registry
+	 */
+	@Override
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		super.initializeImageRegistry(reg);
+        Bundle bundle = Platform.getBundle(ID);
+        URL url; ImageDescriptor desc;
+        
+        url = FileLocator.findEntries(bundle, new Path(ICONS_PATH+QVT_ICON))[0];
+		desc = ImageDescriptor.createFromURL(url);
+		reg.put(QVT_ICON, desc);
+        url = FileLocator.findEntries(bundle, new Path(ICONS_PATH+XMI_ICON))[0];
+		desc = ImageDescriptor.createFromURL(url);
+		reg.put(XMI_ICON, desc);
+
+	}
+	
 }

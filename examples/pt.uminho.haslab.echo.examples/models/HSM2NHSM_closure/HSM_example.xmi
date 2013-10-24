@@ -4,13 +4,16 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:hsm="HSM"
-    xsi:schemaLocation="HSM HSM.ecore#HSM">
+    xsi:schemaLocation="HSM HSM.ecore#HSM"
+    name="machine">
   <states xsi:type="hsm:CompositeState"
-      name="A"/>
-  <states name="Child"
+      name="Active"/>
+  <states name="Idle"/>
+  <states name="Running"
       owner="//@states.0"/>
-  <states name="B"/>
+  <states name="Waiting"
+      owner="//@states.0"/>
   <transitions
-      source="//@states.2"
-      target="//@states.2"/>
+      source="//@states.1"
+      target="//@states.3"/>
 </hsm:StateMachine>

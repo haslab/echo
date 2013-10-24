@@ -141,15 +141,21 @@ public class OCL2Alloy implements OCLTranslator{
 	
 	Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 
-		Func func = null;
 		Relation2Alloy trans = null;
+		Func func = null;
 		try {
-			trans = new Relation2Alloy (parentq,new QVTRelation(expr.getReferredRelation()));
+			func = parentq.transformation_trans.getRecRelationCall(new QVTRelation(expr.getReferredRelation()), parentq.getDirection());
+			EchoReporter.getInstance().debug("Should not be null: "+func);
+			if (func == null) {
+				QVTRelation rel = new QVTRelation(expr.getReferredRelation());
+				trans = new Relation2Alloy (parentq,rel);
+				func = parentq.transformation_trans.getRecRelationCall(rel,parentq.getDirection());
+			}
 		} catch (ErrorParser e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		func = trans.getFunc();
+		
 		List<ExprHasName> aux = new ArrayList<ExprHasName>();
 		for (Entry<String, ExprHasName> x : (isPre?prevars:posvars).entrySet())
 			aux.add(x.getValue());

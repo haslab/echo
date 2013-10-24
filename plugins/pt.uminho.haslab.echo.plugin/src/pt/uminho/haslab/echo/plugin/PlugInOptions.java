@@ -1,6 +1,8 @@
 package pt.uminho.haslab.echo.plugin;
 
-import pt.uminho.haslab.echo.EchoOptions;
+
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -12,39 +14,45 @@ import org.eclipse.core.resources.ResourcesPlugin;
  */
 public class PlugInOptions implements EchoOptions {
 
-	boolean operationbased = false;
+	private boolean operationbased = false;
+	private int bitwidth = EchoOptionsSetup.DEFAULT_BITWIDTH;
+	private int scope = EchoOptionsSetup.DEFAULT_SCOPE;
+	private int delta = EchoOptionsSetup.DEFAULT_DELTA;
+	private boolean verbose = EchoOptionsSetup.DEFAULT_VERBOSE;
+	private boolean overwrite = EchoOptionsSetup.DEFAULT_OVERWRITE;
+	private boolean optimize = EchoOptionsSetup.DEFAULT_OPTIMIZE;
 
 	public PlugInOptions() {
 	}
 
 	@Override
 	public boolean isVerbose() {
-		return true;
+		return verbose;
 	}
 
 	@Override
 	public boolean isOverwrite() {
-		return true;
+		return overwrite;
 	}
 
 	@Override
 	public boolean isOptimize() {
-		return true;
+		return optimize;
 	}
 
 	@Override
 	public Integer getMaxDelta() {
-		return 20;
+		return delta;
 	}
 
 	@Override
 	public Integer getOverallScope() {
-		return 1;
+		return scope;
 	}
 
 	@Override
 	public Integer getBitwidth() {
-		return 2;
+		return bitwidth;
 	}
 
 	@Override
@@ -65,6 +73,22 @@ public class PlugInOptions implements EchoOptions {
 	@Override
 	public boolean isStandalone() {
 		return false;
+	}
+
+	public void setBitwidth(int n) {
+		bitwidth = n;
+	}
+
+	public void setScope(int n) {
+		scope = n;
+	}
+
+	public void setDelta(int n) {
+		delta = n;
+	}
+
+	public void setOptimize(boolean n) {
+		optimize = n;
 	}
 
 }

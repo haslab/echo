@@ -1,0 +1,43 @@
+import HSM : 'HSM.ecore' :: HSM;
+import NHSM : 'NHSM.ecore' :: NHSM;
+
+transformation hsm2nhsm (hm : HSM, nm : NHSM) {
+
+	top relation State2State { 
+    	n: String; 
+    	domain hm s1:State {};
+    	domain nm s2:State {};
+    	where {
+    		if s1.owner->isEmpty() then StateTop2State(s1,s2)
+    		else StateBottom2State(s1,s2) endif;    		
+    	}
+  	}
+  	
+  	relation StateTop2State { 
+    	n: String; 
+    	domain hm s1:State {
+    		name = n
+    	};
+    	domain nm s2:State {
+    		name = n
+    	};
+  	}
+  	
+  	relation StateBottom2State { 
+    	n: String; 
+    	domain hm s1:State {};
+    	domain nm s2:State {};
+    	where { State2State(s1.owner,s2);}
+  	}
+  	
+  	top relation T2T {
+		domain hm th:Transition {
+     	  	target = tsh:State{},
+			source = ssh:State{}}; 
+		domain nm tn:Transition {
+        	target = tsn:State{},
+			source = ssn:State{}};
+		where { State2State(tsh,tsn) and State2State(ssh,ssn); }
+}
+
+}
