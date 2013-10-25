@@ -17,7 +17,12 @@ public class EchoRunner {
 
 
     private EngineRunner runner;
-    public EchoRunner() {}
+    private EngineFactory engineFactory;
+    public EchoRunner(EngineFactory factory) {
+        engineFactory = factory;
+        EchoTranslator.init(factory);
+    }
+
 
 	/**
 	 * Translates a meta-model into Alloy
@@ -114,7 +119,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public boolean conforms(List<String> modeluris) throws ErrorInternalEngine {
-		runner = EngineFactory.instance().createRunner();
+		runner = engineFactory.createRunner();
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -126,7 +131,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public void repair(String targeturi) throws ErrorInternalEngine {
-		runner = EngineFactory.instance().createRunner();
+		runner = engineFactory.createRunner();
 		runner.repair(targeturi);
 	}
 
@@ -140,7 +145,7 @@ public class EchoRunner {
 	 * @throws ErrorUnsupported 
 	 */
 	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
-		runner =  EngineFactory.instance().createRunner();
+		runner =  engineFactory.createRunner();
 		runner.generate(metamodeluri,scope);
 	}
 
@@ -152,7 +157,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public boolean check(String qvturi, List<String> modeluris) throws ErrorInternalEngine {
-		runner =  EngineFactory.instance().createRunner();
+		runner =  engineFactory.createRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -166,7 +171,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public void enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorInternalEngine {
-		runner = EngineFactory.instance().createRunner();
+		runner = engineFactory.createRunner();
 		runner.enforce(qvturi, modeluris, targeturi);
 	}
 
@@ -181,7 +186,7 @@ public class EchoRunner {
 	 * @throws ErrorUnsupported 
 	 */
 	public void generateQvt(String qvtUri, String metaModelUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine, ErrorUnsupported {
-		runner =  EngineFactory.instance().createRunner();
+		runner =  engineFactory.createRunner();
 		runner.generateQvt(qvtUri, modelUris, targetUri, metaModelUri);
 	}
 
