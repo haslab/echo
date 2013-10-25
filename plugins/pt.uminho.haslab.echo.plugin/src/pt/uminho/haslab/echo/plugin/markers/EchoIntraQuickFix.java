@@ -43,7 +43,7 @@ public class EchoIntraQuickFix extends WorkbenchMarkerResolution implements IMar
 
 	@Override
 	public void run(IMarker marker) {
-		EchoRunner echo = EchoRunner.getInstance();
+		EchoRunner echo = EchoPlugin.getInstance().getRunner();
 		IResource res = marker.getResource();
 		String path = res.getFullPath().toString();
 

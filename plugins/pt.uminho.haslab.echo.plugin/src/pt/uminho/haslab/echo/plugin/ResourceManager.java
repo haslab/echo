@@ -34,7 +34,7 @@ import pt.uminho.haslab.echo.plugin.views.GraphView;
 public class ResourceManager {
 
 	private EchoReporter reporter = EchoReporter.getInstance();
-	private EchoRunner runner = EchoRunner.getInstance();
+	private EchoRunner runner = EchoPlugin.getInstance().getRunner();
 	private EchoParser parser = EchoParser.getInstance();
 
 	/** The map of managed model resources: MetamodelURI -> ListModelResources **/

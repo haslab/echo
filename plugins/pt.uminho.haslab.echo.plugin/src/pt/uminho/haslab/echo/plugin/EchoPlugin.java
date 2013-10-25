@@ -20,6 +20,7 @@ import org.osgi.framework.BundleContext;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.plugin.listeners.ResourceChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
@@ -49,6 +50,9 @@ public class EchoPlugin extends AbstractUIPlugin {
 	/** the graph visualizer View **/
 	private GraphView graphView = null;
 
+    /** the Echo Runner **/
+    private EchoRunner runner;
+
 	/**
 	 * Contructs a new Echo plugin
 	 */
@@ -59,6 +63,15 @@ public class EchoPlugin extends AbstractUIPlugin {
 		EchoReporter.init(new EchoReporter());
         EngineFactory.init(EngineFactory.ALLOY);
 	}
+
+
+    /**
+     *
+     * @return the Echo Engine.
+     */
+    public EchoRunner getRunner(){
+        return runner = new EchoRunner();
+    }
 
 	/**
 	 * Starts the Echo plugin Loads the 

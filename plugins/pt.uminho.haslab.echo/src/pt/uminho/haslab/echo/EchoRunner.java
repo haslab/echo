@@ -15,14 +15,9 @@ import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
 
-	private EngineRunner runner;
-	private static EchoRunner instance = new EchoRunner();
-	
-	private EchoRunner() {}
- 	
-	public static EchoRunner getInstance() {
-		return instance;
-	}
+
+    private EngineRunner runner;
+    public EchoRunner() {}
 
 	/**
 	 * Translates a meta-model into Alloy

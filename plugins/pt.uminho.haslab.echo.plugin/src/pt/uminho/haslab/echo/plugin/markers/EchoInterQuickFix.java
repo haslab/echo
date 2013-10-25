@@ -49,7 +49,7 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 	 */
 	@Override
 	public void run(IMarker marker) {
-		EchoRunner echo = EchoRunner.getInstance();
+		EchoRunner echo = EchoPlugin.getInstance().getRunner();
 		EchoParser parser = EchoParser.getInstance();
 		ArrayList<String> list = new ArrayList<String>(1);
 		IResource res = marker.getResource();
@@ -59,8 +59,8 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 
 			try {
 				RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				String metadir = EchoRunner.getInstance().getMetaModelFromModelPath(path);
-				if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
+				String metaDir = echo.getMetaModelFromModelPath(path);
+				if (metaDir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 					list.add(path);
 					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
 				} else {
