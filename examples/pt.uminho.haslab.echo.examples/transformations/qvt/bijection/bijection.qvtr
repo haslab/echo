@@ -1,0 +1,11 @@
+import A : '../../../metamodels/bijection/A.ecore' :: A;
+import B : '../../../metamodels/bijection/B.ecore' :: B;
+
+transformation a2b (as : A, bs : B) {
+	top relation R2R { 
+    	domain as ra:RootA {};
+    	domain bs rb:RootB {};
+    	where { ra.as->size() = rb.bs->size(); }
+    	
+  	}
+}
