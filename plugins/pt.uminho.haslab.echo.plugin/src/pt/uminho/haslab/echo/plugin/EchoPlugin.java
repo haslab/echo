@@ -59,9 +59,11 @@ public class EchoPlugin extends AbstractUIPlugin {
 	public EchoPlugin() {
 		super();
 		instance = this;
+        runner = new EchoRunner();
 		EchoOptionsSetup.init(new PlugInOptions());
 		EchoReporter.init(new EchoReporter());
         EngineFactory.init(EngineFactory.ALLOY);
+
 	}
 
 
@@ -70,7 +72,7 @@ public class EchoPlugin extends AbstractUIPlugin {
      * @return the Echo Engine.
      */
     public EchoRunner getRunner(){
-        return runner = new EchoRunner();
+        return runner;
     }
 
 	/**
