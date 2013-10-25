@@ -75,13 +75,16 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="persistent" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
-        eType="ecore:EClass #//Attribute" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="ecore:EClass #//Class"
-        eOpposite="#//Class/child"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Attribute"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class/child"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="namespace" lowerBound="1"
-        eType="ecore:EClass #//Package" eOpposite="#//Package/classes"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Package"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Package/classes"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="child" upperBound="-1"
-        eType="ecore:EClass #//Class" eOpposite="#//Class/super"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class/super"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
     <eOperations name="setName">
@@ -137,17 +140,18 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="classes" upperBound="-1"
-        eType="ecore:EClass #//Class" containment="true"
-        eOpposite="#//Class/namespace"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class/namespace"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="associations" upperBound="-1"
-        eType="ecore:EClass #//Association" containment="true"
-        eOpposite="#//Association/namespace"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Association"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Association/namespace"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Association">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass #//Class"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass #//Class"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Class"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="namespace" lowerBound="1"
-        eType="ecore:EClass #//Package" eOpposite="#//Package/associations"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Package"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore#//Package/associations"/>
   </eClassifiers>
 </ecore:EPackage>

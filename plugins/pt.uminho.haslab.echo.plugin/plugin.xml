@@ -30,7 +30,7 @@
             name="Next instance">
       </command>
       <command
-            id="pt.uminho.haslab.echo.commands.qvtconstraint"
+            id="pt.uminho.haslab.echo.commands.constraint"
             name="New inter-model constraint">
       </command>
       <command
@@ -75,7 +75,7 @@
          </command>
  
          <command
-               commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
+               commandId="pt.uminho.haslab.echo.commands.constraint"
                icon="/icons/constraint_add.gif"
                label="New inter-model constraint..."
                style="push">
@@ -83,10 +83,16 @@
                <iterate>
                   <adapt
                         type="org.eclipse.core.resources.IFile">
+                     <or>
                      <test
                            property="org.eclipse.core.resources.name"
                            value="*.qvtr">
                      </test>
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.atl">
+                     </test>
+                     </or>
                   </adapt>
                </iterate>
             </visibleWhen>
@@ -193,9 +199,9 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
+                  commandId="pt.uminho.haslab.echo.commands.constraint"
                   icon="/icons/constraint_add.gif"
-                  label="New QVT constraint"
+                  label="New inter-model constraint"
                   style="push">
                <visibleWhen
                      checkEnabled="false">
@@ -251,7 +257,7 @@
       <page
         class="pt.uminho.haslab.echo.plugin.properties.ProjectConstraintsPage"
         id="pt.uminho.haslab.echo.plugin.properties.constraints"
-        name="QVT Constraints"
+        name="Inter-model constraints"
         category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
      <enabledWhen>
      	<adapt
@@ -271,7 +277,7 @@
 		<super type="org.eclipse.core.resources.problemmarker"/>
 		<persistent value="true"/>
   <attribute
-        name="qvtr">
+        name="constraint">
   </attribute>
   <attribute
         name="opposite">
@@ -349,8 +355,8 @@
   <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
            commandId="pt.uminho.haslab.echo.commands.modelgenerate">           
   </handler>
-  <handler class="pt.uminho.haslab.echo.plugin.handlers.QVTConstraintAddHandler"
-           commandId="pt.uminho.haslab.echo.commands.qvtconstraint">
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.ConstraintAddHandler"
+           commandId="pt.uminho.haslab.echo.commands.constraint">
   </handler>
 </extension>
 

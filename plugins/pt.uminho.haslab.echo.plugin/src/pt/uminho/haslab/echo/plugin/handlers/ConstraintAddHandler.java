@@ -10,14 +10,14 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.plugin.wizards.QVTConstraintAddWizard;
+import pt.uminho.haslab.echo.plugin.wizards.ConstraintAddWizard;
 
 /**
  * Handles the "add new QVT constraint" event
  * @author nmm
  *
  */
-public class QVTConstraintAddHandler extends AbstractHandler {
+public class ConstraintAddHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -32,10 +32,10 @@ public class QVTConstraintAddHandler extends AbstractHandler {
 	    	IFile res = (IFile) selection.getFirstElement();
 
 			wizardDialog = new WizardDialog(shell.getShell(), 
-					new QVTConstraintAddWizard(res));
+					new ConstraintAddWizard(res));
 		} else {
 			 wizardDialog = new WizardDialog(shell.getShell(), 
-				new QVTConstraintAddWizard());
+				new ConstraintAddWizard());
 		}	    
 	    wizardDialog.open();
 

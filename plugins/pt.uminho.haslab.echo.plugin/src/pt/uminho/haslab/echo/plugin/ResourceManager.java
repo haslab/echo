@@ -151,6 +151,7 @@ public class ResourceManager {
 			ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
 
 		String modeluri = resmodel.getFullPath().toString();
+		runner.remModel(modeluri);
 		EObject model = parser.loadModel(modeluri);
 		reporter.debug("Model " + modeluri + " re-parsed.");
 		runner.addModel(model);

@@ -12,7 +12,7 @@ Every persistent Class on the UML class diagram is matched to a Table in the rel
 #### Models
 | [UML_Company.xmi](../../../models/uml2rdbms_simple/UML_Company.xmi) | [RDB_example.xmi](../../../models/uml2rdbms_simple/RDB_Company.xmi) |
 | --- | --- | --- |
-| <img src="../../../models/uml2rdbms_simple/images/UML_company.png" alt="UML company" width="250px" align="middle"/> | <img src="../../../models/uml2rdbms_simple/images/RDB_company.png" alt="RDB company" width="200px" align="middle"/> |
+| <img src="../../../models/uml2rdbms_simple/images/UML_company.png" alt="UML company" width="350px" align="middle"/> | <img src="../../../models/uml2rdbms_simple/images/RDB_company.png" alt="RDB company" width="350px" align="middle"/> |
 
 
 #### History
