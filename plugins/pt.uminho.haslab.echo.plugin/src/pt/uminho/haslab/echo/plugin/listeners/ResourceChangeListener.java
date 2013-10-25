@@ -1,7 +1,5 @@
 package pt.uminho.haslab.echo.plugin.listeners;
 
-import java.rmi.server.UID;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;

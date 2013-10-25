@@ -160,7 +160,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar"> >
+            locationURI="toolbar:org.eclipse.ui.main.toolbar"> 
          <toolbar
                id="pt.uminho.haslab.echo.plugin.toolbar"
                label="Echo toolbar">
@@ -169,24 +169,60 @@
                   icon="icons/model_manage.png"
                   label="Manage models"
                   style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeWorkbenchWindow.activePerspective">
+                     <equals
+                           value="pt.uminho.haslab.echo.plugin.views.echoperspective">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="pt.uminho.haslab.echo.commands.constraintsmanage"
                   icon="icons/constraint_manage.gif"
                   label="Manage constraints"
                   style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeWorkbenchWindow.activePerspective">
+                     <equals
+                           value="pt.uminho.haslab.echo.plugin.views.echoperspective">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
                   icon="/icons/constraint_add.gif"
                   label="New QVT constraint"
                   style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeWorkbenchWindow.activePerspective">
+                     <equals
+                           value="pt.uminho.haslab.echo.plugin.views.echoperspective">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="pt.uminho.haslab.echo.commands.modelgenerate"
                   icon="/icons/model_gen.gif"
                   label="Generate model"
                   style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeWorkbenchWindow.activePerspective">
+                     <equals
+                           value="pt.uminho.haslab.echo.plugin.views.echoperspective">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
          </toolbar>
       </menuContribution>
