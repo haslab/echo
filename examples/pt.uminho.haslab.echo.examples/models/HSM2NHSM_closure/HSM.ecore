@@ -15,10 +15,10 @@
       <eParameters name="trg" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="states" upperBound="-1"
-        eType="ecore:EClass #//State"
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/HSM2NHSM_closure/HSM.ecore#//State"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transitions" upperBound="-1"
-        eType="ecore:EClass #//Transition"
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/HSM2NHSM_closure/HSM.ecore#//Transition"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
@@ -27,13 +27,13 @@
       <details key="inheritance" value="not self->closure(owner)->includes(self)"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="owner" eType="ecore:EClass #//CompositeState"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owner" eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/HSM2NHSM_closure/HSM.ecore#//CompositeState"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CompositeState" eSuperTypes="#//State"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CompositeState" eSuperTypes="/pt.uminho.haslab.echo.examples/models/HSM2NHSM_closure/HSM.ecore#//State"/>
   <eClassifiers xsi:type="ecore:EClass" name="Transition">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" lowerBound="1"
-        eType="ecore:EClass #//State"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/HSM2NHSM_closure/HSM.ecore#//State"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
-        eType="ecore:EClass #//State"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/HSM2NHSM_closure/HSM.ecore#//State"/>
   </eClassifiers>
 </ecore:EPackage>

@@ -4,10 +4,11 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:hsm="HSM"
-    xsi:schemaLocation="HSM HSM.ecore#HSM"
+    xsi:schemaLocation="HSM /pt.uminho.haslab.echo.examples/models/HSM2NHSM_closure/HSM.ecore#HSM"
     name="machine">
   <states xsi:type="hsm:CompositeState"
-      name="Active"/>
+      name="Active"
+      owner="//@states.0"/>
   <states name="Idle"/>
   <states name="Running"
       owner="//@states.0"/>

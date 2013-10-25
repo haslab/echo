@@ -14,6 +14,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -26,9 +27,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 class XMI2Alloy {
-	
-	private static int counter = 0;
-	
+		
 	private final EObject eObj;
 	private final PrimSig state;
 
@@ -146,7 +145,7 @@ class XMI2Alloy {
 		PrimSig res;
 		//System.out.println(parent + ", " + counter);
 		try {
-			res = new PrimSig(parent.label +"_"+ counter++ +"_", parent, Attr.ONE);
+			res = new PrimSig(AlloyUtil.elementName(parent), parent, Attr.ONE);
 		}
 		catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 		

@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.alloy;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class AlloyUtil {
 	public static String INTNAME = "Int";
 	public static String NEWSNAME = "news@";
 
+	private static Map<String,Integer> counter = new HashMap<String,Integer>();
 	
 	/** retrieves the meta-model URI from an Alloy signature 
 	 * @param sig the Alloy signature
@@ -66,7 +68,7 @@ public class AlloyUtil {
 		String res = null;
 		String[] aux = label.split("@");
 		if (aux.length > 1) {
-			if (isElement(label)) res = aux[1].split("_")[0];
+			if (isElement(label)) res = aux[1].split("#")[0];
 			else res = aux[1];
 		}
 		return res;
@@ -81,7 +83,7 @@ public class AlloyUtil {
 	}
 	
 	public static boolean isElement(String label) {
-		return mayBeClassOrFeature(label) && label.split("_").length == 2 && label.endsWith("_");
+		return mayBeClassOrFeature(label) && label.split("#").length == 2 && label.endsWith("#");
 	}
 	
 	
@@ -102,6 +104,17 @@ public class AlloyUtil {
 	
 	public static String relationFieldName (Relation rel, Model dir) {
 		return rel.getName() +"@"+dir.getName()+"@";
+	}
+	
+	public static String elementName(PrimSig parent) {
+		Integer c = counter.get(parent.label);
+		if (c == null) {
+			c = 0;
+		}
+
+		counter.put(parent.label, ++c);
+
+		return parent.label +"#"+ c +"#";
 	}
 	
 	

@@ -23,7 +23,6 @@ import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
-import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 /**
