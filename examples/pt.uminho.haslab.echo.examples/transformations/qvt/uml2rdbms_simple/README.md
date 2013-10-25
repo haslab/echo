@@ -1,11 +1,11 @@
 ### UML2RDBMS (simplified)
-The [UML2RDBMS.qvtr](UML2RDBMS.qvtr) transformation is a simplified version of the classical object-relational mapping, between class diagrams and database schemes, used as a running example in the QVT standard.
+The [UML2RDBMS.qvtr](uml2rdbms_simple.qvtr) transformation is a simplified version of the classical object-relational mapping, between class diagrams and database schemes, used as a running example in the QVT standard.
 
 #### Overview
 Every persistent Class on the UML class diagram is matched to a Table in the relational database scheme, with a Column for every Attribute, including those inherited from super-classes.
 
 #### Meta-models
-| [UML.ecore](UML.ecore) for UML class diagrams (without associations) | [RDBMS.ecore](RDBMS.ecore) for relational database schemes (without keys) |
+| [UML.ecore](../../../metamodels/uml2rdbms_simple/UML.ecore) for UML class diagrams (without associations) | [RDBMS.ecore](../../../metamodels/uml2rdbms_simple/RDBMS.ecore) for relational database schemes (without keys) |
 | --- | --- | --- |
 | <img src="../../../metamodels/uml2rdbms_simple/images/UML_metamodel.png" alt="UML metamodel" width="400px"> | <img src="../../../metamodels/uml2rdbms_simple/images/RDB_metamodel.png" alt="RDBMS metamodel" width="400px"> |
 
