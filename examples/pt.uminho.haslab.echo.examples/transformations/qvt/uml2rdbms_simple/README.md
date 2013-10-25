@@ -9,6 +9,12 @@ Every persistent Class on the UML class diagram is matched to a Table in the rel
 | --- | --- | --- |
 | <img src="../../../metamodels/uml2rdbms_simple/images/UML_metamodel.png" alt="UML metamodel" width="400px"> | <img src="../../../metamodels/uml2rdbms_simple/images/RDB_metamodel.png" alt="RDBMS metamodel" width="400px"> |
 
+#### Models
+| [UML_Company.xmi](../../../models/uml2rdbms_simple/UML_Company.xmi) | [RDB_example.xmi](../../../models/uml2rdbms_simple/RDB_Company.xmi) |
+| --- | --- | --- |
+| <img src="../../../models/uml2rdbms_simple/images/UML_Company.png" alt="HSM model" width="250px" align="middle"/> | <img src="../../../models/uml2rdbms_simple/images/RDB_Company.png" alt="NHSM model" width="200px" align="middle"/> |
+
+
 #### History
 * This example is a simplified version of the example illustrating the *MOF 2.0 Query/View/Transformation Specification*.
 * This example has been used to illustrate the *Implementing QVT-R Bidirectional Model Transformations Using Alloy* paper, by N. Macedo and A. Cunha.

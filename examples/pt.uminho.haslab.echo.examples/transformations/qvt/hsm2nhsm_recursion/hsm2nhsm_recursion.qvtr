@@ -1,5 +1,5 @@
-import HSM : 'HSM.ecore' :: HSM;
-import NHSM : 'NHSM.ecore' :: NHSM;
+import HSM : '../../../metamodels/hsm2nhsm/HSM.ecore' :: HSM;
+import NHSM : '../../../metamodels/hsm2nhsm/NHSM.ecore' :: NHSM;
 
 transformation hsm2nhsm (hm : HSM, nm : NHSM) {
 
