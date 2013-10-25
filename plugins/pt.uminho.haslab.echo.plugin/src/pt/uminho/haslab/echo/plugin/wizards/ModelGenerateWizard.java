@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
 import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -77,7 +77,7 @@ public class ModelGenerateWizard extends Wizard {
 			} catch (ErrorUnsupported | ErrorParser | ErrorTransform | ErrorAPI e) {
 				MessageDialog.openInformation(shell, "Error generating.", e.getMessage());
 			}
-		} catch (ErrorAlloy e) {
+		} catch (ErrorInternalEngine e) {
 			MessageDialog.openInformation(shell, "Error generating instance", e.getMessage());
 		}
 		return true;

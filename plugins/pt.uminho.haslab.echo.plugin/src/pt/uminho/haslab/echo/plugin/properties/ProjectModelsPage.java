@@ -31,7 +31,7 @@ import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -128,7 +128,7 @@ IWorkbenchPropertyPage {
 			if (!ProjectPropertiesManager.getProperties(project).isManagedModel((IResource) x))
 				try {
 					ProjectPropertiesManager.getProperties(project).addModel((IResource) x);
-				} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
+				} catch (ErrorUnsupported | ErrorInternalEngine | ErrorTransform
 						| ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

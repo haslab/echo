@@ -15,7 +15,7 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -57,13 +57,13 @@ public class ResourceManager {
 	/**
 	 * Creates a Resource Manager from a persistent property string
 	 * @param propertiesstring
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorUnsupported
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 * @throws ErrorAPI
 	 */
-	public ResourceManager(String propertiesstring) throws ErrorAlloy, ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI {
+	public ResourceManager(String propertiesstring) throws ErrorInternalEngine, ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI {
 		String models = propertiesstring.split(";")[0];
 		for (String model : models.split(",")) {
 			IResource res = ResourcesPlugin.getWorkspace().getRoot()
@@ -97,13 +97,13 @@ public class ResourceManager {
 	 * @param resmodel
 	 *            the model resource to be tracked
 	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
 	public EObject addModel(IResource resmodel) throws ErrorUnsupported,
-			ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
+	ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
 
 		if (isManagedModel(resmodel)) {
 			return reloadModel(resmodel);
@@ -116,11 +116,11 @@ public class ResourceManager {
 		
 		String metamodeluri = URIUtil.resolveURI(model.eClass().getEPackage().eResource());
 
-		if (!runner.hasMetamodel(metamodeluri)) {
+		if (!runner.hasMetaModel(metamodeluri)) {
 			reporter.debug("Model's metamodel "+metamodeluri+"still not tracked.");
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
 			reporter.debug("Metamodel " + metamodeluri + " parsed.");
-			runner.addMetamodel(metamodel);
+			runner.addMetaModel(metamodel);
 			reporter.debug("Metamodel " + metamodeluri + " processed.");
 		}
 		runner.addModel(model);
@@ -142,13 +142,13 @@ public class ResourceManager {
 	 * @param resmodel
 	 *            the model resource to be reloaded
 	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
 	public EObject reloadModel(IResource resmodel) throws ErrorUnsupported,
-			ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
+			ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
 
 		String modeluri = resmodel.getFullPath().toString();
 		EObject model = parser.loadModel(modeluri);
@@ -219,18 +219,18 @@ public class ResourceManager {
 	 * 
 	 * @param resmetamodel
 	 *            the metamodel resource to be reloaded
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorUnsupported
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	public void reloadMetamodel(IResource resmetamodel) throws ErrorAlloy,
+	public void reloadMetamodel(IResource resmetamodel) throws ErrorInternalEngine,
 			ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI {
 		String metamodeluri = resmetamodel.getFullPath().toString();
-		runner.remMetamodel(metamodeluri);
+		runner.remMetaModel(metamodeluri);
 		EPackage metamodel = parser.loadMetamodel(metamodeluri);
-		runner.addMetamodel(metamodel);
+		runner.addMetaModel(metamodel);
 
 		for (IResource resmodel : tracked.get(metamodeluri))
 			reloadModel(resmodel);
@@ -249,7 +249,7 @@ public class ResourceManager {
 	 */
 	public void remMetamodel(IResource resmetamodel) throws ErrorAPI, ErrorParser {
 		String metamodeluri = resmetamodel.getFullPath().toString();
-		runner.remMetamodel(metamodeluri);
+		runner.remMetaModel(metamodeluri);
 
 		for (IResource resmodel : tracked.get(metamodeluri))
 			remModel(resmodel);
@@ -265,7 +265,7 @@ public class ResourceManager {
 	 * @return if {@code resmetamodel} is being tracked
 	 */
 	public boolean isManagedMetamodel(IResource resmetamodel) {
-		return runner.hasMetamodel(resmetamodel.getFullPath().toString());
+		return runner.hasMetaModel(resmetamodel.getFullPath().toString());
 	}
 
 	/**
@@ -279,13 +279,13 @@ public class ResourceManager {
 	 * @param resmodelfst the first model to be related
 	 * @param resmodelsnd the second model to be related
 	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
 	public Constraint addQVTConstraint(IResource resqvt, IResource resmodelfst,
-			IResource resmodelsnd) throws ErrorUnsupported, ErrorAlloy,
+			IResource resmodelsnd) throws ErrorUnsupported, ErrorInternalEngine,
 			ErrorTransform, ErrorParser, ErrorAPI {
 		String qvturi = resqvt.getFullPath().toString();
 		if (!isManagedModel(resmodelfst)) addModel(resmodelfst);
@@ -327,7 +327,7 @@ public class ResourceManager {
 	 * @param resqvt the qvt-r constraint
 	 * @param resmodelfst the first related model
 	 * @param resmodelsnd the seconde related model
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI
 	 * @throws ErrorParser 
 	 */
@@ -359,11 +359,11 @@ public class ResourceManager {
 	 * @param res the updated qvt resource
 	 * @throws ErrorParser 
 	 * @throws ErrorTransform 
-	 * @throws ErrorAlloy 
+	 * @throws ErrorInternalEngine 
 	 * @throws ErrorUnsupported 
 	 * @throws ErrorAPI 
 	 */
-	public void reloadQVTConstraint(IResource res) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser, ErrorAPI {
+	public void reloadQVTConstraint(IResource res) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
 		String uri = res.getFullPath().toString();
 		runner.remQVT(uri);
 		RelationalTransformation qvt = parser.loadQVT(uri);
@@ -387,10 +387,10 @@ public class ResourceManager {
 	/**
 	 * Tests if a model resource conforms to the metamodel
 	 * @param res the resource to be tested
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI 
 	 */
-	private void conformMeta(IResource res) throws ErrorAlloy, ErrorAPI {
+	private void conformMeta(IResource res) throws ErrorInternalEngine, ErrorAPI {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
 		String path = res.getFullPath().toString();
@@ -407,10 +407,10 @@ public class ResourceManager {
 	 * @param resqvt the QVT specification
 	 * @param resmodelfst the first related model
 	 * @param resmodelsnd the second related model
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI
 	 */
-	private void conformQVT(Constraint c) throws ErrorAlloy, ErrorAPI {
+	private void conformQVT(Constraint c) throws ErrorInternalEngine, ErrorAPI {
 		List<String> modeluris = new ArrayList<String>(2);
 		modeluris.add(c.fstmodel.getFullPath().toString());
 		modeluris.add(c.sndmodel.getFullPath().toString());
@@ -424,10 +424,10 @@ public class ResourceManager {
 	/**
 	 * Tests all QVT constraints over a single model
 	 * @param res the model over which QVT constraints are tested
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI 
 	 */
-	private void conformAllQVT(IResource res) throws ErrorAlloy, ErrorAPI {
+	private void conformAllQVT(IResource res) throws ErrorInternalEngine, ErrorAPI {
 		EchoPlugin.getInstance().getGraphView().clearGraph();
 		String modeluri = res.getFullPath().toString();
 		List<Constraint> cs = constraints.getAllConstraintsModel(res);
@@ -456,11 +456,11 @@ public class ResourceManager {
 
 	public void generate(IResource resmetamodel,
 			Map<Entry<String, String>, Integer> scopes, String target)
-			throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorAPI {
+			throws ErrorParser, ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorAPI {
 		String metamodeluri = resmetamodel.getFullPath().toString();
 		if (!isManagedMetamodel(resmetamodel)) {
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
-			runner.addMetamodel(metamodel);
+			runner.addMetaModel(metamodel);
 		}
 			
 		runner.generate(metamodeluri, scopes);
@@ -472,7 +472,7 @@ public class ResourceManager {
 
 	public void addQVTgenerate(IResource resqvt, IResource ressource,
 			String target, int newp) throws ErrorParser, ErrorUnsupported,
-			ErrorAlloy, ErrorTransform, ErrorAPI {
+			ErrorInternalEngine, ErrorTransform, ErrorAPI {
 
 		if (!isManagedModel(ressource))
 			addModel(ressource);
@@ -489,8 +489,8 @@ public class ResourceManager {
 		
 		metamodeluri = URIUtil.resolveURI(metamodel.eResource());
 		metamodel = parser.loadMetamodel(metamodeluri);
-		if (!runner.hasMetamodel(metamodeluri))
-			runner.addMetamodel(metamodel);
+		if (!runner.hasMetaModel(metamodeluri))
+			runner.addMetaModel(metamodel);
 		IResource resmetamodel = ResourcesPlugin.getWorkspace().getRoot()
 				.findMember(metamodeluri);
 
@@ -521,12 +521,12 @@ public class ResourceManager {
 	 * Warns the manager that the new model was selected, creating the constraint over it
 	 * @param resmodel
 	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 * @throws ErrorAPI
 	 */
-	public void modelGenerated(IResource resmodel) throws ErrorUnsupported, ErrorAlloy,
+	public void modelGenerated(IResource resmodel) throws ErrorUnsupported, ErrorInternalEngine,
 			ErrorTransform, ErrorParser, ErrorAPI {
 		addModel(resmodel);
 		if (qvtwaiting != null && fstwaiting != null)

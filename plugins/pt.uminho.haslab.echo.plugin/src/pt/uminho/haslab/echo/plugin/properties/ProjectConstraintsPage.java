@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -130,12 +130,13 @@ IWorkbenchPropertyPage {
 			Constraint c = (Constraint) x.getData();
 			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
 				try {
-					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.fstmodel, c.sndmodel);;
-				} catch (ErrorUnsupported | ErrorAlloy | ErrorTransform
-						| ErrorParser | ErrorAPI e) {
+					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.fstmodel, c.sndmodel);
+				} catch (ErrorUnsupported | ErrorInternalEngine
+						| ErrorTransform | ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				};
+
 		}
 		for (Constraint x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
 			System.out.println("BUH?");

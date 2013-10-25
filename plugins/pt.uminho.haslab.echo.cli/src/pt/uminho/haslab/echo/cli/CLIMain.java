@@ -55,7 +55,7 @@ public class CLIMain {
 		reporter.beginStage(Task.PROCESS_RESOURCES);		
 		for (String metamodeluri : options.getMetamodels()){
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
-			runner.addMetamodel(metamodel);
+			runner.addMetaModel(metamodel);
 			reporter.debug(metamodeluri + " loaded.");
 		}
 		if (options.isQVT()){

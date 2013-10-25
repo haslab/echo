@@ -5,7 +5,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
@@ -25,7 +25,7 @@ public class SolutionNextHandler extends AbstractHandler {
 			GraphView amv = EchoPlugin.getInstance().getGraphView();
 			if(amv!= null) amv.drawGraph();
 				
-		} catch (ErrorAlloy e) {
+		} catch (ErrorInternalEngine e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

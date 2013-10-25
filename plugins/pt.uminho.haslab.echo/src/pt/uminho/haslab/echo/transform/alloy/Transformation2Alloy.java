@@ -56,7 +56,7 @@ class Transformation2Alloy {
 			Decl d;
 			try {
 				String metamodeluri = mdl.getMetamodelURI();
-				d = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
+				d = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			argsdecls.put(mdl.getName(), d);
 			decls.add(d);

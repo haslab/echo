@@ -20,17 +20,16 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.alloy.AlloyTuple;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
 import pt.uminho.haslab.echo.consistency.qvt.QVTTransformation;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
+
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
@@ -52,7 +51,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
+
 
 public class AlloyEchoTranslator extends EchoTranslator {
 
@@ -64,7 +63,24 @@ public class AlloyEchoTranslator extends EchoTranslator {
         return (AlloyEchoTranslator) EchoTranslator.getInstance();
     }
 
-	/** maps metamodels to the respective state signatures (should be "abstract")*/
+    @Override
+    public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorAlloy {
+        writeAllInstances(((AlloyTuple) solution.getContents()).getSolution(),metaModelUri,modelUri,
+                ((AlloyTuple)solution.getContents()).getState());
+    }
+
+    @Override
+    public void writeInstance(EchoSolution solution, String modelUri) throws ErrorAlloy, ErrorTransform {
+        writeInstance(((AlloyTuple)solution.getContents()).getSolution(),modelUri,((AlloyTuple)solution.getContents()).getState());
+    }
+
+    @Override
+    public String getMetaModelFromModelPath(String path) {
+        return getModelStateSig(path).parent.label;
+
+    }
+
+    /** maps metamodels to the respective state signatures (should be "abstract")*/
 	private Map<String,Expr> metamodelstatesigs = new HashMap<String,Expr>();
 	/** maps instances to the respective state signatures (should be "one")*/
 	private Map<String,PrimSig> modelstatesigs = new HashMap<String,PrimSig>();
@@ -94,16 +110,16 @@ public class AlloyEchoTranslator extends EchoTranslator {
 
 
 	/** Translates ECore meta-models to the respective Alloy specs.
-	 * @param metamodel the meta-model to translate
+	 * @param metaModel the meta-model to translate
 	 */
-	public void translateMetaModel(EPackage metamodel) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		createModelStateSigs(metamodel);
-		ECore2Alloy mmtrans = new ECore2Alloy(metamodel,(PrimSig) metamodelstatesigs.get(URIUtil.resolveURI(metamodel.eResource())));
-		metamodelalloys.put(URIUtil.resolveURI(metamodel.eResource()),mmtrans);
+	public void translateMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+		createModelStateSigs(metaModel);
+		ECore2Alloy mmtrans = new ECore2Alloy(metaModel,(PrimSig) metamodelstatesigs.get(URIUtil.resolveURI(metaModel.eResource())));
+		metamodelalloys.put(URIUtil.resolveURI(metaModel.eResource()),mmtrans);
 		try {
 			mmtrans.translate();
 		} catch (ErrorUnsupported | ErrorAlloy |ErrorTransform |ErrorParser e) {
-			metamodelalloys.remove(URIUtil.resolveURI(metamodel.eResource()));
+			metamodelalloys.remove(URIUtil.resolveURI(metaModel.eResource()));
 			throw e;
 		}
 	}
@@ -161,8 +177,18 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		qvtalloys.remove(qvturi);
 		return true;
 	}
-		
-	public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap, String uri) throws ErrorAlloy {
+
+    @Override
+    public boolean hasMetaModel(String metaModelUri) {
+        return getMetaModelStateSig(metaModelUri) != null;
+    }
+
+    @Override
+    public boolean hasModel(String modelUri) {
+        return getModelStateSig(modelUri) != null;
+    }
+
+    public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap, String uri) throws ErrorAlloy {
 		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
 		sc.put(Sig.STRING, overall);
 		for (Entry<String,String> cla : scopesmap.keySet()) {
@@ -329,7 +355,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return aux;
 	}	
 
-	public Expr getMetamodelStateSig(String metamodeluri){
+	public Expr getMetaModelStateSig(String metamodeluri){
        		return metamodelstatesigs.get(metamodeluri);
 	}
 	
@@ -418,14 +444,12 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return f.call(metamodelstatesigs.get(metamodeluri));
 	}
 	
-	public Expr remMetamodel(String metamodeluri) {
-		metamodelalloys.remove(metamodeluri);
-		return metamodelstatesigs.remove(metamodeluri);
+	public void remMetaModel(String metaModelUri) {
+		metamodelalloys.remove(metaModelUri);
 	}
 
-	public PrimSig remModel(String modeluri) {
+	public void remModel(String modeluri) {
 		modelalloys.remove(modeluri);
-		return modelstatesigs.remove(modeluri);
 	}
 
 	public List<EClass> getRootClass(String metamodeluri) {

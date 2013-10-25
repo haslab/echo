@@ -17,6 +17,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.alloy.AlloyTuple;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -100,7 +101,7 @@ public class GraphView extends ViewPart {
 	 */
 	public void drawGraph() {
 		EchoRunner runner = EchoRunner.getInstance();
-		A4Solution sol = runner.getAInstance();
+		A4Solution sol = ((AlloyTuple) runner.getAInstance().getContents()).getSolution();
 		try {
 			if (sol != null && sol.satisfiable()) {
 				sol.writeXML(".dummy.xml");

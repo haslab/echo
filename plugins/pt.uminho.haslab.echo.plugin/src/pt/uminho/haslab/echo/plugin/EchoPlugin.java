@@ -24,7 +24,6 @@ import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.plugin.listeners.ResourceChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 public class EchoPlugin extends AbstractUIPlugin {
 	
@@ -58,7 +57,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 		instance = this;
 		EchoOptionsSetup.init(new PlugInOptions());
 		EchoReporter.init(new EchoReporter());
-        EchoTranslator.init(EngineFactory.ALLOY);
+        EngineFactory.init(EngineFactory.ALLOY);
 	}
 
 	/**

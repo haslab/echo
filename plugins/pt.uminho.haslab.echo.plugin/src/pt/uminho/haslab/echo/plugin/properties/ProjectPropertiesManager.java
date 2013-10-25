@@ -8,10 +8,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
 import pt.uminho.haslab.echo.ErrorAPI;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
 
 /**
@@ -27,14 +27,14 @@ public class ProjectPropertiesManager {
 	
 	public static ResourceManager getProperties(IProject project){
 		ResourceManager res = properties.get(project);
-		if (res == null) {
+		/*if (res == null) {
 			try {
 				res = loadProperties(project);
 			} catch (ErrorAlloy | ErrorUnsupported | ErrorTransform
 					| ErrorParser | ErrorAPI | CoreException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 		if (res == null) {
 			res = new ResourceManager();
 		}
@@ -50,10 +50,10 @@ public class ProjectPropertiesManager {
 	 * @throws ErrorParser 
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
-	 * @throws ErrorAlloy 
 	 * @throws CoreException 
+	 * @throws ErrorInternalEngine 
 	 */
-	public static ResourceManager loadProperties(IProject project) throws ErrorAlloy, ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI, CoreException{
+	public static ResourceManager loadProperties(IProject project) throws ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI, CoreException, ErrorInternalEngine{
 		String propertiesstring = null;
 		propertiesstring = project.getPersistentProperty(ECHO_PROPERTIES);
 		ResourceManager properties = null;

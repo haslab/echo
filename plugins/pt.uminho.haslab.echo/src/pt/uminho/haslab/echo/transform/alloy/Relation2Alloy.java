@@ -100,7 +100,7 @@ public class Relation2Alloy {
 			Decl d;
 			String metamodeluri = mdl.getMetamodelURI();
 			try {
-				d = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri).oneOf(mdl.getName());
+				d = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			mdecls.add(d);
 			statevars.put(mdl.getName(),d.get());

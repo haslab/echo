@@ -21,6 +21,6 @@ public class AlloyFactory extends EngineFactory {
 
     @Override
     public EchoTranslator createTranslator() {
-       return new AlloyEchoTranslator();
+        return new AlloyEchoTranslator();
     }
 }

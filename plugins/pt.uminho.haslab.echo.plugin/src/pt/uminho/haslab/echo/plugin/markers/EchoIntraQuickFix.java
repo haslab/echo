@@ -11,7 +11,7 @@ import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
@@ -53,7 +53,7 @@ public class EchoIntraQuickFix extends WorkbenchMarkerResolution implements IMar
 		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
 			try {
 		        echo.repair(path);
-			} catch (ErrorAlloy e) {
+			} catch (ErrorInternalEngine e) {
 				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error loading QVT-R.",e.getMessage());
 				e.printStackTrace();
 			}
