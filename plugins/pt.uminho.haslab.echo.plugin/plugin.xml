@@ -9,13 +9,11 @@
       </command>
       <command
             id="pt.uminho.haslab.echo.commands.modelsmanage"
-            name="Manage models">
-        
+            name="Manage models">        
       </command>
       <command
             id="pt.uminho.haslab.echo.commands.constraintsmanage"
             name="Manage constraints">
-        
       </command>
       <command
             id="pt.uminho.haslab.echo.commands.modelconforms"

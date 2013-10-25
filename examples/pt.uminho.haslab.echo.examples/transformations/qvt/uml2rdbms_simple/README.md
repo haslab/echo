@@ -7,7 +7,7 @@ Every persistent Class on the UML class diagram is matched to a Table in the rel
 #### Meta-models
 | [UML.ecore](UML.ecore) for UML class diagrams (without associations) | [RDBMS.ecore](RDBMS.ecore) for relational database schemes (without keys) |
 | --- | --- | --- |
-| <img src="UML_metamodel.png" alt="UML metamodel" width="400px"> | <img src="RDB_metamodel.png" alt="RDBMS metamodel" width="400px"> |
+| <img src="../../../metamodels/uml2rdbms_simple/images/UML_metamodel.png" alt="UML metamodel" width="400px"> | <img src="../../../metamodels/uml2rdbms_simple/images/RDB_metamodel.png" alt="RDBMS metamodel" width="400px"> |
 
 #### History
 * This example is a simplified version of the example illustrating the *MOF 2.0 Query/View/Transformation Specification*.

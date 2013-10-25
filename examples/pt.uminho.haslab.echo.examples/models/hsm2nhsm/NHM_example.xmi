@@ -4,7 +4,7 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:nhsm="NHSM"
-    xsi:schemaLocation="NHSM NHSM.ecore#NHSM"
+    xsi:schemaLocation="NHSM /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore"
     name="machine">
   <states name="Idle"/>
   <states name="Active"/>
