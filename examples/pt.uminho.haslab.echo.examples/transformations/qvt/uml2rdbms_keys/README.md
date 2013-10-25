@@ -10,9 +10,9 @@ Every persistent Class on the UML class diagram is matched to a Table in the rel
 | <img src="../../../metamodels/uml2rdbms_keys/images/UML_metamodel.png" alt="UML metamodel" width="400px"> | <img src="../../../metamodels/uml2rdbms_keys/images/RDB_metamodel.png" alt="RDBMS metamodel" width="350px"> |
 
 #### Models
-| [UML_Company.xmi](../../../models/uml2rdbms_keys/UML_Company.xmi) | [RDB_example.xmi](../../../models/uml2rdbms_keys/RDB_Company.xmi) |
+| [UML_Company.xmi](../../../models/uml2rdbms_keys/UML_Company.xmi) | [RDB_Company.xmi](../../../models/uml2rdbms_keys/RDB_Company.xmi) |
 | --- | --- | --- |
-| <img src="../../../models/uml2rdbms_keys/images/UML_company.png" alt="UML company" width="350px" align="middle"/> | <img src="../../../models/uml2rdbms_keys/images/RDB_company.png" alt="RDB company" width="350px" align="middle"/> |
+| <img src="../../../models/uml2rdbms_keys/images/UML_Company.png" alt="UML company" width="350px" align="middle"/> | <img src="../../../models/uml2rdbms_keys/images/RDB_Company.png" alt="RDB company" width="350px" align="middle"/> |
 
 
 #### History
