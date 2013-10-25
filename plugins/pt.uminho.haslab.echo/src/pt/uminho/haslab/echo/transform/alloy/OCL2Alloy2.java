@@ -272,7 +272,7 @@ public class OCL2Alloy2 implements OCLTranslator{
 		if ((isPre?prevars:posvars) != null && var instanceof ExprHasName) 
 			statesig = (isPre?prevars:posvars).get(varstates.get(((ExprHasName)var).label).getValue());
 		if (statesig == null)
-			statesig = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+			statesig = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
 
 		if (field == null && feature instanceof EchoReporter && ((EReference) feature).getEOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
 			field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri,((EReference) feature).getEOpposite().getEContainingClass().getName(),((EReference) feature).getEOpposite().getName());

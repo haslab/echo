@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class KodkodRunner implements EngineRunner{
 
-    public KodkodRunner(){}
+    public KodkodRunner(){}   //TODO
 
     @Override
     public void conforms(List<String> modelUris) throws ErrorInternalEngine {

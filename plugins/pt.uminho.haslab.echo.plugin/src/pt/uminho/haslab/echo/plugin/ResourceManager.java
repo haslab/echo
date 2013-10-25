@@ -81,11 +81,11 @@ public class ResourceManager {
 		
 		String metamodeluri = URIUtil.resolveURI(model.eClass().getEPackage().eResource());
 
-		if (!runner.hasMetamodel(metamodeluri)) {
+		if (!runner.hasMetaModel(metamodeluri)) {
 			reporter.debug("Model's metamodel "+metamodeluri+"still not tracked.");
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
 			reporter.debug("Metamodel " + metamodeluri + " parsed.");
-			runner.addMetamodel(metamodel);
+			runner.addMetaModel(metamodel);
 			reporter.debug("Metamodel " + metamodeluri + " processed.");
 		}
 		runner.addModel(model);
@@ -192,9 +192,9 @@ public class ResourceManager {
 	public void reloadMetamodel(IResource resmetamodel) throws ErrorAlloy,
 			ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI {
 		String metamodeluri = resmetamodel.getFullPath().toString();
-		runner.remMetamodel(metamodeluri);
+		runner.remMetaModel(metamodeluri);
 		EPackage metamodel = parser.loadMetamodel(metamodeluri);
-		runner.addMetamodel(metamodel);
+		runner.addMetaModel(metamodel);
 
 		for (IResource resmodel : tracked.get(metamodeluri))
 			reloadModel(resmodel);
@@ -213,7 +213,7 @@ public class ResourceManager {
 	 */
 	public void remMetamodel(IResource resmetamodel) throws ErrorAPI, ErrorParser {
 		String metamodeluri = resmetamodel.getFullPath().toString();
-		runner.remMetamodel(metamodeluri);
+		runner.remMetaModel(metamodeluri);
 
 		for (IResource resmodel : tracked.get(metamodeluri))
 			remModel(resmodel);
@@ -229,7 +229,7 @@ public class ResourceManager {
 	 * @return if {@code resmetamodel} is being tracked
 	 */
 	public boolean isManagedMetamodel(IResource resmetamodel) {
-		return runner.hasMetamodel(resmetamodel.getFullPath().toString());
+		return runner.hasMetaModel(resmetamodel.getFullPath().toString());
 	}
 
 	/**
@@ -419,7 +419,7 @@ public class ResourceManager {
 		String metamodeluri = resmetamodel.getFullPath().toString();
 		if (!isManagedMetamodel(resmetamodel)) {
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
-			runner.addMetamodel(metamodel);
+			runner.addMetaModel(metamodel);
 		}
 			
 		runner.generate(metamodeluri, scopes);
@@ -448,8 +448,8 @@ public class ResourceManager {
 		
 		metamodeluri = URIUtil.resolveURI(metamodel.eResource());
 		metamodel = parser.loadMetamodel(metamodeluri);
-		if (!runner.hasMetamodel(metamodeluri))
-			runner.addMetamodel(metamodel);
+		if (!runner.hasMetaModel(metamodeluri))
+			runner.addMetaModel(metamodel);
 		IResource resmetamodel = ResourcesPlugin.getWorkspace().getRoot()
 				.findMember(metamodeluri);
 

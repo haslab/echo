@@ -58,7 +58,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 		instance = this;
 		EchoOptionsSetup.init(new PlugInOptions());
 		EchoReporter.init(new EchoReporter());
-        EchoTranslator.init(EngineFactory.ALLOY);
+        EngineFactory.init(EngineFactory.ALLOY);
 	}
 
 	/**

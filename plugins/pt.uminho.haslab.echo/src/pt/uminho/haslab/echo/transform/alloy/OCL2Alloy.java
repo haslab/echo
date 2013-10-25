@@ -411,7 +411,7 @@ public class OCL2Alloy implements OCLTranslator{
 		if ((isPre?prevars:posvars) != null && var instanceof ExprHasName) 
 			statesig = (isPre?prevars:posvars).get(varstates.get(((ExprHasName)var).label).getValue());
 		if (statesig == null) {
-				statesig = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+				statesig = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
 				for (Entry<ExprHasName,String> x : varstates.values()) {
 					try {
 						if(x.getKey().type().toExpr().isSame(statesig))

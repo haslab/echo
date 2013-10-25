@@ -383,7 +383,7 @@ public class AlloyUtil {
 								state = vars.get(varstates.get(ovar.getName()).getValue());
 							
 							if (state == null)
-								state = AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+								state = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
 
 							//EchoReporter.getInstance().debug("AAA"+metamodeluri);
 

@@ -8,11 +8,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.alloy.AlloyRunner;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+
 import pt.uminho.haslab.echo.alloy.GraphPainter;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
@@ -28,42 +26,42 @@ public class EchoRunner {
 
 	/**
 	 * Translates a meta-model into Alloy
-	 * @param metamodel the EPackage representing the meta-model to translate
+	 * @param metaModel the EPackage representing the meta-model to translate
 	 * @throws ErrorUnsupported
 	 * @throws pt.uminho.haslab.echo.alloy.ErrorAlloy
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addMetamodel(EPackage metamodel) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		AlloyEchoTranslator.getInstance().translateMetaModel(metamodel);
+	public void addMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+		EchoTranslator.getInstance().translateMetaModel(metaModel);
 	}
 
 	/**
 	 * Removes a meta-model from the system
-	 * @param metamodeluri the URI of the meta-model to remove
+	 * @param metaModelUri the URI of the meta-model to remove
 	 */
-	public void remMetamodel(String metamodeluri) {
-		AlloyEchoTranslator.getInstance().remMetamodel(metamodeluri);
+	public void remMetaModel(String metaModelUri) {
+		EchoTranslator.getInstance().remMetaModel(metaModelUri);
 	}
 
 	/**
 	 * Tests if a meta-model exists in the system
-	 * @param metamodeluri the URI of the meta-model
+	 * @param metaModelUri the URI of the meta-model
 	 */
-	public boolean hasMetamodel(String metamodeluri) {
-		return AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri) != null;
+	public boolean hasMetaModel(String metaModelUri) {
+		return EchoTranslator.getInstance().hasMetaModel(metaModelUri);
 	}
 
 	/**
 	 * Translates a model into Alloy
 	 * @param model the EObject representing the model to translate
 	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addModel(EObject model) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		AlloyEchoTranslator.getInstance().translateModel(model);
+	public void addModel(EObject model) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+		EchoTranslator.getInstance().translateModel(model);
 	}
 
 	/**
@@ -71,42 +69,45 @@ public class EchoRunner {
 	 * @param modeluri the URI of the model to remove
 	 */
 	public void remModel(String modeluri) {
-		AlloyEchoTranslator.getInstance().remModel(modeluri);
+		EchoTranslator.getInstance().remModel(modeluri);
 	}
 
 	/**
 	 * Tests if a model exists in the system
-	 * @param modeluri the URI of the model
+	 * @param modelUri the URI of the model
 	 */
-	public boolean hasModel(String modeluri) {
-		return AlloyEchoTranslator.getInstance().getModelStateSig(modeluri) != null;
+	public boolean hasModel(String modelUri) {
+		return EchoTranslator.getInstance().hasModel(modelUri);
 	}
 
 	/**
 	 * Translates a QVT-R transformation into Alloy 
 	 * @param qvt the RelationalTransformation representing the QVT-R transformation to translate
 	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addQVT(RelationalTransformation qvt) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		AlloyEchoTranslator.getInstance().translateQVT(qvt);
+	public void addQVT(RelationalTransformation qvt) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+		EchoTranslator.getInstance().translateQVT(qvt);
 	}
 
-	public boolean hasQVT(String qvturi) {
-		return AlloyEchoTranslator.getInstance().getQVTFact(qvturi) != null;
+	public boolean hasQVT(String qvtUri) {
+		return EchoTranslator.getInstance().getQVTFact(qvtUri) != null;
 	}
 	
-	public boolean remQVT(String qvturi) {
-		return AlloyEchoTranslator.getInstance().remQVT(qvturi);
+	public boolean remQVT(String qvtUri) {
+		return EchoTranslator.getInstance().remQVT(qvtUri);
 	}
 	
 	
-		
+	public String getMetaModelFromModelPath(String path)
+    {
+        return EchoTranslator.getInstance().getMetaModelFromModelPath(path);
+    }
 	
-	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		AlloyEchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
+	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+		EchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
 	}
 
 
@@ -115,10 +116,10 @@ public class EchoRunner {
 	 * Tests if a list of models conform to their meta-models
 	 * @param modeluris the URIs of the models to test conformity
 	 * @return true if all models conform to the meta-models
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 */
 	public boolean conforms(List<String> modeluris) throws ErrorInternalEngine {
-		runner = new AlloyRunner();
+		runner = EngineFactory.instance().createRunner();
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -127,10 +128,10 @@ public class EchoRunner {
 	 * Repairs a model not conforming to its meta-model
 	 * @param targeturi the URI of the model to repair
 	 * @return true if the model was successfully repaired
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 */
 	public void repair(String targeturi) throws ErrorInternalEngine {
-		runner = new AlloyRunner();
+		runner = EngineFactory.instance().createRunner();
 		runner.repair(targeturi);
 	}
 
@@ -139,12 +140,12 @@ public class EchoRunner {
 	 * @param metamodeluri the URI of the meta-model
 	 * @param scope the exact scopes of the model to generate
 	 * @return true if able to generate conforming model
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
 	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
-		runner = new AlloyRunner();	
+		runner =  EngineFactory.instance().createRunner();
 		runner.generate(metamodeluri,scope);
 	}
 
@@ -153,10 +154,10 @@ public class EchoRunner {
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @return true if consistent
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 */
 	public boolean check(String qvturi, List<String> modeluris) throws ErrorInternalEngine {
-		runner = new AlloyRunner();
+		runner =  EngineFactory.instance().createRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -167,33 +168,33 @@ public class EchoRunner {
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @param targeturi the URI of the target model
 	 * @return true if able to generate model
-	 * @throws ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 */
 	public void enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorInternalEngine {
-		runner = new AlloyRunner();
+		runner = EngineFactory.instance().createRunner();
 		runner.enforce(qvturi, modeluris, targeturi);
 	}
 
 	/**
 	 * Generates a model conforming to the given meta-model and consistent with existing models through a QVT-R transformation
-	 * @param qvturi the URI of the QVT-R transformation
-	 * @param metamodeluri the URI of the meta-model
-	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
-	 * @param targeturi the URI of the new model
-	 * @throws ErrorAlloy
+	 * @param qvtUri the URI of the QVT-R transformation
+	 * @param metaModelUri the URI of the meta-model
+	 * @param modelUris the URIs of the models (should be in the order of the QVT-R transformation arguments)
+	 * @param targetUri the URI of the new model
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generateQvt(String qvturi, String metamodeluri, List<String> modeluris, String targeturi) throws ErrorInternalEngine, ErrorUnsupported {
-		runner = new AlloyRunner();
-		runner.generateQvt(qvturi, modeluris, targeturi, metamodeluri);
+	public void generateQvt(String qvtUri, String metaModelUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine, ErrorUnsupported {
+		runner =  EngineFactory.instance().createRunner();
+		runner.generateQvt(qvtUri, modelUris, targetUri, metaModelUri);
 	}
 
 
 	/**
 	 * Shows the next Alloy instance, if any
 	 * @return true if able to generate another instance
-	 * @throws ErrorAlloy 
+	 * @throws ErrorInternalEngine
 	 */
 	public void next() throws ErrorInternalEngine {
 		runner.nextInstance();
@@ -221,7 +222,7 @@ public class EchoRunner {
 	 * @param metamodeluri the URI of the meta-model of the new model
 	 * @param modeluri the URI of the new model
 	 * @throws ErrorTransform 
-	 * @throws ErrorAlloy 
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorUnsupported 
 	 */
 	public void writeAllInstances (String metamodeluri, String modeluri) throws ErrorInternalEngine, ErrorTransform, ErrorUnsupported {
@@ -232,7 +233,7 @@ public class EchoRunner {
 	 * Writes an existing instance from the current Alloy solution into XMI
 	 * @param modeluri the URI of the existing model
 	 * @throws ErrorTransform 
-	 * @throws ErrorAlloy 
+	 * @throws ErrorInternalEngine
 	 */
 	public void writeInstance (String modeluri) throws ErrorInternalEngine, ErrorTransform {
 		EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri);

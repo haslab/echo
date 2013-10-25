@@ -17,6 +17,7 @@ public abstract class EngineFactory {
     public static void init(EngineFactory factory)
     {
         current = factory;
+        EchoTranslator.init(factory);
     }
 
     public static EngineFactory instance(){

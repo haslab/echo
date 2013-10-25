@@ -174,7 +174,7 @@ public class AlloyRunner implements EngineRunner{
 		allsigs.addAll(AlloyEchoTranslator.getInstance().getMetamodelSigs(metaModelUri));
 		scopes = AlloyEchoTranslator.getInstance().getScopes();
 		
-		PrimSig state = (PrimSig) AlloyEchoTranslator.getInstance().getMetamodelStateSig(metaModelUri);
+		PrimSig state = (PrimSig) AlloyEchoTranslator.getInstance().getMetaModelStateSig(metaModelUri);
 		try { 
 			targetstate = new PrimSig("'"+state, state, Attr.ONE); 
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
@@ -306,7 +306,7 @@ public class AlloyRunner implements EngineRunner{
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getModelFact(uri));
 				sigs.add(state);			
 			} else {
-				PrimSig state = (PrimSig) AlloyEchoTranslator.getInstance().getMetamodelStateSig(metamodeluri);
+				PrimSig state = (PrimSig) AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
 				try { 
 					targetstate = new PrimSig("'"+state, state, Attr.ONE); 
 				} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }

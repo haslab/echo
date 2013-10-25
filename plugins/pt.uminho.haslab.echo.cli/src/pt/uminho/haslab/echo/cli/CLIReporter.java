@@ -57,7 +57,7 @@ public class CLIReporter extends EchoReporter {
 		StringBuilder sb = new StringBuilder();
 		for (String uri : options.getMetamodels()) {
 			sb.append("* Meta-model "+uri+"\n");
-			sb.append("State sig: "+translator.getMetamodelStateSig(uri)+"\n");
+			sb.append("State sig: "+translator.getMetaModelStateSig(uri)+"\n");
 			sb.append("Meta-model sigs: "+translator.getMetamodelSigs(uri)+"\n");
 			sb.append("Enum sigs: "+translator.getEnumSigs(uri)+"\n");
 			ExprCall exp = (ExprCall) translator.getConformsAllInstances(uri);

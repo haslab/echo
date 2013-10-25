@@ -16,7 +16,6 @@ import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
-import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 
 /**
  * Marker resolution for inter-model errors
@@ -55,7 +54,7 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 
 		try {
 			RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-			String metadir = AlloyEchoTranslator.getInstance().getModelStateSig(path).parent.label;
+			String metadir = EchoRunner.getInstance().getMetaModelFromModelPath(path);
 			if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 				list.add(path);
 				list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
