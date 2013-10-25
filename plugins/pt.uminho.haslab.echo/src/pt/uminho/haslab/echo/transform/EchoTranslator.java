@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.transform;
 
-import pt.uminho.haslab.echo.EngineFactory;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,4 +20,8 @@ public abstract class EchoTranslator {
     public static void init(EngineFactory factory){
         instance = factory.createTranslator();
     }
+
+    public abstract void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorInternalEngine;
+
+    public abstract void writeInstance(EchoSolution solution, String modelUri) throws ErrorInternalEngine, ErrorTransform;
 }

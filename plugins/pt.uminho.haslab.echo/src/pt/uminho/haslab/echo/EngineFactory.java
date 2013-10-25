@@ -12,6 +12,16 @@ import pt.uminho.haslab.echo.transform.EchoTranslator;
  */
 public abstract class EngineFactory {
 
+    private static EngineFactory current;
+
+    public static void init(EngineFactory factory)
+    {
+        current = factory;
+    }
+
+    public static EngineFactory instance(){
+        return current;
+    }
 
     public static final EngineFactory ALLOY = new AlloyFactory();
     public static final EngineFactory KODKOD = new KodkodFactory();
@@ -20,6 +30,8 @@ public abstract class EngineFactory {
     public abstract EngineRunner createRunner();
 
     public abstract EchoTranslator createTranslator();
+
+
 
     //public abstract OCLTranslator createOCLTranslator();
 

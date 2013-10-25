@@ -20,17 +20,16 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.alloy.AlloyTuple;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
 import pt.uminho.haslab.echo.consistency.qvt.QVTTransformation;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
+
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
@@ -52,7 +51,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
+
 
 public class AlloyEchoTranslator extends EchoTranslator {
 
@@ -64,7 +63,18 @@ public class AlloyEchoTranslator extends EchoTranslator {
         return (AlloyEchoTranslator) EchoTranslator.getInstance();
     }
 
-	/** maps metamodels to the respective state signatures (should be "abstract")*/
+    @Override
+    public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorAlloy {
+        writeAllInstances(((AlloyTuple) solution.getContents()).getSolution(),metaModelUri,modelUri,
+                ((AlloyTuple)solution.getContents()).getState());
+    }
+
+    @Override                 //TODO
+    public void writeInstance(EchoSolution solution, String modelUri) throws ErrorAlloy, ErrorTransform {
+        writeInstance(((AlloyTuple)solution.getContents()).getSolution(),modelUri,((AlloyTuple)solution.getContents()).getState());
+    }
+
+    /** maps metamodels to the respective state signatures (should be "abstract")*/
 	private Map<String,Expr> metamodelstatesigs = new HashMap<String,Expr>();
 	/** maps instances to the respective state signatures (should be "one")*/
 	private Map<String,PrimSig> modelstatesigs = new HashMap<String,PrimSig>();

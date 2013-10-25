@@ -88,7 +88,8 @@ public class AlloyRunner implements EngineRunner{
 		aoptions.noOverflow = true;
 		intscope = EchoOptionsSetup.getInstance().getBitwidth();
 		overall = EchoOptionsSetup.getInstance().getOverallScope();
-	}
+        sol = null;
+    }
 
 	/**
 	 * Tests the conformity of instances
@@ -284,7 +285,7 @@ public class AlloyRunner implements EngineRunner{
 	}
 	
 	
-	public void generateqvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorAlloy, ErrorUnsupported {
+	public void generateQvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorAlloy, ErrorUnsupported {
 		Map<Entry<String,String>,Integer> scope = new HashMap<Entry<String,String>,Integer>();
 		
 		List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metamodeluri);
@@ -402,8 +403,21 @@ public class AlloyRunner implements EngineRunner{
 	 * Returns the Alloy solution.
 	 * @return this.sol
 	 */
-	public A4Solution getSolution() {
-		return sol;
+	public EchoSolution getSolution() {
+		if(sol!=null)
+        return new EchoSolution(){
+
+            @Override
+            public Object getContents() {
+                return new AlloyTuple(sol,targetstate);
+            }
+
+            @Override
+            public boolean satisfiable() {
+                return sol.satisfiable();
+            }
+        };
+        else return null;
 	}
 
 	/** 

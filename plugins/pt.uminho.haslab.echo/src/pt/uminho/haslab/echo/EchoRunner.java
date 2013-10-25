@@ -11,13 +11,13 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import pt.uminho.haslab.echo.alloy.AlloyRunner;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.alloy.GraphPainter;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
 
-	private AlloyRunner runner;
+	private EngineRunner runner;
 	private static EchoRunner instance = new EchoRunner();
 	
 	private EchoRunner() {}
@@ -117,7 +117,7 @@ public class EchoRunner {
 	 * @return true if all models conform to the meta-models
 	 * @throws ErrorAlloy
 	 */
-	public boolean conforms(List<String> modeluris) throws ErrorAlloy {
+	public boolean conforms(List<String> modeluris) throws ErrorInternalEngine {
 		runner = new AlloyRunner();
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
@@ -129,7 +129,7 @@ public class EchoRunner {
 	 * @return true if the model was successfully repaired
 	 * @throws ErrorAlloy
 	 */
-	public void repair(String targeturi) throws ErrorAlloy {
+	public void repair(String targeturi) throws ErrorInternalEngine {
 		runner = new AlloyRunner();
 		runner.repair(targeturi);
 	}
@@ -143,7 +143,7 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
+	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
 		runner = new AlloyRunner();	
 		runner.generate(metamodeluri,scope);
 	}
@@ -155,7 +155,7 @@ public class EchoRunner {
 	 * @return true if consistent
 	 * @throws ErrorAlloy
 	 */
-	public boolean check(String qvturi, List<String> modeluris) throws ErrorAlloy {
+	public boolean check(String qvturi, List<String> modeluris) throws ErrorInternalEngine {
 		runner = new AlloyRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
@@ -169,7 +169,7 @@ public class EchoRunner {
 	 * @return true if able to generate model
 	 * @throws ErrorAlloy
 	 */
-	public void enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorAlloy {
+	public void enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorInternalEngine {
 		runner = new AlloyRunner();
 		runner.enforce(qvturi, modeluris, targeturi);
 	}
@@ -184,9 +184,9 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generateQvt(String qvturi, String metamodeluri, List<String> modeluris, String targeturi) throws ErrorAlloy, ErrorUnsupported {
+	public void generateQvt(String qvturi, String metamodeluri, List<String> modeluris, String targeturi) throws ErrorInternalEngine, ErrorUnsupported {
 		runner = new AlloyRunner();
-		runner.generateqvt(qvturi, modeluris, targeturi, metamodeluri);
+		runner.generateQvt(qvturi, modeluris, targeturi, metamodeluri);
 	}
 
 
@@ -195,7 +195,7 @@ public class EchoRunner {
 	 * @return true if able to generate another instance
 	 * @throws ErrorAlloy 
 	 */
-	public void next() throws ErrorAlloy {
+	public void next() throws ErrorInternalEngine {
 		runner.nextInstance();
 	}
 
@@ -203,7 +203,7 @@ public class EchoRunner {
 	 * Retrieves the current Alloy instance
 	 * @return the Alloy instance, if satisfiable
 	 */
-	public A4Solution getAInstance() {
+	public EchoSolution getAInstance() {
 		if (runner != null && runner.getSolution()!= null && runner.getSolution().satisfiable()) return runner.getSolution();
 		else return null;
 	}
@@ -224,8 +224,8 @@ public class EchoRunner {
 	 * @throws ErrorAlloy 
 	 * @throws ErrorUnsupported 
 	 */
-	public void writeAllInstances (String metamodeluri, String modeluri) throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
-		AlloyEchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri,runner.getTargetStateSig());
+	public void writeAllInstances (String metamodeluri, String modeluri) throws ErrorInternalEngine, ErrorTransform, ErrorUnsupported {
+		EchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri);
 	}
 
 	/**
@@ -234,8 +234,8 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorAlloy 
 	 */
-	public void writeInstance (String modeluri) throws ErrorAlloy, ErrorTransform {
-		AlloyEchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri,runner.getTargetStateSig());
+	public void writeInstance (String modeluri) throws ErrorInternalEngine, ErrorTransform {
+		EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri);
 	}
 	
 	public enum Task {
