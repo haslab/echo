@@ -14,15 +14,17 @@ This transformation is part of a series of toy transformations designed to test 
 * Surjective (some-to-set)
 * Relation (set-to-set)
 
+[Insert comment about cardinalitiy]
+
 #### Meta-models
 | [A.ecore](../../../metamodels/bijection/A.ecore) for *A*s | [B.ecore](../../../metamodels/bijection/B.ecore) for *B*s |
 | --- | --- | --- |
-| <img src="../../../metamodels/bijection/images/A_metamodel.png" alt="A metamodel" width="200px"> | <img src="../../../metamodels/bijection/images/B_metamodel.png" alt="B metamodel" width="200px"> |
+| <img src="../../../metamodels/bijection/images/A_metamodel.png" alt="A metamodel" width="100px"> | <img src="../../../metamodels/bijection/images/B_metamodel.png" alt="B metamodel" width="100px"> |
 
 #### Models
 | [A_example.xmi](../../../models/bijection/A_example.xmi) | [B_example.xmi](../../../models/bijection/B_example.xmi) |
 | --- | --- | --- |
-| <img src="../../../models/bijection/images/A_example.png" alt="HSM model" width="200px" align="middle"/> | <img src="../../../models/bijection/images/B_example.png" alt="B model" width="200px" align="middle"/> |
+| <img src="../../../models/bijection/images/A_example.png" alt="HSM model" width="150px" align="middle"/> | <img src="../../../models/bijection/images/B_example.png" alt="B model" width="200px" align="middle"/> |
 
 #### History
 * Still not part of history
