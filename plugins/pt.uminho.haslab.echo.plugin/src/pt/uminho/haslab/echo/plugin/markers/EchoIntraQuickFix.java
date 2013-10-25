@@ -2,9 +2,11 @@ package pt.uminho.haslab.echo.plugin.markers;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMarkerResolution;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
@@ -12,6 +14,7 @@ import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
  * Marker resolution for intra-model errors
@@ -47,17 +50,24 @@ public class EchoIntraQuickFix extends WorkbenchMarkerResolution implements IMar
 		((PlugInOptions) EchoOptionsSetup.getInstance())
 				.setOperationBased(metric.equals(EchoMarker.OBD));
 
-
-		try {
-            echo.repair(path);
-
-		} catch (ErrorAlloy e) {
-			MessageDialog.openError(null, "Error loading QVT-R.",e.getMessage());
-			e.printStackTrace();
+		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
+			try {
+		        echo.repair(path);
+			} catch (ErrorAlloy e) {
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error loading QVT-R.",e.getMessage());
+				e.printStackTrace();
+			}
+			EchoPlugin.getInstance().getGraphView()
+					.setTargetPath(path, false, null);
+			EchoPlugin.getInstance().getGraphView().drawGraph();
+		} else {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
+			try {
+				marker.delete();
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
 		}
-		EchoPlugin.getInstance().getGraphView()
-				.setTargetPath(path, false, null);
-		EchoPlugin.getInstance().getGraphView().drawGraph();
 	}
 
 	@Override

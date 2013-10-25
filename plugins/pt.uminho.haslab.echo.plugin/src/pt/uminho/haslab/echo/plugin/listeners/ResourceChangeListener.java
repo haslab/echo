@@ -55,52 +55,54 @@ public class ResourceChangeListener implements IResourceChangeListener {
 		@Override
 		public boolean visit(IResourceDelta delta) {
 			IResource res = delta.getResource();
-			ResourceManager p = ProjectPropertiesManager.getProperties(res.getProject());
-			switch (delta.getKind()) {
-			case IResourceDelta.CHANGED:
-				int flags = delta.getFlags();
-				if ((flags & IResourceDelta.MARKERS) == 0)
+			if (res.getProject() != null) {
+				ResourceManager p = ProjectPropertiesManager.getProperties(res.getProject());
+				switch (delta.getKind()) {
+				case IResourceDelta.CHANGED:
+					int flags = delta.getFlags();
+					if ((flags & IResourceDelta.MARKERS) == 0)
+						if (res instanceof IFile) {
+							IFile f = (IFile) res;
+							if (p.isManagedModel(res)) {
+								EchoReporter.getInstance().debug("Tracked model was changed");
+								Job j = new ModelChangedJob(f);
+								j.setRule(f);
+								j.schedule();
+							} else if (p.isManagedMetamodel(res)) {
+								EchoReporter.getInstance().debug("Tracked metamodel was changed");
+								Job j = new MetaModelChangedJob(f);
+								j.setRule(f);
+								j.schedule();
+							} else if (p.isManagedQVT(res)) {
+							    EchoReporter.getInstance().debug("Tracked qvt spec was changed");
+								Job j = new QVTChangedJob(f);
+								j.setRule(f);
+								j.schedule();
+							} 
+						}
+					break;
+				case IResourceDelta.REMOVED:
 					if (res instanceof IFile) {
 						IFile f = (IFile) res;
 						if (p.isManagedModel(res)) {
-							EchoReporter.getInstance().debug("Tracked model was changed");
-							Job j = new ModelChangedJob(f);
+							EchoReporter.getInstance().debug("Tracked model was removed");
+							Job j = new ModelDeletedJob(f);
 							j.setRule(f);
 							j.schedule();
 						} else if (p.isManagedMetamodel(res)) {
-							EchoReporter.getInstance().debug("Tracked metamodel was changed");
+							EchoReporter.getInstance().debug("Tracked metamodel was removed");
 							Job j = new MetaModelChangedJob(f);
 							j.setRule(f);
 							j.schedule();
 						} else if (p.isManagedQVT(res)) {
-						    EchoReporter.getInstance().debug("Tracked qvt spec was changed");
-							Job j = new QVTChangedJob(f);
+						    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
+							Job j = new QVTDeletedJob(f);
 							j.setRule(f);
 							j.schedule();
 						} 
 					}
-				break;
-			case IResourceDelta.REMOVED:
-				if (res instanceof IFile) {
-					IFile f = (IFile) res;
-					if (p.isManagedModel(res)) {
-						EchoReporter.getInstance().debug("Tracked model was removed");
-						Job j = new ModelDeletedJob(f);
-						j.setRule(f);
-						j.schedule();
-					} else if (p.isManagedMetamodel(res)) {
-						EchoReporter.getInstance().debug("Tracked metamodel was removed");
-						Job j = new MetaModelChangedJob(f);
-						j.setRule(f);
-						j.schedule();
-					} else if (p.isManagedQVT(res)) {
-					    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
-						Job j = new QVTDeletedJob(f);
-						j.setRule(f);
-						j.schedule();
-					} 
+					break;
 				}
-				break;
 			}
 			return true; // visit the children
 		}

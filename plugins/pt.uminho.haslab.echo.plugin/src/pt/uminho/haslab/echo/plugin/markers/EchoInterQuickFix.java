@@ -4,9 +4,11 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMarkerResolution;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
@@ -16,6 +18,7 @@ import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 
 /**
@@ -53,32 +56,42 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 		IResource res = marker.getResource();
 		String path = res.getFullPath().toString();
 
-		try {
-			RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-			String metadir = AlloyEchoTranslator.getInstance().getModelStateSig(path).parent.label;
-			if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
-				list.add(path);
-				list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
-			} else {
-				list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
-				list.add(path);
-			}
-		} catch (Exception e1) {
-			MessageDialog.openError(null, "Error loading QVT-R.",e1.getMessage());
-			e1.printStackTrace();
-			return;
-		}
+		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
 
-		((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
-		try {
-			echo.enforce(marker.getAttribute(EchoMarker.CONSTRAINT).toString(),list, path);
-		} catch (Exception e) {
-			MessageDialog.openError(null, "Error loading QVT-R.",e.getMessage());
-			e.printStackTrace();
-			return;
+			try {
+				RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
+				String metadir = AlloyEchoTranslator.getInstance().getModelStateSig(path).parent.label;
+				if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
+					list.add(path);
+					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
+				} else {
+					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
+					list.add(path);
+				}
+			} catch (Exception e1) {
+				MessageDialog.openError(null, "Error loading QVT-R.",e1.getMessage());
+				e1.printStackTrace();
+				return;
+			}
+
+			((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
+			try {
+				echo.enforce(marker.getAttribute(EchoMarker.CONSTRAINT).toString(),list, path);
+			} catch (Exception e) {
+				MessageDialog.openError(null, "Error loading QVT-R.",e.getMessage());
+				e.printStackTrace();
+				return;
+			}
+			EchoPlugin.getInstance().getGraphView().setTargetPath(path,false,null);
+			EchoPlugin.getInstance().getGraphView().drawGraph();
+		} else {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
+			try {
+				marker.delete();
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
 		}
-		EchoPlugin.getInstance().getGraphView().setTargetPath(path,false,null);
-		EchoPlugin.getInstance().getGraphView().drawGraph();
 	}
 
 	@Override

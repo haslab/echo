@@ -143,6 +143,13 @@ IWorkbenchPropertyPage {
 					e.printStackTrace();
 				}
 		}
+		try {
+			ProjectPropertiesManager.saveProjectProperties(project);
+		} catch (ErrorParser e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override

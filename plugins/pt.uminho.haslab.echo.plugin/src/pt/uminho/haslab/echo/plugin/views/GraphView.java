@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -134,7 +135,17 @@ public class GraphView extends ViewPart {
 				IResource modelA = ResourcesPlugin.getWorkspace().getRoot()
 						.findMember(targetPath);
 				ProjectPropertiesManager.getProperties(modelA.getProject()).modelGenerated(modelA);
+
+				try {
+					ProjectPropertiesManager.saveProjectProperties(modelA.getProject());
+				} catch (ErrorParser e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
 			}
+			
+			
 			targetPath = null;
 		} catch (Exception e) {
 			Shell shell = this.getSite().getShell();

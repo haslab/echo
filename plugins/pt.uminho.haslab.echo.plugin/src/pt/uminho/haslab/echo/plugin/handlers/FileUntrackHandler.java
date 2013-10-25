@@ -44,6 +44,13 @@ public class FileUntrackHandler extends AbstractHandler {
 			else
 				MessageDialog.openInformation(shell, "Exception",extension + "not supported.");
 			
+			try {
+				ProjectPropertiesManager.saveProjectProperties(res.getProject());
+			} catch (ErrorParser e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 		return null;
 	}

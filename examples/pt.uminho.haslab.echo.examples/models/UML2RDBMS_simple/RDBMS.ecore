@@ -14,7 +14,8 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="tables" upperBound="-1"
-        eType="#//Table" containment="true" eOpposite="#//Table/scheme"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Table"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Table/scheme"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Table">
     <eAnnotations source="echo/Gen">
@@ -35,9 +36,11 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="columns" lowerBound="1"
-        upperBound="-1" eType="#//Column" containment="true" eOpposite="#//Column/table"/>
+        upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Column"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Column/table"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="scheme" lowerBound="1"
-        eType="#//Scheme" eOpposite="#//Scheme/tables"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Scheme"
+        eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Scheme/tables"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Column">
     <eOperations name="setName">
@@ -53,7 +56,7 @@
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="#//Table"
-        eOpposite="#//Table/columns"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Table"
+        eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/RDBMS.ecore#//Table/columns"/>
   </eClassifiers>
 </ecore:EPackage>

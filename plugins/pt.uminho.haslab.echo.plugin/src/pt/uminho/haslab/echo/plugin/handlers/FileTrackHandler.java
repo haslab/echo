@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -40,7 +41,16 @@ public class FileTrackHandler extends AbstractHandler {
 				}
 			}
 			else
-				MessageDialog.openInformation(shell, "Exception",extension + "not supported.");					
+				MessageDialog.openInformation(shell, "Exception",extension + "not supported.");		
+			
+			try {
+				ProjectPropertiesManager.saveProjectProperties(res.getProject());
+			} catch (ErrorParser e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+
 		}
 		return null;
 	}

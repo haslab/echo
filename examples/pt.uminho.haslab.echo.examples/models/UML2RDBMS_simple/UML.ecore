@@ -58,13 +58,16 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="persistent" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
-        eType="#//Attribute" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="#//Class"
-        eOpposite="#//Class/child"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Attribute"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Class"
+        eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Class/child"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="namespace" lowerBound="1"
-        eType="#//Package" eOpposite="#//Package/classes"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Package"
+        eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Package/classes"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="child" upperBound="-1"
-        eType="#//Class" eOpposite="#//Class/super"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Class"
+        eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Class/super"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
     <eOperations name="setName">
@@ -123,6 +126,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="classes" upperBound="-1"
-        eType="#//Class" containment="true" eOpposite="#//Class/namespace"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Class"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/models/UML2RDBMS_simple/UML.ecore#//Class/namespace"/>
   </eClassifiers>
 </ecore:EPackage>

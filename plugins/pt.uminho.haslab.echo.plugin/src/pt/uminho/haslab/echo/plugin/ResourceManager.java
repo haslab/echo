@@ -23,6 +23,7 @@ import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
+import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
 /**
@@ -53,6 +54,41 @@ public class ResourceManager {
 	/**
 	 * Model management
 	 */
+
+	/**
+	 * Creates a Resource Manager from a persistent property string
+	 * @param propertiesstring
+	 * @throws ErrorAlloy
+	 * @throws ErrorUnsupported
+	 * @throws ErrorTransform
+	 * @throws ErrorParser
+	 * @throws ErrorAPI
+	 */
+	public ResourceManager(String propertiesstring) throws ErrorAlloy, ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI {
+		String models = propertiesstring.split(";")[0];
+		for (String model : models.split(",")) {
+			IResource res = ResourcesPlugin.getWorkspace().getRoot()
+					.findMember(model);
+			addModel(res);
+		}
+
+		String constraints = propertiesstring.split(",")[0];
+		for (String constraint : constraints.split(",")) {
+			String[] reses = constraint.split("@");
+			if (reses.length == 3) {
+				IResource con = ResourcesPlugin.getWorkspace().getRoot()
+						.findMember(reses[0]);
+				IResource fst = ResourcesPlugin.getWorkspace().getRoot()
+						.findMember(reses[1]);
+				IResource snd = ResourcesPlugin.getWorkspace().getRoot()
+						.findMember(reses[2]);
+				addQVTConstraint(con, fst, snd);
+			}
+		}
+
+	}
+
+	public ResourceManager() {	}
 
 	/**
 	 * Tracks a new model.
@@ -150,6 +186,7 @@ public class ResourceManager {
 			this.removeQVTConstraint(c);
 		}
 		
+
 		EchoMarker.removeIntraMarkers(resmodel);
 		EchoMarker.removeInterMarkers(resmodel);
 
@@ -217,7 +254,7 @@ public class ResourceManager {
 
 		for (IResource resmodel : tracked.get(metamodeluri))
 			remModel(resmodel);
-		
+
 		reporter.debug("Metamodel " + metamodeluri + " removed.");
 	}
 
@@ -277,6 +314,8 @@ public class ResourceManager {
 			throw new ErrorParser("Model parameters do not type-check");
 		
 		Constraint c = constraints.addConstraint(resqvt,resmodelfst,resmodelsnd);
+
+
 		conformQVT(c);
 		return c;
 	}
@@ -298,6 +337,8 @@ public class ResourceManager {
 		if (constraints.getAllConstraintsConstraint(c.constraint) == null ||
 				constraints.getAllConstraintsConstraint(c.constraint).size() == 0)
 			runner.remQVT(c.constraint.getFullPath().toString());
+
+
 		EchoMarker.removeRelatedInterMarker(c);
 	}
 	
@@ -351,7 +392,8 @@ public class ResourceManager {
 	 * @throws ErrorAPI 
 	 */
 	private void conformMeta(IResource res) throws ErrorAlloy, ErrorAPI {
-		EchoPlugin.getInstance().getGraphView().clearGraph();
+		GraphView v = EchoPlugin.getInstance().getGraphView();
+		if (v != null) v.clearGraph();
 		String path = res.getFullPath().toString();
 		ArrayList<String> list = new ArrayList<String>(1);
 		list.add(path);

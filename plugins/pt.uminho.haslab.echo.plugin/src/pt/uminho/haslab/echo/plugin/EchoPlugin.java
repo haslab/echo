@@ -9,9 +9,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -61,7 +63,8 @@ public class EchoPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Starts the Echo plugin Loads the Echo properties of each project and
+	 * Starts the Echo plugin Loads the 
+	 * Echo properties of each project and
 	 * starts the listeners
 	 */
 	@Override
@@ -85,15 +88,17 @@ public class EchoPlugin extends AbstractUIPlugin {
 	 */
 	public GraphView getGraphView() {
 		if (graphView == null)
-			try {
-				graphView = (GraphView) PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage()
-						.showView(GraphView.ID);
-			} catch (Exception e) {
-				MessageDialog.openError(PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getShell(), "Error",
-						"Could not find or launch Graph view.");
-			}
+			Display.getDefault().asyncExec(new Runnable() {
+			    @Override
+			    public void run() {
+			        try {
+						graphView = (GraphView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(GraphView.ID);
+					} catch (PartInitException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			    }
+			});
 		return graphView;
 	}
 
