@@ -2,7 +2,7 @@
 The [one2one.qvtr](one2one.qvtr) transformation denotes a bijection between two very simple models.
 
 #### Overview
-This transformation is part of a [series](../one2one) of toy transformations designed to test the expressibility of *Echo*. Metamodels simply consist of sets of uninterpreted *A* and *B* elements, respectively. QVT-R is not designed to naturally handle one-to-one relations, QVT-R specifications typically denoting some-to-some relations. In order to attain a bijection in this example, since elements are uninterpreted, we must resort to non-common QVT-R specifications, in particular forcing the number of *A* and *B* elements to be the same. This may be troublesome in *Echo* if the bitwidth is not sufficient to accommodate the cardinality of the sets.
+This transformation is part of a series of toy transformations designed to test the expressibility of *Echo*. Metamodels simply consist of sets of uninterpreted *A* and *B* elements, respectively. QVT-R is not designed to naturally handle one-to-one relations, QVT-R specifications typically denoting some-to-some relations. In order to attain a bijection in this example, since elements are uninterpreted, we must resort to non-common QVT-R specifications, in particular forcing the number of *A* and *B* elements to be the same. This may be troublesome in *Echo* if the bitwidth is not sufficient to accommodate the cardinality of the sets.
 
 More in this series:
 <table><tr><td><ul>
@@ -24,7 +24,7 @@ More in this series:
 <li><a href="../one2one">one2one</a> (bijection)</li>
 </ul></td>
 <td>
-<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="450px">
+<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="500px">
 </td></tr></table>
 
 #### Meta-models
