@@ -1,5 +1,5 @@
 ### Some-to-one (surjection)
-The [one2some.qvtr](one2some.qvtr) transformation denotes a surjection between two very simple models.
+The [some2one.qvtr](some2one.qvtr) transformation denotes a surjection between two very simple models.
 
 #### Overview
 This transformation is part of a series of toy transformations designed to test the expressibility of *Echo*. Metamodel *A* consists of *A* elements containing an extra association of type *X*, while metamodel *B* simply consist of sets of uninterpreted *B* elements, making *A* larger than *B*. QVT-R is not designed to naturally handle one-to-one relations, QVT-R specifications typically denoting some-to-some relations. In order to attain a representation in this example, since elements are uninterpreted, we must resort to non-common QVT-R specifications, in particular forcing the number of *A* and *B* elements to be the same. This may be troublesome in *Echo* if the bitwidth is not sufficient to accommodate the cardinality of the sets.
