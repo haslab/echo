@@ -16,15 +16,15 @@ More in this series:
 <li>lone-to-one (injection) </li>
 <li>some-to-set (surjective)</li>
 <li>some-to-lone (abstraction)</li>
-<li>[some-to-some](../some2some) (surjective and entire)</li>
-<li>[some-to-one](../some2one) (surjection)</li>
+<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/some2some/">some2some</a> (surjective and entire)</li>
+<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/some2one/">some2one</a> (surjection)</li>
 <li>one-to-set (injective and surjective)</li>
 <li>one-to-lone (injective abstraction)</li>
-<li>[one-to-some](../one2some) (surjective representation)</li>
-<li>[one-to-one](../one2one) (bijection)</li>
+<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/one2some/">one2some</a> (surjective representation)</li>
+<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/one2one/">one2one</a> (bijection)</li>
 </ul></td>
 <td>
-<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="100px">
+<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="350px">
 </td></tr></table>
 
 #### Meta-models
