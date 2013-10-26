@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="B" nsURI="B" nsPrefix="B">
+  <eClassifiers xsi:type="ecore:EClass" name="B">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_extended.ecore#//RootB"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_extended.ecore#//RootB/bs"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="y" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_extended.ecore#//Y"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RootB">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="bs" upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_extended.ecore#//B"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_extended.ecore#//B/root"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ys" upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_extended.ecore#//Y"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Y"/>
+</ecore:EPackage>

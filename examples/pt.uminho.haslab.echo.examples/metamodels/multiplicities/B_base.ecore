@@ -2,11 +2,11 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="B" nsURI="B" nsPrefix="B">
   <eClassifiers xsi:type="ecore:EClass" name="B">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass #//RootB"
-        eOpposite="#//RootB/bs"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_base.ecore#//RootB"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_base.ecore#//RootB/bs"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RootB">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="bs" upperBound="-1" eType="ecore:EClass #//B"
-        containment="true" eOpposite="#//B/root"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="bs" upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_base.ecore#//B"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_base.ecore#//B/root"/>
   </eClassifiers>
 </ecore:EPackage>
