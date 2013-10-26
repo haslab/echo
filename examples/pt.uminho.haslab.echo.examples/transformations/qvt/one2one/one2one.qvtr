@@ -1,5 +1,5 @@
-import A : '../../../metamodels/bijection/A.ecore' :: A;
-import B : '../../../metamodels/bijection/B.ecore' :: B;
+import A : '../../../metamodels/multiplicities/A_base.ecore' :: A;
+import B : '../../../metamodels/multiplicities/B_base.ecore' :: B;
 
 transformation a2b (as : A, bs : B) {
 	top relation R2R { 
