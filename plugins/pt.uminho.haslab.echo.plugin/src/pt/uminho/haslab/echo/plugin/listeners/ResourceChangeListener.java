@@ -63,10 +63,12 @@ public class ResourceChangeListener implements IResourceChangeListener {
 					if ((flags & IResourceDelta.MARKERS) == 0)
 						if (res instanceof IFile) {
 							IFile f = (IFile) res;
+							ResourceManager prop = ProjectPropertiesManager.getProperties(f.getProject());
 							if (p.isManagedModel(res)) {
 								EchoReporter.getInstance().debug("Tracked model was changed");
 								Job j = new ModelChangedJob(f);
 								j.setRule(f);
+								j.setRule(prop.getMetamodel(f));
 								j.schedule();
 							} else if (p.isManagedMetamodel(res)) {
 								EchoReporter.getInstance().debug("Tracked metamodel was changed");
@@ -84,10 +86,12 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				case IResourceDelta.REMOVED:
 					if (res instanceof IFile) {
 						IFile f = (IFile) res;
+						ResourceManager prop = ProjectPropertiesManager.getProperties(f.getProject());
 						if (p.isManagedModel(res)) {
 							EchoReporter.getInstance().debug("Tracked model was removed");
 							Job j = new ModelDeletedJob(f);
 							j.setRule(f);
+							j.setRule(prop.getMetamodel(f));
 							j.schedule();
 						} else if (p.isManagedMetamodel(res)) {
 							EchoReporter.getInstance().debug("Tracked metamodel was removed");

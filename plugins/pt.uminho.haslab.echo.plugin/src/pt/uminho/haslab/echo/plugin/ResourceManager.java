@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.EchoReporter;
@@ -39,6 +40,7 @@ public class ResourceManager {
 
 	/** The map of managed model resources: MetamodelURI -> ListModelResources **/
 	private Map<String, List<IResource>> tracked = new HashMap<String, List<IResource>>();
+	private Map<IResource, String> metas = new HashMap<IResource, String>();
 	/** The map of managed qvtr constraints: QVTRURI -> ListModelResources **/
 	public ConstraintManager constraints = new ConstraintManager();
 
@@ -130,6 +132,7 @@ public class ResourceManager {
 			aux = new ArrayList<IResource>();
 		aux.add(resmodel);
 		tracked.put(metamodeluri, aux);
+		metas.put(resmodel, metamodeluri);
 		conformMeta(resmodel);
 		
 		return model;
@@ -211,6 +214,11 @@ public class ResourceManager {
 		return aux;
 	}
 
+	public IResource getMetamodel(IResource r) {
+		return ResourcesPlugin.getWorkspace().getRoot()
+				.findMember(metas.get(r));
+	}
+	
 	/**
 	 * Metamodel management
 	 */
@@ -299,10 +307,18 @@ public class ResourceManager {
 		if (!runner.hasQVT(qvturi)) {
 			qvt = parser.loadQVT(qvturi);
 			reporter.debug("QVT-R "+qvturi+" parsed.");
-			runner.addQVT(qvt);
-			reporter.debug("QVT-R "+qvturi+" processed.");
 		} else {
 			qvt = parser.getTransformation(qvturi);
+		}
+		reporter.debug(qvt.getModelParameter().get(0).getUsedPackage().get(0).getName()+ fst.eClass().getEPackage().getName());
+		if (!qvt.getModelParameter().get(0).getUsedPackage().get(0).getName().equals(fst.eClass().getEPackage().getName()))
+			throw new ErrorAPI("First model does not type-check.");
+		if (!qvt.getModelParameter().get(1).getUsedPackage().get(0).getName().equals(snd.eClass().getEPackage().getName()))
+			throw new ErrorAPI("Second model does not type-check.");
+	
+		if (!runner.hasQVT(qvturi)) {
+			runner.addQVT(qvt);
+			reporter.debug("QVT-R "+qvturi+" processed.");
 		}
 		
 		String mmqvtfst = URIUtil.resolveURI(qvt.getModelParameter().get(0)

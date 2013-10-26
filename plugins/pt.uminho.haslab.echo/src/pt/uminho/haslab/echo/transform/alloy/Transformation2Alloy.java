@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
@@ -56,6 +57,7 @@ class Transformation2Alloy {
 			Decl d;
 			try {
 				String metamodeluri = mdl.getMetamodelURI();
+				EchoReporter.getInstance().debug(metamodeluri);
 				d = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri).oneOf(mdl.getName());
 			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
 			argsdecls.put(mdl.getName(), d);
