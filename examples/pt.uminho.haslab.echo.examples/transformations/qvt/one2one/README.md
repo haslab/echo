@@ -2,7 +2,7 @@
 The [one2one.qvtr](one2one.qvtr) transformation denotes a bijection between two very simple models.
 
 #### Overview
-This transformation is part of a series of toy transformations designed to test the expressibility of *Echo*. Metamodels simply consist of sets of uninterpreted *A* and *B* elements, respectively. QVT-R is not designed to naturally handle one-to-one relations, QVT-R specifications typically denoting some-to-some relations. In order to attain a bijection in this example, since elements are uninterpreted, we must resort to non-common QVT-R specifications, in particular forcing the number of *A* and *B* elements to be the same. This may be troublesome in *Echo* if the bitwidth is not sufficient to accommodate the cardinality of the sets.
+This transformation is part of a [series](../one2one) of toy transformations designed to test the expressibility of *Echo*. Metamodels simply consist of sets of uninterpreted *A* and *B* elements, respectively. QVT-R is not designed to naturally handle one-to-one relations, QVT-R specifications typically denoting some-to-some relations. In order to attain a bijection in this example, since elements are uninterpreted, we must resort to non-common QVT-R specifications, in particular forcing the number of *A* and *B* elements to be the same. This may be troublesome in *Echo* if the bitwidth is not sufficient to accommodate the cardinality of the sets.
 
 More in this series:
 <table><tr><td><ul>
@@ -16,15 +16,15 @@ More in this series:
 <li>lone-to-one (injection) </li>
 <li>some-to-set (surjective)</li>
 <li>some-to-lone (abstraction)</li>
-<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/some2some/">some2some</a> (surjective and entire)</li>
-<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/some2one/">some2one</a> (surjection)</li>
+<li><a href="../some2some/">some2some</a> (surjective and entire)</li>
+<li><a href="../some2one/">some2one</a> (surjection)</li>
 <li>one-to-set (injective and surjective)</li>
 <li>one-to-lone (injective abstraction)</li>
-<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/one2some/">one2some</a> (surjective representation)</li>
-<li><a href="/haslab/echo/blob/v0.3/examples/pt.uminho.haslab.echo.examples/transformations/qvt/one2one/">one2one</a> (bijection)</li>
+<li><a href="../one2some/">one2some</a> (surjective representation)</li>
+<li><a href="../one2one">one2one</a> (bijection)</li>
 </ul></td>
 <td>
-<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="350px">
+<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="450px">
 </td></tr></table>
 
 #### Meta-models
