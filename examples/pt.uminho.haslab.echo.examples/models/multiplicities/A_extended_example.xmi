@@ -3,8 +3,10 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:A="A"
-    xsi:schemaLocation="A /pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_base.ecore">
-  <as/>
-  <as/>
-  <as/>
+    xsi:schemaLocation="A /pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_extended.ecore">
+  <as x="//@xs.1"/>
+  <as x="//@xs.1"/>
+  <as x="//@xs.1"/>
+  <xs/>
+  <xs/>
 </A:RootA>
