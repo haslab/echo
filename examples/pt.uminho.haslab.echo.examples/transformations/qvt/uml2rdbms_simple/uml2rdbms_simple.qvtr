@@ -15,7 +15,7 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
     	cn: String; 
     	domain uml c:Class { 
       		persistent=true, 
-      		namespace=p:Package{}, name=cn };
+      		opposite(Package::classes)=p:Package{}, name=cn };
     	domain rdbms t:Table { 
       		scheme=s:Scheme{}, name=cn };
     	when { P2S(p,s); }

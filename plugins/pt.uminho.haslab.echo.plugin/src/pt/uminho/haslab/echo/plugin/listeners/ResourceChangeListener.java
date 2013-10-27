@@ -74,6 +74,8 @@ public class ResourceChangeListener implements IResourceChangeListener {
 								EchoReporter.getInstance().debug("Tracked metamodel was changed");
 								Job j = new MetaModelChangedJob(f);
 								j.setRule(f);
+								for (IResource r : prop.getModels(f))
+									j.setRule(r);
 								j.schedule();
 							} else if (p.isManagedQVT(res)) {
 							    EchoReporter.getInstance().debug("Tracked qvt spec was changed");

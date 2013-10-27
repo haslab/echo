@@ -30,7 +30,7 @@ More in this series:
 #### Meta-models
 | [A_extended.ecore](../../../metamodels/multiplicities/A_extended.ecore) for extended *A*s | [B_base.ecore](../../../metamodels/multiplicities/B_base.ecore) for empty *B*s |
 | --- | --- | --- |
-| <img src="../../../metamodels/multiplicities/images/A_extended.png" alt="A metamodel" width="100px"> | <img src="../../../metamodels/multiplicities/images/B_base.png" alt="B metamodel" width="100px"> |
+| <img src="../../../metamodels/multiplicities/images/A_extended.png" alt="A metamodel" width="250px"> | <img src="../../../metamodels/multiplicities/images/B_base.png" alt="B metamodel" width="100px"> |
 
 #### Models
 | [A_extended_example.xmi](../../../models/multiplicities/A_extended_example.xmi) | [B_base_example.xmi](../../../models/multiplicities/B_base_example.xmi) |

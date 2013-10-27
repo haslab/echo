@@ -213,6 +213,10 @@ public class ResourceManager {
 			aux.addAll(x);
 		return aux;
 	}
+	
+	public List<IResource> getModels(IResource metamodel) {
+		return tracked.get(metamodel.getFullPath().toString());
+	}
 
 	public IResource getMetamodel(IResource r) {
 		return ResourcesPlugin.getWorkspace().getRoot()
