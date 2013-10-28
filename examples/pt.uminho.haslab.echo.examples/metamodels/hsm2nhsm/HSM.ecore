@@ -15,11 +15,9 @@
       <eParameters name="trg" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="states" upperBound="-1"
-        eType="ecore:EClass #//State"
-        containment="true"/>
+        eType="#//State" containment="true" eOpposite="#//State/machine"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transitions" upperBound="-1"
-        eType="ecore:EClass #//Transition"
-        containment="true"/>
+        eType="#//Transition" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="State">
@@ -27,13 +25,15 @@
       <details key="inheritance" value="not self->closure(owner)->includes(self)"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="owner" eType="ecore:EClass #//CompositeState"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owner" eType="#//CompositeState"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="machine" lowerBound="1"
+        eType="#//StateMachine" eOpposite="#//StateMachine/states"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CompositeState" eSuperTypes="#//State"/>
   <eClassifiers xsi:type="ecore:EClass" name="Transition">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" lowerBound="1"
-        eType="ecore:EClass #//State"/>
+        eType="#//State"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
-        eType="ecore:EClass #//State"/>
+        eType="#//State"/>
   </eClassifiers>
 </ecore:EPackage>

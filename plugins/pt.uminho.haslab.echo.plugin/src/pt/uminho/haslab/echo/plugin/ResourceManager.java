@@ -10,7 +10,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.EchoReporter;
@@ -56,38 +55,6 @@ public class ResourceManager {
 	 * Model management
 	 */
 
-	/**
-	 * Creates a Resource Manager from a persistent property string
-	 * @param propertiesstring
-	 * @throws ErrorInternalEngine
-	 * @throws ErrorUnsupported
-	 * @throws ErrorTransform
-	 * @throws ErrorParser
-	 * @throws ErrorAPI
-	 */
-	public ResourceManager(String propertiesstring) throws ErrorInternalEngine, ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI {
-		String models = propertiesstring.split(";")[0];
-		for (String model : models.split(",")) {
-			IResource res = ResourcesPlugin.getWorkspace().getRoot()
-					.findMember(model);
-			addModel(res);
-		}
-
-		String constraints = propertiesstring.split(",")[0];
-		for (String constraint : constraints.split(",")) {
-			String[] reses = constraint.split("@");
-			if (reses.length == 3) {
-				IResource con = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(reses[0]);
-				IResource fst = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(reses[1]);
-				IResource snd = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(reses[2]);
-				addQVTConstraint(con, fst, snd);
-			}
-		}
-
-	}
 
 	public ResourceManager() {	}
 
@@ -559,22 +526,4 @@ public class ResourceManager {
 		sndwaiting = null;
 	}
 
-	
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		for (IResource res: getModels()) {
-			builder.append(res.getFullPath().toString());
-			builder.append(",");
-		}
-		builder.append(";");
-		for (Constraint c : getConstraints()) {
-			builder.append(c.constraint);
-			builder.append("@");
-			builder.append(c.fstmodel);
-			builder.append("@");
-			builder.append(c.sndmodel);
-			builder.append(",");
-		}
-		return builder.toString();
-	}
 }

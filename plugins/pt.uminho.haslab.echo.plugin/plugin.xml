@@ -268,14 +268,14 @@
    </extension>
 	<extension name="Echo intra-model inconsistency" id="pt.uminho.haslab.echo.plugin.intrainconsistency" point="org.eclipse.core.resources.markers">
 		<super type="org.eclipse.core.resources.problemmarker"/>
-		<persistent value="true"/>
+		<persistent value="false"/>
 	</extension>
 	<extension
        id="pt.uminho.haslab.echo.plugin.interinconsistency"
        name="Echo inter-model inconsistency"
        point="org.eclipse.core.resources.markers">
 		<super type="org.eclipse.core.resources.problemmarker"/>
-		<persistent value="true"/>
+		<persistent value="false"/>
   <attribute
         name="constraint">
   </attribute>

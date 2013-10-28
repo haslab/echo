@@ -119,5 +119,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
 			}
 			return Status.OK_STATUS;
 		}
+		
+		
 	}
 }
