@@ -261,8 +261,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	public ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
 		List<CommandScope> list = new ArrayList<CommandScope>();
 		
-		System.out.println("incs: "+scopesincrement);
-		//System.out.println("scps: "+scopes);
+		//System.out.println("incs: "+scopesincrement);
+		System.out.println("scps: "+scopes);
 		if (!EchoOptionsSetup.getInstance().isOperationBased())
 			for (CommandScope scope : scopes) 
 				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+1));

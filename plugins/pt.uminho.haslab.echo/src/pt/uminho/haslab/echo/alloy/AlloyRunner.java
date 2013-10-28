@@ -340,7 +340,6 @@ public class AlloyRunner implements EngineRunner{
 			if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.");
 		}
 		else {
-			
 			try {
 				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 				if(!EchoOptionsSetup.getInstance().isOperationBased())

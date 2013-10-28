@@ -5,7 +5,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:uml="UML"
     xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore"
-    name="Companys">
+    name="Company">
   <classes name="Employee"
       persistent="true"
       super="//@classes.1">
@@ -28,5 +28,5 @@
   <associations
       source="//@classes.0"
       target="//@classes.3"
-      name="department"/>
+      name="departments"/>
 </uml:Package>
