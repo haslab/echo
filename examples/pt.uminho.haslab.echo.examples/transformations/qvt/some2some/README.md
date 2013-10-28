@@ -16,21 +16,21 @@ More in this series:
 <li>lone-to-one (injection) </li>
 <li>some-to-set (surjective)</li>
 <li>some-to-lone (abstraction)</li>
-<li>[some-to-some](../some2some) (surjective and entire)</li>
-<li>[some-to-one](../some2one) (surjection)</li>
+<li><a href="../some2some/">some2some</a> (surjective and entire)</li>
+<li><a href="../some2one/">some2one</a> (surjection)</li>
 <li>one-to-set (injective and surjective)</li>
 <li>one-to-lone (injective abstraction)</li>
-<li>[one-to-some](../one2some) (surjective representation)</li>
-<li>[one-to-one](../one2one) (bijection)</li>
+<li><a href="../one2some/">one2some</a> (surjective representation)</li>
+<li><a href="../one2one">one2one</a> (bijection)</li>
 </ul></td>
 <td>
-<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="100px">
+<img src="../../../metamodels/multiplicities/images/taxonomy.png" alt="Relation taxonomy" width="500px">
 </td></tr></table>
 
 #### Meta-models
 | [A_base.ecore](../../../metamodels/multiplicities/A_base.ecore) for empty *A*s | [B_base.ecore](../../../metamodels/multiplicities/B_base.ecore) for empty *B*s |
 | --- | --- | --- |
-| <img src="../../../metamodels/multiplicities/images/A_base.png" alt="A metamodel" width="100px"> | <img src="../../../metamodels/multiplicities/images/B_base.png" alt="B metamodel" width="100px"> |
+| <img src="../../../metamodels/multiplicities/images/A_base.png" alt="A metamodel" heigth="200px"> | <img src="../../../metamodels/multiplicities/images/B_base.png" alt="B metamodel" heigth="200px"> |
 
 #### Models
 | [A_base_example.xmi](../../../models/multiplicities/A_base_example.xmi) | [B_base_example.xmi](../../../models/multiplicities/B_base_example.xmi) |
