@@ -1,8 +1,8 @@
-### One-to-one (bijection)
-The [one2one.qvtr](one2one.qvtr) transformation denotes a bijection between two very simple models.
+### Some-to-some (surjective and entire transformation)
+The [some2some.qvtr](some2some.qvtr) transformation denotes a surjective and entire transformation between two very simple models.
 
 #### Overview
-This transformation is part of a series of toy transformations designed to test the expressibility of *Echo*. Metamodels simply consist of sets of uninterpreted *A* and *B* elements, respectively. QVT-R is not designed to naturally handle one-to-one relations, QVT-R specifications typically denoting some-to-some relations. In order to attain a bijection in this example, since elements are uninterpreted, we must resort to non-common QVT-R specifications, in particular forcing the number of *A* and *B* elements to be the same. This may be troublesome in *Echo* if the bitwidth is not sufficient to accommodate the cardinality of the sets.
+This transformation is part of a series of toy transformations designed to test the expressibility of *Echo*. Metamodels simply consist of sets of uninterpreted *A* and *B* elements, respectively. QVT-R specifications typically denote some-to-some relations, so this example is trivially represented.
 
 More in this series:
 <table><tr><td><ul>
