@@ -13,21 +13,20 @@
         name="salary"/>
   </classes>
   <classes name="Person"
-      super="//@classes.1"
-      child="//@classes.0 //@classes.2 //@classes.1">
+      child="//@classes.0 //@classes.2">
     <attributes
         name="name"/>
   </classes>
   <classes name="Employer"
       persistent="true"
       super="//@classes.1"/>
-  <classes name="Department"
+  <classes name="Departments"
       persistent="true">
     <attributes
-        name="location"/>
+        name="locations"/>
   </classes>
   <associations
       source="//@classes.0"
       target="//@classes.3"
-      name="departments"/>
+      name="department"/>
 </uml:Package>

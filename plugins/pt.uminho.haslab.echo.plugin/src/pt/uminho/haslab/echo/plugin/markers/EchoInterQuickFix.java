@@ -18,10 +18,12 @@ import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
+import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -108,17 +110,27 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		@Override
 		public IStatus runInWorkspace(IProgressMonitor monitor)
 				throws CoreException {
+			Monitor emonitor = new PluginMonitor(monitor);
+			boolean suc  = false;
 			try {
-				EchoRunner.getInstance().enforce(constraint,list, res.getFullPath().toString());
-				
-				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
-				EchoPlugin.getInstance().getGraphView().drawGraph();
+				suc = EchoRunner.getInstance().enforce(emonitor,constraint,list, res.getFullPath().toString());
+				if (suc) {
+					EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
+					EchoPlugin.getInstance().getGraphView().drawGraph();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return Status.CANCEL_STATUS;
 			}
-			return Status.OK_STATUS;
+			monitor.done();
+			if (suc) {
+				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
+				EchoPlugin.getInstance().getGraphView().drawGraph();
+				return Status.OK_STATUS;
+			}
+			else return Status.CANCEL_STATUS;
 		}
+		
 		
 		
 	}

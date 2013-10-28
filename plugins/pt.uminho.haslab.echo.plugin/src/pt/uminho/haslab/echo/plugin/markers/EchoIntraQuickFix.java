@@ -14,8 +14,10 @@ import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
+import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -66,6 +68,7 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 	
 	class ModelRepairJob extends WorkspaceJob {
 		private IResource res = null;
+		
 
 		public ModelRepairJob(IResource r) {
 			super("Repairing model.");
@@ -75,8 +78,9 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 		@Override
 		public IStatus runInWorkspace(IProgressMonitor monitor)
 				throws CoreException {
+			Monitor emonitor = new PluginMonitor(monitor);
 			try {
-				EchoRunner.getInstance().repair(res.getFullPath().toString());
+				EchoRunner.getInstance().repair(emonitor,res.getFullPath().toString());
 				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(), false, null);
 				EchoPlugin.getInstance().getGraphView().drawGraph();
 			} catch (Exception e) {
@@ -85,6 +89,7 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 			}
 			return Status.OK_STATUS;
 		}
+		
 	}
 
 }

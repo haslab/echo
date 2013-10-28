@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.alloy;
 
 import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.EngineRunner;
+import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 
@@ -15,8 +16,8 @@ public class AlloyFactory extends EngineFactory {
 
 
     @Override
-    public EngineRunner createRunner() {
-        return  new AlloyRunner();
+    public EngineRunner createRunner(Monitor monitor) {
+        return  new AlloyRunner(monitor);
     }
 
     @Override
