@@ -14,15 +14,23 @@ import org.eclipse.core.resources.ResourcesPlugin;
  */
 public class PlugInOptions implements EchoOptions {
 
-	private boolean operationbased = false;
-	private int bitwidth = EchoOptionsSetup.DEFAULT_BITWIDTH;
-	private int scope = EchoOptionsSetup.DEFAULT_SCOPE;
-	private int delta = EchoOptionsSetup.DEFAULT_DELTA;
+	public static final String ISPERSISTENT = "persistent";
+
+	public static final boolean DEFAULT_ISPERSISTENT = false;
+	public static final boolean DEFAULT_OBD = false;
+
+	private boolean operationbased = DEFAULT_OBD;
 	private boolean verbose = EchoOptionsSetup.DEFAULT_VERBOSE;
 	private boolean overwrite = EchoOptionsSetup.DEFAULT_OVERWRITE;
-	private boolean optimize = EchoOptionsSetup.DEFAULT_OPTIMIZE;
+	
+	
 
 	public PlugInOptions() {
+		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.BITWIDTH, EchoOptionsSetup.DEFAULT_BITWIDTH);
+		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.SCOPE, EchoOptionsSetup.DEFAULT_SCOPE);
+		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.DELTA, EchoOptionsSetup.DEFAULT_DELTA);
+		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.OPTIMIZE, EchoOptionsSetup.DEFAULT_OPTIMIZE);
+		EchoPlugin.getInstance().getPreferenceStore().setDefault(ISPERSISTENT, DEFAULT_ISPERSISTENT);
 	}
 
 	@Override
@@ -37,22 +45,22 @@ public class PlugInOptions implements EchoOptions {
 
 	@Override
 	public boolean isOptimize() {
-		return optimize;
+		return EchoPlugin.getInstance().getPreferenceStore().getBoolean(EchoOptionsSetup.OPTIMIZE);
 	}
 
 	@Override
 	public Integer getMaxDelta() {
-		return delta;
+		return EchoPlugin.getInstance().getPreferenceStore().getInt(EchoOptionsSetup.DELTA);
 	}
 
 	@Override
 	public Integer getOverallScope() {
-		return scope;
+		return EchoPlugin.getInstance().getPreferenceStore().getInt(EchoOptionsSetup.SCOPE);
 	}
 
 	@Override
 	public Integer getBitwidth() {
-		return bitwidth;
+		return EchoPlugin.getInstance().getPreferenceStore().getInt(EchoOptionsSetup.BITWIDTH);
 	}
 
 	@Override
@@ -62,6 +70,14 @@ public class PlugInOptions implements EchoOptions {
 
 	public void setOperationBased(boolean b) {
 		operationbased = b;
+	}
+
+	public boolean isPersistent() {
+		return EchoPlugin.getInstance().getPreferenceStore().getBoolean(ISPERSISTENT);
+	}
+
+	public void setIsPersistent(boolean b) {
+		EchoPlugin.getInstance().getPreferenceStore().setValue(ISPERSISTENT,b);
 	}
 
 	@Override
@@ -76,19 +92,27 @@ public class PlugInOptions implements EchoOptions {
 	}
 
 	public void setBitwidth(int n) {
-		bitwidth = n;
+		EchoPlugin.getInstance().getPreferenceStore().setValue(EchoOptionsSetup.BITWIDTH,n);
 	}
 
 	public void setScope(int n) {
-		scope = n;
+		EchoPlugin.getInstance().getPreferenceStore().setValue(EchoOptionsSetup.SCOPE,n);
 	}
 
 	public void setDelta(int n) {
-		delta = n;
+		EchoPlugin.getInstance().getPreferenceStore().setValue(EchoOptionsSetup.DELTA,n);
 	}
 
 	public void setOptimize(boolean n) {
-		optimize = n;
+		EchoPlugin.getInstance().getPreferenceStore().setValue(EchoOptionsSetup.OPTIMIZE,n);
+	}
+
+	public void goDefault() {
+		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.BITWIDTH);
+		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.DELTA);
+		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.OPTIMIZE);
+		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.SCOPE);
+		EchoPlugin.getInstance().getPreferenceStore().setToDefault(ISPERSISTENT);		
 	}
 
 }

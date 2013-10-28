@@ -18,6 +18,7 @@ import org.eclipse.ui.PlatformUI;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
@@ -228,7 +229,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
-					resmanager.reloadMetamodel(res);
+					resmanager.reloadMetamodel(new PluginMonitor(monitor),res);
 				} catch (Exception e) {
 					try {
 						resmanager.remMetamodel(res);
@@ -265,7 +266,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
-					resmanager.reloadModel(res);
+					resmanager.reloadModel(new PluginMonitor(monitor),res);
 				} catch (Exception e) {
 					try {
 						resmanager.remModel(res);
@@ -301,7 +302,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
-					resmanager.reloadQVTConstraint(res);
+					resmanager.reloadQVTConstraint(new PluginMonitor(monitor), res);
 				} catch (Exception e) {
 					MessageDialog.openError(null,
 									"Error reloading model.",

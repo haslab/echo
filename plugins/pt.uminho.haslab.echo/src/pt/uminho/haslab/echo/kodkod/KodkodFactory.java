@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.kodkod;
 
 import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.EngineRunner;
+import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.kodkod.KodkodEchoTranslator;
 
@@ -13,7 +14,7 @@ import pt.uminho.haslab.echo.transform.kodkod.KodkodEchoTranslator;
  */
 public class KodkodFactory extends EngineFactory{
     @Override
-    public EngineRunner createRunner() {
+    public EngineRunner createRunner(Monitor monitor) {
         return new KodkodRunner();
     }
 

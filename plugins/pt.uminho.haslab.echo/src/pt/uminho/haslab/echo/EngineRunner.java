@@ -16,15 +16,15 @@ import java.util.Map.Entry;
 public interface EngineRunner {
     void conforms(List<String> modelUris) throws ErrorInternalEngine;
 
-    void repair(String targetUri) throws ErrorInternalEngine;
+    boolean repair(String targetUri) throws ErrorInternalEngine;
 
-    void generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported;
+    boolean generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported;
 
     void check(String qvtUri, List<String> modelUris) throws ErrorInternalEngine;
 
-    void enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine;
+    boolean enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine;
 
-    void generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported;
+    boolean generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported;
 
     void nextInstance() throws ErrorInternalEngine;
 

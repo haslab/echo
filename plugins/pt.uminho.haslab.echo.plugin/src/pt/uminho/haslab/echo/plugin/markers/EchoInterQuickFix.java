@@ -1,23 +1,29 @@
 package pt.uminho.haslab.echo.plugin.markers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
+import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -25,7 +31,7 @@ import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
  * @author nmm
  *
  */
-public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMarkerResolution {
+public class EchoInterQuickFix implements IMarkerResolution {
 	/** The quick fix message */  
 	private String message;
 	/** The model distance metric */
@@ -49,7 +55,6 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 	 */
 	@Override
 	public void run(IMarker marker) {
-		EchoRunner echo = EchoRunner.getInstance();
 		EchoParser parser = EchoParser.getInstance();
 		ArrayList<String> list = new ArrayList<String>(1);
 		IResource res = marker.getResource();
@@ -67,22 +72,18 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
 					list.add(path);
 				}
+				((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
+				
+				Job j = new ModelRepairJob(res, list, marker.getAttribute(EchoMarker.CONSTRAINT).toString());
+				j.setRule(res);
+				j.schedule();
+
 			} catch (Exception e1) {
 				MessageDialog.openError(null, "Error loading QVT-R.",e1.getMessage());
 				e1.printStackTrace();
 				return;
-			}
-
-			((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
-			try {
-				echo.enforce(marker.getAttribute(EchoMarker.CONSTRAINT).toString(),list, path);
-			} catch (Exception e) {
-				MessageDialog.openError(null, "Error loading QVT-R.",e.getMessage());
-				e.printStackTrace();
-				return;
-			}
-			EchoPlugin.getInstance().getGraphView().setTargetPath(path,false,null);
-			EchoPlugin.getInstance().getGraphView().drawGraph();
+			}			
+			
 		} else {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
 			try {
@@ -93,19 +94,44 @@ public class EchoInterQuickFix extends WorkbenchMarkerResolution implements IMar
 		}
 	}
 
-	@Override
-	public String getDescription() {
-		return "teste";
-	}
+	class ModelRepairJob extends WorkspaceJob {
+		private IResource res = null;
+		private String constraint = null;
+		private List<String> list = null;
+		
+		public ModelRepairJob(IResource r, List<String> list, String constraint) {
+			super("Repairing model.");
+			res = r;
+			this.constraint = constraint;
+			this.list = list;
+		}
 
-	@Override
-	public Image getImage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public IMarker[] findOtherMarkers(IMarker[] markers) {
-		return new IMarker[0];
+		@Override
+		public IStatus runInWorkspace(IProgressMonitor monitor)
+				throws CoreException {
+			Monitor emonitor = new PluginMonitor(monitor);
+			boolean suc  = false;
+			try {
+				suc = EchoRunner.getInstance().enforce(emonitor,constraint,list, res.getFullPath().toString());
+				if (suc) {
+					EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
+					EchoPlugin.getInstance().getGraphView().drawGraph();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Status.CANCEL_STATUS;
+			}
+			monitor.done();
+			if (suc) {
+				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
+				EchoPlugin.getInstance().getGraphView().drawGraph();
+				return Status.OK_STATUS;
+			}
+			else return Status.CANCEL_STATUS;
+		}
+		
+		
+		
 	}
 }

@@ -118,8 +118,8 @@ public class EchoRunner {
 	 * @return true if all models conform to the meta-models
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean conforms(List<String> modeluris) throws ErrorInternalEngine {
-		runner = EngineFactory.instance().createRunner();
+	public boolean conforms(Monitor monitor, List<String> modeluris) throws ErrorInternalEngine {
+		runner = EngineFactory.instance().createRunner(monitor);
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -130,8 +130,8 @@ public class EchoRunner {
 	 * @return true if the model was successfully repaired
 	 * @throws ErrorInternalEngine
 	 */
-	public void repair(String targeturi) throws ErrorInternalEngine {
-		runner = EngineFactory.instance().createRunner();
+	public void repair(Monitor monitor, String targeturi) throws ErrorInternalEngine {
+		runner = EngineFactory.instance().createRunner(monitor);
 		runner.repair(targeturi);
 	}
 
@@ -144,8 +144,8 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
-		runner =  EngineFactory.instance().createRunner();
+	public void generate(Monitor monitor, String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
+		runner =  EngineFactory.instance().createRunner(monitor);
 		runner.generate(metamodeluri,scope);
 	}
 
@@ -156,8 +156,8 @@ public class EchoRunner {
 	 * @return true if consistent
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean check(String qvturi, List<String> modeluris) throws ErrorInternalEngine {
-		runner =  EngineFactory.instance().createRunner();
+	public boolean check(Monitor monitor, String qvturi, List<String> modeluris) throws ErrorInternalEngine {
+		runner =  EngineFactory.instance().createRunner(monitor);
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -170,9 +170,9 @@ public class EchoRunner {
 	 * @return true if able to generate model
 	 * @throws ErrorInternalEngine
 	 */
-	public void enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorInternalEngine {
-		runner = EngineFactory.instance().createRunner();
-		runner.enforce(qvturi, modeluris, targeturi);
+	public boolean enforce(Monitor monitor, String qvturi, List<String> modeluris, String targeturi) throws ErrorInternalEngine {
+		runner = EngineFactory.instance().createRunner(monitor);
+		return runner.enforce(qvturi, modeluris, targeturi);
 	}
 
 	/**
@@ -185,8 +185,8 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generateQvt(String qvtUri, String metaModelUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine, ErrorUnsupported {
-		runner =  EngineFactory.instance().createRunner();
+	public void generateQvt(Monitor monitor, String qvtUri, String metaModelUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine, ErrorUnsupported {
+		runner =  EngineFactory.instance().createRunner(monitor);
 		runner.generateQvt(qvtUri, modelUris, targetUri, metaModelUri);
 	}
 
