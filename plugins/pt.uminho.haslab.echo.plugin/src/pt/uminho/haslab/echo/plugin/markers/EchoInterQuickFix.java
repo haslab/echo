@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -17,6 +16,7 @@ import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.emf.EchoParser;
@@ -24,6 +24,7 @@ import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.PluginMonitor;
+import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -61,7 +62,6 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		String path = res.getFullPath().toString();
 
 		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
-
 			try {
 				RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
 				String metadir = EchoRunner.getInstance().getMetaModelFromModelPath(path);
@@ -75,7 +75,9 @@ public class EchoInterQuickFix implements IMarkerResolution {
 				((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
 				
 				Job j = new ModelRepairJob(res, list, marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				j.setRule(res);
+				EchoReporter.getInstance().debug("Will lock "+res);
+				//IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
+				j.setRule(new ResourceRules(res));
 				j.schedule();
 
 			} catch (Exception e1) {
@@ -94,22 +96,20 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		}
 	}
 
-	class ModelRepairJob extends WorkspaceJob {
+	class ModelRepairJob extends Job {
 		private IResource res = null;
 		private String constraint = null;
 		private List<String> list = null;
 		
 		public ModelRepairJob(IResource r, List<String> list, String constraint) {
-			super("Repairing model.");
+			super("Repairing model "+r.getName()+".");
 			res = r;
 			this.constraint = constraint;
 			this.list = list;
 		}
 
-
 		@Override
-		public IStatus runInWorkspace(IProgressMonitor monitor)
-				throws CoreException {
+		public IStatus run(IProgressMonitor monitor)  {
 			Monitor emonitor = new PluginMonitor(monitor);
 			boolean suc  = false;
 			try {
@@ -130,8 +130,6 @@ public class EchoInterQuickFix implements IMarkerResolution {
 			}
 			else return Status.CANCEL_STATUS;
 		}
-		
-		
 		
 	}
 }

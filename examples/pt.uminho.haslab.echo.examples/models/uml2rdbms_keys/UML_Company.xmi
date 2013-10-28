@@ -20,13 +20,13 @@
   <classes name="Employer"
       persistent="true"
       super="//@classes.1"/>
-  <classes name="Departments"
+  <classes name="Department"
       persistent="true">
     <attributes
-        name="locations"/>
+        name="location"/>
   </classes>
   <associations
       source="//@classes.0"
       target="//@classes.3"
-      name="department"/>
+      name="departments"/>
 </uml:Package>

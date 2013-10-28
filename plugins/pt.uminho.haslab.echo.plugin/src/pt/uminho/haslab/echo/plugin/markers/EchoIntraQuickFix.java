@@ -2,7 +2,6 @@ package pt.uminho.haslab.echo.plugin.markers;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -18,6 +17,7 @@ import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.PluginMonitor;
+import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -54,7 +54,7 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 
 		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
 			Job j = new ModelRepairJob(res);
-			j.setRule(res);
+			j.setRule(new ResourceRules(res));
 			j.schedule();
 		} else {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
@@ -66,18 +66,16 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 		}
 	}
 	
-	class ModelRepairJob extends WorkspaceJob {
+	class ModelRepairJob extends Job {
 		private IResource res = null;
-		
 
 		public ModelRepairJob(IResource r) {
-			super("Repairing model.");
+			super("Repairing model "+r.getName()+".");
 			res = r;
 		}
 
 		@Override
-		public IStatus runInWorkspace(IProgressMonitor monitor)
-				throws CoreException {
+		public IStatus run(IProgressMonitor monitor) {
 			Monitor emonitor = new PluginMonitor(monitor);
 			try {
 				EchoRunner.getInstance().repair(emonitor,res.getFullPath().toString());
