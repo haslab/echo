@@ -28,5 +28,5 @@
   <associations
       source="//@classes.0"
       target="//@classes.3"
-      name="departments"/>
+      name="department"/>
 </uml:Package>

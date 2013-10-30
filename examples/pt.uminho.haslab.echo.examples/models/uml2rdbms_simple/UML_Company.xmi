@@ -13,8 +13,7 @@
         name="salary"/>
   </classes>
   <classes name="Person"
-      super="//@classes.1"
-      child="//@classes.0 //@classes.2 //@classes.1">
+      child="//@classes.0 //@classes.2">
     <attributes
         name="name"/>
   </classes>
