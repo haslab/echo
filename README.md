@@ -42,14 +42,15 @@ For more information about how the tool is implemented please consult the paper 
 
 ## Installing
 
-Echo is deployed over the Eclipse Modeling Tools 4.3 (Kepler) (including the QVTd component, which, being in incubation phase, is not included in the standard package). The following steps assume a fresh instalation of Eclipse. If Eclipse Modeling Tools 4.3 is already installed, step 3 will suffice.
+*Echo* is deployed over the Eclipse Modeling Tools 4.3 (Kepler). The following steps assume a fresh installation of Eclipse. 
 
-1. Download the [Eclipse Modeling Tools 4.3 (Kepler)](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplerrc2);
-2. Install the  QVT Declarative (QVTd) 0.10.0RC2 component in Eclipse (Help > Install New Software...) by downloading by downloading the [archive](http://www.eclipse.org/mmt/downloads/?showAll=1&hlbuild=S201305311516&project=qvtd#S201305311516) or through the [update site](http://download.eclipse.org/mmt/qvtd/updates/milestones);
-3. Install the  Echo 0.2.0 plugin in Eclipse (Help > Install New Software...) by downloading the [archive](http://haslab.github.io/echo/downloads/echo-0.2.0.zip) or through the [update site](http://haslab.github.io/echo/updates/).
+* Download Eclipse [Modeling Tools 4.3](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplersr1) (Kepler);
+* Download and install in Eclipse (through the **Help > Install New Software...**) menu the following archives in the given order:
+  + [Eclipse OCL 4.2](http://www.eclipse.org/modeling/mdt/downloads/?project=ocl) of the Model Development Tools (MDT) project;
+  + [Eclipse QVTd 0.11](http://www.eclipse.org/mmt/downloads/?project=qvtd) of the Model to Model Transformation (MMT) project;
+  + [Echo 0.3](http://haslab.github.io/echo/downloads/echo-0.3.0.zip).
 
-For Mac OS users, the current version of Java 7u21 has an issue with the bridge between AWT and SWT that does not allow the embedding of the Alloy Visualizer in Eclipse. This is fixed in the early access release of [Java 7u40](https://jdk7.java.net/download.html), being required to run Echo in Mac OS.
-
+For Mac OS users, versions of Java earlier than 7up40 have an issue with the bridge between AWT and SWT that does not allow the embedding of the Alloy Visualizer in Eclipse. This is fixed in posterior releases.
 <!---
 ### Command-line
 
@@ -72,7 +73,8 @@ This will create the `echo.jar` file in the project's root directory.
 
 ## Running
 
-The best way to get started with Echo is to watch this [video](https://vimeo.com/67716977).
+The best way to get started with Echo is to watch this [video](https://vimeo.com/67716977) or to follow this [tutorial](https://github.com/haslab/echo/wiki/Tutorial).
+
 
 <!---
 ### Command-line
@@ -97,7 +99,6 @@ java -jar -t -m <models>... -i <instances>...
 ```
 -->
 
-([read more](https://github.com/haslab/echo/wiki/Tutorial))
 
 ## Examples
 
