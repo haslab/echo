@@ -5,6 +5,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 public class ResourceRules implements ISchedulingRule{
@@ -32,29 +33,41 @@ public class ResourceRules implements ISchedulingRule{
 			res2 = ((ResourceRules) rule).res;
 		} else if (rule instanceof IFile) {
 			res2 = (IFile) rule;
-			EchoReporter.getInstance().debug("Resource sche rule "+rule.toString());
 		} 
+		EchoReporter.getInstance().debug("Comparing "+res+" with "+rule);
 		if (res2 != null && res2.getFileExtension() != null	) {			
 			switch (res.getFileExtension()) {
 				case "xmi" :
 					switch (res2.getFileExtension()) {
 						case "xmi" : return res.equals(res2);
 						case "ecore" : return manager.getMetamodel(res).equals(res2);
-						case "qvtr" : return false;				
+						case "qvtr" : 
+							for (Constraint c : manager.getConstraints(res2))
+								if (c.fstmodel.equals(res) || c.sndmodel.equals(res))
+									return true;
 					}
 					break;
 				case "ecore" :
 					switch (res2.getFileExtension()) {
 						case "ecore" : return res.equals(res2);
 						case "xmi" : return manager.getMetamodel(res2).equals(res);
-						case "qvtr" : return false;				
+						case "qvtr" : 
+							for (Constraint c : manager.getConstraints(res2))
+								if (manager.getMetamodel(c.fstmodel).equals(res) || manager.getMetamodel(c.sndmodel).equals(res))
+									return true;
 					}
 					break;
 				case "qvtr" :
 					switch (res2.getFileExtension()) {
-						case "ecore" : return false;
-						case "xmi" : return false;
-						case "qvtr" : return false;				
+						case "ecore" :
+							for (Constraint c : manager.getConstraints(res))
+								if (manager.getMetamodel(c.fstmodel).equals(res2) || manager.getMetamodel(c.sndmodel).equals(res2))
+									return true;
+						case "xmi" : 
+							for (Constraint c : manager.getConstraints(res))
+								if (c.fstmodel.equals(res2) || c.sndmodel.equals(res2))
+									return true;
+						case "qvtr" : return res.equals(res2);
 					}
 					break;
 				}

@@ -16,7 +16,6 @@ import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.emf.EchoParser;
@@ -75,8 +74,6 @@ public class EchoInterQuickFix implements IMarkerResolution {
 				((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
 				
 				Job j = new ModelRepairJob(res, list, marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				EchoReporter.getInstance().debug("Will lock "+res);
-				//IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
 				j.setRule(new ResourceRules(res));
 				j.schedule();
 
