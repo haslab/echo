@@ -31,4 +31,6 @@ public interface EngineRunner {
     void nextInstance() throws ErrorInternalEngine;
 
     EchoSolution getSolution();
+
+    void cancel();
 }

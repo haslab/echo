@@ -349,7 +349,7 @@
   </handler>
     <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelsManageHandler"
            commandId="pt.uminho.haslab.echo.commands.modelsmanage">
-                <activeWhen>
+               <!-- <activeWhen>
                <iterate>
                      <test
                            forcePluginActivation="true"
@@ -357,11 +357,11 @@
                            value="true">
                      </test>
                </iterate>
-            </activeWhen>
+            </activeWhen>-->
   </handler>
       <handler class="pt.uminho.haslab.echo.plugin.handlers.ConstraintsManageHandler"
            commandId="pt.uminho.haslab.echo.commands.constraintsmanage">
-                <enabledWhen>
+              <!--  <enabledWhen>
                <iterate>
                      <test
                            forcePluginActivation="true"
@@ -369,7 +369,7 @@
                            value="true">
                      </test>
                </iterate>
-            </enabledWhen>
+            </enabledWhen> -->
   </handler>
   <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelViewHandler"
            commandId="pt.uminho.haslab.echo.commands.modelview">        
