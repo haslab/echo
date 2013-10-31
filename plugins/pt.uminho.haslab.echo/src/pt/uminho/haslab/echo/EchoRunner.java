@@ -15,7 +15,7 @@ import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
 
-
+    //TODO: Finished Runner-> store the last finished runner, and use that one in write etc.
     private EngineRunner runner = null;
     private EngineFactory engineFactory;
     private Thread currentOperation = null;
@@ -257,8 +257,12 @@ public class EchoRunner {
 	 * @return the Alloy instance, if satisfiable
 	 */
 	public EchoSolution getAInstance() {
-		if (runner != null && runner.getSolution()!= null && runner.getSolution().satisfiable()) return runner.getSolution();
-		else return null;
+		if (runner != null &&
+                runner.getSolution()!= null &&
+                runner.getSolution().satisfiable())
+            return runner.getSolution();
+		else
+            return null;
 	}
 
 	/**
@@ -278,7 +282,8 @@ public class EchoRunner {
 	 * @throws ErrorUnsupported 
 	 */
 	public void writeAllInstances (String metamodeluri, String modeluri) throws ErrorInternalEngine, ErrorTransform, ErrorUnsupported {
-		EchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri);
+		//if(currentOperation!=null && !currentOperation.isAlive())
+            EchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri);
 	}
 
 	/**
@@ -288,14 +293,15 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public void writeInstance (String modeluri) throws ErrorInternalEngine, ErrorTransform {
-		EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri);
+        //if(currentOperation!=null && !currentOperation.isAlive())
+            EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri);
 	}
 
-    public  boolean isRunningLongOperation(){
+    public  boolean isRunning(){
         return currentOperation!=null?currentOperation.isAlive():false;
     }
 
-    public void cancelLongOperation(){
+    public void cancel(){
         if(currentOperation!=null && currentOperation.isAlive())
             currentOperation.interrupt();
     }
