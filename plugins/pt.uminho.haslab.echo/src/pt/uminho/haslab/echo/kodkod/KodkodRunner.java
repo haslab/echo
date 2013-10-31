@@ -19,6 +19,10 @@ public class KodkodRunner implements EngineRunner{
     public KodkodRunner(){}   //TODO
 
     @Override
+    public void show(List<String> modelUris) throws ErrorInternalEngine {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+    @Override
     public void conforms(List<String> modelUris) throws ErrorInternalEngine {
         //To change body of implemented methods use File | Settings | File Templates.
     }

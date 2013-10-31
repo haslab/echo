@@ -3,10 +3,10 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="NHSM" nsURI="NHSM" nsPrefix="nhsm">
   <eClassifiers xsi:type="ecore:EClass" name="StateMachine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="states" upperBound="-1"
-        eType="ecore:EClass #//State"
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//State"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transitions" upperBound="-1"
-        eType="ecore:EClass #//Transition"
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//Transition"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
@@ -15,8 +15,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Transition">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" lowerBound="1"
-        eType="ecore:EClass #//State"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//State"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
-        eType="ecore:EClass #//State"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//State"/>
   </eClassifiers>
 </ecore:EPackage>

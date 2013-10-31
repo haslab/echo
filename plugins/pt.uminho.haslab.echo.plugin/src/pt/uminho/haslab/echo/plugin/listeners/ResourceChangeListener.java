@@ -18,7 +18,9 @@ import org.eclipse.ui.PlatformUI;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
+import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -33,6 +35,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 	 */
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
+		EchoReporter.getInstance().debug("I'm here !!!");
 		switch (event.getType()) {
 		case IResourceChangeEvent.POST_CHANGE:
 			try {
@@ -66,17 +69,17 @@ public class ResourceChangeListener implements IResourceChangeListener {
 							if (p.isManagedModel(res)) {
 								EchoReporter.getInstance().debug("Tracked model was changed");
 								Job j = new ModelChangedJob(f);
-								j.setRule(f);
+								j.setRule(new ResourceRules(f));
 								j.schedule();
 							} else if (p.isManagedMetamodel(res)) {
 								EchoReporter.getInstance().debug("Tracked metamodel was changed");
 								Job j = new MetaModelChangedJob(f);
-								j.setRule(f);
+								j.setRule(new ResourceRules(f));
 								j.schedule();
 							} else if (p.isManagedQVT(res)) {
 							    EchoReporter.getInstance().debug("Tracked qvt spec was changed");
 								Job j = new QVTChangedJob(f);
-								j.setRule(f);
+								j.setRule(new ResourceRules(f));
 								j.schedule();
 							} 
 						}
@@ -87,17 +90,17 @@ public class ResourceChangeListener implements IResourceChangeListener {
 						if (p.isManagedModel(res)) {
 							EchoReporter.getInstance().debug("Tracked model was removed");
 							Job j = new ModelDeletedJob(f);
-							j.setRule(f);
+							j.setRule(new ResourceRules(f));
 							j.schedule();
 						} else if (p.isManagedMetamodel(res)) {
 							EchoReporter.getInstance().debug("Tracked metamodel was removed");
 							Job j = new MetaModelChangedJob(f);
-							j.setRule(f);
+							j.setRule(new ResourceRules(f));
 							j.schedule();
 						} else if (p.isManagedQVT(res)) {
 						    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
 							Job j = new QVTDeletedJob(f);
-							j.setRule(f);
+							j.setRule(new ResourceRules(f));
 							j.schedule();
 						} 
 					}
@@ -117,7 +120,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			private IResource res = null;
 
 			public ModelDeletedJob(IResource r) {
-				super("Deleting model.");
+				super("Removing model "+r.getName()+".");
 				res = r;
 			}
 
@@ -149,7 +152,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			private IResource res = null;
 
 			public MetamodelDeletedJob(IResource r) {
-				super("Deleting meta-model.");
+				super("Removing metamodel "+r.getName()+".");
 				res = r;
 			}
 
@@ -180,7 +183,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			private IResource res = null;
 
 			public QVTDeletedJob(IResource r) {
-				super("Deleting QVT resource.");
+				super("Removing QVT resource "+r.getName()+".");
 				res = r;
 			}
 
@@ -211,7 +214,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			private IResource res = null;
 
 			public MetaModelChangedJob(IResource r) {
-				super("Meta-model reload.");
+				super("Reloading metamodel "+r.getName()+".");
 				res = r;
 			}
 
@@ -224,14 +227,15 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				try {
 					resmanager.reloadMetamodel(res);
 				} catch (Exception e) {
+					e.printStackTrace();
+					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+							"Error reloading meta-model.",
+							"Meta-model will be untracked.");
 					try {
 						resmanager.remMetamodel(res);
 					} catch (ErrorAPI | ErrorParser e1) {
 						e1.printStackTrace();
 					}
-					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-									"Error reloading meta-model.",
-									"Meta-model has been untracked.");
 					return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;
@@ -244,18 +248,18 @@ public class ResourceChangeListener implements IResourceChangeListener {
 		 * @author nmm
 		 *
 		 */
-		class ModelChangedJob extends WorkspaceJob {
+		class ModelChangedJob extends Job {
 			private IResource res = null;
 
 			public ModelChangedJob(IResource r) {
-				super("Model reload.");
+				super("Reloading model "+r.getName()+".");
 				res = r;
 			}
 
 			@Override
-			public IStatus runInWorkspace(IProgressMonitor monitor)
-					throws CoreException {
+			public IStatus run(IProgressMonitor monitor) {
 
+				EchoReporter.getInstance().debug("IM ALIVE");
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
@@ -284,7 +288,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			private IResource res = null;
 
 			public QVTChangedJob(IResource r) {
-				super("QVT constraint reload.");
+				super("Reloading QVT resource "+r.getName()+".");
 				res = r;
 			}
 
