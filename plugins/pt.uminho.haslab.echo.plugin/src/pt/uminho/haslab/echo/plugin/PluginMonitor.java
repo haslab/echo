@@ -33,7 +33,7 @@ public class PluginMonitor implements IProgressMonitor {
 
 	@Override
 	public void setCanceled(boolean value) {
-		// TODO Auto-generated method stub
+		EchoPlugin.getInstance().getRunner().cancel();
 		EchoReporter.getInstance().debug("CANCEL!!!!");		
 	}
 

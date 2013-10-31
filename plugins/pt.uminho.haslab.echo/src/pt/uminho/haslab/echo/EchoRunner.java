@@ -192,9 +192,10 @@ public class EchoRunner {
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @param targeturi the URI of the target model
+	 * @return 
 	 * @throws ErrorInternalEngine
 	 */
-	public void enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws ErrorInternalEngine {
+	public boolean enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws ErrorInternalEngine, InterruptedException {
 		runner = engineFactory.createRunner();
         currentOperation = new Thread(new Runnable() {
             @Override
@@ -213,7 +214,9 @@ public class EchoRunner {
             currentOperation.join();
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            return false;
         }
+        return true;
     }
 
 	/**

@@ -20,7 +20,7 @@ public class SolutionNextHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		try {
-			EchoRunner.getInstance().next();
+			EchoPlugin.getInstance().getRunner().next();
 			
 			GraphView amv = EchoPlugin.getInstance().getGraphView();
 			if(amv!= null) amv.drawGraph();
