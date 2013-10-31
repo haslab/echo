@@ -19,6 +19,7 @@ import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
@@ -62,9 +63,10 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		String path = res.getFullPath().toString();
 
 		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
+
 			try {
 				RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				String metadir = EchoRunner.getInstance().getMetaModelFromModelPath(path);
+				String metadir = EchoPlugin.getInstance().getRunner().getMetaModelFromModelPath(path);
 				if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 					list.add(path);
 					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
@@ -120,7 +122,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		public IStatus run(IProgressMonitor monitor)  {
 			boolean suc  = false;
 			try {
-				suc = EchoRunner.getInstance().enforce(constraint,list, res.getFullPath().toString());
+				suc = EchoPlugin.getInstance().getRunner().enforce(constraint,list, res.getFullPath().toString());
 				if (suc) {
 					EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
 					EchoPlugin.getInstance().getGraphView().drawGraph();

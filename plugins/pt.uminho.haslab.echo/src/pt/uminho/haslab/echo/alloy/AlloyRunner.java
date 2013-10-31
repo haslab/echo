@@ -61,7 +61,7 @@ public class AlloyRunner implements EngineRunner{
 	private PrimSig targetstate;
 	
 	private Command cmd = null;
-	
+
 	/** 
 	 * Constructs a new Alloy Runner that performs tests and generates instances
 	 */
@@ -189,7 +189,7 @@ public class AlloyRunner implements EngineRunner{
 	 * @throws ErrorAlloy 
 	 * @throws ErrorUnsupported 
 	 */
-	public boolean generate(String metaModelUri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
+	public boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope) throws ErrorAlloy, ErrorUnsupported {
 		List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metaModelUri);
 		if (rootobjects.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootobjects);
 
@@ -255,10 +255,11 @@ public class AlloyRunner implements EngineRunner{
 	
 	/**
 	 * Initializes q QVT-R enforcement command
-	 * @param qvturi the URI of the QVT-R transformation
-	 * @param modeluris the URIs of the instances
-	 * @param diruri the URI of the target model
-	 * @return 
+	 *
+     * @param qvturi the URI of the QVT-R transformation
+     * @param modeluris the URIs of the instances
+     * @param diruri the URI of the target model
+     * @return
 	 * @throws ErrorAlloy
 	 */
 	public boolean enforce(String qvturi, List<String> modeluris, String diruri) throws ErrorAlloy {
@@ -317,6 +318,7 @@ public class AlloyRunner implements EngineRunner{
             	increment();
             }
             return true;
+            
 		} 
 	}
 	

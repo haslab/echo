@@ -8,11 +8,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
@@ -46,6 +49,7 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 	@Override
 	public void run(IMarker marker) {
 		IResource res = marker.getResource();
+		String path = res.getFullPath().toString();
 
 		((PlugInOptions) EchoOptionsSetup.getInstance())
 				.setOperationBased(metric.equals(EchoMarker.OBD));
@@ -75,7 +79,7 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 		@Override
 		public IStatus run(IProgressMonitor monitor) {
 			try {
-				EchoRunner.getInstance().repair(res.getFullPath().toString());
+				EchoPlugin.getInstance().getRunner().repair(res.getFullPath().toString());
 				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(), false, null);
 				EchoPlugin.getInstance().getGraphView().drawGraph();
 			} catch (Exception e) {

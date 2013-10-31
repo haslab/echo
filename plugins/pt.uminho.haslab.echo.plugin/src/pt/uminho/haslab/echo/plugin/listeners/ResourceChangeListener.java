@@ -236,6 +236,9 @@ public class ResourceChangeListener implements IResourceChangeListener {
 					} catch (ErrorAPI | ErrorParser e1) {
 						e1.printStackTrace();
 					}
+					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+									"Error reloading meta-model.",
+									"Meta-model has been untracked.");
 					return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;

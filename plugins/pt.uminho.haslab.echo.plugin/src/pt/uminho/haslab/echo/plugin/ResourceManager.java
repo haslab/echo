@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
@@ -35,7 +36,7 @@ import pt.uminho.haslab.echo.plugin.views.GraphView;
 public class ResourceManager {
 
 	private EchoReporter reporter = EchoReporter.getInstance();
-	private EchoRunner runner = EchoRunner.getInstance();
+	private EchoRunner runner = EchoPlugin.getInstance().getRunner();
 	private EchoParser parser = EchoParser.getInstance();
 
 	/** The map of managed model resources: MetamodelURI -> ListModelResources **/
@@ -168,6 +169,7 @@ public class ResourceManager {
 			this.removeQVTConstraint(c);
 		}
 		
+
 		EchoMarker.removeIntraMarkers(resmodel);
 		EchoMarker.removeInterMarkers(resmodel);
 
@@ -339,7 +341,6 @@ public class ResourceManager {
 		return c;
 	}
 	
-	
 	/**
 	 * Removes a particular QVT-R constraint between two model resources
 	 * QVT-R representation (vs particular constraint) remains in the system
@@ -356,6 +357,7 @@ public class ResourceManager {
 		if (constraints.getAllConstraintsConstraint(c.constraint) == null ||
 				constraints.getAllConstraintsConstraint(c.constraint).size() == 0)
 			runner.remQVT(c.constraint.getFullPath().toString());
+
 
 		EchoMarker.removeRelatedInterMarker(c);
 	}
