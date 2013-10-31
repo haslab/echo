@@ -23,8 +23,6 @@ public class PlugInOptions implements EchoOptions {
 	private boolean verbose = EchoOptionsSetup.DEFAULT_VERBOSE;
 	private boolean overwrite = EchoOptionsSetup.DEFAULT_OVERWRITE;
 	
-	
-
 	public PlugInOptions() {
 		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.BITWIDTH, EchoOptionsSetup.DEFAULT_BITWIDTH);
 		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.SCOPE, EchoOptionsSetup.DEFAULT_SCOPE);
