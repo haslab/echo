@@ -16,26 +16,26 @@ import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
  * @author nmm
  * 
  */
-public class QVTConstraintAddWizard extends Wizard {
+public class ConstraintAddWizard extends Wizard {
 
-	private QVTConstraintAddWizardPage page;
+	private ConstraintAddWizardPage page;
 
 	private final IResource qvt_resource;
 	private Shell shell;
 
-	public QVTConstraintAddWizard() {
+	public ConstraintAddWizard() {
 		super();
 		qvt_resource = null;
 	}
 
-	public QVTConstraintAddWizard(IResource qvt_resource) {
+	public ConstraintAddWizard(IResource qvt_resource) {
 		super();
 		this.qvt_resource = qvt_resource;
 	}
 
 	@Override
 	public void addPages() {
-		page = new QVTConstraintAddWizardPage(qvt_resource);
+		page = new ConstraintAddWizardPage(qvt_resource);
 		addPage(page);
 	}
 

@@ -1,7 +1,7 @@
 package pt.uminho.haslab.echo;
 
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+
 
 import java.util.List;
 import java.util.Map;

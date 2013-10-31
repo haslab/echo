@@ -38,6 +38,7 @@ Repair procedures are always *minimal*, in the sense that the resulting consiste
 
 For more information about how the tool is implemented please consult the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf), accepted for publication at [FASE'13](http://www.etaps.org/2013/fase13). For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
 
+([read more](https://github.com/haslab/echo/wiki/Overview))
 
 ## Installing
 
@@ -66,6 +67,9 @@ git checkout v0.1
 ```
 This will create the `echo.jar` file in the project's root directory.
 -->
+
+([read more](https://github.com/haslab/echo/wiki/Install))
+
 ## Running
 
 The best way to get started with Echo is to watch this [video](https://vimeo.com/67716977).
@@ -92,15 +96,22 @@ Echo can also simply be run to check if the instances conform to the models as:
 java -jar -t -m <models>... -i <instances>...
 ```
 -->
+
+([read more](https://github.com/haslab/echo/wiki/Tutorial))
+
 ## Examples
 
 Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains ECore meta-models and QVT-R implementations of some typical bidirectional transformations, as well some example XMI model instances. Alternatively, download this [archive](http://haslab.github.io/echo/downloads/echo-0.2.0_examples.zip) containing the same examples.
 
 <!--Files `enforce` and `check` are example commands that perform consistency checks and enforcement executions, respectively.-->
 
+([read more](https://github.com/haslab/echo/wiki/Examples))
+
 ## Publications
-* N. Macedo, T. Guimarães and A. Cunha. *Model repair and transformation with Echo*. Submitted. 2013.
+* N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](http://alfa.di.uminho.pt/~nfmmacedo/publications/echo13.pdf). To appear in proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). ACM, 2013.
 * N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
+
+([read more](https://github.com/haslab/echo/wiki/Publications))
 
 ## Contributors
 * [Alcino Cunha] (http://di.uminho.pt/~mac)

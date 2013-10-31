@@ -65,7 +65,7 @@ public class AlloyRunner implements EngineRunner{
 	/** 
 	 * Constructs a new Alloy Runner that performs tests and generates instances
 	 */
-	public AlloyRunner () {
+	public AlloyRunner () {	
 		rep = new A4Reporter() {
 			@Override public void warning(ErrorWarning msg) {
 				EchoReporter.getInstance().debug("[Alloy] Warning:"+(msg.toString().trim()));
@@ -140,9 +140,8 @@ public class AlloyRunner implements EngineRunner{
 
 	/**
 	 * Initializes a repair command
-	 *
-     * @param modeluri the URIs of the instances
-     * @throws ErrorAlloy
+	 * @param modeluri the URIs of the instances
+	 * @throws ErrorAlloy
 	 */
 	public boolean repair(String modeluri) throws ErrorAlloy {
 		if (EchoOptionsSetup.getInstance().isOperationBased())
@@ -186,9 +185,8 @@ public class AlloyRunner implements EngineRunner{
 	
 	/** 
 	 * Generates instances conforming to given models
-	 *
-     * @param metaModelUri the URIs of the models
-     * @throws ErrorAlloy
+	 * @param metaModelUri the URIs of the models
+	 * @throws ErrorAlloy 
 	 * @throws ErrorUnsupported 
 	 */
 	public boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope) throws ErrorAlloy, ErrorUnsupported {

@@ -192,7 +192,6 @@ public class EchoRunner {
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @param targeturi the URI of the target model
-	 * @return true if able to generate model
 	 * @throws ErrorInternalEngine
 	 */
 	public void enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws ErrorInternalEngine {

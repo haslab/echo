@@ -57,7 +57,6 @@ public class EchoInterQuickFix implements IMarkerResolution {
 	 */
 	@Override
 	public void run(IMarker marker) {
-		EchoRunner echo = EchoPlugin.getInstance().getRunner();
 		EchoParser parser = EchoParser.getInstance();
 		ArrayList<String> list = new ArrayList<String>(1);
 		IResource res = marker.getResource();
@@ -67,8 +66,8 @@ public class EchoInterQuickFix implements IMarkerResolution {
 
 			try {
 				RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				String metaDir = echo.getMetaModelFromModelPath(path);
-				if (metaDir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
+				String metadir = EchoRunner.getInstance().getMetaModelFromModelPath(path);
+				if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 					list.add(path);
 					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
 				} else {

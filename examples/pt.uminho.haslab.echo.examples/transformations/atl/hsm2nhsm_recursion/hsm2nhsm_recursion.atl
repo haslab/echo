@@ -1,0 +1,41 @@
+-- @atlcompiler atl2006
+-- @nsURI HSM=HSM.ecore
+-- @nsURI NHSM=NHSM.ecore
+
+module HSM2NHSM;
+create OUT : NHSM from IN : HSM;
+
+helper context HSM!State def :
+	topcontainer : HSM!State =
+		if self.owner->isEmpty() then self
+		else self.container.topcontainer
+		endif;
+	
+rule M2M { 
+	from
+		c : HSM!StateMachine ()
+	to
+		t : NHSM!StateMachine (
+			name <- c.name
+		)
+}
+
+rule S2S{
+	from
+		c : HSM!State (c.owner->isEmpty()) 
+	to 
+		t : NHSM!State (
+			name <- c.name,
+			machine <- c.machine
+		)
+}
+
+rule T2T {
+	from 
+		c : HSM!Transition
+	to 
+		s : NHSM!Transition(
+			source <- c.source.topcontainer,
+			target <- c.target.topcontainer
+	)
+}

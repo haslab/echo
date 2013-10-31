@@ -1,5 +1,5 @@
 ### HSM2NHSM (transitive closure)
-The [HSM2NHSM.qvtr](hsm2nhsm_closure.qvtr) transformation specifies the collapse/expansion of state diagrams
+The [hsm2nhsm_closure.qvtr](hsm2nhsm_closure.qvtr) transformation specifies the collapse/expansion of state diagrams
 
 #### Overview
 Every top-level State on the expanded state diagram is matched to a State in the collapsed state diagram with the same name. Transitions at the expanded sate diagram pushed up from nested States to the top-level States at the collapsed state diagram.

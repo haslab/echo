@@ -1,0 +1,11 @@
+import A : '../../../metamodels/multiplicities/A_extended.ecore' :: A;
+import B : '../../../metamodels/multiplicities/B_base.ecore' :: B;
+
+transformation a2b (as : A, bs : B) {
+	top relation R2R { 
+    	domain as ra:RootA {};
+    	domain bs rb:RootB {};
+    	where { ra.as->size() = rb.bs->size(); }
+    	
+  	}
+}
