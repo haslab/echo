@@ -140,10 +140,11 @@ public class AlloyRunner implements EngineRunner{
 
 	/**
 	 * Initializes a repair command
-	 * @param modeluri the URIs of the instances
-	 * @throws ErrorAlloy
+	 *
+     * @param modeluri the URIs of the instances
+     * @throws ErrorAlloy
 	 */
-	public void repair(String modeluri) throws ErrorAlloy {
+	public boolean repair(String modeluri) throws ErrorAlloy {
 		if (EchoOptionsSetup.getInstance().isOperationBased())
 			AlloyEchoTranslator.getInstance().createScopesFromOps(modeluri);
 		else
@@ -179,16 +180,18 @@ public class AlloyRunner implements EngineRunner{
             	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
             	increment();
             }
+            return true;
 		} 
 	}
 	
 	/** 
 	 * Generates instances conforming to given models
-	 * @param metaModelUri the URIs of the models
-	 * @throws ErrorAlloy 
+	 *
+     * @param metaModelUri the URIs of the models
+     * @throws ErrorAlloy
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(String metaModelUri, Map<Entry<String,String>,Integer> scope) throws ErrorAlloy, ErrorUnsupported {
+	public boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope) throws ErrorAlloy, ErrorUnsupported {
 		List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metaModelUri);
 		if (rootobjects.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootobjects);
 
@@ -221,6 +224,7 @@ public class AlloyRunner implements EngineRunner{
         	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
         	increment();
         }
+        return true;
 	}
 		
 	/** 
@@ -253,13 +257,14 @@ public class AlloyRunner implements EngineRunner{
 	
 	/**
 	 * Initializes q QVT-R enforcement command
-	 * @param qvturi the URI of the QVT-R transformation
-	 * @param modeluris the URIs of the instances
-	 * @param diruri the URI of the target model
-	 * @return 
+	 *
+     * @param qvturi the URI of the QVT-R transformation
+     * @param modeluris the URIs of the instances
+     * @param diruri the URI of the target model
+     * @return
 	 * @throws ErrorAlloy
 	 */
-	public void enforce(String qvturi, List<String> modeluris, String diruri) throws ErrorAlloy {
+	public boolean enforce(String qvturi, List<String> modeluris, String diruri) throws ErrorAlloy {
 		if (EchoOptionsSetup.getInstance().isOperationBased())
 			AlloyEchoTranslator.getInstance().createScopesFromOps(diruri);
 		else
@@ -314,12 +319,13 @@ public class AlloyRunner implements EngineRunner{
             	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
             	increment();
             }
+            return true;
             
 		} 
 	}
 	
 	
-	public void generateQvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorAlloy, ErrorUnsupported {
+	public boolean generateQvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorAlloy, ErrorUnsupported {
 		Map<Entry<String,String>,Integer> scope = new HashMap<Entry<String,String>,Integer>();
 		
 		List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metamodeluri);
@@ -362,6 +368,7 @@ public class AlloyRunner implements EngineRunner{
         	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
         	increment();
         }
+        return true;
 	}
 	
 	/**

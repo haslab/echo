@@ -18,15 +18,15 @@ public interface EngineRunner {
 
     void show(List<String> modelUris) throws ErrorInternalEngine;
 
-    boolean repair(String targetUri) throws ErrorInternalEngine;
+    boolean repair(String modeluri) throws ErrorInternalEngine;
 
-    void generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported, InterruptedException;
+    boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope) throws ErrorInternalEngine, ErrorUnsupported, InterruptedException;
 
     void check(String qvtUri, List<String> modelUris) throws ErrorInternalEngine;
 
-    void enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine,InterruptedException;
+    boolean enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine,InterruptedException;
 
-    void generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported,InterruptedException;
+    boolean generateQvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorInternalEngine, ErrorUnsupported,InterruptedException;
 
     void nextInstance() throws ErrorInternalEngine;
 

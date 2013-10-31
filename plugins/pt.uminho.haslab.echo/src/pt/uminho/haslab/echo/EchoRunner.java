@@ -125,7 +125,7 @@ public class EchoRunner {
 	}
 	
 	public boolean show(List<String> modeluris) throws ErrorInternalEngine {
-		runner = EngineFactory.instance().createRunner();
+		runner = engineFactory.createRunner();
 		runner.show(modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -215,6 +215,7 @@ public class EchoRunner {
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+    }
 
 	/**
 	 * Generates a model conforming to the given meta-model and consistent with existing models through a QVT-R transformation

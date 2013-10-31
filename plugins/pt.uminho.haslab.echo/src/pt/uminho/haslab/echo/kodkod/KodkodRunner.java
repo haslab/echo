@@ -28,13 +28,15 @@ public class KodkodRunner implements EngineRunner{
     }
 
     @Override
-    public void repair(String targetUri) throws ErrorInternalEngine {
+    public boolean repair(String modeluri) throws ErrorInternalEngine {
         //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
-    public void generate(String metaModelUri, Map<Map.Entry<String, String>, Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
+    public boolean generate(String metaModelUri, Map<Map.Entry<String, String>, Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
         //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
@@ -43,13 +45,15 @@ public class KodkodRunner implements EngineRunner{
     }
 
     @Override
-    public void enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine {
+    public boolean enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine {
         //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
-    public void generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported {
+    public boolean generateQvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorInternalEngine, ErrorUnsupported {
         //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
