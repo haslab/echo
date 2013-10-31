@@ -65,4 +65,9 @@ public class KodkodRunner implements EngineRunner{
     public EchoSolution getSolution() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public void cancel() {
+        ;
+    }
 }

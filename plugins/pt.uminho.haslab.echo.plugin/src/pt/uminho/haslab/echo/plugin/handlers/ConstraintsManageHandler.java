@@ -23,13 +23,14 @@ public class ConstraintsManageHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		IEditorPart iworkbench = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-		 IEditorInput input = iworkbench.getEditorInput();
-		 IFile res = ((IFileEditorInput)input).getFile();
-		
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		PreferenceDialog x = PreferencesUtil.createPropertyDialogOn(shell, res.getProject(), ProjectConstraintsPage.ID, new String[] { ProjectConstraintsPage.ID}, Collections.EMPTY_MAP);
-		x.open();
-		
+		if (iworkbench != null) {
+			IEditorInput input = iworkbench.getEditorInput();
+			IFile res = ((IFileEditorInput)input).getFile();
+			
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			PreferenceDialog x = PreferencesUtil.createPropertyDialogOn(shell, res.getProject(), ProjectConstraintsPage.ID, new String[] { ProjectConstraintsPage.ID}, Collections.EMPTY_MAP);
+			x.open();
+		}
 		return null;
 	}
 

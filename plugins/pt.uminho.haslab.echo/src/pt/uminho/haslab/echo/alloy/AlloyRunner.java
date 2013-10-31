@@ -11,15 +11,12 @@ import java.util.Set;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
+import edu.mit.csail.sdg.alloy4.*;
 import org.eclipse.emf.ecore.EClass;
 
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
-import edu.mit.csail.sdg.alloy4.A4Reporter;
-import edu.mit.csail.sdg.alloy4.ConstList;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
@@ -461,7 +458,12 @@ public class AlloyRunner implements EngineRunner{
         else return null;
 	}
 
-	/** 
+    @Override
+    public void cancel() {
+        WorkerEngine.stop();
+    }
+
+    /**
 	 * Returns the current delta value.
 	 * @return this.delta
 	 */
