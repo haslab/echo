@@ -24,7 +24,6 @@ public class EchoRunner {
         EchoTranslator.init(factory);
     }
 
-
 	/**
 	 * Translates a meta-model into Alloy
 	 * @param metaModel the EPackage representing the meta-model to translate
@@ -124,10 +123,17 @@ public class EchoRunner {
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
 	}
+	
+	public boolean show(List<String> modeluris) throws ErrorInternalEngine {
+		runner = EngineFactory.instance().createRunner();
+		runner.show(modeluris);
+		return runner.getSolution().satisfiable();
+	}
 
 	/**
 	 * Repairs a model not conforming to its meta-model
 	 * @param targeturi the URI of the model to repair
+	 * @return true if the model was successfully repaired
 	 * @throws ErrorInternalEngine
 	 */
 	public void repair(String targeturi) throws ErrorInternalEngine {
@@ -139,7 +145,9 @@ public class EchoRunner {
 	 * Generates a model conforming to the given meta-model
 	 * @param metamodeluri the URI of the meta-model
 	 * @param scope the exact scopes of the model to generate
+	 * @return true if able to generate conforming model
 	 * @throws ErrorInternalEngine
+	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
 	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
@@ -184,6 +192,7 @@ public class EchoRunner {
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @param targeturi the URI of the target model
+	 * @return true if able to generate model
 	 * @throws ErrorInternalEngine
 	 */
 	public void enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws ErrorInternalEngine {
@@ -206,8 +215,6 @@ public class EchoRunner {
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-
-    }
 
 	/**
 	 * Generates a model conforming to the given meta-model and consistent with existing models through a QVT-R transformation
@@ -246,6 +253,7 @@ public class EchoRunner {
 
 	/**
 	 * Shows the next Alloy instance, if any
+	 * @return true if able to generate another instance
 	 * @throws ErrorInternalEngine
 	 */
 	public void next() throws ErrorInternalEngine {

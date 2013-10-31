@@ -65,7 +65,7 @@ public class AlloyRunner implements EngineRunner{
 	/** 
 	 * Constructs a new Alloy Runner that performs tests and generates instances
 	 */
-	public AlloyRunner () {	
+	public AlloyRunner () {
 		rep = new A4Reporter() {
 			@Override public void warning(ErrorWarning msg) {
 				EchoReporter.getInstance().debug("[Alloy] Warning:"+(msg.toString().trim()));
@@ -100,6 +100,27 @@ public class AlloyRunner implements EngineRunner{
 		for (String modeluri : modeluris) {
 			addInstanceSigs(modeluri);
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getConformsInstance(modeluri));
+			finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getModelFact(modeluri));
+		}
+		
+		/*for (Sig sig : allsigs) {
+			EchoReporter.getInstance().debug(sig +" : "+((PrimSig)sig).parent + " : " + sig.attributes);
+			for (Field f : sig.getFields())
+				EchoReporter.getInstance().debug(f.label +" : "+f.type());
+		}*/
+		
+		try {
+			cmd = new Command(true, overall, intscope, -1, finalfact);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+		try {
+			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+	}
+
+	public void show(List<String> modeluris) throws ErrorAlloy {
+		for (String modeluri : modeluris) {
+			addInstanceSigs(modeluri);
+			//finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getConformsInstance(modeluri));
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getModelFact(modeluri));
 		}
 		
@@ -153,7 +174,11 @@ public class AlloyRunner implements EngineRunner{
 			AlloyEchoTranslator.getInstance().createScopesFromURI(modeluri);
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getConformsInstance(modeluri, targetstate));
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getModelFact(modeluri));
-            while(!sol.satisfiable()) increment();
+            while(!sol.satisfiable()) {
+            	if (delta >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+            	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+            	increment();
+            }
 		} 
 	}
 	
@@ -191,8 +216,11 @@ public class AlloyRunner implements EngineRunner{
 
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
-        while (!sol.satisfiable())
-            increment();
+        while(!sol.satisfiable()) {
+        	if (delta >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+        	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+        	increment();
+        }
 	}
 		
 	/** 
@@ -228,6 +256,7 @@ public class AlloyRunner implements EngineRunner{
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param modeluris the URIs of the instances
 	 * @param diruri the URI of the target model
+	 * @return 
 	 * @throws ErrorAlloy
 	 */
 	public void enforce(String qvturi, List<String> modeluris, String diruri) throws ErrorAlloy {
@@ -280,7 +309,12 @@ public class AlloyRunner implements EngineRunner{
 			}
 			//System.out.println(sigs + " for "+ func.decls.get(0).expr + " , "+func.getBody());
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
-            while(!sol.satisfiable()) increment();
+            while(!sol.satisfiable()) {
+            	if (delta >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+            	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+            	increment();
+            }
+            
 		} 
 	}
 	
@@ -323,7 +357,11 @@ public class AlloyRunner implements EngineRunner{
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
-        while(!sol.satisfiable()) increment();
+        while(!sol.satisfiable()) {
+        	if (delta >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+        	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
+        	increment();
+        }
 	}
 	
 	/**
@@ -337,10 +375,8 @@ public class AlloyRunner implements EngineRunner{
 		if (edelta.isSame(Sig.NONE.no())) {
 			scopes = AlloyUtil.incrementStringScopes(scopes);
 			overall++;
-			if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) throw new ErrorAlloy ("Maximum delta reached.");
 		}
 		else {
-			
 			try {
 				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
 				if(!EchoOptionsSetup.getInstance().isOperationBased())

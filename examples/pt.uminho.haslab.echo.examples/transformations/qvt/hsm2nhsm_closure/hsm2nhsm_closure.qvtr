@@ -3,21 +3,47 @@ import NHSM : '../../../metamodels/hsm2nhsm/NHSM.ecore' :: NHSM;
 
 transformation hsm2nhsm (hm : HSM, nm : NHSM) {
 
-	top relation State2State { 
+	-- StateMachineToStateMachine
+	top relation M2M { 
+		n:String;
+		domain hm s:StateMachine { 
+			name=n
+		};
+		domain nm t:StateMachine { 
+			name=n
+		}; 
+	}
+	
+	-- State2State
+	top relation S2S { 
     	n: String; 
     	domain hm s1:State { 
-      		name=n} {s1.owner->isEmpty() };
+    		opposite(StateMachine::states) = sm:StateMachine{},
+      		name=n} 
+      		{s1.container->isEmpty()};
     	domain nm s2:State { 
-      		name=n };
+      		opposite(StateMachine::states) = tm:StateMachine{},
+      		name=n 
+      	};
+      	when { M2M(sm,tm); }	
   	}
 
-  	top relation Transition2Transition { 
-    	n: String; s,t, trg1, src1 : HSM::State; trg2, src2 : HSM::State;
+	-- Transition2Transition
+  	top relation T2T { 
+    	n: String; s,t: HSM::State; 
     	domain hm t1:Transition { 
-      		target = trg1, source = src1};
+      		target = trg1:State{}, 
+      		source = src1:State{}
+      	};
     	domain nm t2:Transition { 
-      		target = trg2, source = src2};
- 		where { s.owner->isEmpty() and (s = src1 or src1->closure(owner)->includes(s)) and State2State(s,src2) and
-    			t.owner->isEmpty() and (t = trg1 or trg1->closure(owner)->includes(t)) and State2State(t,trg2); }
+      		target = trg2:State{}, 
+      		source = src2:State{}
+      	};
+ 		where { s.container->isEmpty() and 
+ 				(s = src1 or src1->closure(container)->includes(s)) and 
+ 				S2S(s,src2) and
+    			t.container->isEmpty() and 
+    			(t = trg1 or trg1->closure(container)->includes(t)) and 
+    			S2S(t,trg2); }
   	}
 }

@@ -8,6 +8,10 @@
             name="Track model">
       </command>
       <command
+            id="pt.uminho.haslab.echo.commands.modelview"
+            name="View model">
+      </command>
+      <command
             id="pt.uminho.haslab.echo.commands.modelsmanage"
             name="Manage models">        
       </command>
@@ -73,7 +77,23 @@
                </iterate>
             </visibleWhen>
          </command>
- 
+          <command
+               commandId="pt.uminho.haslab.echo.commands.modelview"
+               icon="icons/alloy.png"
+               label="View model as graph"
+               style="push">
+                <visibleWhen>
+               <iterate>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.name"
+                           value="*.xmi">
+                     </test>
+                  </adapt>  
+               </iterate>
+            </visibleWhen>
+         </command>
          <command
                commandId="pt.uminho.haslab.echo.commands.qvtconstraint"
                icon="/icons/constraint_add.gif"
@@ -335,7 +355,7 @@
   </handler>
       <handler class="pt.uminho.haslab.echo.plugin.handlers.ConstraintsManageHandler"
            commandId="pt.uminho.haslab.echo.commands.constraintsmanage">
-                <activeWhen>
+                <enabledWhen>
                <iterate>
                      <test
                            forcePluginActivation="true"
@@ -343,9 +363,23 @@
                            value="true">
                      </test>
                </iterate>
-            </activeWhen>
+            </enabledWhen>
   </handler>
-  
+  <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelViewHandler"
+           commandId="pt.uminho.haslab.echo.commands.modelview">        
+          <activeWhen>
+               <iterate>
+              	 <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           forcePluginActivation="true"
+                           property="pt.uminho.haslab.echo.plugin.propertyTester.tracked"
+                           value="true">
+                     </test>
+                  </adapt>
+               </iterate>
+            </activeWhen>
+  </handler>  
   <handler class="pt.uminho.haslab.echo.plugin.handlers.ModelGenerateHandler"
            commandId="pt.uminho.haslab.echo.commands.modelgenerate">           
   </handler>

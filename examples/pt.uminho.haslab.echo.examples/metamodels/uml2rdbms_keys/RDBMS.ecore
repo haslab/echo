@@ -14,10 +14,10 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="tables" upperBound="-1"
-        eType="ecore:EClass #//Table" containment="true"
-        eOpposite="#//Table/scheme"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="keys" upperBound="-1" eType="ecore:EClass #//FKey"
-        containment="true" eOpposite="#//FKey/scheme"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Table"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Table/scheme"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="keys" upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//FKey"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//FKey/scheme"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Table">
     <eAnnotations source="echo/Gen">
@@ -25,7 +25,7 @@
       <details key="gen_linear" value="self.columns->forAll(x | x.name = self.name)"/>
     </eAnnotations>
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_a" value="self.name = n"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -38,39 +38,41 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="columns" lowerBound="1"
-        upperBound="-1" eType="ecore:EClass #//Column"
-        containment="true" eOpposite="#//Column/table"/>
+        upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column/table"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="scheme" lowerBound="1"
-        eType="ecore:EClass #//Scheme" eOpposite="#//Scheme/tables"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="key" eType="ecore:EClass #//PKey"
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Scheme"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Scheme/tables"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="key" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//PKey"
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Column">
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_a" value="self.name = n"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="setTable">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_a" value="self.table.name = n"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="ecore:EClass #//Table"
-        eOpposite="#//Table/columns"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Table"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Table/columns"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="FKey">
     <eStructuralFeatures xsi:type="ecore:EReference" name="refersTo" lowerBound="1"
-        eType="ecore:EClass #//PKey"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//PKey"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="column" lowerBound="1"
-        eType="ecore:EClass #//Column"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="scheme" lowerBound="1"
-        eType="ecore:EClass #//Scheme" eOpposite="#//Scheme/keys"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Scheme"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Scheme/keys"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="PKey">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="column" eType="ecore:EClass #//Column"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="column" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column"/>
   </eClassifiers>
 </ecore:EPackage>

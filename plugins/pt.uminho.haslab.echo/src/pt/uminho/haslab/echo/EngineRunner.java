@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo;
 
+import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,9 @@ import java.util.Map.Entry;
 public interface EngineRunner {
     void conforms(List<String> modelUris) throws ErrorInternalEngine;
 
-    void repair(String targetUri) throws ErrorInternalEngine;
+    void show(List<String> modelUris) throws ErrorInternalEngine;
+
+    boolean repair(String targetUri) throws ErrorInternalEngine;
 
     void generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported, InterruptedException;
 

@@ -2,12 +2,17 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="UML" nsURI="UML" nsPrefix="uml">
   <eClassifiers xsi:type="ecore:EClass" name="Class">
-    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
       <details key="acyclic_inheritance" value="not self->closure(super)->includes(self)"/>
       <details key="unique_names" value="self.attributes->forAll(x | self.attributes->forAll(y | x = y or x.name &lt;> y.name))"/>
     </eAnnotations>
+    <eAnnotations source="Echo/Gen">
+      <details key="gen_linear" value="self.attributes->forAll(x | x.name = self.name)"/>
+      <details key="gen_linear" value="not self.persistent implies (self.attributes->isEmpty() and self.child->one(x | x.persistent) and (self.child->one(x | not x.persistent) or (not self.child->exists(x | not x.persistent))))"/>
+      <details key="gen_linear" value="self.persistent implies (self.attributes->one(x | true) and self.child->isEmpty())"/>
+    </eAnnotations>
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_set_name" value="self.name = n"/>
         <details key="post_frame_condition_package" value="Package.allInstances@pre() = Package.allInstances()"/>
         <details key="post_frame_condition_package_classes" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
@@ -23,7 +28,7 @@
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="addAttribute">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_b" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
         <details key="post_e" value="Package.allInstances()->forAll(x | x.name@pre = x.name)"/>
         <details key="post_f" value="Attribute.allInstances@pre()-> forAll(x | x.name@pre = x.name)"/>
@@ -42,7 +47,7 @@
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="setPersistent">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_b" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
         <details key="post_e" value="Package.allInstances()->forAll(x | x.name@pre = x.name)"/>
         <details key="post_f" value="Attribute.allInstances()-> forAll(x | x.name@pre = x.name)"/>
@@ -71,7 +76,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_a" value="self.name = n"/>
         <details key="post_b" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
         <details key="post_e" value="Package.allInstances()->forAll(x | x.name@pre = x.name)"/>
@@ -92,7 +97,7 @@
     <eAnnotations source="Echo/Gen">
       <details key="gen_linear" value="self.classes->one(x | x.super->isEmpty())"/>
     </eAnnotations>
-    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
       <details key="unique_names" value="self.classes->forAll(x | self.classes->forAll(y | x = y or x.name &lt;> y.name))"/>
     </eAnnotations>
     <eOperations name="setName">
