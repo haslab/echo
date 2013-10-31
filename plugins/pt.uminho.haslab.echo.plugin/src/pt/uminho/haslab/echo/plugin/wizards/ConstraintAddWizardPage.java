@@ -22,14 +22,14 @@ import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-public class QVTConstraintAddWizardPage extends WizardPage {
+public class ConstraintAddWizardPage extends WizardPage {
 
 	private Text[] text_boxes = new Text[3];
 	private IResource[] resources = new IResource[3];
 	private final int FST = 0, SND = 1, QVT = 2;
 	private final String DEFAULT_MESSAGE = "Select two model instances to be constrained by the QVT-R transformation.";
 	
-	public QVTConstraintAddWizardPage(IResource qvt_resource) {
+	public ConstraintAddWizardPage(IResource qvt_resource) {
 		super("Add inter-model consistency");
 		setTitle("Add inter-model consistency");
 	    setDescription(DEFAULT_MESSAGE);

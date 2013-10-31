@@ -100,7 +100,7 @@ public class GraphView extends ViewPart {
 	 * Draws the graph of the current Alloy solution
 	 */
 	public void drawGraph() {
-		EchoRunner runner = EchoPlugin.getInstance().getRunner();
+		EchoRunner runner = EchoRunner.getInstance();
 		A4Solution sol = ((AlloyTuple) runner.getAInstance().getContents()).getSolution();
 		try {
 			if (sol != null && sol.satisfiable()) {
@@ -120,7 +120,7 @@ public class GraphView extends ViewPart {
 	 * If the target model is new, adds it to the managed list
 	 */
 	public void saveInstance() {
-		EchoRunner runner = EchoPlugin.getInstance().getRunner();
+		EchoRunner runner = EchoRunner.getInstance();
 
 		try {
 			if (targetPath == null) {

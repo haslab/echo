@@ -111,6 +111,10 @@ public class OCL2Alloy implements OCLTranslator{
 
 			Expr localfield = propertyToField(prop,var);
 
+			if (part.isIsOpposite()) {
+				localfield = localfield.transpose();
+			}
+
 			// merges the whole thing
 			Expr item;
 			if (ocl.equals(ExprConstant.TRUE)) item = var.in(localfield);

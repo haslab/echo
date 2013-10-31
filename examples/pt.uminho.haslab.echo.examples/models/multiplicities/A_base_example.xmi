@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ASCII"?>
+<A:RootA xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:A="A"
+    xsi:schemaLocation="A /pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_base.ecore">
+  <as/>
+  <as/>
+  <as/>
+</A:RootA>

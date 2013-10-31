@@ -31,7 +31,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
-import pt.uminho.haslab.echo.plugin.wizards.QVTConstraintAddWizard;
+import pt.uminho.haslab.echo.plugin.wizards.ConstraintAddWizard;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 
 public class ProjectConstraintsPage extends PropertyPage implements
@@ -99,7 +99,7 @@ IWorkbenchPropertyPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				WizardDialog wizardDialog = new WizardDialog(e.display.getActiveShell(), 
-						new QVTConstraintAddWizard());
+						new ConstraintAddWizard());
 				wizardDialog.open();		
 				constraintlist.setInput(ProjectPropertiesManager.getProperties(project).getConstraints());
 			}

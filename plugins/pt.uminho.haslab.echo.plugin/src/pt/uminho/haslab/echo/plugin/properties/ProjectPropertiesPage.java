@@ -22,6 +22,7 @@ IWorkbenchPropertyPage {
 	private Spinner scopetext;
 	private Spinner bitwidthtext;
 	private Button optimizationsbutton;
+	private Button ispersistentbutton;
 	private Spinner maxiterations;
 	
 	@Override
@@ -50,6 +51,12 @@ IWorkbenchPropertyPage {
 		bitwidthlabel.setText("Default bitwidth: ");
 		bitwidthtext = new Spinner(group, SWT.SINGLE);
 		bitwidthtext.setSelection(EchoOptionsSetup.getInstance().getBitwidth());
+
+		ispersistentbutton = new Button(group, SWT.CHECK);
+		ispersistentbutton.setText("Persistent constraints ");
+		ispersistentbutton.setSelection(((PlugInOptions)EchoOptionsSetup.getInstance()).isPersistent());
+		new Label(group, SWT.NULL);		
+		
 		optimizationsbutton = new Button(group, SWT.CHECK);
 		optimizationsbutton.setText("Formula simplification ");
 		optimizationsbutton.setSelection(EchoOptionsSetup.getInstance().isOptimize());
@@ -59,10 +66,12 @@ IWorkbenchPropertyPage {
 	
 	@Override
 	protected void performDefaults() {
-		bitwidthtext.setSelection(EchoOptionsSetup.DEFAULT_BITWIDTH);
-		maxiterations.setSelection(EchoOptionsSetup.DEFAULT_DELTA);
-		optimizationsbutton.setSelection(EchoOptionsSetup.DEFAULT_OPTIMIZE);
-		scopetext.setSelection(EchoOptionsSetup.DEFAULT_SCOPE);
+		((PlugInOptions) EchoOptionsSetup.getInstance()).goDefault();
+		maxiterations.setSelection(EchoOptionsSetup.getInstance().getMaxDelta());
+		scopetext.setSelection(EchoOptionsSetup.getInstance().getOverallScope());
+		bitwidthtext.setSelection(EchoOptionsSetup.getInstance().getBitwidth());
+		ispersistentbutton.setSelection(((PlugInOptions)EchoOptionsSetup.getInstance()).isPersistent());
+		optimizationsbutton.setSelection(EchoOptionsSetup.getInstance().isOptimize());	
 	}
 	
 	@Override
@@ -71,6 +80,7 @@ IWorkbenchPropertyPage {
 		op.setBitwidth(bitwidthtext.getSelection());
 		op.setDelta(maxiterations.getSelection());
 		op.setOptimize(optimizationsbutton.getSelection());
+		op.setIsPersistent(ispersistentbutton.getSelection());
 		op.setScope(scopetext.getSelection());
 	}
 	
