@@ -16,13 +16,13 @@ public interface EngineRunner {
 
     void repair(String targetUri) throws ErrorInternalEngine;
 
-    void generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported;
+    void generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported, InterruptedException;
 
     void check(String qvtUri, List<String> modelUris) throws ErrorInternalEngine;
 
-    void enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine;
+    void enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine,InterruptedException;
 
-    void generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported;
+    void generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported,InterruptedException;
 
     void nextInstance() throws ErrorInternalEngine;
 

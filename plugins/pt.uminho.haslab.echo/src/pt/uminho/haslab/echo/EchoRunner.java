@@ -16,8 +16,9 @@ import edu.mit.csail.sdg.alloy4viz.VizState;
 public class EchoRunner {
 
 
-    private EngineRunner runner;
+    private EngineRunner runner = null;
     private EngineFactory engineFactory;
+    private Thread currentOperation = null;
     public EchoRunner(EngineFactory factory) {
         engineFactory = factory;
         EchoTranslator.init(factory);
@@ -28,7 +29,7 @@ public class EchoRunner {
 	 * Translates a meta-model into Alloy
 	 * @param metaModel the EPackage representing the meta-model to translate
 	 * @throws ErrorUnsupported
-	 * @throws pt.uminho.haslab.echo.alloy.ErrorAlloy
+	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
@@ -119,7 +120,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public boolean conforms(List<String> modeluris) throws ErrorInternalEngine {
-		runner = engineFactory.createRunner();
+		EngineRunner runner  = engineFactory.createRunner();
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -127,7 +128,6 @@ public class EchoRunner {
 	/**
 	 * Repairs a model not conforming to its meta-model
 	 * @param targeturi the URI of the model to repair
-	 * @return true if the model was successfully repaired
 	 * @throws ErrorInternalEngine
 	 */
 	public void repair(String targeturi) throws ErrorInternalEngine {
@@ -139,14 +139,31 @@ public class EchoRunner {
 	 * Generates a model conforming to the given meta-model
 	 * @param metamodeluri the URI of the meta-model
 	 * @param scope the exact scopes of the model to generate
-	 * @return true if able to generate conforming model
 	 * @throws ErrorInternalEngine
-	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(String metamodeluri, Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
+	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
 		runner =  engineFactory.createRunner();
-		runner.generate(metamodeluri,scope);
+        currentOperation = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    runner.generate(metamodeluri,scope);
+                } catch (ErrorInternalEngine e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (InterruptedException e) {
+                    System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
+                } catch (ErrorUnsupported errorUnsupported) {
+                    errorUnsupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        });
+        currentOperation.start();
+        try {
+            currentOperation.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 	}
 
 	/**
@@ -157,7 +174,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public boolean check(String qvturi, List<String> modeluris) throws ErrorInternalEngine {
-		runner =  engineFactory.createRunner();
+		EngineRunner runner =  engineFactory.createRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -167,13 +184,30 @@ public class EchoRunner {
 	 * @param qvturi the URI of the QVT-R transformation
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @param targeturi the URI of the target model
-	 * @return true if able to generate model
 	 * @throws ErrorInternalEngine
 	 */
-	public void enforce(String qvturi, List<String> modeluris, String targeturi) throws ErrorInternalEngine {
+	public void enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws ErrorInternalEngine {
 		runner = engineFactory.createRunner();
-		runner.enforce(qvturi, modeluris, targeturi);
-	}
+        currentOperation = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    runner.enforce(qvturi, modeluris, targeturi);
+                } catch (ErrorInternalEngine e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (InterruptedException e) {
+                   System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        });
+        currentOperation.start();
+        try {
+            currentOperation.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+    }
 
 	/**
 	 * Generates a model conforming to the given meta-model and consistent with existing models through a QVT-R transformation
@@ -182,18 +216,36 @@ public class EchoRunner {
 	 * @param modelUris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @param targetUri the URI of the new model
 	 * @throws ErrorInternalEngine
-	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generateQvt(String qvtUri, String metaModelUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine, ErrorUnsupported {
+	public void generateQvt(final String qvtUri, final String metaModelUri, final List<String> modelUris, final String targetUri) throws ErrorInternalEngine, ErrorUnsupported {
 		runner =  engineFactory.createRunner();
-		runner.generateQvt(qvtUri, modelUris, targetUri, metaModelUri);
+        currentOperation = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    runner.generateQvt(qvtUri, modelUris, targetUri, metaModelUri);
+                } catch (ErrorInternalEngine e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (InterruptedException e) {
+                    System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
+                } catch (ErrorUnsupported errorUnsupported) {
+                    errorUnsupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        });
+        currentOperation.start();
+        try {
+            currentOperation.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
 	}
 
 
 	/**
 	 * Shows the next Alloy instance, if any
-	 * @return true if able to generate another instance
 	 * @throws ErrorInternalEngine
 	 */
 	public void next() throws ErrorInternalEngine {
@@ -238,6 +290,15 @@ public class EchoRunner {
 	public void writeInstance (String modeluri) throws ErrorInternalEngine, ErrorTransform {
 		EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri);
 	}
+
+    public  boolean isRunningLongOperation(){
+        return currentOperation!=null?currentOperation.isAlive():false;
+    }
+
+    public void cancelLongOperation(){
+        if(currentOperation!=null && currentOperation.isAlive())
+            currentOperation.interrupt();
+    }
 	
 	public enum Task {
 		ECHO_RUN("echorun"),
@@ -252,6 +313,7 @@ public class EchoRunner {
 		private Task(String label) { this.label = label; }
 
 		private final String label;
+
 		
 		public String toString() {
 			return label;
