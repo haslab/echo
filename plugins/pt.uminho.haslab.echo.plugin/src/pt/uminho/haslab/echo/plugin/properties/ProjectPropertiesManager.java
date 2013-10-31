@@ -118,7 +118,7 @@ public class ProjectPropertiesManager {
 		for (String model : models.split(",")) {
 			IResource res = ResourcesPlugin.getWorkspace().getRoot()
 					.findMember(model);
-			man.addModel(null,res);
+			man.addModel(res);
 		}
 
 		String constraints = propertiesstring.split(",")[0];
@@ -131,7 +131,7 @@ public class ProjectPropertiesManager {
 						.findMember(reses[1]);
 				IResource snd = ResourcesPlugin.getWorkspace().getRoot()
 						.findMember(reses[2]);
-				man.addQVTConstraint(null,con, fst, snd);
+				man.addQVTConstraint(con, fst, snd);
 			}
 		}
 

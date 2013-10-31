@@ -69,7 +69,7 @@ public class ConstraintAddWizard extends Wizard {
 				IResource qvt_resource = page.getQvt();
 
 				ProjectPropertiesManager.getProperties(qvt_resource.getProject())
-						.addQVTgenerate(null,qvt_resource, existing_resource,
+						.addQVTgenerate(qvt_resource, existing_resource,
 								page.getModels().get(new_pos), new_pos);
 			} catch (Exception e) {
 				MessageDialog.openInformation(shell,
@@ -85,7 +85,7 @@ public class ConstraintAddWizard extends Wizard {
 						.findMember(page.getModels().get(1));
 				IResource qvt_resource = page.getQvt();
 				ProjectPropertiesManager.getProperties(qvt_resource.getProject())
-						.addQVTConstraint(null,qvt_resource, fst_resource, snd_resource);
+						.addQVTConstraint(qvt_resource, fst_resource, snd_resource);
 			} catch (Exception e) {
 				MessageDialog.openError(shell, "Error translating QVT-R",
 						e.getMessage());

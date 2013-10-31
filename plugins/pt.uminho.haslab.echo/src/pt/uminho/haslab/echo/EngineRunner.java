@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 public interface EngineRunner {
     void conforms(List<String> modelUris) throws ErrorInternalEngine;
 
+    void show(List<String> modelUris) throws ErrorInternalEngine;
+
     boolean repair(String targetUri) throws ErrorInternalEngine;
 
     boolean generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported;

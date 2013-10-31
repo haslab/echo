@@ -9,7 +9,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.ProgressProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.ui.IMarkerResolution;
@@ -74,6 +76,16 @@ public class EchoInterQuickFix implements IMarkerResolution {
 				((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
 				
 				Job j = new ModelRepairJob(res, list, marker.getAttribute(EchoMarker.CONSTRAINT).toString());
+				IJobManager manager = Job.getJobManager();
+				
+				final PluginMonitor p = new PluginMonitor();
+				ProgressProvider provider = new ProgressProvider() {
+				  @Override
+				  public IProgressMonitor createMonitor(Job job) {
+				    return p;
+				  }
+				};
+				manager.setProgressProvider(provider);
 				j.setRule(new ResourceRules(res));
 				j.schedule();
 
@@ -107,10 +119,9 @@ public class EchoInterQuickFix implements IMarkerResolution {
 
 		@Override
 		public IStatus run(IProgressMonitor monitor)  {
-			Monitor emonitor = new PluginMonitor(monitor);
 			boolean suc  = false;
 			try {
-				suc = EchoRunner.getInstance().enforce(emonitor,constraint,list, res.getFullPath().toString());
+				suc = EchoRunner.getInstance().enforce(constraint,list, res.getFullPath().toString());
 				if (suc) {
 					EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
 					EchoPlugin.getInstance().getGraphView().drawGraph();

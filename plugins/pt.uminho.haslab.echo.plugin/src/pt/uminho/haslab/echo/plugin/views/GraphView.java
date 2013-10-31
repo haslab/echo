@@ -135,7 +135,7 @@ public class GraphView extends ViewPart {
 						targetPath);
 				IResource modelA = ResourcesPlugin.getWorkspace().getRoot()
 						.findMember(targetPath);
-				ProjectPropertiesManager.getProperties(modelA.getProject()).modelGenerated(null,modelA);
+				ProjectPropertiesManager.getProperties(modelA.getProject()).modelGenerated(modelA);
 
 				try {
 					ProjectPropertiesManager.saveProjectProperties(modelA.getProject());

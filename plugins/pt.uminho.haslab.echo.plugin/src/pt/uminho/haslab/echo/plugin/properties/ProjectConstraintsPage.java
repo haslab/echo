@@ -130,7 +130,7 @@ IWorkbenchPropertyPage {
 			Constraint c = (Constraint) x.getData();
 			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
 				try {
-					ProjectPropertiesManager.getProperties(project).addQVTConstraint(null,c.constraint, c.fstmodel, c.sndmodel);
+					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.fstmodel, c.sndmodel);
 				} catch (ErrorUnsupported | ErrorInternalEngine
 						| ErrorTransform | ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block

@@ -73,7 +73,7 @@ public class ModelGenerateWizard extends Wizard {
 				}		
 			}
 			try {
-				ProjectPropertiesManager.getProperties(res.getProject()).generate(null,res,scopes,page.getPath());
+				ProjectPropertiesManager.getProperties(res.getProject()).generate(res,scopes,page.getPath());
 			} catch (ErrorUnsupported | ErrorParser | ErrorTransform | ErrorAPI e) {
 				MessageDialog.openInformation(shell, "Error generating.", e.getMessage());
 			}

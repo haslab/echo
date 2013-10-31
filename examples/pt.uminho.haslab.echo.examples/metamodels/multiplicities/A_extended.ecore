@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="A" nsURI="A" nsPrefix="A">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="AExtended" nsURI="pt/uminho/haslabl/echo/examples/AExtended"
+    nsPrefix="AExtended">
   <eClassifiers xsi:type="ecore:EClass" name="A">
     <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_extended.ecore#//RootA"
         eOpposite="/pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_extended.ecore#//RootA/as"/>

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
@@ -72,11 +73,11 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	private EObject addModelAction(PluginMonitor m, IResource resmodel) throws ErrorUnsupported,
+	private EObject addModelAction(IResource resmodel) throws ErrorUnsupported,
 	ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
 
 		if (isManagedModel(resmodel)) {
-			return reloadModel(m,resmodel);
+			return reloadModel(resmodel);
 		}
 
 		String modeluri = resmodel.getFullPath().toString();
@@ -105,10 +106,10 @@ public class ResourceManager {
 		return model;
 	}
 	
-	public EObject addModel(PluginMonitor m, IResource resmodel) throws ErrorUnsupported,
+	public EObject addModel(IResource resmodel) throws ErrorUnsupported,
 	ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
-		EObject o = addModelAction(m, resmodel);
-		conformMeta(m, resmodel);
+		EObject o = addModelAction( resmodel);
+		conformMeta( resmodel);
 		return o;
 	}
 
@@ -124,7 +125,7 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	private EObject reloadModelAction(PluginMonitor m, IResource resmodel) throws ErrorUnsupported,
+	private EObject reloadModelAction(IResource resmodel) throws ErrorUnsupported,
 			ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
 		String modeluri = resmodel.getFullPath().toString();
 		runner.remModel(modeluri);
@@ -135,10 +136,10 @@ public class ResourceManager {
 		return model;
 	}
 	
-	public EObject reloadModel(PluginMonitor m, IResource resmodel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
-		EObject o = reloadModelAction(m,resmodel);
-		conformMeta(m, resmodel);
-		conformAllQVT(m,resmodel);
+	public EObject reloadModel(IResource resmodel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
+		EObject o = reloadModelAction(resmodel);
+		conformMeta( resmodel);
+		conformAllQVT(resmodel);
 		return o;
 	}
 
@@ -215,7 +216,7 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	public void reloadMetamodel(PluginMonitor m, IResource resmetamodel) throws ErrorInternalEngine,
+	public void reloadMetamodel(IResource resmetamodel) throws ErrorInternalEngine,
 			ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI {
 		String metamodeluri = resmetamodel.getFullPath().toString();
 		runner.remMetaModel(metamodeluri);
@@ -223,12 +224,12 @@ public class ResourceManager {
 		runner.addMetaModel(metamodel);
 
 		for (IResource resqvt : ctracked.get(metamodeluri))
-			reloadQVTConstraintAction(m, resqvt);
+			reloadQVTConstraintAction( resqvt);
 
 		for (IResource resmodel : tracked.get(metamodeluri)) {
-			reloadModelAction(m,resmodel);
-			conformMeta(m, resmodel);
-			conformAllQVT(m,resmodel);
+			reloadModelAction(resmodel);
+			conformMeta( resmodel);
+			conformAllQVT(resmodel);
 		}
 
 		reporter.debug("Metamodel " + metamodeluri + " reloaded.");
@@ -280,12 +281,12 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	private Constraint addQVTConstraintAction(PluginMonitor m, IResource resqvt, IResource resmodelfst,
+	private Constraint addQVTConstraintAction(IResource resqvt, IResource resmodelfst,
 			IResource resmodelsnd) throws ErrorUnsupported, ErrorInternalEngine,
 			ErrorTransform, ErrorParser, ErrorAPI {
 		String qvturi = resqvt.getFullPath().toString();
-		if (!isManagedModel(resmodelfst)) addModelAction(m,resmodelfst);
-		if (!isManagedModel(resmodelsnd)) addModelAction(m,resmodelsnd);
+		if (!isManagedModel(resmodelfst)) addModel(resmodelfst);
+		if (!isManagedModel(resmodelsnd)) addModel(resmodelsnd);
 		EObject fst = parser.getModelFromUri(resmodelfst.getFullPath().toString());
 		EObject snd = parser.getModelFromUri(resmodelsnd.getFullPath().toString());
 		String mmfst = parser.getMetamodelURI(fst.eClass().getEPackage().getName());
@@ -330,11 +331,11 @@ public class ResourceManager {
 		return c;
 	}
 	
-	public Constraint addQVTConstraint(PluginMonitor m, IResource resqvt, IResource resmodelfst,
+	public Constraint addQVTConstraint(IResource resqvt, IResource resmodelfst,
 			IResource resmodelsnd) throws ErrorUnsupported, ErrorInternalEngine,
 			ErrorTransform, ErrorParser, ErrorAPI {
-		Constraint c = addQVTConstraintAction(m, resqvt, resmodelfst, resmodelsnd);
-		conformQVT(m,c);
+		Constraint c = addQVTConstraintAction( resqvt, resmodelfst, resmodelsnd);
+		conformQVT(c);
 		return c;
 	}
 	
@@ -389,7 +390,7 @@ public class ResourceManager {
 	 * @throws ErrorUnsupported 
 	 * @throws ErrorAPI 
 	 */
-	private void reloadQVTConstraintAction(PluginMonitor m, IResource res) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
+	private void reloadQVTConstraintAction(IResource res) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
 		String uri = res.getFullPath().toString();
 		runner.remQVT(uri);
 		RelationalTransformation qvt = parser.loadQVT(uri);
@@ -397,11 +398,11 @@ public class ResourceManager {
 		reporter.debug("QVT " + uri + " reloaded.");
 	}
 
-	public void reloadQVTConstraint(PluginMonitor m, IResource res) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
-		reloadQVTConstraintAction(m,res);
+	public void reloadQVTConstraint(IResource res) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
+		reloadQVTConstraintAction(res);
 		for (Constraint c : constraints.getAllConstraintsConstraint(res)) {
              reporter.debug("Checking " + c);
-             conformQVT(m,c);
+             conformQVT(c);
 		 }
 	}
 	
@@ -419,13 +420,13 @@ public class ResourceManager {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI 
 	 */
-	private void conformMeta(PluginMonitor m, IResource res) throws ErrorInternalEngine, ErrorAPI {
+	private void conformMeta(IResource res) throws ErrorInternalEngine, ErrorAPI {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
 		String path = res.getFullPath().toString();
 		ArrayList<String> list = new ArrayList<String>(1);
 		list.add(path);
-		if (runner.conforms(m, list))
+		if (runner.conforms(list))
 			EchoMarker.removeIntraMarkers(res);
 		else
 			EchoMarker.createIntraMarker(res);
@@ -439,14 +440,14 @@ public class ResourceManager {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI
 	 */
-	private void conformQVT(PluginMonitor m, Constraint c) throws ErrorInternalEngine, ErrorAPI {
+	private void conformQVT(Constraint c) throws ErrorInternalEngine, ErrorAPI {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
 		List<String> modeluris = new ArrayList<String>(2);
 		modeluris.add(c.fstmodel.getFullPath().toString());
 		modeluris.add(c.sndmodel.getFullPath().toString());
 
-		if (!runner.check(m, c.constraint.getFullPath().toString(), modeluris))
+		if (!runner.check(c.constraint.getFullPath().toString(), modeluris))
 				EchoMarker.createInterMarker(c);
 		else 
 			EchoMarker.removeRelatedInterMarker(c);
@@ -458,7 +459,7 @@ public class ResourceManager {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI 
 	 */
-	private void conformAllQVT(PluginMonitor m, IResource res) throws ErrorInternalEngine, ErrorAPI {
+	private void conformAllQVT(IResource res) throws ErrorInternalEngine, ErrorAPI {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
 		String modeluri = res.getFullPath().toString();
@@ -477,7 +478,7 @@ public class ResourceManager {
 				i = 0;
 			}
 			modeluris.add(i, partner.getFullPath().toString());
-			if (runner.check(m, c.constraint.getFullPath().toString(), modeluris))
+			if (runner.check(c.constraint.getFullPath().toString(), modeluris))
 				EchoMarker.removeRelatedInterMarker(c);	
 			else
 				EchoMarker.createInterMarker(c);
@@ -486,7 +487,7 @@ public class ResourceManager {
 
 	}
 
-	public void generate(PluginMonitor m, IResource resmetamodel,
+	public void generate(IResource resmetamodel,
 			Map<Entry<String, String>, Integer> scopes, String target)
 			throws ErrorParser, ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorAPI {
 		String metamodeluri = resmetamodel.getFullPath().toString();
@@ -495,19 +496,19 @@ public class ResourceManager {
 			runner.addMetaModel(metamodel);
 		}
 			
-		runner.generate(m, metamodeluri, scopes);
+		runner.generate(metamodeluri, scopes);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
 		amv.setTargetPath(target, true, resmetamodel);
 		amv.drawGraph();
 	}
 
-	public void addQVTgenerate(PluginMonitor m, IResource resqvt, IResource ressource,
+	public void addQVTgenerate(IResource resqvt, IResource ressource,
 			String target, int newp) throws ErrorParser, ErrorUnsupported,
 			ErrorInternalEngine, ErrorTransform, ErrorAPI {
 
 		if (!isManagedModel(ressource))
-			addModelAction(m,ressource);
+			addModelAction(ressource);
 		RelationalTransformation trans;
 		String metamodeluri = null;
 		
@@ -541,7 +542,7 @@ public class ResourceManager {
 			modeluris.add(target);
 			fstwaiting = ressource;
 		}
-		runner.generateQvt(m, resqvt.getFullPath().toString(), metamodeluri,
+		runner.generateQvt(resqvt.getFullPath().toString(), metamodeluri,
                 modeluris, target);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
@@ -558,16 +559,25 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI
 	 */
-	public void modelGenerated(PluginMonitor m, IResource resmodel) throws ErrorUnsupported, ErrorInternalEngine,
+	public void modelGenerated(IResource resmodel) throws ErrorUnsupported, ErrorInternalEngine,
 			ErrorTransform, ErrorParser, ErrorAPI {
-		addModel(m,resmodel);
+		addModel(resmodel);
 		if (qvtwaiting != null && fstwaiting != null)
-			addQVTConstraint(m,qvtwaiting, fstwaiting, resmodel);
+			addQVTConstraint(qvtwaiting, fstwaiting, resmodel);
 		if (qvtwaiting != null && sndwaiting != null)
-			addQVTConstraint(m,qvtwaiting, resmodel, sndwaiting);
+			addQVTConstraint(qvtwaiting, resmodel, sndwaiting);
 		qvtwaiting = null;
 		fstwaiting = null;
 		sndwaiting = null;
+	}
+
+	public void show(IFile res) throws ErrorInternalEngine {
+		GraphView v = EchoPlugin.getInstance().getGraphView();
+		if (v != null) v.clearGraph();
+		String path = res.getFullPath().toString();
+		ArrayList<String> list = new ArrayList<String>(1);
+		list.add(path);
+		runner.show(list);
 	}
 
 }

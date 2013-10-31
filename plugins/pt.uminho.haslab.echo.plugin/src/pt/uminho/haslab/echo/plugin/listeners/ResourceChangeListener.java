@@ -225,7 +225,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
-					resmanager.reloadMetamodel(new PluginMonitor(monitor),res);
+					resmanager.reloadMetamodel(res);
 				} catch (Exception e) {
 					e.printStackTrace();
 					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
@@ -263,7 +263,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
-					resmanager.reloadModel(new PluginMonitor(monitor),res);
+					resmanager.reloadModel(res);
 				} catch (Exception e) {
 					try {
 						resmanager.remModel(res);
@@ -299,7 +299,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
-					resmanager.reloadQVTConstraint(new PluginMonitor(monitor), res);
+					resmanager.reloadQVTConstraint(res);
 				} catch (Exception e) {
 					MessageDialog.openError(null,
 									"Error reloading model.",

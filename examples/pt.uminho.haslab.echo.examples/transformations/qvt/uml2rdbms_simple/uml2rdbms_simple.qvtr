@@ -3,7 +3,7 @@ import RDBMS : '../../../metamodels/uml2rdbms_simple/RDBMS.ecore' :: RDBMS;
 
 transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
 
- 	top relation P2S { 
+ 	top relation P2S {  
 		pn: String; 
 		domain uml pt:Package { 
 			name=pn };
@@ -15,20 +15,25 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
     	cn: String; 
     	domain uml c:Class { 
       		persistent=true, 
-      		opposite(Package::classes)=p:Package{}, name=cn };
+      		opposite(Package::classes)=p:Package{},
+      		name=cn };
     	domain rdbms t:Table { 
       		scheme=s:Scheme{}, name=cn };
     	when { P2S(p,s); }
     	where { A2C(c,t); }
   	}
 
-  	relation A2C {
+	relation A2C {
     	an : String; a:UML::Attribute; g:UML::Class;
-    	domain uml c:Class {} {g.attributes->includes(a) and a.name = an and (c->closure(super)->includes(g) or g = c) };
-    	domain rdbms t:Table { columns = cl:Column {name = an} };
-  }
-
-
-
+    	domain uml c:Class {} {
+    		g.attributes->includes(a) and 
+    		a.name = an and 
+    		(c->closure(super)->includes(g) or g = c)
+    	};
+    	domain rdbms t:Table { 
+    		columns = cl:Column {name = an}
+    	}; 	
+	}
 
 }
+

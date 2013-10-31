@@ -34,7 +34,7 @@ public class FileTrackHandler extends AbstractHandler {
 			
 			if(extension.equals("xmi")) {			
 				try {
-					ProjectPropertiesManager.getProperties(res.getProject()).addModel(null,res);
+					ProjectPropertiesManager.getProperties(res.getProject()).addModel(res);
 				} catch(Exception e) {
 					MessageDialog.openError(shell, "Failed to track resource.", e.getMessage());
 					e.printStackTrace();

@@ -16,8 +16,8 @@ public class AlloyFactory extends EngineFactory {
 
 
     @Override
-    public EngineRunner createRunner(Monitor monitor) {
-        return  new AlloyRunner(monitor);
+    public EngineRunner createRunner() {
+        return  new AlloyRunner();
     }
 
     @Override

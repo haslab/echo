@@ -76,9 +76,8 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 
 		@Override
 		public IStatus run(IProgressMonitor monitor) {
-			Monitor emonitor = new PluginMonitor(monitor);
 			try {
-				EchoRunner.getInstance().repair(emonitor,res.getFullPath().toString());
+				EchoRunner.getInstance().repair(res.getFullPath().toString());
 				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(), false, null);
 				EchoPlugin.getInstance().getGraphView().drawGraph();
 			} catch (Exception e) {

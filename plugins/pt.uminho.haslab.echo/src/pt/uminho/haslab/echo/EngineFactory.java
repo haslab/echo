@@ -28,7 +28,7 @@ public abstract class EngineFactory {
     public static final EngineFactory KODKOD = new KodkodFactory();
 
 
-    public abstract EngineRunner createRunner(Monitor monitor);
+    public abstract EngineRunner createRunner();
 
     public abstract EchoTranslator createTranslator();
 
