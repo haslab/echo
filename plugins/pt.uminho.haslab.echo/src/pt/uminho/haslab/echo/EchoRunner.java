@@ -314,8 +314,7 @@ public class EchoRunner {
 
     public void cancel(){
         if(currentOperation!=null && currentOperation.isAlive())
-            //currentOperation.interrupt();
-            runner.cancel();
+            currentOperation.stop();
     }
 	
 	public enum Task {
