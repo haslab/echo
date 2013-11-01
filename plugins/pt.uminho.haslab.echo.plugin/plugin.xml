@@ -50,7 +50,7 @@
       <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu">
          <menu icon="/icons/echo.png"
                label="Echo">
-         	<command
+                 <command
                commandId="pt.uminho.haslab.echo.commands.modeltrack"
                icon="icons/model_add.png"
                label="Track model"
@@ -58,7 +58,7 @@
             <visibleWhen>
                <iterate>
                <and>
-              	 <adapt
+                       <adapt
                         type="org.eclipse.core.resources.IFile">
                      <test
                            forcePluginActivation="true"
@@ -258,8 +258,8 @@
             id="pt.uminho.haslab.echo.plugin.properties.echoProperty"
             name="Echo">
          <enabledWhen>
-         	<adapt
-         		type="org.eclipse.core.resources.IProject">
+                 <adapt
+                         type="org.eclipse.core.resources.IProject">
             </adapt>
          </enabledWhen>
       </page>
@@ -269,8 +269,8 @@
         name="Tracked models"
         category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
      <enabledWhen>
-     	<adapt
-     		type="org.eclipse.core.resources.IProject">
+             <adapt
+                     type="org.eclipse.core.resources.IProject">
         </adapt>
      </enabledWhen>
   </page>
@@ -280,30 +280,30 @@
         name="Inter-model constraints"
         category="pt.uminho.haslab.echo.plugin.properties.echoProperty">
      <enabledWhen>
-     	<adapt
-     		type="org.eclipse.core.resources.IProject">
+             <adapt
+                     type="org.eclipse.core.resources.IProject">
         </adapt>
      </enabledWhen>
   </page>
    </extension>
-	<extension name="Echo intra-model inconsistency" id="pt.uminho.haslab.echo.plugin.intrainconsistency" point="org.eclipse.core.resources.markers">
-		<super type="org.eclipse.core.resources.problemmarker"/>
-		<persistent value="false"/>
-	</extension>
-	<extension
+        <extension name="Echo intra-model inconsistency" id="pt.uminho.haslab.echo.plugin.intrainconsistency" point="org.eclipse.core.resources.markers">
+                <super type="org.eclipse.core.resources.problemmarker"/>
+                <persistent value="false"/>
+        </extension>
+        <extension
        id="pt.uminho.haslab.echo.plugin.interinconsistency"
        name="Echo inter-model inconsistency"
        point="org.eclipse.core.resources.markers">
-		<super type="org.eclipse.core.resources.problemmarker"/>
-		<persistent value="false"/>
+                <super type="org.eclipse.core.resources.problemmarker"/>
+                <persistent value="false"/>
   <attribute
         name="constraint">
   </attribute>
   <attribute
         name="opposite">
   </attribute>
-	</extension>      
-	<extension
+        </extension>      
+        <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="pt.uminho.haslab.echo.plugin.EchoPropertyTester"
@@ -375,7 +375,7 @@
            commandId="pt.uminho.haslab.echo.commands.modelview">        
           <activeWhen>
                <iterate>
-              	 <adapt
+                       <adapt
                         type="org.eclipse.core.resources.IFile">
                      <test
                            forcePluginActivation="true"
