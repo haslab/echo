@@ -18,7 +18,6 @@ import org.eclipse.ui.PlatformUI;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
@@ -69,17 +68,17 @@ public class ResourceChangeListener implements IResourceChangeListener {
 							if (p.isManagedModel(res)) {
 								EchoReporter.getInstance().debug("Tracked model was changed");
 								Job j = new ModelChangedJob(f);
-								j.setRule(new ResourceRules(f));
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
 							} else if (p.isManagedMetamodel(res)) {
 								EchoReporter.getInstance().debug("Tracked metamodel was changed");
 								Job j = new MetaModelChangedJob(f);
-								j.setRule(new ResourceRules(f));
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
 							} else if (p.isManagedQVT(res)) {
 							    EchoReporter.getInstance().debug("Tracked qvt spec was changed");
 								Job j = new QVTChangedJob(f);
-								j.setRule(new ResourceRules(f));
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
 							} 
 						}
@@ -90,17 +89,17 @@ public class ResourceChangeListener implements IResourceChangeListener {
 						if (p.isManagedModel(res)) {
 							EchoReporter.getInstance().debug("Tracked model was removed");
 							Job j = new ModelDeletedJob(f);
-							j.setRule(new ResourceRules(f));
+							j.setRule(new ResourceRules(f,ResourceRules.READ));
 							j.schedule();
 						} else if (p.isManagedMetamodel(res)) {
 							EchoReporter.getInstance().debug("Tracked metamodel was removed");
 							Job j = new MetaModelChangedJob(f);
-							j.setRule(new ResourceRules(f));
+							j.setRule(new ResourceRules(f,ResourceRules.READ));
 							j.schedule();
 						} else if (p.isManagedQVT(res)) {
 						    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
 							Job j = new QVTDeletedJob(f);
-							j.setRule(new ResourceRules(f));
+							j.setRule(new ResourceRules(f,ResourceRules.READ));
 							j.schedule();
 						} 
 					}

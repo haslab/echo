@@ -3,7 +3,6 @@ package pt.uminho.haslab.echo.plugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner;
 
 public class PluginMonitor implements IProgressMonitor {
 
