@@ -185,6 +185,7 @@ public class EchoRunner {
 		EngineRunner runner =  engineFactory.createRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
+		
 	}
 
 	/**
@@ -247,6 +248,7 @@ public class EchoRunner {
         currentOperation.start();
         try {
             currentOperation.join();
+            System.out.println("asd");
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }

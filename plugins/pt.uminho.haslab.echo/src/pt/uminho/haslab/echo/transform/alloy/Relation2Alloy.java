@@ -314,7 +314,7 @@ public class Relation2Alloy {
 	private Field addRelationFields(List<Decl> mdecls) throws ErrorAlloy, ErrorTransform{
 		Field field = null;
 		Decl fst = alloyrootvars.get(rel.getDomains().get(0).getVariable().getName());
-		Decl snd = alloyrootvars.get(rel.getDomains().get(1).getVariable().getName());
+		//Decl snd = alloyrootvars.get(rel.getDomains().get(1).getVariable().getName());
 		try {
 			Sig s = (Sig) fst.expr.type().toExpr();
 			for (Field f : s.getFields()) {
