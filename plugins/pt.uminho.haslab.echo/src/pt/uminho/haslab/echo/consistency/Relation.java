@@ -2,8 +2,6 @@ package pt.uminho.haslab.echo.consistency;
 
 import java.util.List;
 
-import pt.uminho.haslab.echo.ErrorParser;
-
 public interface Relation {
 		
 	public Transformation getTransformation();

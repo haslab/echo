@@ -9,5 +9,10 @@ package pt.uminho.haslab.echo;
 public abstract class ErrorInternalEngine extends Exception{
 
 
-    public ErrorInternalEngine(String msg) { super(msg); }
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ErrorInternalEngine(String msg) { super(msg); }
 }
