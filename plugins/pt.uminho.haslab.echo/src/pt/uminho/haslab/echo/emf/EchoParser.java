@@ -90,8 +90,13 @@ public class EchoParser {
 		if (res.getNsURI() == null) throw new ErrorParser("nsUri required");
 		
 		resourceSet.getPackageRegistry().put(res.getNsURI(),res);
-		metamodels.put(uri,res);			
+		
+		if (metamodelnames.get(res.getName()) != null && !metamodelnames.get(res.getName()).equals(uri)) {
+			throw new ErrorParser("A metamodel with the same name is already tracked.");
+		}
 		metamodelnames.put(res.getName(), uri);
+		metamodels.put(uri,res);			
+		
 		return res;
 	}
 	

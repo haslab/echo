@@ -10,19 +10,14 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
-/**
- * Handles the "track model" event
- * @author nmm
- *
- */
-public class FileTrackHandler extends AbstractHandler {
+public class ModelViewHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 	    IStructuredSelection selection = (IStructuredSelection) sel;
@@ -34,25 +29,20 @@ public class FileTrackHandler extends AbstractHandler {
 			
 			if(extension.equals("xmi")) {			
 				try {
-					ProjectPropertiesManager.getProperties(res.getProject()).addModel(res);
+					ProjectPropertiesManager.getProperties(res.getProject()).show(res);
 				} catch(Exception e) {
-					MessageDialog.openError(shell, "Failed to track resource.", e.getMessage());
+					MessageDialog.openError(shell, "Failed to show resource.", e.getMessage());
 					e.printStackTrace();
 				}
 			}
 			else
 				MessageDialog.openInformation(shell, "Exception",extension + "not supported.");		
 			
-			try {
-				ProjectPropertiesManager.saveProjectProperties(res.getProject());
-			} catch (ErrorParser e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			EchoPlugin.getInstance().getGraphView().drawGraph();
 
 		}
 		return null;
+	
 	}
 
 }

@@ -5,16 +5,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:uml="UML"
     xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"
-    name="Companys">
+    name="Company">
   <classes name="Employee"
       persistent="true"
-      super="//@classes.1">
-    <attributes
-        name="salary"/>
-  </classes>
+      super="//@classes.1"/>
   <classes name="Person"
-      super="//@classes.1"
-      child="//@classes.0 //@classes.2 //@classes.1">
+      child="//@classes.0 //@classes.2">
     <attributes
         name="name"/>
   </classes>

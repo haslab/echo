@@ -1,7 +1,7 @@
 package pt.uminho.haslab.echo;
 
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+
 
 import java.util.List;
 import java.util.Map;
@@ -16,17 +16,21 @@ import java.util.Map.Entry;
 public interface EngineRunner {
     void conforms(List<String> modelUris) throws ErrorInternalEngine;
 
-    boolean repair(String targetUri) throws ErrorInternalEngine;
+    void show(List<String> modelUris) throws ErrorInternalEngine;
 
-    boolean generate(String metaModelUri, Map<Entry<String, String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported;
+    boolean repair(String modeluri) throws ErrorInternalEngine;
+
+    boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope) throws ErrorInternalEngine, ErrorUnsupported, InterruptedException;
 
     void check(String qvtUri, List<String> modelUris) throws ErrorInternalEngine;
 
-    boolean enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine;
+    boolean enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine,InterruptedException;
 
-    boolean generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported;
+    boolean generateQvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorInternalEngine, ErrorUnsupported,InterruptedException;
 
     void nextInstance() throws ErrorInternalEngine;
 
     EchoSolution getSolution();
+
+    void cancel();
 }

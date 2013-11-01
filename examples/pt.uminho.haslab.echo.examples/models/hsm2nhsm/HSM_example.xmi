@@ -7,14 +7,17 @@
     xsi:schemaLocation="HSM /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore"
     name="machine">
   <states xsi:type="hsm:CompositeState"
-      name="Active"
-      owner="//@states.0"/>
+      name="Active"/>
   <states name="Idle"/>
   <states name="Running"
-      owner="//@states.0"/>
+      container="//@states.0"/>
   <states name="Waiting"
-      owner="//@states.0"/>
+      container="//@states.0"/>
+  <states name="Idle"/>
   <transitions
       source="//@states.1"
       target="//@states.3"/>
+  <transitions
+      source="//@states.3"
+      target="//@states.4"/>
 </hsm:StateMachine>

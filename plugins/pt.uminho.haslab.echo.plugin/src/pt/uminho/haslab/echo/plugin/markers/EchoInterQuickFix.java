@@ -5,25 +5,25 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.ProgressProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.Monitor;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.PluginMonitor;
+import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -64,7 +64,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
 
 			try {
 				RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				String metadir = EchoRunner.getInstance().getMetaModelFromModelPath(path);
+				String metadir = EchoPlugin.getInstance().getRunner().getMetaModelFromModelPath(path);
 				if (metadir.equals(URIUtil.resolveURI(trans.getModelParameter().get(0).getUsedPackage().get(0).getEPackage().eResource()))) {
 					list.add(path);
 					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
@@ -75,7 +75,17 @@ public class EchoInterQuickFix implements IMarkerResolution {
 				((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
 				
 				Job j = new ModelRepairJob(res, list, marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				j.setRule(res);
+				IJobManager manager = Job.getJobManager();
+				
+				final PluginMonitor p = new PluginMonitor();
+				ProgressProvider provider = new ProgressProvider() {
+				  @Override
+				  public IProgressMonitor createMonitor(Job job) {
+				    return p;
+				  }
+				};
+				manager.setProgressProvider(provider);
+				j.setRule(new ResourceRules(res,ResourceRules.WRITE));
 				j.schedule();
 
 			} catch (Exception e1) {
@@ -94,26 +104,23 @@ public class EchoInterQuickFix implements IMarkerResolution {
 		}
 	}
 
-	class ModelRepairJob extends WorkspaceJob {
+	class ModelRepairJob extends Job {
 		private IResource res = null;
 		private String constraint = null;
 		private List<String> list = null;
 		
 		public ModelRepairJob(IResource r, List<String> list, String constraint) {
-			super("Repairing model.");
+			super("Repairing model "+r.getName()+".");
 			res = r;
 			this.constraint = constraint;
 			this.list = list;
 		}
 
-
 		@Override
-		public IStatus runInWorkspace(IProgressMonitor monitor)
-				throws CoreException {
-			Monitor emonitor = new PluginMonitor(monitor);
+		public IStatus run(IProgressMonitor monitor)  {
 			boolean suc  = false;
 			try {
-				suc = EchoRunner.getInstance().enforce(emonitor,constraint,list, res.getFullPath().toString());
+				suc = EchoPlugin.getInstance().getRunner().enforce(constraint,list, res.getFullPath().toString());
 				if (suc) {
 					EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
 					EchoPlugin.getInstance().getGraphView().drawGraph();
@@ -130,8 +137,6 @@ public class EchoInterQuickFix implements IMarkerResolution {
 			}
 			else return Status.CANCEL_STATUS;
 		}
-		
-		
 		
 	}
 }

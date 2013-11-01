@@ -23,7 +23,7 @@
       <details key="gen_linear" value="self.columns->forAll(x | x.name = self.name)"/>
     </eAnnotations>
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_a" value="self.name = n"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -44,13 +44,13 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Column">
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_a" value="self.name = n"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="setTable">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_a" value="self.table.name = n"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>

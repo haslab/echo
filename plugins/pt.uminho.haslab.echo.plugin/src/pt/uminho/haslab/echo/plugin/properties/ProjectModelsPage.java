@@ -127,7 +127,7 @@ IWorkbenchPropertyPage {
 		for (Object x : modellist.getCheckedElements()) {
 			if (!ProjectPropertiesManager.getProperties(project).isManagedModel((IResource) x))
 				try {
-					ProjectPropertiesManager.getProperties(project).addModel(null,(IResource) x);
+					ProjectPropertiesManager.getProperties(project).addModel((IResource) x);
 				} catch (ErrorUnsupported | ErrorInternalEngine | ErrorTransform
 						| ErrorParser | ErrorAPI e) {
 					// TODO Auto-generated catch block

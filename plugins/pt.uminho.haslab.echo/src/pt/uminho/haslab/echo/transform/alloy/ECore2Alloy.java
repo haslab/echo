@@ -347,7 +347,7 @@ class ECore2Alloy {
 			OCL2Alloy converter = new OCL2Alloy(sd,statevars,null);
 			
 			if (annotation.getSource() != null) {
-				if(annotation.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"))
+				if(annotation.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL"))
 					try{
 						for(String sExpr: annotation.getDetails().values()) {
 							ExpressionInOCL invariant = helper.createInvariant(sExpr);

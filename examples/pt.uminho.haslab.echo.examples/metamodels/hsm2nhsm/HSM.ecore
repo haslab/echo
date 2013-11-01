@@ -15,25 +15,28 @@
       <eParameters name="trg" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="states" upperBound="-1"
-        eType="#//State" containment="true" eOpposite="#//State/machine"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//State"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//State/machine"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transitions" upperBound="-1"
-        eType="#//Transition" containment="true"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//Transition"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="State">
-    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot">
-      <details key="inheritance" value="not self->closure(owner)->includes(self)"/>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+      <details key="inheritance" value="not self->closure(container)->includes(self)"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="owner" eType="#//CompositeState"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="container" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//CompositeState"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="machine" lowerBound="1"
-        eType="#//StateMachine" eOpposite="#//StateMachine/states"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//StateMachine"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//StateMachine/states"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CompositeState" eSuperTypes="#//State"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CompositeState" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//State"/>
   <eClassifiers xsi:type="ecore:EClass" name="Transition">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" lowerBound="1"
-        eType="#//State"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//State"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
-        eType="#//State"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//State"/>
   </eClassifiers>
 </ecore:EPackage>
