@@ -44,14 +44,13 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 	@Override
 	public void run(IMarker marker) {
 		IResource res = marker.getResource();
-		String path = res.getFullPath().toString();
 
 		((PlugInOptions) EchoOptionsSetup.getInstance())
 				.setOperationBased(metric.equals(EchoMarker.OBD));
 
 		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
 			Job j = new ModelRepairJob(res);
-			j.setRule(new ResourceRules(res));
+			j.setRule(new ResourceRules(res,ResourceRules.WRITE));
 			j.schedule();
 		} else {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");

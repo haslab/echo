@@ -15,9 +15,11 @@
       <eParameters name="trg" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="states" upperBound="-1"
-        eType="#//State" containment="true" eOpposite="#//State/machine"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//State"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//State/machine"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transitions" upperBound="-1"
-        eType="#//Transition" containment="true"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore#//Transition"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="State">

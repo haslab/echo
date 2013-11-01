@@ -68,17 +68,17 @@ public class ResourceChangeListener implements IResourceChangeListener {
 							if (p.isManagedModel(res)) {
 								EchoReporter.getInstance().debug("Tracked model was changed");
 								Job j = new ModelChangedJob(f);
-								j.setRule(new ResourceRules(f));
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
 							} else if (p.isManagedMetamodel(res)) {
 								EchoReporter.getInstance().debug("Tracked metamodel was changed");
 								Job j = new MetaModelChangedJob(f);
-								j.setRule(new ResourceRules(f));
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
 							} else if (p.isManagedQVT(res)) {
 							    EchoReporter.getInstance().debug("Tracked qvt spec was changed");
 								Job j = new QVTChangedJob(f);
-								j.setRule(new ResourceRules(f));
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
 							} 
 						}
@@ -89,17 +89,17 @@ public class ResourceChangeListener implements IResourceChangeListener {
 						if (p.isManagedModel(res)) {
 							EchoReporter.getInstance().debug("Tracked model was removed");
 							Job j = new ModelDeletedJob(f);
-							j.setRule(new ResourceRules(f));
+							j.setRule(new ResourceRules(f,ResourceRules.READ));
 							j.schedule();
 						} else if (p.isManagedMetamodel(res)) {
 							EchoReporter.getInstance().debug("Tracked metamodel was removed");
 							Job j = new MetaModelChangedJob(f);
-							j.setRule(new ResourceRules(f));
+							j.setRule(new ResourceRules(f,ResourceRules.READ));
 							j.schedule();
 						} else if (p.isManagedQVT(res)) {
 						    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
 							Job j = new QVTDeletedJob(f);
-							j.setRule(new ResourceRules(f));
+							j.setRule(new ResourceRules(f,ResourceRules.READ));
 							j.schedule();
 						} 
 					}

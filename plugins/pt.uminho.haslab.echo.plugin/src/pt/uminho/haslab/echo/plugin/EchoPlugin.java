@@ -82,6 +82,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 		IResourceChangeListener listener = new ResourceChangeListener();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(listener,
 				IResourceChangeEvent.POST_CHANGE);
+		getGraphView();
 	}
 
 	/**

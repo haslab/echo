@@ -10,7 +10,7 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
     	domain rdbms st:Scheme { 
       		name=pn };
   	}
-
+  	
  	top relation C2T { 
     	cn: String; 
     	domain uml c:Class { 
@@ -22,7 +22,7 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
     	when { P2S(p,s); }
     	where { A2C(c,t); }
   	}
-
+  	
 	relation A2C {
     	an : String; a:UML::Attribute; g:UML::Class;
     	domain uml c:Class {} {
@@ -34,6 +34,9 @@ transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
     		columns = cl:Column {name = an}
     	}; 	
 	}
-
 }
+
+
+
+
 

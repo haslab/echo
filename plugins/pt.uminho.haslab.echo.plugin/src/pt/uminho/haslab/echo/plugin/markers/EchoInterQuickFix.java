@@ -85,7 +85,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
 				  }
 				};
 				manager.setProgressProvider(provider);
-				j.setRule(new ResourceRules(res));
+				j.setRule(new ResourceRules(res,ResourceRules.WRITE));
 				j.schedule();
 
 			} catch (Exception e1) {

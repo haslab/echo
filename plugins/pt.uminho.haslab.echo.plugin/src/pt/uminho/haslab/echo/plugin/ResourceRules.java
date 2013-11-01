@@ -11,12 +11,18 @@ import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 public class ResourceRules implements ISchedulingRule{
 
 	public final IResource res;
+	static public final String READ = "read";
+	static public final String WRITE = "read";
 	
-	public ResourceRules() {
+	public final String mode;
+	
+	public ResourceRules(String mode) {
+		this.mode = mode;
 		this.res = null;
 	}
 	
-	public ResourceRules(IResource res) {
+	public ResourceRules(IResource res, String mode) {
+		this.mode = mode;
 		this.res = res;
 	}
 	
@@ -30,6 +36,7 @@ public class ResourceRules implements ISchedulingRule{
 		ResourceManager manager = ProjectPropertiesManager.getProperties(res.getProject());
 		IResource res2 = null;
 		if (rule instanceof ResourceRules) {
+			if (this.mode.equals(WRITE) && ((ResourceRules)rule).mode.equals(WRITE)) return true;
 			res2 = ((ResourceRules) rule).res;
 		} else if (rule instanceof IFile) {
 			res2 = (IFile) rule;
