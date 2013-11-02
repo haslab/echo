@@ -1,8 +1,5 @@
 package pt.uminho.haslab.echo;
 
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;

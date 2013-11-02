@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 
-
 import pt.uminho.haslab.echo.consistency.Model;
 import pt.uminho.haslab.echo.emf.URIUtil;
 

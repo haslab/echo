@@ -1,12 +1,12 @@
 package pt.uminho.haslab.echo.kodkod;
 
+import java.util.List;
+import java.util.Map;
+
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
