@@ -28,7 +28,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 
-public class AlloyOptimizations {
+class AlloyOptimizations {
 
 	public AlloyOptimizations () {}
 	

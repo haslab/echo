@@ -22,6 +22,7 @@ public class ATLDomain implements Domain {
 	@Override
 	public Model getModel() {
 		EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
+		@SuppressWarnings("unchecked")
 		EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
 		EObject var = objs.get(0);
 		for (EObject x : var.eContents())
@@ -34,11 +35,13 @@ public class ATLDomain implements Domain {
 	@Override
 	public Variable getVariable() {
 		EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
+		@SuppressWarnings("unchecked")
 		EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
 		EObject obj = objs.get(0);
 		return Variable.getVariable(obj);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ATLCondition getCondition() {
 		ATLCondition x = new ATLCondition();

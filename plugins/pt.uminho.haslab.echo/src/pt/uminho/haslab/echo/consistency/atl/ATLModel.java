@@ -21,7 +21,7 @@ public class ATLModel implements Model {
 	}
 
 	public String getMetamodelURI() {
-		return module.metamodeluris.get(getName());
+		return ATLTransformation.metamodeluris.get(getName());
 	}
 	
 	public String getName() {

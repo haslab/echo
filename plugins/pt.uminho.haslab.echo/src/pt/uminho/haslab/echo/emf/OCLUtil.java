@@ -161,6 +161,7 @@ public class OCLUtil {
 			for (Variable x : aux.keySet())
 				if (vars.get(x) == null)
 					vars.put(x, aux.get(x));
+			@SuppressWarnings("unchecked")
 			EList<EObject> ps = (EList<EObject>) exp.eGet(parameters);
 			for (EObject e : ps) {
 				aux = variablesOCLExpression(e,mdl);

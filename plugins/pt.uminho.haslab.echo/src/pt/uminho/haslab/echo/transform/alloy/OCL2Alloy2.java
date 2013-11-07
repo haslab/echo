@@ -60,9 +60,12 @@ public class OCL2Alloy2 implements OCLTranslator{
 		isPre = false;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature("source");
 		EObject sourceo = (EObject) expr.eGet(source);
+		
+		/* Type unused
 		EStructuralFeature type = sourceo.eClass().getEStructuralFeature("type");
 		EObject typeo = (EObject) sourceo.eGet(type);
-
+		*/
+		
 		Expr var = oclExprToAlloy(sourceo);
 		EStructuralFeature oname = expr.eClass().getEStructuralFeature("name");
 		
@@ -130,6 +133,7 @@ public class OCL2Alloy2 implements OCLTranslator{
 		String operatorname = (String) expr.eGet(operat);
 		Expr src = oclExprToAlloy((EObject) expr.eGet(source));
 		EStructuralFeature arguments = expr.eClass().getEStructuralFeature("arguments");
+		@SuppressWarnings("unchecked")
 		EList<EObject> argumentso = (EList<EObject>) expr.eGet(arguments);
 		if (operatorname.equals("not"))
 			res = src.not();

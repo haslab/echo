@@ -26,6 +26,7 @@ public class ATLTransformation implements Transformation {
 	public final EObject mdl2;
 	public static Map<String,String> metamodeluris = new HashMap<String,String>();
 	
+	@SuppressWarnings("unchecked")
 	public ATLTransformation(EObject module, EObject mdl1, EObject mdl2) throws ErrorParser {
         this.transformation = module;
         this.mdl1 = mdl1;

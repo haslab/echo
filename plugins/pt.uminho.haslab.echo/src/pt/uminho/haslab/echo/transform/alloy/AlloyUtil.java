@@ -41,7 +41,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
-public class AlloyUtil {
+class AlloyUtil {
 	
 	/** the top state signature name */	
 	public static String STATESIGNAME = "State@";
