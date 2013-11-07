@@ -100,7 +100,9 @@ public class GraphView extends ViewPart {
 	 */
 	public void drawGraph() {
 		EchoRunner runner = EchoPlugin.getInstance().getRunner();
-		A4Solution sol = ((AlloyTuple) runner.getAInstance().getContents()).getSolution();
+		if (runner == null) return;
+		AlloyTuple tuple = ((AlloyTuple) runner.getAInstance().getContents());
+		A4Solution sol = tuple.getSolution();
 		try {
 			if (sol != null && sol.satisfiable()) {
 				sol.writeXML(".dummy.xml");
