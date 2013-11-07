@@ -13,7 +13,7 @@ public class EchoPerspective implements IPerspectiveFactory {
 		  defineActions(layout);
 		   defineLayout(layout);
 	}
-	
+
 	public void defineActions(IPageLayout layout) {
         layout.addNewWizardShortcut("org.eclipse.emf.codegen.ecore.ui.EmptyProjectWizard");
   		layout.addNewWizardShortcut("org.eclipse.emf.ecore.presentation.EcoreModelWizardID");

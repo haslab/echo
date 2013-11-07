@@ -20,7 +20,6 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.alloy.AlloyTuple;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
-import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
@@ -109,7 +108,7 @@ public class GraphView extends ViewPart {
 				runner.generateTheme(viz.getVizState());
 				viz.doShowViz();
 			}
-		} catch (Err e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -20,16 +20,20 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyTuple;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
 import pt.uminho.haslab.echo.consistency.qvt.QVTTransformation;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
-
+import pt.uminho.haslab.echo.transform.EchoTranslator;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;

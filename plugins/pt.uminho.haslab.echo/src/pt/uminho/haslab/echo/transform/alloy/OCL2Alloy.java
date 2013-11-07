@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,14 +27,15 @@ import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.consistency.qvt.QVTRelation;
 import pt.uminho.haslab.echo.emf.URIUtil;
+import pt.uminho.haslab.echo.transform.OCLTranslator;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -45,9 +47,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import pt.uminho.haslab.echo.transform.OCLTranslator;
-
-import java.util.AbstractMap.SimpleEntry;
 
 public class OCL2Alloy implements OCLTranslator{
 

@@ -8,11 +8,10 @@ import java.util.Map.Entry;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 
-
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.emf.OCLUtil;

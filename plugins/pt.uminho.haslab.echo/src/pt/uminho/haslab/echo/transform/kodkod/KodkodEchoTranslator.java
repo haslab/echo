@@ -3,7 +3,12 @@ package pt.uminho.haslab.echo.transform.kodkod;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-import pt.uminho.haslab.echo.*;
+
+import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 /**

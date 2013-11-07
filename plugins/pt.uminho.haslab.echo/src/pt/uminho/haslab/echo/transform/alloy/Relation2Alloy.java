@@ -11,11 +11,11 @@ import java.util.Map.Entry;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Domain;
 import pt.uminho.haslab.echo.consistency.Model;
