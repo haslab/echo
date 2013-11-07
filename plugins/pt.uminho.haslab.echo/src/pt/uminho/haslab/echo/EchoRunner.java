@@ -205,8 +205,8 @@ public class EchoRunner {
                     runner.enforce(qvturi, modeluris, targeturi);
                 } catch (ErrorInternalEngine e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (InterruptedException e) {
-                   System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
+                } catch (Exception e) {
+                   System.out.println("Death?");  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
         });
@@ -248,7 +248,6 @@ public class EchoRunner {
         currentOperation.start();
         try {
             currentOperation.join();
-            System.out.println("asd");
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -316,7 +315,11 @@ public class EchoRunner {
 
     public void cancel(){
         if(currentOperation!=null && currentOperation.isAlive())
-            currentOperation.stop();
+            {
+        		currentOperation.stop();
+        		if(currentOperation.isAlive()) System.out.println("eh, not good");
+        		else System.out.println("nice!");
+            }
     }
 	
 	public enum Task {

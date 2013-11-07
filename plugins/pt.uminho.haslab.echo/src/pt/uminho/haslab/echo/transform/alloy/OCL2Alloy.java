@@ -144,14 +144,14 @@ public class OCL2Alloy implements OCLTranslator{
 	
 	Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 
-		//Relation2Alloy trans = null;
+		Relation2Alloy trans = null;
 		Func func = null;
 		try {
 			func = parentq.transformation_trans.getRecRelationCall(new QVTRelation(expr.getReferredRelation()), parentq.getDirection());
 			EchoReporter.getInstance().debug("Should not be null: "+func);
 			if (func == null) {
 				QVTRelation rel = new QVTRelation(expr.getReferredRelation());
-				//trans = new Relation2Alloy (parentq,rel);
+				trans = new Relation2Alloy (parentq,rel);
 				func = parentq.transformation_trans.getRecRelationCall(rel,parentq.getDirection());
 			}
 		} catch (ErrorParser e) {
