@@ -99,7 +99,10 @@ public class GraphView extends ViewPart {
 	 */
 	public void drawGraph() {
 		EchoRunner runner = EchoPlugin.getInstance().getRunner();
+
+		if (runner == null) return;
 		EchoSolution sol = runner.getAInstance();
+
 		try {
 			if (sol != null && sol.satisfiable()) {
 				sol.writeXML(".dummy.xml");

@@ -425,7 +425,7 @@ class ECore2Alloy {
 
 			OCL2Alloy converter = new OCL2Alloy(sd,posstatevars,prestatevars);
 			for (EAnnotation ea : operation.getEAnnotations())
-				if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot")) {
+				if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL")) {
 					Expr oclalloy = Sig.NONE.no();
 					for(String sExpr: ea.getDetails().values()) {
 						try{

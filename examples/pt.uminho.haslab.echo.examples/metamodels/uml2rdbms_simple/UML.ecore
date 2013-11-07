@@ -6,7 +6,7 @@
       <details key="acyclic_inheritance" value="not self->closure(super)->includes(self)"/>
       <details key="unique_names" value="self.attributes->forAll(x | self.attributes->forAll(y | x = y or x.name &lt;> y.name))"/>
     </eAnnotations>
-    <eAnnotations source="Echo/Gen">
+    <eAnnotations source="Echo/Gen_">
       <details key="gen_linear" value="self.attributes->forAll(x | x.name = self.name)"/>
       <details key="gen_linear" value="not self.persistent implies (self.attributes->isEmpty() and self.child->one(x | x.persistent) and (self.child->one(x | not x.persistent) or (not self.child->exists(x | not x.persistent))))"/>
       <details key="gen_linear" value="self.persistent implies (self.attributes->one(x | true) and self.child->isEmpty())"/>
