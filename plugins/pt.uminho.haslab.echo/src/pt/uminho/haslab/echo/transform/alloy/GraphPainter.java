@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.alloy;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4graph.DotColor;
 import edu.mit.csail.sdg.alloy4graph.DotShape;
 import edu.mit.csail.sdg.alloy4viz.AlloyModel;

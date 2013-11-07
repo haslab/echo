@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.alloy;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.emf.URIUtil;
-import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -462,6 +461,17 @@ public class AlloyRunner implements EngineRunner{
             public boolean satisfiable() {
                 return sol.satisfiable();
             }
+
+			@Override
+			public void writeXML(String filename) {
+				try {
+					sol.writeXML(filename);
+				} catch (Err e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
         };
         else return null;
 	}
@@ -487,10 +497,12 @@ public class AlloyRunner implements EngineRunner{
 		return intscope;
 	}	
 	
+	/*
+	 * Unused Methods
+	 
 	/** 
 	 * Returns the final command fact (instance + qvt).
 	 * @return this.fact
-	 */
 	public Expr getFact() {
 		return finalfact;
 	}	
@@ -498,7 +510,6 @@ public class AlloyRunner implements EngineRunner{
 	/** 
 	 * Returns the current target scopes.
 	 * @return this.targetscopes
-	 */
 	public ConstList<CommandScope> getScopes() {
 		return scopes;
 	}	
@@ -506,9 +517,9 @@ public class AlloyRunner implements EngineRunner{
 	/** 
 	 * Returns the state signature of the target instance.
 	 * @return this.targetstate
-	 */
+	
 	public PrimSig getTargetStateSig(){
 		return targetstate;
-	}
+	}*/
 }
 

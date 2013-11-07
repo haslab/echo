@@ -63,11 +63,6 @@ public class KodkodEchoTranslator extends EchoTranslator {
     }
 
     @Override
-    public Object getQVTFact(String qvtUri) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorTransform, ErrorInternalEngine, ErrorUnsupported, ErrorParser {
         //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -86,4 +81,10 @@ public class KodkodEchoTranslator extends EchoTranslator {
     public boolean hasModel(String modelUri) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+	@Override
+	public boolean hasQVT(String qvtUri) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

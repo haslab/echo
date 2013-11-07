@@ -33,9 +33,6 @@ import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

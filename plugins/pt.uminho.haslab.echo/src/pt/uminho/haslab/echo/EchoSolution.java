@@ -10,6 +10,8 @@ package pt.uminho.haslab.echo;
 public interface EchoSolution {
 
     boolean satisfiable();
+    
+    void writeXML(String filename);
 
     Object getContents();
 }

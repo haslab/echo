@@ -10,11 +10,11 @@ import org.eclipse.ocl.examples.pivot.OCLExpression;
 
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.emf.OCLUtil;
+import pt.uminho.haslab.echo.transform.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;

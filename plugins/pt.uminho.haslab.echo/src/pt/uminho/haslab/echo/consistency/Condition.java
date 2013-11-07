@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;

@@ -30,8 +30,6 @@ import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.consistency.qvt.QVTRelation;
 import pt.uminho.haslab.echo.emf.URIUtil;

@@ -8,8 +8,8 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.alloy.GraphPainter;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
@@ -92,7 +92,7 @@ public class EchoRunner {
 	}
 
 	public boolean hasQVT(String qvtUri) {
-		return EchoTranslator.getInstance().getQVTFact(qvtUri) != null;
+		return EchoTranslator.getInstance().hasQVT(qvtUri);
 	}
 	
 	public boolean remQVT(String qvtUri) {
@@ -212,7 +212,9 @@ public class EchoRunner {
         currentOperation.start();
         try {
             currentOperation.join();
-        } catch (InterruptedException e) {
+            System.out.println("asdddd");
+        } catch (Exception e) {
+        	System.out.println("morreu");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             return false;
         }
@@ -314,11 +316,8 @@ public class EchoRunner {
 
     public void cancel(){
         if(currentOperation!=null && currentOperation.isAlive())
-            {
-        		currentOperation.stop();
-        		if(currentOperation.isAlive()) System.out.println("eh, not good");
-        		else System.out.println("nice!");
-            }
+        	currentOperation.stop();
+        	
     }
 	
 	public enum Task {

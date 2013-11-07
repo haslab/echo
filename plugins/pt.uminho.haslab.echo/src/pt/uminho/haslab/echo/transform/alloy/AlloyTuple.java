@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.alloy;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -10,7 +10,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
  * Time: 11:51 AM
 
  */
-public class AlloyTuple {
+class AlloyTuple {
 
 
     private A4Solution sol;

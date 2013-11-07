@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.alloy;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 

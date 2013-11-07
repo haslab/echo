@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.alloy;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +20,6 @@ import pt.uminho.haslab.echo.consistency.Relation;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
 import pt.uminho.haslab.echo.emf.URIUtil;
-import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;

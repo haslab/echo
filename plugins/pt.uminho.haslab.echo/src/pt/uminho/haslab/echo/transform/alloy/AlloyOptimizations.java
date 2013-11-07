@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.alloy;
+package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;

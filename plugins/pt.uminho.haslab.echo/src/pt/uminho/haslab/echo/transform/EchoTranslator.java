@@ -45,7 +45,7 @@ public abstract class EchoTranslator {
 
     public abstract void translateQVT(RelationalTransformation qvt) throws ErrorTransform, ErrorInternalEngine, ErrorUnsupported, ErrorParser;
 
-    public abstract Object getQVTFact(String qvtUri);
+    public abstract boolean hasQVT(String qvtUri);
 
     public abstract void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorTransform, ErrorInternalEngine, ErrorUnsupported, ErrorParser;
 
