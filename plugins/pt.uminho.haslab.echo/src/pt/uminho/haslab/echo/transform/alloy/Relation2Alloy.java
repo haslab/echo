@@ -164,7 +164,7 @@ public class Relation2Alloy {
 		try {
 			if (postCondition != null){
 				postCondition.initTranslation(parentq,auxMap(),statevars, null);
-				whereexpr = postCondition.translate();
+				whereexpr = (Expr) postCondition.translate();
 			}
 			targetexpr = AlloyUtil.cleanAnd(patternToExpr(targetdomain),whereexpr);
 			if (alloytargetvars.size() == 1)
@@ -188,7 +188,7 @@ public class Relation2Alloy {
 			Condition preCondition = rel.getPre();
 			if (preCondition != null){
 				preCondition.initTranslation(parentq,auxMap(),statevars, null);
-				whenexpr = preCondition.translate();
+				whenexpr =(Expr) preCondition.translate();
 	
 				fact = (whenexpr.implies(fact));	
 				for (Decl d : alloywhenvars.values())
@@ -297,7 +297,7 @@ public class Relation2Alloy {
 	private Expr patternToExpr (Domain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {		
 		Condition cond = domain.getCondition();
 		cond.initTranslation(parentq,auxMap(),statevars,null);
-		Expr res = cond.translate();
+		Expr res = (Expr) cond.translate();
 		return res;
 	}
 	
