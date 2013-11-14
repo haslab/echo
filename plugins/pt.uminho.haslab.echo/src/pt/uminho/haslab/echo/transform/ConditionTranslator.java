@@ -2,12 +2,9 @@ package pt.uminho.haslab.echo.transform;
 
 import java.util.List;
 
-import org.eclipse.ocl.examples.pivot.OCLExpression;
-
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,7 +15,7 @@ import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 public interface ConditionTranslator {
 	
 	
-	public Object translateExpressions(List<Object> lex) throws ErrorAlloy, ErrorTransform, ErrorUnsupported;
+	public Object translateExpressions(List<Object> lex) throws ErrorInternalEngine, ErrorTransform, ErrorUnsupported;
 
 
 }

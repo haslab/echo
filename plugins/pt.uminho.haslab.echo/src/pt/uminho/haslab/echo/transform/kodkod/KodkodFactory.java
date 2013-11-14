@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.kodkod;
+package pt.uminho.haslab.echo.transform.kodkod;
 
 import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.EngineRunner;

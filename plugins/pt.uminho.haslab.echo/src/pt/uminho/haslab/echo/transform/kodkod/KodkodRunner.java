@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.kodkod;
+package pt.uminho.haslab.echo.transform.kodkod;
 
 import java.util.List;
 import java.util.Map;
