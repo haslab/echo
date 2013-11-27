@@ -39,7 +39,9 @@ public class KodkodEchoTranslator extends EchoTranslator {
 
     @Override
     public void translateMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Ecore2Kodkod e2k = new Ecore2Kodkod(metaModel);
+        
+        e2k.translate();
     }
 
     @Override

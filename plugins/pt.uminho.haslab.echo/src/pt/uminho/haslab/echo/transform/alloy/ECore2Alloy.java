@@ -155,7 +155,8 @@ class ECore2Alloy {
 		if(!superTypes.isEmpty()) {
 			parent = mapClassSig.get(superTypes.get(0).getName());
 			if(parent == null) {
-				processClass(superTypes.get(0));	
+				processClass(superTypes.get(0));
+				parent = mapClassSig.get(superTypes.get(0).getName());
 			}
 		}
 		String signame = AlloyUtil.pckPrefix(epackage,ec.getName());
@@ -238,23 +239,23 @@ class ECore2Alloy {
 	 * @throws ErrorTransform
 	 */
 	private void processReferences(List<EReference> references) throws ErrorAlloy, ErrorTransform {
-		for(EReference reference : references) {
-			PrimSig classsig = mapClassSig.get(reference.getEContainingClass().getName());
-			EReference op = reference.getEOpposite();
+		for(EReference eReference : references) {
+			PrimSig classsig = mapClassSig.get(eReference.getEContainingClass().getName());
+			EReference op = eReference.getEOpposite();
 			
 			if((op != null && op.isContainment() && EchoOptionsSetup.getInstance().isOptimize())) {}
-			else if((op != null && !reference.isContainment() && op.getLowerBound() == 1 && op.getUpperBound() == 1 && EchoOptionsSetup.getInstance().isOptimize())) {}
+			else if((op != null && !eReference.isContainment() && op.getLowerBound() == 1 && op.getUpperBound() == 1 && EchoOptionsSetup.getInstance().isOptimize())) {}
 			else if((op != null && getFieldFromSFeature(op) != null && EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
-				EClass cc = mapClassClass.get(reference.getEReferenceType().getName());
+				EClass cc = mapClassClass.get(eReference.getEReferenceType().getName());
 				PrimSig trgsig = mapClassSig.get(cc.getName());
 				Field field;
 				try{
-					String aux = AlloyUtil.pckPrefix(epackage,reference.getName());
+					String aux = AlloyUtil.pckPrefix(epackage,eReference.getName());
 					field = classsig.addField(aux,trgsig.product(statesig));
 				}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}
-				mapSfField.put(reference.getEContainingClass().getName()+"::"+reference.getName(),field);
+				mapSfField.put(eReference.getEContainingClass().getName()+"::"+eReference.getName(),field);
 				
 				Expr fact;
 				if(op!=null) {
@@ -270,36 +271,36 @@ class ECore2Alloy {
 
 				Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
 				Integer max = (int) (Math.pow(2, bitwidth) / 2);
-				if (reference.getLowerBound() >= max || reference.getLowerBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+reference.getLowerBound()+".");
-				if (reference.getUpperBound() >= max || reference.getUpperBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+reference.getUpperBound()+".");
+				if (eReference.getLowerBound() >= max || eReference.getLowerBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+eReference.getLowerBound()+".");
+				if (eReference.getUpperBound() >= max || eReference.getUpperBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+eReference.getUpperBound()+".");
 				
 				try{
 					Decl d = (mapSigState.get(classsig).join(constraintdecl.get())).oneOf("src_");
-					if (reference.getLowerBound() == 1 && reference.getUpperBound() == 1) {
+					if (eReference.getLowerBound() == 1 && eReference.getUpperBound() == 1) {
 						fact = (d.get()).join(field.join(constraintdecl.get())).one().forAll(d);
 						constraint = constraint.and(fact);
-					} else if (reference.getLowerBound() == 0 && reference.getUpperBound() == 1) {
+					} else if (eReference.getLowerBound() == 0 && eReference.getUpperBound() == 1) {
 						fact = (d.get()).join(field.join(constraintdecl.get())).lone().forAll(d);
 						constraint = constraint.and(fact);
-					} else if (reference.getLowerBound() == 1 && reference.getUpperBound() == -1) {
+					} else if (eReference.getLowerBound() == 1 && eReference.getUpperBound() == -1) {
 						fact = (d.get()).join(field.join(constraintdecl.get())).some().forAll(d);
 						constraint = constraint.and(fact);
-					} else if (reference.getUpperBound() == 0) {
+					} else if (eReference.getUpperBound() == 0) {
 						fact = (d.get()).join(field.join(constraintdecl.get())).no().forAll(d);
 						constraint = constraint.and(fact);
-					} else if (reference.getLowerBound() == 0 && reference.getUpperBound() == -1) {}
+					} else if (eReference.getLowerBound() == 0 && eReference.getUpperBound() == -1) {}
 					else {
-						if(reference.getLowerBound() > 1) {
-							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().gte(ExprConstant.makeNUMBER(reference.getLowerBound())).forAll(d);
+						if(eReference.getLowerBound() > 1) {
+							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().gte(ExprConstant.makeNUMBER(eReference.getLowerBound())).forAll(d);
 							constraint = constraint.and(fact);
 						}
-						if(reference.getUpperBound() > 1){
-							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().lte(ExprConstant.makeNUMBER(reference.getUpperBound())).forAll(d);
+						if(eReference.getUpperBound() > 1){
+							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().lte(ExprConstant.makeNUMBER(eReference.getUpperBound())).forAll(d);
 							constraint = constraint.and(fact);
 						}
 					}
 					
-					if(reference.isContainment()){
+					if(eReference.isContainment()){
 						d = (mapSigState.get(trgsig).join(constraintdecl.get())).oneOf("trg_");
 						fact = ((field.join(constraintdecl.get())).join(d.get())).one().forAll(d);
 						constraint = constraint.and(fact);

@@ -23,7 +23,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 
 public class EchoParser {
-	
+	//TODO: there should be some helper classes for stuff like getRootClass, which are totally independent from kodkod or alloy
 	private static final EchoParser instance = new EchoParser();
 		
 	public static EchoParser getInstance() {
