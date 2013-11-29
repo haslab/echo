@@ -34,17 +34,19 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 
 
 class Ecore2Kodkod {
-	
+
+
+    //TODO facts that mention classes with children must be changed.
 
 	EPackage ePackage;
 	
 	/** maps classes into respective Kodkod relations */
 	private Map<String,Relation> mapClassRel;
-	/** maps strutural features into respective Kodkod relations */
+	/** maps structural features into respective Kodkod relations */
 	private Map<String,Relation> mapSfRel;
 	/** maps signature names into respective classes */
 	private Map<String,EClass> mapClassClass;	
-	/**facts about the metamodel*/
+	/**facts about the meta-model*/
 	private Formula facts;
 	
 	public Ecore2Kodkod(EPackage metaModel){
@@ -115,7 +117,7 @@ class Ecore2Kodkod {
 					eOposite.getUpperBound() == 1 && 
 					EchoOptionsSetup.getInstance().isOptimize())) {} //do notting
 			else if((eOposite != null 
-					/*&& getFieldFromSFeature(eOposite) != null */&& 
+					&& getRelationFromSFeature(eOposite) != null &&
 					EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
 				EClass cc = mapClassClass.get(eReference.getEReferenceType().getName());

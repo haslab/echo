@@ -122,8 +122,10 @@ public class EchoInterQuickFix implements IMarkerResolution {
 			try {
 				suc = EchoPlugin.getInstance().getRunner().enforce(constraint,list, res.getFullPath().toString());
 				if (suc) {
+					System.out.println("entrou no parte do viz");
 					EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
 					EchoPlugin.getInstance().getGraphView().drawGraph();
+					System.out.println("fez tudo no viz");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

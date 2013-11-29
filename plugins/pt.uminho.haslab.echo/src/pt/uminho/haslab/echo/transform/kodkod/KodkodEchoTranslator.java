@@ -39,8 +39,9 @@ public class KodkodEchoTranslator extends EchoTranslator {
 
     @Override
     public void translateMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+        //TODO: Register meta-models already parsed.
+
         Ecore2Kodkod e2k = new Ecore2Kodkod(metaModel);
-        
         e2k.translate();
     }
 
@@ -51,7 +52,14 @@ public class KodkodEchoTranslator extends EchoTranslator {
 
     @Override
     public void translateModel(EObject model) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
-        //To change body of implemented methods use File | Settings | File Templates.
+        /*TODO
+        * Register models already parsed.
+        * Get the appropriate meta-model
+        */
+
+
+        XMI2Kodkod x2k = new XMI2Kodkod(model,null);
+
     }
 
     @Override

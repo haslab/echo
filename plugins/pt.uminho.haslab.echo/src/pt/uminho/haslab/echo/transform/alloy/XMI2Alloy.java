@@ -218,7 +218,7 @@ class XMI2Alloy {
 		}
 		else if(obj instanceof EEnumLiteral)
 		{
-			manos = manos.plus(it.product(translator.getSigFromEEnumLiteral((EEnumLiteral)obj)));
+			manos = manos.plus(it.product(translator.getSigFromEEnumLiteral((EEnumLiteral) obj)));
 			mapContent.put(field, manos);
 		}
 		else if(obj instanceof String)
