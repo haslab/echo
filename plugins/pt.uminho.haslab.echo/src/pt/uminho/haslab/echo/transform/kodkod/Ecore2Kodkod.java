@@ -106,18 +106,18 @@ class Ecore2Kodkod {
 			String className = eReference.getEContainingClass().getName();
 			String refName = KodkodUtil.pckPrefix(ePackage,className+"->"+eReference.getName());
 			Relation classRel = mapClassRel.get(className);
-			EReference eOposite = eReference.getEOpposite();
+			EReference eOpposite = eReference.getEOpposite();
 			
-			if((eOposite != null &&
-					eOposite.isContainment() &&
+			if((eOpposite != null &&
+					eOpposite.isContainment() &&
 					EchoOptionsSetup.getInstance().isOptimize())) {} //do notting
-			else if((eOposite != null && 
+			else if((eOpposite != null &&
 					!eReference.isContainment() && 
-					eOposite.getLowerBound() == 1 && 
-					eOposite.getUpperBound() == 1 && 
+					eOpposite.getLowerBound() == 1 &&
+					eOpposite.getUpperBound() == 1 &&
 					EchoOptionsSetup.getInstance().isOptimize())) {} //do notting
-			else if((eOposite != null 
-					&& getRelationFromSFeature(eOposite) != null &&
+			else if((eOpposite != null
+					&& getRelationFromSFeature(eOpposite) != null &&
 					EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
 				EClass cc = mapClassClass.get(eReference.getEReferenceType().getName());
@@ -127,8 +127,8 @@ class Ecore2Kodkod {
 				facts = facts.and(refRel.in(classRel.product(trgRel)));
 				mapSfRel.put(eReference.getEContainingClass().getName()+"::"+eReference.getName(),refRel);
 				
-				if(eOposite!= null){
-					Relation opRel = getRelationFromSFeature(eOposite);
+				if(eOpposite!= null){
+					Relation opRel = getRelationFromSFeature(eOpposite);
 					if(opRel!=null)
 						facts = facts.and(refRel.eq(opRel.transpose()));
 				}
