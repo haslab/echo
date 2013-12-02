@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="BAttributes" nsURI="pt/uminho/haslabl/echo/examples/BAttributes"
+    nsPrefix="BAttributes">
+  <eClassifiers xsi:type="ecore:EClass" name="B">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass #//RootB"
+        eOpposite="#//RootB/bs"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="y" lowerBound="1" eType="ecore:EClass #//Y"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RootB">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="bs" upperBound="-1" eType="ecore:EClass #//B"
+        containment="true" eOpposite="#//B/root"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ys" upperBound="-1" eType="ecore:EClass #//Y"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Y"/>
+</ecore:EPackage>

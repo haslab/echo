@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="AAttributes" nsURI="pt/uminho/haslabl/echo/examples/AAttributes"
+    nsPrefix="AAttributes">
+  <eClassifiers xsi:type="ecore:EClass" name="A">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass #//RootA"
+        eOpposite="#//RootA/as"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="x" lowerBound="1" eType="ecore:EClass #//X"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RootA">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="as" upperBound="-1" eType="ecore:EClass #//A"
+        containment="true" eOpposite="#//A/root"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="xs" upperBound="-1" eType="ecore:EClass #//X"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="X"/>
+</ecore:EPackage>

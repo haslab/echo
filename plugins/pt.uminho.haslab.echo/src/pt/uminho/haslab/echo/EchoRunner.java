@@ -168,6 +168,7 @@ public class EchoRunner {
         currentOperation.start();
         try {
             currentOperation.join();
+            System.out.println("join");
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }

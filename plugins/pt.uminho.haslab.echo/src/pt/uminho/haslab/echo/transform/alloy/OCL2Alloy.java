@@ -233,7 +233,7 @@ public class OCL2Alloy implements OCLTranslator{
 				res = res.forOne(d);
 			}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
-		} else if (expr.getReferredIteration().getName().equals("forAll")) {
+		} else if (expr.getReferredIteration().getName().equals("forAll")) { //????
 			try {
 				res = ((d.get().in(src)).and(bdy));
 				res = res.forSome(d);

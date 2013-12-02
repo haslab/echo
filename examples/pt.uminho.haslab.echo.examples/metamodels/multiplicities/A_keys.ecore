@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="AKeys" nsURI="pt/uminho/haslabl/echo/examples/AKeys" nsPrefix="AKeys">
+  <eClassifiers xsi:type="ecore:EClass" name="A">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="#//RootA"
+        eOpposite="#//RootA/as"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="x" lowerBound="1" eType="#//X"
+        eOpposite="#//X/a"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RootA">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+      <details key="unique_keys" value="self.as->forAll(x,y | x = y or x.key &lt;> y.key)"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="as" upperBound="-1" eType="#//A"
+        containment="true" eOpposite="#//A/root"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="xs" upperBound="-1" eType="#//X"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="X">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="a" eType="#//A" eOpposite="#//A/x"/>
+  </eClassifiers>
+</ecore:EPackage>
