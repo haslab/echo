@@ -65,10 +65,10 @@ public class EchoRunner {
 
 	/**
 	 * Removes a model from the system
-	 * @param modeluri the URI of the model to remove
+	 * @param modelUri the URI of the model to remove
 	 */
-	public void remModel(String modeluri) {
-		EchoTranslator.getInstance().remModel(modeluri);
+	public void remModel(String modelUri) {
+		EchoTranslator.getInstance().remModel(modelUri);
 	}
 
 	/**

@@ -207,28 +207,28 @@ class XMI2Alloy {
 	
 	private void handleAttr(Object obj, Sig it, Expr field) throws ErrorUnsupported, ErrorTransform
 	{
-		Expr manos = mapContent.get(field);
+		Expr siblings = mapContent.get(field);
 		if(obj instanceof Boolean)
 		{
 			Boolean b = (Boolean) obj;
 			
 			if(b)
 			{
-				manos = manos.plus(it);
-				mapContent.put(field, manos);
+				siblings = siblings.plus(it);
+				mapContent.put(field, siblings);
 			}
 		}
 		else if(obj instanceof EEnumLiteral)
 		{
-			manos = manos.plus(it.product(translator.getSigFromEEnumLiteral((EEnumLiteral)obj)));
-			mapContent.put(field, manos);
+			siblings = siblings.plus(it.product(translator.getSigFromEEnumLiteral((EEnumLiteral)obj)));
+			mapContent.put(field, siblings);
 		}
 		else if(obj instanceof String)
 		{
 			Expr str = ExprConstant.Op.STRING.make(null,(String) obj);
 			
-			manos = manos.plus(it.product(str));
-			mapContent.put(field, manos);
+			siblings = siblings.plus(it.product(str));
+			mapContent.put(field, siblings);
 		}else if(obj instanceof Integer)
 		{
 			Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
@@ -236,8 +236,8 @@ class XMI2Alloy {
 			if ((Integer) obj >= max || (Integer) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
 			Expr str = ExprConstant.makeNUMBER((Integer) obj);
 			
-			manos = manos.plus(it.product(str));
-			mapContent.put(field, manos);
+			siblings = siblings.plus(it.product(str));
+			mapContent.put(field, siblings);
 		}else throw new ErrorUnsupported("Primitive type for attribute not supported: "+obj+".");
 	}
 	

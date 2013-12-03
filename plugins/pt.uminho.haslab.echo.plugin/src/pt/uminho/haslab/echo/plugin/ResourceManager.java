@@ -148,31 +148,31 @@ public class ResourceManager {
 	 * Untracks a model resource.
 	 * Removes from the the Echo core, parser, plugin properties and all error markers.
 	 * 
-	 * @param resmodel
-	 *            the model resource to be untracked
+	 * @param resModel the model resource to be untracked
 	 * @throws ErrorAPI 
 	 * @throws ErrorParser 
 	 */
-	public void remModel(IResource resmodel) throws ErrorAPI, ErrorParser {
-		String modeluri = resmodel.getFullPath().toString();
+	public void remModel(IResource resModel) throws ErrorAPI, ErrorParser {
+		String modelUri = resModel.getFullPath().toString();
 
-		EObject model = parser.getModelFromUri(modeluri);
-		String metamodeluri = parser.getMetamodelURI(model.eClass()
+		EObject model = parser.getModelFromUri(modelUri);
+		String metaModelUri = parser.getMetamodelURI(model.eClass()
 				.getEPackage().getName());
-
-		runner.remModel(modeluri);
-		tracked.get(metamodeluri).remove(resmodel);
-
-		for (Constraint c : constraints.getAllConstraintsModel(resmodel)) {
+		
+		
+		runner.remModel(modelUri);
+		tracked.get(metaModelUri).remove(resModel);
+		
+		for (Constraint c : constraints.getAllConstraintsModel(resModel)) {
 			reporter.debug("Will remove  " + c.constraint);
 			this.removeQVTConstraint(c);
 		}
-		
 
-		EchoMarker.removeIntraMarkers(resmodel);
-		EchoMarker.removeInterMarkers(resmodel);
+		//Doesn't Eclipse auto-removes markers from deleted resources? 
+		EchoMarker.removeIntraMarkers(resModel);
+		//EchoMarker.removeInterMarkers(resModel);
 
-		reporter.debug("Model " + modeluri + " removed.");
+		reporter.debug("Model " + modelUri + " removed.");
 	}
 
 	/**
@@ -332,9 +332,9 @@ public class ResourceManager {
 		return c;
 	}
 	
-	public Constraint addQVTConstraint(IResource resqvt, IResource resmodelfst,
-			IResource resmodelsnd) throws ErrorUnsupported, ErrorInternalEngine,
-			ErrorTransform, ErrorParser, ErrorAPI {
+	public Constraint addQVTConstraint(IResource resqvt, IResource resmodelfst, IResource resmodelsnd)
+			throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
+		
 		Constraint c = addQVTConstraintAction( resqvt, resmodelfst, resmodelsnd);
 		conformQVT(c);
 		return c;
@@ -344,10 +344,7 @@ public class ResourceManager {
 	 * Removes a particular QVT-R constraint between two model resources
 	 * QVT-R representation (vs particular constraint) remains in the system
 	 * Model resources remain tracked
-	 * @param resqvt the qvt-r constraint
-	 * @param resmodelfst the first related model
-	 * @param resmodelsnd the seconde related model
-	 * @throws ErrorInternalEngine
+	 * @param c the qvt-r constraint
 	 * @throws ErrorAPI
 	 * @throws ErrorParser 
 	 */
@@ -435,9 +432,7 @@ public class ResourceManager {
 
 	/**
 	 * Tests if a particular pair of models is consistent over a QVT specification
-	 * @param resqvt the QVT specification
-	 * @param resmodelfst the first related model
-	 * @param resmodelsnd the second related model
+	 * @param c the QVT specification
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI
 	 */
@@ -488,11 +483,11 @@ public class ResourceManager {
 
 	}
 
-	public void generate(IResource resmetamodel,
+	public void generate(IResource resMetaModel,
 			Map<Entry<String, String>, Integer> scopes, String target)
 			throws ErrorParser, ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorAPI {
-		String metamodeluri = resmetamodel.getFullPath().toString();
-		if (!isManagedMetamodel(resmetamodel)) {
+		String metamodeluri = resMetaModel.getFullPath().toString();
+		if (!isManagedMetamodel(resMetaModel)) {
 			EPackage metamodel = parser.loadMetamodel(metamodeluri);
 			runner.addMetaModel(metamodel);
 		}
@@ -500,7 +495,7 @@ public class ResourceManager {
 		runner.generate(metamodeluri, scopes);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
-		amv.setTargetPath(target, true, resmetamodel);
+		amv.setTargetPath(target, true, resMetaModel);
 		amv.drawGraph();
 	}
 

@@ -240,6 +240,7 @@ public class AlloyRunner implements EngineRunner{
 		Func func = AlloyEchoTranslator.getInstance().getQVTFact(qvturi);
 		List<PrimSig> sigs = new ArrayList<PrimSig>();
 		for (String uri : insturis) {
+			System.out.println(uri);
 			PrimSig state = addInstanceSigs(uri);
 			sigs.add(state);
 			//System.out.println("Model fact: "+ uri);

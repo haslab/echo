@@ -189,7 +189,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 
     @Override
     public boolean hasModel(String modelUri) {
-        return getModelStateSig(modelUri) != null;
+        return (getModelStateSig(modelUri) != null) && modelalloys.containsKey(modelUri);
     }
 
     public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap, String uri) throws ErrorAlloy {
@@ -452,8 +452,9 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		metamodelalloys.remove(metaModelUri);
 	}
 
-	public void remModel(String modeluri) {
-		modelalloys.remove(modeluri);
+	public void remModel(String modelUri) {
+		modelalloys.remove(modelUri);
+		modelstatesigs.remove(modelUri);
 	}
 
 	public List<EClass> getRootClass(String metamodeluri) {
