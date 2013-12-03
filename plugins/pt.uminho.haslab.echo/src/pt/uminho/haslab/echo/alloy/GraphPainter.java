@@ -41,10 +41,11 @@ public class GraphPainter {
 		availableshapes.add(DotShape.INV_HOUSE);
 		availableshapes.add(DotShape.INV_TRAPEZOID);		
 		int i = 0;
-		AlloyModel model = vizstate.getCurrentModel();
+		AlloyModel model = vizstate.getOriginalModel();
 	
-		vizstate.resetTheme();
+		//vizstate.resetTheme();
 		vizstate.setFontSize(11);
+
 		AlloyType statet = null;
 		for (AlloyType atype : model.getTypes()){
 
@@ -62,7 +63,6 @@ public class GraphPainter {
 
 				else if (model.getSuperType(superatype) != null && model.getSuperType(superatype).getName().equals(AlloyUtil.STATESIGNAME)) {
 					vizstate.label.put(atype,AlloyUtil.getModelName(label));
-					EchoReporter.getInstance().debug("Empty if2: "+atype);
 				}
 				else if (atype.getName().equals(AlloyUtil.STATESIGNAME)) {
 					statet = atype;
@@ -98,6 +98,7 @@ public class GraphPainter {
 
 
 		}
+		EchoReporter.getInstance().debug("PROJECT: "+statet);
 		if (statet != null) vizstate.project(statet);
 
 		for (AlloySet t : vizstate.getCurrentModel().getSets()){
