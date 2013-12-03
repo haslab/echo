@@ -132,10 +132,10 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	private void createModelStateSigs(EPackage metamodel) throws ErrorAlloy, ErrorTransform {
 		PrimSig s = null;
 		try {
-			if (EchoOptionsSetup.getInstance().isOperationBased())
+			//if (EchoOptionsSetup.getInstance().isOperationBased())
 				s = new PrimSig(URIUtil.resolveURI(metamodel.eResource()),STATE);
-			else
-				s = new PrimSig(URIUtil.resolveURI(metamodel.eResource()),STATE,Attr.ABSTRACT);
+			//else
+				//s = new PrimSig(URIUtil.resolveURI(metamodel.eResource()),STATE,Attr.ABSTRACT);
 			metamodelstatesigs.put(URIUtil.resolveURI(metamodel.eResource()), s);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
@@ -430,6 +430,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	
 	public Expr getConformsInstance(String uri) throws ErrorAlloy {
 		Func f = modelalloys.get(uri).translator.getConforms();
+		//EchoReporter.getInstance().debug("Model fact: "+f.getBody());
 		return f.call(modelstatesigs.get(uri));
 	}
 

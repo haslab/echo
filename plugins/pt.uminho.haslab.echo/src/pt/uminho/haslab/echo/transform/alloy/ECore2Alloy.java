@@ -715,7 +715,7 @@ class ECore2Alloy {
 				}
 				vars.add(s1.get());
 				vars.add(s2.get());
-
+				
 				Expr aux = fun.call(vars.toArray(new Expr[vars.size()]));
 				Decl fst = decls.get(0);
 				decls.remove(0);
@@ -723,7 +723,6 @@ class ECore2Alloy {
 				ops = ops.or(aux);
 			}			
 			ops = ops.forAll(s1, s2);
-			//System.out.println("ORD: "+ops);
 			ord.addFact(ops);
 			List<Expr> x = new ArrayList<Expr>();
 			x.add(sig); x.add(ord.join(first)); x.add(ord.join(next));
