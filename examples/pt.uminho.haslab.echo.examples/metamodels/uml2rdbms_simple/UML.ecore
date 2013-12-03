@@ -12,7 +12,7 @@
       <details key="gen_linear" value="self.persistent implies (self.attributes->one(x | true) and self.child->isEmpty())"/>
     </eAnnotations>
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL_">
         <details key="post_set_name" value="self.name = n"/>
         <details key="post_frame_condition_package" value="Package.allInstances@pre() = Package.allInstances()"/>
         <details key="post_frame_condition_package_classes" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
@@ -29,17 +29,16 @@
     </eOperations>
     <eOperations name="addAttribute">
       <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+        <details key="post_c" value="Attribute.allInstances()->one(x | x.oclIsNew() and x.name = n and self.attributes->includes(x))"/>
+        <details key="post_g" value="Class.allInstances()-> forAll(x | x.attributes@pre = x.attributes or x = self)"/>
+        <details key="post_i" value="Class.allInstances()-> forAll(x | x.super@pre = x.super)"/>
+        <details key="post_ff" value="Class.allInstances()-> forAll(x | x.name@pre = x.name)"/>
         <details key="post_b" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
         <details key="post_e" value="Package.allInstances()->forAll(x | x.name@pre = x.name)"/>
-        <details key="post_f" value="Attribute.allInstances@pre()-> forAll(x | x.name@pre = x.name)"/>
-        <details key="post_g" value="Class.allInstances()-> forAll(x | x.attributes@pre = x.attributes or x = self)"/>
+        <details key="post_z" value="Package.allInstances@pre() = Package.allInstances()"/>
         <details key="post_h" value="Class.allInstances()-> forAll(x | x.persistent@pre = x.persistent)"/>
         <details key="post_c" value="Class.allInstances@pre() = Class.allInstances()"/>
-        <details key="post_d" value="Attribute.allInstances@pre()->forAll(x | Attribute.allInstances()->includes(x))"/>
-        <details key="post_i" value="Class.allInstances()-> forAll(x | x.super@pre = x.super)"/>
-        <details key="post_z" value="Package.allInstances@pre() = Package.allInstances()"/>
-        <details key="post_ff" value="Class.allInstances()-> forAll(x | x.name@pre = x.name)"/>
-        <details key="post_c" value="Attribute.allInstances()->one(x | x.oclIsNew() and x.name = n and self.attributes->includes(x))"/>
+        <details key="post_f" value="Attribute.allInstances@pre()-> forAll(x | x.name@pre = x.name)"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
@@ -47,7 +46,7 @@
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="setPersistent">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL_">
         <details key="post_b" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
         <details key="post_e" value="Package.allInstances()->forAll(x | x.name@pre = x.name)"/>
         <details key="post_f" value="Attribute.allInstances()-> forAll(x | x.name@pre = x.name)"/>
@@ -63,20 +62,17 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="persistent" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Attribute"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
-        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/child"/>
+        eType="#//Attribute" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="#//Class"
+        eOpposite="#//Class/child"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="namespace" lowerBound="1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Package"
-        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Package/classes"/>
+        eType="#//Package" eOpposite="#//Package/classes"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="child" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
-        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/super"/>
+        eType="#//Class" eOpposite="#//Class/super"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL_">
         <details key="post_a" value="self.name = n"/>
         <details key="post_b" value="Package.allInstances()->forAll(x | x.classes@pre = x.classes)"/>
         <details key="post_e" value="Package.allInstances()->forAll(x | x.name@pre = x.name)"/>
@@ -131,7 +127,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="classes" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
-        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/namespace"/>
+        eType="#//Class" containment="true" eOpposite="#//Class/namespace"/>
   </eClassifiers>
 </ecore:EPackage>

@@ -129,13 +129,7 @@ public class EchoInterQuickFix implements IMarkerResolution {
 				e.printStackTrace();
 				return Status.CANCEL_STATUS;
 			}
-			monitor.done();
-			if (suc) {
-				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(),false,null);
-				EchoPlugin.getInstance().getGraphView().drawGraph();
-				return Status.OK_STATUS;
-			}
-			else return Status.CANCEL_STATUS;
+			return Status.OK_STATUS;
 		}
 		
 	}

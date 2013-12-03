@@ -74,6 +74,19 @@ public class AlloyUtil {
 		return res;
 	}
 	
+	public static String getModelName(String label) {
+		String[] aux = label.split("/");
+		if (label.charAt(0) == '\'') return "target@"+aux[aux.length-1];
+		else return "source@"+aux[aux.length-1];
+	}
+	
+	public static String getMetaModelName(String label) {
+		String[] aux = label.split("/");
+		return aux[aux.length-1];
+	}
+	
+	
+	
 	public static boolean mayBeClassOrFeature(String label) {
 		return label.split("@").length == 2;
 	}
@@ -410,6 +423,9 @@ public class AlloyUtil {
 				return avars;
 			}
 	
+		public static String targetName(PrimSig sig) {
+			return "'"+sig.label;
+		}
 
 		
 }
