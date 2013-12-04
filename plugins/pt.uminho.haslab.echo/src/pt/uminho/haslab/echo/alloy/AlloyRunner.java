@@ -383,7 +383,7 @@ public class AlloyRunner implements EngineRunner{
 			Command cmd = new Command(true, overall, intscope, -1, finalfact);
 			cmd = cmd.change(scopes);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd, aoptions);	
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage()+"\n" + a.dump() + a.pos + "\n CAUSE ->" + a.getCause());}
         while(!sol.satisfiable()) {
         	if (delta >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
         	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;

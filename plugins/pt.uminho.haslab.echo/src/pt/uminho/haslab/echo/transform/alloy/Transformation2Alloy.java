@@ -38,13 +38,10 @@ class Transformation2Alloy {
 	 * A {@code QVTRelation2Alloy} is called for every top QVT Relation and direction.
 	 * 
 	 * @param transformation the QVT Transformation being translated
-	 * @param statesigs maps transformation arguments (or metamodels) to the respective Alloy singleton signature (or abstract signature)
-	 * @param modelsigs maps metamodels to the set of Alloy signatures
 	 * 
 	 * @throws ErrorTransform, 
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
-	 * @throws Err 
 	 */
 	Transformation2Alloy (Transformation transformation) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 		Expr fact = Sig.NONE.no();

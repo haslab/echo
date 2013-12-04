@@ -58,12 +58,12 @@ public class QVTRelation implements Relation {
 
 	@Override
 	public QVTCondition getPre() {
-		QVTCondition oclwhen = new QVTCondition();
+		QVTCondition oclWhen = new QVTCondition();
 		Pattern pattern = relation.getWhen();
 		if(pattern == null) return null;
 		for (Predicate predicate : pattern.getPredicate())
-			oclwhen.addCondition(predicate.getConditionExpression());
-		return oclwhen;
+			oclWhen.addCondition(predicate.getConditionExpression());
+		return oclWhen;
 	}
 	
 }

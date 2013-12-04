@@ -117,7 +117,7 @@ public class OCL2Alloy implements OCLTranslator{
 			// merges the whole thing
 			Expr item;
 			if (ocl.equals(ExprConstant.TRUE)) item = var.in(localfield);
-			else if (ocl.equals(ExprConstant.FALSE)) item = var.not().in(localfield);
+			else if (ocl.equals(ExprConstant.FALSE)) item = var.in(localfield).not();
 			else if (value instanceof ObjectTemplateExp) {
 				varname = ((ObjectTemplateExp) value).getBindsTo().getName();
 				ExprHasName var1 = varstates.get(varname).getKey();

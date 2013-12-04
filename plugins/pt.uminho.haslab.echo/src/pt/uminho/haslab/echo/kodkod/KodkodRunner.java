@@ -68,6 +68,6 @@ public class KodkodRunner implements EngineRunner{
 
     @Override
     public void cancel() {
-        ;
+
     }
 }
