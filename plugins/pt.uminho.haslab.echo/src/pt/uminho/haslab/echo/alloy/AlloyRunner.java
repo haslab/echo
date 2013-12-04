@@ -38,6 +38,8 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
+import static com.google.common.primitives.Ints.max;
+
 public class AlloyRunner implements EngineRunner{
 	
 /** the Alloy solution */
@@ -404,7 +406,7 @@ public class AlloyRunner implements EngineRunner{
 		}
 		else {
 			try {
-				intscope = (int) Math.ceil(1+(Math.log(delta+1) / Math.log(2)));
+				intscope = max((int) Math.ceil(1+(Math.log(delta+1) / Math.log(2))),intscope);
 				if(!EchoOptionsSetup.getInstance().isOperationBased())
 					runfact = finalfact.and(edelta.equal(ExprConstant.makeNUMBER(delta)));
 				scopes = AlloyEchoTranslator.getInstance().incrementScopes(scopes);
