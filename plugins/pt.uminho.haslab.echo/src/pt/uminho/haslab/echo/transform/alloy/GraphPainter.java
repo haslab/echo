@@ -26,7 +26,6 @@ public class GraphPainter {
 	
 	/**
 	 * Generates the Alloy theme for a Viz instance
-	 * @param vizstate the state where the instance is stored
 	 */
 	public void generateTheme() {
 		//vizstate = new VizState(vizstate.getOriginalInstance());

@@ -106,9 +106,7 @@ public class EchoMarker {
 
 	/**
 	 * Creates an individual inter-model error marker on a model resource
-	 * @param fstmodelres the model to add the marker
 	 * @param relatedres the related model
-	 * @param constraintres the constraint relating them
 	 * @return the created marker
 	 * @throws ErrorAPI 
 	 */
