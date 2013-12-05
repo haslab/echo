@@ -134,12 +134,33 @@ class ECore2Alloy {
 			processAnnotations(c.getEAnnotations());
 		for (EClass c : classList)
 			processOperations(c.getEOperations());
+
+        for(PrimSig s : mapClassSig.values())
+            processHeritage(s);
 		
 		createOrder(statesig);
 		
 	}
-	
-	/**
+
+    private void processHeritage(PrimSig s) throws ErrorAlloy {
+        Expr childrenUnion = Sig.NONE;
+
+        try {
+            if(!(s.children().isEmpty())){
+                for(PrimSig child : s.children())
+                    childrenUnion = childrenUnion.plus(mapSigState.get(child).join(statesig));
+
+                if(s.isAbstract!= null)
+                    s.addFact(childrenUnion.equal(mapSigState.get(s).join(statesig)));
+                else
+                    s.addFact(childrenUnion.in(mapSigState.get(s).join(statesig)));
+            }
+        } catch (Err err) {
+            throw new ErrorAlloy(err.getMessage());
+        }
+    }
+
+    /**
 	 * Translates an {@link EClass}
 	 * New sigs: the signature representing the class
 	 * New fields: the state field of the signature
@@ -634,7 +655,6 @@ class ECore2Alloy {
 	/**
 	 * Returns all {@link PrimSig} of this meta-model
 	 * @return the signatures
-	 * @throws ErrorAlloy 
 	 */
 	List<PrimSig> getAllSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>(mapClassSig.values());
