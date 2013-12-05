@@ -151,15 +151,12 @@ class ECore2Alloy {
     		
         	if(!(s.children().isEmpty())){
                 for(PrimSig child : s.children())
-                    childrenUnion = childrenUnion.plus(mapSigState.get(child).join(statesig));
+                    childrenUnion = childrenUnion.plus(mapSigState.get(child).join(constraintdecl.get()));
 
-                Expr fact;
                 if(s.isAbstract!= null)
-                    fact = childrenUnion.equal(mapSigState.get(s).join(statesig));
+                    constraint = constraint.and(childrenUnion.equal(mapSigState.get(s).join(constraintdecl.get())));
                 else
-                    fact = childrenUnion.in(mapSigState.get(s).join(statesig));
-                EchoReporter.getInstance().debug("Heritage fact: "+fact.toString());
-                s.addFact(fact);
+                	constraint = constraint.and(childrenUnion.in(mapSigState.get(s).join(constraintdecl.get())));
             }
         } catch (Err err) {
             throw new ErrorAlloy(err.getMessage());
