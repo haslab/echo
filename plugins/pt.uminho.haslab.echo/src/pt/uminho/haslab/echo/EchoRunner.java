@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.alloy.GraphPainter;
+import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
@@ -335,6 +336,10 @@ public class EchoRunner {
 		public String toString() {
 			return label;
 		}
+	}
+
+	public void backUpInstance(String targetPath) {
+		EchoParser.getInstance().backUpTarget(targetPath);
 	}
 
 

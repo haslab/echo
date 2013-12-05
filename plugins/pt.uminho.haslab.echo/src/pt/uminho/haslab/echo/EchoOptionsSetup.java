@@ -6,6 +6,7 @@ public class EchoOptionsSetup {
 	public static final String SCOPE = "scope";
 	public static final String DELTA = "delta";
 	public static final String OPTIMIZE = "optimize";
+	public static final String OVERWITE = "overwrite";
 	public static final String VERBOSE = "verbose";
 	public static final int DEFAULT_BITWIDTH = 4;
 	public static final int DEFAULT_SCOPE = 1;

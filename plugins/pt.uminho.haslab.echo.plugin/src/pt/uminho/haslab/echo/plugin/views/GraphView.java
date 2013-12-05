@@ -15,6 +15,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 
+import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.alloy.AlloyTuple;
@@ -129,8 +131,11 @@ public class GraphView extends ViewPart {
 				MessageDialog.openInformation(shell, "No instance to save.",
 						"No instance to save.");
 			} 
-			else if (!isNewModel)
+			else if (!isNewModel) {
+				if (!EchoOptionsSetup.getInstance().isOverwrite()) 
+					runner.backUpInstance(targetPath);
 				runner.writeInstance(targetPath);
+			}
 			else {
 				runner.writeAllInstances(resmetamodel.getFullPath().toString(),
 						targetPath);
