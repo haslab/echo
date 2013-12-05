@@ -163,7 +163,7 @@ public class EchoParser {
 		resource.getContents().add(getModelFromUri(uri));
 
 		Map<Object,Object> options = new HashMap<Object,Object>();
-		options.put(XMIResource.OPTION_SCHEMA_LOCATION, "aaa");
+		options.put(XMIResource.OPTION_SCHEMA_LOCATION, true);
 		try{
 			resource.save(options);
 		}catch (IOException e) {

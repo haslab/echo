@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
+import pt.uminho.haslab.echo.alloy.GraphPainter;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
 import edu.mit.csail.sdg.alloy4viz.VizState;
@@ -308,7 +309,7 @@ public class EchoRunner {
 	}
 
     public  boolean isRunning(){
-        return currentOperation!=null?currentOperation.isAlive():false;
+        return currentOperation != null && currentOperation.isAlive();
     }
 
     public void cancel(){
@@ -334,6 +335,10 @@ public class EchoRunner {
 		public String toString() {
 			return label;
 		}
+	}
+
+	public void backUpInstance(String targetPath) {
+		EchoParser.getInstance().backUpTarget(targetPath);
 	}
 
 

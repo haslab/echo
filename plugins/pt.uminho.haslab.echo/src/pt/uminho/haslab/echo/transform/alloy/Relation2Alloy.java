@@ -178,6 +178,11 @@ public class Relation2Alloy {
 				sourceexpr = AlloyUtil.cleanAnd(sourceexpr,patternToExpr(dom));
 			fact = (sourceexpr.implies(targetexpr));
 			
+			
+			for (Decl d : alloysourcevars.values()) {
+				System.out.println("Universal: "+d.toString() + " : " + d.expr);
+			}
+			
 			if (alloysourcevars.size() == 1)
 				fact = fact.forAll(alloysourcevars.values().iterator().next());	
 			else if (alloysourcevars.size() > 1) {
