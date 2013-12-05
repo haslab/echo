@@ -145,15 +145,21 @@ class ECore2Alloy {
     private void processHeritage(PrimSig s) throws ErrorAlloy {
         Expr childrenUnion = Sig.NONE;
 
+
         try {
-            if(!(s.children().isEmpty())){
+        	EchoReporter.getInstance().debug("Heritaging: "+s+" : "+s.children());
+    		
+        	if(!(s.children().isEmpty())){
                 for(PrimSig child : s.children())
                     childrenUnion = childrenUnion.plus(mapSigState.get(child).join(statesig));
 
+                Expr fact;
                 if(s.isAbstract!= null)
-                    s.addFact(childrenUnion.equal(mapSigState.get(s).join(statesig)));
+                    fact = childrenUnion.equal(mapSigState.get(s).join(statesig));
                 else
-                    s.addFact(childrenUnion.in(mapSigState.get(s).join(statesig)));
+                    fact = childrenUnion.in(mapSigState.get(s).join(statesig));
+                EchoReporter.getInstance().debug("Heritage fact: "+fact.toString());
+                s.addFact(fact);
             }
         } catch (Err err) {
             throw new ErrorAlloy(err.getMessage());
