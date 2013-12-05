@@ -12,12 +12,12 @@
   </tables>
   <tables name="Employee">
     <columns
-        name="salary"/>
-    <columns
         name="name"/>
   </tables>
   <tables name="Department">
     <columns
-        name="location"/>
+        name="x"/>
+    <columns
+        name="y"/>
   </tables>
 </rdbms:Scheme>

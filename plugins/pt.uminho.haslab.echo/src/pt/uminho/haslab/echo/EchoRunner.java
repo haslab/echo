@@ -65,10 +65,10 @@ public class EchoRunner {
 
 	/**
 	 * Removes a model from the system
-	 * @param modeluri the URI of the model to remove
+	 * @param modelUri the URI of the model to remove
 	 */
-	public void remModel(String modeluri) {
-		EchoTranslator.getInstance().remModel(modeluri);
+	public void remModel(String modelUri) {
+		EchoTranslator.getInstance().remModel(modelUri);
 	}
 
 	/**
@@ -168,7 +168,6 @@ public class EchoRunner {
         currentOperation.start();
         try {
             currentOperation.join();
-            System.out.println("afterjoin");
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -185,7 +184,6 @@ public class EchoRunner {
 		EngineRunner runner =  engineFactory.createRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
-		
 	}
 
 	/**
@@ -205,17 +203,15 @@ public class EchoRunner {
                     runner.enforce(qvturi, modeluris, targeturi);
                 } catch (ErrorInternalEngine e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (Exception e) {
-                   System.out.println("Death?");  //To change body of catch statement use File | Settings | File Templates.
+                } catch (InterruptedException e) {
+                   System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
         });
         currentOperation.start();
         try {
             currentOperation.join();
-            System.out.println("asdddd");
-        } catch (Exception e) {
-        	System.out.println("morreu");
+        } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             return false;
         }
@@ -317,8 +313,7 @@ public class EchoRunner {
 
     public void cancel(){
         if(currentOperation!=null && currentOperation.isAlive())
-        	currentOperation.stop();
-        	
+            currentOperation.stop();
     }
 	
 	public enum Task {

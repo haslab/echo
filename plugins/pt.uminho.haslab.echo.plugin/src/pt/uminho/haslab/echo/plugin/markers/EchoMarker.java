@@ -70,9 +70,10 @@ public class EchoMarker {
 	 */
 	public static void removeIntraMarkers(IResource res) throws ErrorAPI {
 		try {
-			res.deleteMarkers(EchoMarker.INTRA_ERROR, true, 0);
+			if(res.isAccessible())
+				res.deleteMarkers(EchoMarker.INTRA_ERROR, true, 0);
 		} catch (CoreException e) {
-			throw new ErrorAPI("Failed to create marker.");
+			throw new ErrorAPI("Failed to delete marker.");
 		}
 	}
 	
@@ -144,15 +145,21 @@ public class EchoMarker {
 	public static void removeInterMarkers(IResource res) throws ErrorAPI {
 		try {
 			for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR,false, 0)) {
-				String relateduri = (String) mk.getAttribute(EchoMarker.OPPOSITE);
-				IResource related = res.getWorkspace().getRoot().findMember(relateduri);
+                System.out.println("no ciclo");
+				String relatedUri = (String) mk.getAttribute(EchoMarker.OPPOSITE);
+                System.out.println(relatedUri);
+				IResource related = res.getWorkspace().getRoot().findMember(relatedUri);
+                System.out.println(related);
 				for (IMarker mk1 : related.findMarkers(EchoMarker.INTER_ERROR,false, 0)) 
 					if (mk1.getAttribute(EchoMarker.OPPOSITE).equals(res.getFullPath().toString()))
-						mk1.delete();
+                    {
+                        System.out.println("deleting");
+                        mk1.delete();
+                    }
 				mk.delete();
 			}
 		} catch (CoreException e) {
-			throw new ErrorAPI("Failed to create marker.");
+			throw new ErrorAPI("Failed to delete marker.");
 		}
 	}
 
@@ -167,18 +174,20 @@ public class EchoMarker {
 		String constrainturi = constraint.constraint.getFullPath().toString();
 
 		try {
-			for (IMarker mk : constraint.fstmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
-				if (mk.getAttribute(EchoMarker.OPPOSITE).equals(sndmodeluri)
-						&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
-					mk.delete();
-
-			for (IMarker mk : constraint.sndmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
-				if (mk.getAttribute(EchoMarker.OPPOSITE).equals(fstmodeluri)
-						&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
-					mk.delete();
+			if(constraint.fstmodel.isAccessible())
+				for (IMarker mk : constraint.fstmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+					if (mk.getAttribute(EchoMarker.OPPOSITE).equals(sndmodeluri)
+							&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
+						mk.delete();
+			
+			if(constraint.sndmodel.isAccessible())
+				for (IMarker mk : constraint.sndmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+					if (mk.getAttribute(EchoMarker.OPPOSITE).equals(fstmodeluri)
+							&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
+						mk.delete();
 
 		} catch (CoreException e) {
-			throw new ErrorAPI("Failed to remove markers.");
+			throw new ErrorAPI("\nFailed to remove markers.\n");
 		}
 	}
 

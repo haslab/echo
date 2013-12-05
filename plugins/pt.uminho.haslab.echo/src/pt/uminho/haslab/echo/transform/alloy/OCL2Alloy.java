@@ -115,7 +115,7 @@ public class OCL2Alloy implements ConditionTranslator{
 			// merges the whole thing
 			Expr item;
 			if (ocl.equals(ExprConstant.TRUE)) item = var.in(localfield);
-			else if (ocl.equals(ExprConstant.FALSE)) item = var.not().in(localfield);
+			else if (ocl.equals(ExprConstant.FALSE)) item = var.in(localfield).not();
 			else if (value instanceof ObjectTemplateExp) {
 				varname = ((ObjectTemplateExp) value).getBindsTo().getName();
 				ExprHasName var1 = varstates.get(varname).getKey();
@@ -231,7 +231,7 @@ public class OCL2Alloy implements ConditionTranslator{
 				res = res.forOne(d);
 			}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
-		} else if (expr.getReferredIteration().getName().equals("forAll")) {
+		} else if (expr.getReferredIteration().getName().equals("forAll")) { //????
 			try {
 				res = ((d.get().in(src)).and(bdy));
 				res = res.forSome(d);

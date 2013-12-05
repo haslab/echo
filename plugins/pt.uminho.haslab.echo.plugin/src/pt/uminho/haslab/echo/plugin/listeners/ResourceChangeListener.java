@@ -127,16 +127,18 @@ public class ResourceChangeListener implements IResourceChangeListener {
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
 
-				ResourceManager resmanager = ProjectPropertiesManager
+				ResourceManager resManager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 
 				try {
-					resmanager.remModel(res);
+					resManager.remModel(res);
 				} catch (Exception e) {
-					MessageDialog.openError(null,
+					e.printStackTrace();
+					System.out.println(e);
+					/*MessageDialog.openError(null,
 							"Error removing model.",
 							"Model failed to be untracked.");
-					return Status.CANCEL_STATUS;
+					*/return Status.CANCEL_STATUS;
 				}
 				return Status.OK_STATUS;
 			}

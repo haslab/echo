@@ -82,7 +82,6 @@ class ECore2Alloy {
 	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
 	 * @param pck the package to translate
 	 * @param statesig the state signature representing the meta-model
-	 * @param translator the parent translator
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
@@ -178,7 +177,7 @@ class ECore2Alloy {
 	 * New fields: binary field if EInt or EString
 	 * New facts: multiplicity constraints for binary fields
 	 * @param attributes the list of attributes to translate
-	 * @throws ErrowrUnsupported the attribute type is not supported
+	 * @throws ErrorUnsupported the attribute type is not supported
 	 * @throws ErrorAlloy
 	 */
 	private void processAttributes(List<EAttribute> attributes) throws ErrorUnsupported, ErrorAlloy {
@@ -478,8 +477,6 @@ class ECore2Alloy {
 	/**
 	 * Calculates the delta {@link Expr} for particular state {@link PrimSig}
 	 * Optimization: container opposites are not counted (made obsolete by optimization that removed opposites altogether)
-	 * @param m the pre state signature
-	 * @param n the post state signature
 	 * @return the delta expression
 	 * @throws ErrorAlloy
 	 */
@@ -713,7 +710,7 @@ class ECore2Alloy {
 				}
 				vars.add(s1.get());
 				vars.add(s2.get());
-
+				
 				Expr aux = fun.call(vars.toArray(new Expr[vars.size()]));
 				Decl fst = decls.get(0);
 				decls.remove(0);
@@ -721,7 +718,6 @@ class ECore2Alloy {
 				ops = ops.or(aux);
 			}			
 			ops = ops.forAll(s1, s2);
-			//System.out.println("ORD: "+ops);
 			ord.addFact(ops);
 			List<Expr> x = new ArrayList<Expr>();
 			x.add(sig); x.add(ord.join(first)); x.add(ord.join(next));
