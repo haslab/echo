@@ -60,11 +60,11 @@ class XMI2Kodkod {
 	}
 
     private void handleReference(Object obj, EReference sf, EObject it) {
-        //To change body of created methods use File | Settings | File Templates.
+        //TODO
     }
 
     private void handleAttribute(Object obj, EStructuralFeature sf, EObject it) {
-
+        //TODO
     }
 
 }
