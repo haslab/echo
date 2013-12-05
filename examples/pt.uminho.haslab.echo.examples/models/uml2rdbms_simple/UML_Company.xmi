@@ -7,5 +7,8 @@
     <attributes name="name"/>
   </classes>
   <classes name="Employer" persistent="true" super="//@classes.1"/>
-  <classes name="Department" persistent="true"/>
+  <classes name="Department" persistent="true">
+    <attributes name="x"/>
+    <attributes name="y"/>
+  </classes>
 </uml:Package>

@@ -21,13 +21,13 @@ public class PlugInOptions implements EchoOptions {
 
 	private boolean operationbased = DEFAULT_OBD;
 	private boolean verbose = EchoOptionsSetup.DEFAULT_VERBOSE;
-	private boolean overwrite = EchoOptionsSetup.DEFAULT_OVERWRITE;
 	
 	public PlugInOptions() {
 		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.BITWIDTH, EchoOptionsSetup.DEFAULT_BITWIDTH);
 		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.SCOPE, EchoOptionsSetup.DEFAULT_SCOPE);
 		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.DELTA, EchoOptionsSetup.DEFAULT_DELTA);
 		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.OPTIMIZE, EchoOptionsSetup.DEFAULT_OPTIMIZE);
+		EchoPlugin.getInstance().getPreferenceStore().setDefault(EchoOptionsSetup.OVERWITE, EchoOptionsSetup.DEFAULT_OVERWRITE);
 		EchoPlugin.getInstance().getPreferenceStore().setDefault(ISPERSISTENT, DEFAULT_ISPERSISTENT);
 	}
 
@@ -38,7 +38,7 @@ public class PlugInOptions implements EchoOptions {
 
 	@Override
 	public boolean isOverwrite() {
-		return overwrite;
+		return EchoPlugin.getInstance().getPreferenceStore().getBoolean(EchoOptionsSetup.OVERWITE);
 	}
 
 	@Override
@@ -105,7 +105,12 @@ public class PlugInOptions implements EchoOptions {
 		EchoPlugin.getInstance().getPreferenceStore().setValue(EchoOptionsSetup.OPTIMIZE,n);
 	}
 
+	public void setOverwrite(boolean n) {
+		EchoPlugin.getInstance().getPreferenceStore().setValue(EchoOptionsSetup.OVERWITE,n);
+	}
+
 	public void goDefault() {
+		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.OVERWITE);
 		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.BITWIDTH);
 		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.DELTA);
 		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.OPTIMIZE);

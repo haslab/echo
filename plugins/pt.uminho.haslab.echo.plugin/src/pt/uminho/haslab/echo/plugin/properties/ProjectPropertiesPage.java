@@ -22,6 +22,7 @@ IWorkbenchPropertyPage {
 	private Spinner scopetext;
 	private Spinner bitwidthtext;
 	private Button optimizationsbutton;
+	private Button overwritebutton;
 	private Button ispersistentbutton;
 	private Spinner maxiterations;
 	
@@ -60,7 +61,12 @@ IWorkbenchPropertyPage {
 		optimizationsbutton = new Button(group, SWT.CHECK);
 		optimizationsbutton.setText("Formula simplification ");
 		optimizationsbutton.setSelection(EchoOptionsSetup.getInstance().isOptimize());
+		new Label(group, SWT.NULL);		
 
+		overwritebutton = new Button(group, SWT.CHECK);
+		overwritebutton.setText("Backup model ");
+		overwritebutton.setSelection(EchoOptionsSetup.getInstance().isOverwrite());
+		
 		return rootcomposite;	
 	}
 	
@@ -72,6 +78,7 @@ IWorkbenchPropertyPage {
 		bitwidthtext.setSelection(EchoOptionsSetup.getInstance().getBitwidth());
 		ispersistentbutton.setSelection(((PlugInOptions)EchoOptionsSetup.getInstance()).isPersistent());
 		optimizationsbutton.setSelection(EchoOptionsSetup.getInstance().isOptimize());	
+		overwritebutton.setSelection(EchoOptionsSetup.getInstance().isOverwrite());	
 	}
 	
 	@Override
@@ -80,6 +87,7 @@ IWorkbenchPropertyPage {
 		op.setBitwidth(bitwidthtext.getSelection());
 		op.setDelta(maxiterations.getSelection());
 		op.setOptimize(optimizationsbutton.getSelection());
+		op.setOverwrite(overwritebutton.getSelection());
 		op.setIsPersistent(ispersistentbutton.getSelection());
 		op.setScope(scopetext.getSelection());
 	}
