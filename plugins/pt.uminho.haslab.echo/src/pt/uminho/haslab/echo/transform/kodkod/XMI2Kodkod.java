@@ -8,7 +8,7 @@ import org.eclipse.emf.ecore.*;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
 
-public class XMI2Kodkod {
+class XMI2Kodkod {
 
 	
 	private EObject eObj;
