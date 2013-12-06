@@ -1,9 +1,16 @@
 package pt.uminho.haslab.echo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import pt.uminho.haslab.echo.EchoRunner.Task;
 
 public class EchoReporter {
 
+	private Map<Task,List<String>> warnings = new HashMap<Task,List<String>>();
+	
 	protected static EchoReporter instance;
 
 	public EchoReporter () {}
@@ -52,6 +59,13 @@ public class EchoReporter {
 			break;
 
 		}
+	}
+	
+	public void warning (String message, Task task) {
+		List<String> ws = warnings.get(task);
+		if (ws == null) ws = new ArrayList<String>();
+		ws.add(message);
+		warnings.put(task, ws);		
 	}
 	
 	public void iteration (int delta) {

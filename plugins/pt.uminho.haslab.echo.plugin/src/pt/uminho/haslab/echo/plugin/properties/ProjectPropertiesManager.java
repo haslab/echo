@@ -9,6 +9,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
@@ -39,8 +40,7 @@ public class ProjectPropertiesManager {
 						.isPersistent()) {
 			try {
 				res = loadProperties(project);
-			} catch (ErrorUnsupported | ErrorTransform | ErrorParser | ErrorAPI
-					| CoreException | ErrorInternalEngine e) {
+			} catch (EchoError | CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -65,8 +65,7 @@ public class ProjectPropertiesManager {
 	 * @throws ErrorInternalEngine
 	 */
 	public static ResourceManager loadProperties(IProject project)
-			throws ErrorUnsupported, ErrorTransform, ErrorParser, ErrorAPI,
-			CoreException, ErrorInternalEngine {
+			throws EchoError, CoreException {
 		String propertiesstring = project.getPersistentProperty(ECHO_PROPERTIES);
 		ResourceManager properties = null;
 		if (propertiesstring != null) {
@@ -113,7 +112,7 @@ public class ProjectPropertiesManager {
 		return builder.toString();
 	}
 	
-	private static void fromString(ResourceManager man, String propertiesstring) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser, ErrorAPI {
+	private static void fromString(ResourceManager man, String propertiesstring) throws EchoError {
 		String models = propertiesstring.split(";")[0];
 		for (String model : models.split(",")) {
 			IResource res = ResourcesPlugin.getWorkspace().getRoot()

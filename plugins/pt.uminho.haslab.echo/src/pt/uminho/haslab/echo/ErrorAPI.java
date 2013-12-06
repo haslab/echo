@@ -1,6 +1,6 @@
 package pt.uminho.haslab.echo;
 
-public final class ErrorAPI extends Exception {
+public final class ErrorAPI extends EchoError {
 
 	private static final long serialVersionUID = 1L;
 

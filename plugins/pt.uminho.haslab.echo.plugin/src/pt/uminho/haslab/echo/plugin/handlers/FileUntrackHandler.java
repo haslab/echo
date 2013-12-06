@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
@@ -37,7 +38,7 @@ public class FileUntrackHandler extends AbstractHandler {
 			if(extension.equals("xmi"))
 				try {
 					ProjectPropertiesManager.getProperties(res.getProject()).remModel(res);
-				} catch (ErrorAPI | ErrorParser e) {
+				} catch (EchoError e) {
 					MessageDialog.openInformation(shell, "Failed to untrack resource",e.getMessage());
 					e.printStackTrace();
 				}

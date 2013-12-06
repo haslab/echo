@@ -9,10 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
@@ -70,11 +69,11 @@ public class Relation2Alloy {
 		
 	public final Transformation2Alloy transformation_trans;
 	
-	public Relation2Alloy (Relation2Alloy q2a, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Relation2Alloy (Relation2Alloy q2a, Relation rel) throws EchoError {
 		this (q2a.transformation_trans, false,q2a,q2a.getDirection(),rel);
 	}
 
-	public Relation2Alloy (Transformation2Alloy t, Model mdl, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Relation2Alloy (Transformation2Alloy t, Model mdl, Relation rel) throws EchoError {
 		this (t,true,null,mdl,rel);
 	}
 
@@ -88,7 +87,7 @@ public class Relation2Alloy {
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 */
-	Relation2Alloy (Transformation2Alloy t, Boolean top, Relation2Alloy q2a, Model direction, Relation rel) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Relation2Alloy (Transformation2Alloy t, Boolean top, Relation2Alloy q2a, Model direction, Relation rel) throws EchoError {
 		this.rel = rel;
 		this.direction = direction;
 		this.top = top;
@@ -143,7 +142,7 @@ public class Relation2Alloy {
 	 * Initializes the domain variables {@code this.sourcedomains}, {@code this.targetdomain} and {@code this.rootvariables}
 	 * @throws ErrorTransform if some {@code Domain} is not {@code RelationDomain}
 	 */
-	private void initDomains () throws ErrorTransform {
+	private void initDomains () throws EchoError {
 		for (Domain dom : rel.getDomains()) {
 			rootvariables.put(dom.getVariable(),dom.getModel().getName());
 			if (dom.getModel().equals(direction)) targetdomain = dom;
@@ -159,7 +158,7 @@ public class Relation2Alloy {
 	 * @throws ErrorTransform
 	 * @throws ErrorUnsupported
 	 */
-	private Expr calculateFact() throws ErrorAlloy, ErrorTransform, ErrorUnsupported {
+	private Expr calculateFact() throws EchoError {
 
 		Expr fact = Sig.NONE.no(),sourceexpr = Sig.NONE.no(),targetexpr = Sig.NONE.no(),whereexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
 		Decl[] arraydecl;
@@ -215,7 +214,7 @@ public class Relation2Alloy {
 	 * @throws ErrorUnsupported
 	 * @todo Support fom <code>CollectionTemplateExp</code>
 	 */
-	private void initVariableLists() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	private void initVariableLists() throws EchoError {
 		Condition temp;
 		Map<Variable,String> whenvariables = new HashMap<Variable,String>();
 		Map<Variable,String> sourcevariables = new HashMap<Variable,String>();
@@ -302,7 +301,7 @@ public class Relation2Alloy {
 	 * @throws ErrorAlloy
 	 * @throws ErrorUnsupported
 	 */
-	private Expr patternToExpr (Domain domain) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {		
+	private Expr patternToExpr (Domain domain) throws EchoError {		
 		Condition cond = domain.getCondition();
 		cond.initTranslation(parentq,auxMap(),statevars,null);
 		Expr res = cond.translate();
@@ -316,7 +315,7 @@ public class Relation2Alloy {
 	 * @throws ErrorTransform
 	 * @todo Support for n models
 	 */
-	private Field addRelationFields(List<Decl> mdecls) throws ErrorAlloy, ErrorTransform{
+	private Field addRelationFields(List<Decl> mdecls) throws EchoError {
 		Field field = null;
 		Decl fst = alloyrootvars.get(rel.getDomains().get(0).getVariable().getName());
 		Decl snd = alloyrootvars.get(rel.getDomains().get(1).getVariable().getName());
@@ -333,7 +332,7 @@ public class Relation2Alloy {
 		return field;
 	}
 	
-	private void addRelationDef(Expr fact, Field field, List<Decl> mdecls) throws ErrorAlloy, ErrorTransform{
+	private void addRelationDef(Expr fact, Field field, List<Decl> mdecls) throws EchoError {
 		Decl fst = alloyrootvars.get(rel.getDomains().get(0).getVariable().getName());
 		Decl snd = alloyrootvars.get(rel.getDomains().get(1).getVariable().getName());
 		Func f;

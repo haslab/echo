@@ -4,12 +4,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.EngineFactory;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,25 +26,25 @@ public abstract class EchoTranslator {
         instance = factory.createTranslator();
     }
 
-    public abstract void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorInternalEngine;
+    public abstract void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws EchoError;
 
-    public abstract void writeInstance(EchoSolution solution, String modelUri) throws ErrorInternalEngine, ErrorTransform;
+    public abstract void writeInstance(EchoSolution solution, String modelUri) throws EchoError;
 
     public abstract String getMetaModelFromModelPath(String path);
 
-    public abstract void translateMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser;
+    public abstract void translateMetaModel(EPackage metaModel) throws EchoError;
 
     public abstract void remMetaModel(String metaModelUri);
 
-    public abstract void translateModel(EObject model) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser;
+    public abstract void translateModel(EObject model) throws EchoError;
 
     public abstract void remModel(String modelUri);
 
-    public abstract void translateQVT(RelationalTransformation qvt) throws ErrorTransform, ErrorInternalEngine, ErrorUnsupported, ErrorParser;
+    public abstract void translateQVT(RelationalTransformation qvt) throws EchoError;
 
     public abstract Object getQVTFact(String qvtUri);
 
-    public abstract void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorTransform, ErrorInternalEngine, ErrorUnsupported, ErrorParser;
+    public abstract void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError;
 
     public abstract boolean remQVT(String qvtUri);
 

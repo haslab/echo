@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -131,8 +132,7 @@ IWorkbenchPropertyPage {
 			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
 				try {
 					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.fstmodel, c.sndmodel);
-				} catch (ErrorUnsupported | ErrorInternalEngine
-						| ErrorTransform | ErrorParser | ErrorAPI e) {
+				} catch (EchoError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				};
@@ -146,7 +146,7 @@ IWorkbenchPropertyPage {
 			if (!has) 
 				try {
 					ProjectPropertiesManager.getProperties(project).removeQVTConstraint(x);
-				} catch (ErrorParser | ErrorAPI e) {
+				} catch (EchoError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

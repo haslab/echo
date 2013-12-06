@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -39,7 +40,7 @@ class XMI2Alloy {
 	
 	final ECore2Alloy translator;
 	
-	XMI2Alloy(EObject obj,ECore2Alloy t, PrimSig stateSig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	XMI2Alloy(EObject obj,ECore2Alloy t, PrimSig stateSig) throws EchoError
 	{
 		eObj = obj;
 		translator = t;
@@ -107,7 +108,7 @@ class XMI2Alloy {
 		}
 	}
 	
-	private PrimSig handleRef(EObject obj) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private PrimSig handleRef(EObject obj) throws EchoError
 	{
 		PrimSig ref;
 		
@@ -118,7 +119,7 @@ class XMI2Alloy {
 		return ref;
 	}
 	
-	private Expr handleRef(EList<?> eG) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private Expr handleRef(EList<?> eG) throws EchoError
 	{
 		Expr res=null;
 		PrimSig ref;
@@ -132,7 +133,7 @@ class XMI2Alloy {
 		return res;
 	}
 	
-	private PrimSig makeSigList(EObject it) throws ErrorUnsupported, ErrorAlloy, ErrorTransform
+	private PrimSig makeSigList(EObject it) throws EchoError
 	{
 		Field field;
 		Expr fieldState;
@@ -205,7 +206,7 @@ class XMI2Alloy {
 	}
 	
 	
-	private void handleAttr(Object obj, Sig it, Expr field) throws ErrorUnsupported, ErrorTransform
+	private void handleAttr(Object obj, Sig it, Expr field) throws EchoError
 	{
 		Expr siblings = mapContent.get(field);
 		if(obj instanceof Boolean)

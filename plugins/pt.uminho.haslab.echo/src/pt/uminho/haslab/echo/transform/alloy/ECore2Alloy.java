@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,8 +29,8 @@ import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -56,61 +57,75 @@ class ECore2Alloy {
 
 	/** the package being translated */
 	final EPackage epackage;
-	/** the signature matching this meta-model */
-	final PrimSig statesig;
 	
-	/** maps classes into respective Alloy signatures */
-	private Map<String,PrimSig> mapClassSig;
-	/** maps structural features into respective Alloy fields */
-	private Map<String,Field> mapSfField;
-	/** maps signature names into respective classes */
-	private Map<String,EClass> mapClassClass = new HashMap<String,EClass>();
-	/** maps literals into respective Alloy signature */
-	private BiMap<EEnumLiteral,PrimSig> mapLitSig;
-	/** maps signatures into respective state fields */
-	private Map<PrimSig,Field> mapSigState = new HashMap<PrimSig,Field>();
-	/** list of Alloy functions resulting from operation translation */
-	private List<Func> functions = new ArrayList<Func>();
-	/** the constraint representing the conformity test */
-	private Expr constraint = Sig.NONE.no();
-	private Expr genconstraint = Sig.NONE.no();
-	/** the variable declaration for the conformity test */
-	private Decl constraintdecl;
+	/** the Alloy signature representing this meta-model */
+	final PrimSig sig_metamodel;
 	
-	private PrimSig order;
-	private Map<String,Integer> news = new HashMap<String,Integer>();
+	/** the model parameter of the conformity expression
+	 * constraint is defined over this variable */
+	private final Decl model_var;
+	
+	/** the Alloy expression representing the conformity constraint
+	 * should be defined over <code>model_var</code> */
+	private Expr constraint_conforms = Sig.NONE.no();
+	
+	/** the Alloy expression representing the generation constraint 
+	 * should be defined over <code>model_var</code> */
+	private Expr constraint_generate = Sig.NONE.no();
+	
+	/** the Alloy signature representing the order over model elements
+	 * should have order fact attached */
+	private PrimSig sig_order;
+	
+	/** maps class names to the number of creations in operations
+	 * each increment represents an <code>oclIsNew()</code> occurrence*/
+	private Map<String,Integer> elem_creation_count = new HashMap<String,Integer>();
 
+	/** maps class names into respective Alloy signatures */
+	private Map<String,PrimSig> classes2sigs = new HashMap<String,PrimSig>();
+	
+	/** maps structural feature names into respective Alloy fields */
+	private Map<String,Field> features2fields = new HashMap<String,Field>();
+	
+	/** maps Alloy signature names into respective classes */
+	private Map<String,EClass> sigs2classes = new HashMap<String,EClass>();
+	
+	/** maps literals into respective Alloy signatures */
+	private BiMap<EEnumLiteral,PrimSig> literals2sigs = HashBiMap.create();
+	
+	/** maps signatures into respective Alloy state fields */
+	private Map<PrimSig,Field> sigs2statefields = new HashMap<PrimSig,Field>();
+	
+	/** list of Alloy functions resulting from operation translation */
+	private List<Func> operations = new ArrayList<Func>();
+	
 	
 	/**
 	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
 	 * @param pck the package to translate
 	 * @param statesig the state signature representing the meta-model
-	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
-	 * @throws ErrorTransform
-	 * @throws ErrorParser
+	 * @throws EchoError
 	 */
-	ECore2Alloy(EPackage pck, PrimSig statesig) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
-		mapSfField = new HashMap<String,Field>();
-		mapClassSig = new HashMap<String,PrimSig>();
-		mapLitSig = HashBiMap.create();
-		this.statesig = statesig;
-		epackage = pck;
-		try{
-			constraintdecl = statesig.oneOf("s_");
-		} catch (Err a) { throw new ErrorAlloy (a.getMessage());}
+	ECore2Alloy(EPackage pck, PrimSig statesig) throws ErrorAlloy {
+		this.sig_metamodel = statesig;
+		this.epackage = pck;
+		try {
+			model_var = statesig.oneOf("s_");
+		} catch (Err a) {
+			throw new ErrorAlloy(
+					ErrorAlloy.FAIL_CREATE_VAR,
+					"Failed to create model variable at meta-model translation.",
+					"Alloy error encountered: " + a.getMessage(),
+					Task.TRANSLATE_METAMODEL);
+		}
 	}
 
 	/**
 	 * Translates the information from the this.epackage (classes, attributes, references, annotations, operations, eenums)
-	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
-	 * @throws ErrorTransform
-	 * @throws ErrorParser
+	 * @throws EchoError
 	 */
-	void translate() throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser{
+	void translate() throws EchoError {
 		List<EClass> classList = new LinkedList<EClass>();
-		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
 		
 		for(EClassifier e: epackage.getEClassifiers()) {
@@ -119,9 +134,12 @@ class ECore2Alloy {
 			else if (e instanceof EEnum)
 				enumList.add((EEnum) e);
 			else if (e instanceof EDataType)
-				dataList.add((EDataType) e);
+				throw new ErrorUnsupported(
+						ErrorUnsupported.ECORE,
+						"'EDataTypes' are not supported.","",
+						Task.TRANSLATE_METAMODEL);
 		}
-		
+			
 		processEnums(enumList);
 		
 		for (EClass c : classList)
@@ -135,28 +153,25 @@ class ECore2Alloy {
 		for (EClass c : classList)
 			processOperations(c.getEOperations());
 
-        for(PrimSig s : mapClassSig.values())
+        for(PrimSig s : classes2sigs.values())
             processHeritage(s);
 		
-		createOrder(statesig);
+		createOrder(sig_metamodel);
 		
 	}
 
     private void processHeritage(PrimSig s) throws ErrorAlloy {
         Expr childrenUnion = Sig.NONE;
 
-
         try {
-        	EchoReporter.getInstance().debug("Heritaging: "+s+" : "+s.children());
-    		
         	if(!(s.children().isEmpty())){
                 for(PrimSig child : s.children())
-                    childrenUnion = childrenUnion.plus(mapSigState.get(child).join(constraintdecl.get()));
+                    childrenUnion = childrenUnion.plus(sigs2statefields.get(child).join(model_var.get()));
 
                 if(s.isAbstract!= null)
-                    constraint = constraint.and(childrenUnion.equal(mapSigState.get(s).join(constraintdecl.get())));
+                    constraint_conforms = constraint_conforms.and(childrenUnion.equal(sigs2statefields.get(s).join(model_var.get())));
                 else
-                	constraint = constraint.and(childrenUnion.in(mapSigState.get(s).join(constraintdecl.get())));
+                	constraint_conforms = constraint_conforms.and(childrenUnion.in(sigs2statefields.get(s).join(model_var.get())));
             }
         } catch (Err err) {
             throw new ErrorAlloy(err.getMessage());
@@ -172,14 +187,14 @@ class ECore2Alloy {
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
 	 */
-	private void processClass(EClass ec) throws  ErrorAlloy, ErrorTransform {
+	private void processClass(EClass ec) throws EchoError {
 		PrimSig ecsig,parent = null;
 		Field statefield;
-		if (mapClassSig.get(ec.getName()) != null) return;
+		if (classes2sigs.get(ec.getName()) != null) return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
 		if(!superTypes.isEmpty()) {
-			parent = mapClassSig.get(superTypes.get(0).getName());
+			parent = classes2sigs.get(superTypes.get(0).getName());
 			if(parent == null) {
 				processClass(superTypes.get(0));	
 			}
@@ -188,13 +203,13 @@ class ECore2Alloy {
 		try {
 			if(ec.isAbstract()) ecsig = new PrimSig(signame,parent,Attr.ABSTRACT);
 			else ecsig = new PrimSig(signame,parent);
-			statefield = ecsig.addField(AlloyUtil.stateFieldName(epackage,ec),statesig.setOf());
-			Expr stateatoms = ecsig.equal(statefield.join(statesig));
+			statefield = ecsig.addField(AlloyUtil.stateFieldName(epackage,ec),sig_metamodel.setOf());
+			Expr stateatoms = ecsig.equal(statefield.join(sig_metamodel));
 			ecsig.addFact(stateatoms);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}	
-		mapSigState.put(ecsig,statefield);
-		mapClassSig.put(ec.getName(), ecsig);
-		mapClassClass.put(ec.getName(), ec);
+		sigs2statefields.put(ecsig,statefield);
+		classes2sigs.put(ec.getName(), ecsig);
+		sigs2classes.put(ec.getName(), ec);
 	}
 	
 	/**
@@ -206,45 +221,45 @@ class ECore2Alloy {
 	 * @throws ErrorUnsupported the attribute type is not supported
 	 * @throws ErrorAlloy
 	 */
-	private void processAttributes(List<EAttribute> attributes) throws ErrorUnsupported, ErrorAlloy {
+	private void processAttributes(List<EAttribute> attributes) throws EchoError {
 		Field field = null;
 		Expr fact = null;
 		for(EAttribute attr : attributes) {
-			PrimSig classsig = mapClassSig.get(attr.getEContainingClass().getName());
+			PrimSig classsig = classes2sigs.get(attr.getEContainingClass().getName());
 			if(attr.getEType().getName().equals("EBoolean")) {
 				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),statesig.setOf());
+					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),sig_metamodel.setOf());
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				mapSfField.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);					
+				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);					
 			} else if(attr.getEType().getName().equals("EString")) {
 				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),Sig.STRING.product(statesig));
-					fact = field.join(constraintdecl.get());
-					Expr bound = mapSigState.get(classsig).join(constraintdecl.get()).any_arrow_one(Sig.STRING);
+					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),Sig.STRING.product(sig_metamodel));
+					fact = field.join(model_var.get());
+					Expr bound = sigs2statefields.get(classsig).join(model_var.get()).any_arrow_one(Sig.STRING);
 					fact = fact.in(bound);
-					constraint = constraint.and(fact);
+					constraint_conforms = constraint_conforms.and(fact);
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				mapSfField.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
+				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
 			} else if(attr.getEType().getName().equals("EInt")) {
 				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),Sig.SIGINT.product(statesig));
-					fact = field.join(constraintdecl.get());
-					Expr bound = mapSigState.get(classsig).join(constraintdecl.get()).any_arrow_one(Sig.SIGINT);
+					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),Sig.SIGINT.product(sig_metamodel));
+					fact = field.join(model_var.get());
+					Expr bound = sigs2statefields.get(classsig).join(model_var.get()).any_arrow_one(Sig.SIGINT);
 					fact = fact.in(bound);
-					constraint = constraint.and(fact);
+					constraint_conforms = constraint_conforms.and(fact);
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				mapSfField.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
+				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
 			} 
 			else if (attr.getEType() instanceof EEnum) {
-				PrimSig sigType = mapClassSig.get(attr.getEType().getName());
+				PrimSig sigType = classes2sigs.get(attr.getEType().getName());
 				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),sigType.product(statesig));
-					fact = field.join(constraintdecl.get());
-					Expr bound = mapSigState.get(classsig).join(constraintdecl.get()).any_arrow_one(sigType);
+					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),sigType.product(sig_metamodel));
+					fact = field.join(model_var.get());
+					Expr bound = sigs2statefields.get(classsig).join(model_var.get()).any_arrow_one(sigType);
 					fact = fact.in(bound);
-					constraint = constraint.and(fact);
+					constraint_conforms = constraint_conforms.and(fact);
 				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				mapSfField.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
+				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
 			} 
 			else throw new ErrorUnsupported("Primitive type for attribute not supported: "+attr+".");
 		}
@@ -263,31 +278,31 @@ class ECore2Alloy {
 	 * @throws ErrorAlloy
 	 * @throws ErrorTransform
 	 */
-	private void processReferences(List<EReference> references) throws ErrorAlloy, ErrorTransform {
+	private void processReferences(List<EReference> references) throws EchoError {
 		for(EReference reference : references) {
-			PrimSig classsig = mapClassSig.get(reference.getEContainingClass().getName());
+			PrimSig classsig = classes2sigs.get(reference.getEContainingClass().getName());
 			EReference op = reference.getEOpposite();
 			
 			if((op != null && op.isContainment() && EchoOptionsSetup.getInstance().isOptimize())) {}
 			else if((op != null && !reference.isContainment() && op.getLowerBound() == 1 && op.getUpperBound() == 1 && EchoOptionsSetup.getInstance().isOptimize())) {}
 			else if((op != null && getFieldFromSFeature(op) != null && EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
-				EClass cc = mapClassClass.get(reference.getEReferenceType().getName());
-				PrimSig trgsig = mapClassSig.get(cc.getName());
+				EClass cc = sigs2classes.get(reference.getEReferenceType().getName());
+				PrimSig trgsig = classes2sigs.get(cc.getName());
 				Field field;
 				try{
 					String aux = AlloyUtil.pckPrefix(epackage,reference.getName());
-					field = classsig.addField(aux,trgsig.product(statesig));
+					field = classsig.addField(aux,trgsig.product(sig_metamodel));
 				}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}
-				mapSfField.put(reference.getEContainingClass().getName()+"::"+reference.getName(),field);
+				features2fields.put(reference.getEContainingClass().getName()+"::"+reference.getName(),field);
 				
 				Expr fact;
 				if(op!=null) {
 					Field opField = getFieldFromSFeature(op);
 					if(opField != null) {
 						try { 
-							Decl d = statesig.oneOf("s_");
+							Decl d = sig_metamodel.oneOf("s_");
 							fact = (field.join(d.get()).equal(opField.join(d.get()).transpose())).forAll(d);
 							classsig.addFact(fact); 
 						} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
@@ -300,41 +315,41 @@ class ECore2Alloy {
 				if (reference.getUpperBound() >= max || reference.getUpperBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+reference.getUpperBound()+".");
 				
 				try{
-					Decl d = (mapSigState.get(classsig).join(constraintdecl.get())).oneOf("src_");
+					Decl d = (sigs2statefields.get(classsig).join(model_var.get())).oneOf("src_");
 					if (reference.getLowerBound() == 1 && reference.getUpperBound() == 1) {
-						fact = (d.get()).join(field.join(constraintdecl.get())).one().forAll(d);
-						constraint = constraint.and(fact);
+						fact = (d.get()).join(field.join(model_var.get())).one().forAll(d);
+						constraint_conforms = constraint_conforms.and(fact);
 					} else if (reference.getLowerBound() == 0 && reference.getUpperBound() == 1) {
-						fact = (d.get()).join(field.join(constraintdecl.get())).lone().forAll(d);
-						constraint = constraint.and(fact);
+						fact = (d.get()).join(field.join(model_var.get())).lone().forAll(d);
+						constraint_conforms = constraint_conforms.and(fact);
 					} else if (reference.getLowerBound() == 1 && reference.getUpperBound() == -1) {
-						fact = (d.get()).join(field.join(constraintdecl.get())).some().forAll(d);
-						constraint = constraint.and(fact);
+						fact = (d.get()).join(field.join(model_var.get())).some().forAll(d);
+						constraint_conforms = constraint_conforms.and(fact);
 					} else if (reference.getUpperBound() == 0) {
-						fact = (d.get()).join(field.join(constraintdecl.get())).no().forAll(d);
-						constraint = constraint.and(fact);
+						fact = (d.get()).join(field.join(model_var.get())).no().forAll(d);
+						constraint_conforms = constraint_conforms.and(fact);
 					} else if (reference.getLowerBound() == 0 && reference.getUpperBound() == -1) {}
 					else {
 						if(reference.getLowerBound() > 1) {
-							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().gte(ExprConstant.makeNUMBER(reference.getLowerBound())).forAll(d);
-							constraint = constraint.and(fact);
+							fact = (d.get()).join(field.join(model_var.get())).cardinality().gte(ExprConstant.makeNUMBER(reference.getLowerBound())).forAll(d);
+							constraint_conforms = constraint_conforms.and(fact);
 						}
 						if(reference.getUpperBound() > 1){
-							fact = (d.get()).join(field.join(constraintdecl.get())).cardinality().lte(ExprConstant.makeNUMBER(reference.getUpperBound())).forAll(d);
-							constraint = constraint.and(fact);
+							fact = (d.get()).join(field.join(model_var.get())).cardinality().lte(ExprConstant.makeNUMBER(reference.getUpperBound())).forAll(d);
+							constraint_conforms = constraint_conforms.and(fact);
 						}
 					}
 					
 					if(reference.isContainment()){
-						d = (mapSigState.get(trgsig).join(constraintdecl.get())).oneOf("trg_");
-						fact = ((field.join(constraintdecl.get())).join(d.get())).one().forAll(d);
-						constraint = constraint.and(fact);
+						d = (sigs2statefields.get(trgsig).join(model_var.get())).oneOf("trg_");
+						fact = ((field.join(model_var.get())).join(d.get())).one().forAll(d);
+						constraint_conforms = constraint_conforms.and(fact);
 					}
 					
-					Expr parState = mapSigState.get(classsig);
-					Expr sTypeState = mapSigState.get(trgsig);
-					fact = field.join(constraintdecl.get()).in(parState.join(constraintdecl.get()).product(sTypeState.join(constraintdecl.get())));
-					constraint = constraint.and(fact);
+					Expr parState = sigs2statefields.get(classsig);
+					Expr sTypeState = sigs2statefields.get(trgsig);
+					fact = field.join(model_var.get()).in(parState.join(model_var.get()).product(sTypeState.join(model_var.get())));
+					constraint_conforms = constraint_conforms.and(fact);
 
 				} catch (Err a) {throw new ErrorAlloy (a.getMessage());}		
 			}
@@ -350,22 +365,22 @@ class ECore2Alloy {
 	 * @throws ErrorUnsupported the OCL formulas contains unsupported operators
 	 * @throws ErrorParser the OCL parser failed
 	 */
-	private void processAnnotations(List<EAnnotation> annotations) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, ErrorParser {
+	private void processAnnotations(List<EAnnotation> annotations) throws EchoError {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		for(EAnnotation annotation : annotations) {
 			Decl self = null;
 			OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
 			Map<String,Entry<ExprHasName,String>> sd = new HashMap<String,Entry<ExprHasName,String>>();
-			PrimSig classsig = mapClassSig.get(((EClassifier)annotation.eContainer()).getName());
-			Field statefield = mapSigState.get(classsig);
+			PrimSig classsig = classes2sigs.get(((EClassifier)annotation.eContainer()).getName());
+			Field statefield = sigs2statefields.get(classsig);
 			try{
-				self = (statefield.join(constraintdecl.get())).oneOf("self");
+				self = (statefield.join(model_var.get())).oneOf("self");
 			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
-			sd.put(self.get().label, new SimpleEntry<ExprHasName,String>(self.get(),statesig.label));
-			sd.put(constraintdecl.get().label, new SimpleEntry<ExprHasName,String>(constraintdecl.get(),null));
+			sd.put(self.get().label, new SimpleEntry<ExprHasName,String>(self.get(),sig_metamodel.label));
+			sd.put(model_var.get().label, new SimpleEntry<ExprHasName,String>(model_var.get(),null));
 
 			Map<String,ExprHasName> statevars = new HashMap<String,ExprHasName>();
-			statevars.put(statesig.label,constraintdecl.get());
+			statevars.put(sig_metamodel.label,model_var.get());
 			
 			OCL2Alloy converter = new OCL2Alloy(sd,statevars,null);
 			
@@ -382,7 +397,7 @@ class ECore2Alloy {
 								oclalloy = opt.onePoint(oclalloy);
 								//System.out.println("Pos-onepoint "+oclalloy);
 							}
-							constraint = constraint.and(oclalloy);
+							constraint_conforms = constraint_conforms.and(oclalloy);
 						}
 					} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
 					  catch (ParserException e) { throw new ErrorParser(e.getMessage());}
@@ -400,7 +415,7 @@ class ECore2Alloy {
 								oclalloy = opt.onePoint(oclalloy);
 								//System.out.println("Pos-onepoint "+oclalloy);
 							}
-							genconstraint = genconstraint.and(oclalloy);
+							constraint_generate = constraint_generate.and(oclalloy);
 						}
 					} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
 					  catch (ParserException e) { throw new ErrorParser(e.getMessage());}
@@ -411,44 +426,43 @@ class ECore2Alloy {
 	/**
 	 * Translates a list of {@link EOperation} specified by OCL formulas
 	 * New function: the predicate representing the operation
-	 * @param operations the operations to translate
+	 * @param eoperations the operations to translate
 	 * @throws ErrorTransform the OCL translation failed
 	 * @throws ErrorAlloy
 	 * @throws ErrorUnsupported the OCL formulas contains unsupported operators
 	 * @throws ErrorParser the OCL parser failed
 	 */
-	private void processOperations(List<EOperation> operations) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, ErrorParser {
+	private void processOperations(List<EOperation> eoperations) throws EchoError {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
-		for(EOperation operation : operations) {
-			PrimSig classsig = mapClassSig.get(operation.getEContainingClass().getName());
+		for(EOperation operation : eoperations) {
+			PrimSig classsig = classes2sigs.get(operation.getEContainingClass().getName());
 			List<Decl> decls = new ArrayList<Decl>();
 			Map<String,Entry<ExprHasName,String>> sd = new HashMap<String,Entry<ExprHasName,String>>();
 
 			Decl pre,pos,self = null;
 			try{
 				self = classsig.oneOf("self");
-				pre = statesig.oneOf("pre_");
-				pos = statesig.oneOf("pos_");
+				pre = sig_metamodel.oneOf("pre_");
+				pos = sig_metamodel.oneOf("pos_");
 				decls.add(self);
-				sd.put(self.get().label, new SimpleEntry<ExprHasName,String>(self.get(),statesig.label));
+				sd.put(self.get().label, new SimpleEntry<ExprHasName,String>(self.get(),sig_metamodel.label));
 				for (EParameter p : operation.getEParameters()) {
 					PrimSig type = AlloyEchoTranslator.getInstance().getClassifierFromSig(p.getEType());
 					Decl d = type.oneOf(p.getName());
 					decls.add(d);
-					sd.put(d.get().label, new SimpleEntry<ExprHasName,String>(d.get(),statesig.label));
+					sd.put(d.get().label, new SimpleEntry<ExprHasName,String>(d.get(),sig_metamodel.label));
 				}
 				decls.add(pre);
 				decls.add(pos);
-				sd.put(pre.get().label, new SimpleEntry<ExprHasName,String>(pre.get(),statesig.label));
-				sd.put(pos.get().label, new SimpleEntry<ExprHasName,String>(pos.get(),statesig.label));
+				sd.put(pre.get().label, new SimpleEntry<ExprHasName,String>(pre.get(),sig_metamodel.label));
+				sd.put(pos.get().label, new SimpleEntry<ExprHasName,String>(pos.get(),sig_metamodel.label));
 			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 			OCLHelper helper = ocl.createOCLHelper(operation);
 			Map<String,ExprHasName> prestatevars = new HashMap<String,ExprHasName>();
 			Map<String,ExprHasName> posstatevars = new HashMap<String,ExprHasName>();
-			prestatevars.put(statesig.label,pre.get());
-			posstatevars.put(statesig.label,pos.get());
-			//EchoReporter.getInstance().debug("op: "+sd+ ", "+prestatevars +", "+posstatevars);
-
+			prestatevars.put(sig_metamodel.label,pre.get());
+			posstatevars.put(sig_metamodel.label,pos.get());
+		
 			OCL2Alloy converter = new OCL2Alloy(sd,posstatevars,prestatevars);
 			for (EAnnotation ea : operation.getEAnnotations())
 				if(ea.getSource().equals("http://www.eclipse.org/emf/2002/Ecore/OCL")) {
@@ -456,21 +470,19 @@ class ECore2Alloy {
 					for(String sExpr: ea.getDetails().values()) {
 						try{
 							ExpressionInOCL invariant = helper.createPostcondition(sExpr);
-							EchoReporter.getInstance().debug("Going for op");
 							oclalloy = oclalloy.and(converter.oclExprToAlloy(invariant.getBodyExpression()));
 						} catch (ParserException e) { throw new ErrorParser("Error parsing OCL formula: "+sExpr);}
 					}
 					try{
-						EchoReporter.getInstance().debug("op: "+oclalloy);
 						Func fun = new Func(null,operation.getName(),decls,null,oclalloy);
-						functions.add(fun);
+						operations.add(fun);
 					} catch (Err a) {throw new ErrorAlloy(a.getMessage());} 
 				}
 			
 			for (String cl : converter.getOCLAreNews().keySet()) {
-				Integer newi = news.get(cl);
-				if (newi == null) news.put(cl,converter.getOCLAreNews().get(cl));
-				else news.put(cl,newi+converter.getOCLAreNews().get(cl));
+				Integer newi = elem_creation_count.get(cl);
+				if (newi == null) elem_creation_count.put(cl,converter.getOCLAreNews().get(cl));
+				else elem_creation_count.put(cl,newi+converter.getOCLAreNews().get(cl));
 			}
 
 		}
@@ -489,13 +501,13 @@ class ECore2Alloy {
 			try{ 
 				enumSig = new PrimSig(AlloyUtil.pckPrefix(epackage,enu.getName()),Attr.ABSTRACT);
 			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
-			mapClassSig.put(enu.getName(), enumSig);
+			classes2sigs.put(enu.getName(), enumSig);
 			PrimSig litSig = null;
 			for(EEnumLiteral lit : enu.getELiterals()) {
 				try { 
 					litSig = new PrimSig(AlloyUtil.pckPrefix(epackage,lit.getLiteral()),enumSig,Attr.ONE); 
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
-				mapLitSig.put(lit, litSig);
+				literals2sigs.put(lit, litSig);
 			}		
 		}
 	}
@@ -510,23 +522,23 @@ class ECore2Alloy {
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {
-			dm = statesig.oneOf("m_");
+			dm = sig_metamodel.oneOf("m_");
 			ds.add(dm);
-			dn = statesig.oneOf("n_");
+			dn = sig_metamodel.oneOf("n_");
 			ds.add(dn);
 		} catch (Err e1) {
 			throw new ErrorAlloy(e1.getMessage());
 		}
 		ExprHasName m = dm.get(), n = dn.get();
 		Expr result = PrimSig.NONE;
-		for (Expr e : mapSigState.values()) {
+		for (Expr e : sigs2statefields.values()) {
 			Expr aux = (((e.join(m)).minus(e.join(n))).plus((e.join(n)).minus(e.join(m))));
 			result = result.plus(aux);
 		}
 
 		Func f;
 		try {
-			f = new Func(null, statesig.label, ds, PrimSig.UNIV.setOf(), result);
+			f = new Func(null, sig_metamodel.label, ds, PrimSig.UNIV.setOf(), result);
 		} catch (Err e1) {
 			throw new ErrorAlloy(e1.getMessage());
 		}
@@ -537,9 +549,9 @@ class ECore2Alloy {
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {
-			dm = statesig.oneOf("m_");
+			dm = sig_metamodel.oneOf("m_");
 			ds.add(dm);
-			dn = statesig.oneOf("n_");
+			dn = sig_metamodel.oneOf("n_");
 			ds.add(dn);
 		} catch (Err e1) {
 			throw new ErrorAlloy(e1.getMessage());
@@ -547,7 +559,7 @@ class ECore2Alloy {
 		ExprHasName m = dm.get(), n = dn.get();
 		Expr result = ExprConstant.makeNUMBER(0);
 
-		for (Field e : mapSfField.values()) {
+		for (Field e : features2fields.values()) {
 			EStructuralFeature ref = getSFeatureFromField(e);
 			if (!(EchoOptionsSetup.getInstance().isOptimize() && ref instanceof EReference &&
 				((EReference) ref).getEOpposite() != null && ((EReference) ref).getEOpposite().isContainment())) {
@@ -557,7 +569,7 @@ class ECore2Alloy {
 		}
 		Func f;
 		try {
-			f = new Func(null, statesig.label, ds, PrimSig.SIGINT, result);
+			f = new Func(null, sig_metamodel.label, ds, PrimSig.SIGINT, result);
 		} catch (Err e1) {
 			throw new ErrorAlloy(e1.getMessage());
 		}
@@ -571,7 +583,7 @@ class ECore2Alloy {
 	 * @return the matching Alloy field
 	 */
 	Field getFieldFromSFeature(EStructuralFeature f) {
-		return mapSfField.get(f.getEContainingClass().getName()+"::"+f.getName());
+		return features2fields.get(f.getEContainingClass().getName()+"::"+f.getName());
 	}
 	
 	/** 
@@ -593,7 +605,7 @@ class ECore2Alloy {
  	 * @return the matching feature
 	 */
 	EStructuralFeature getSFeatureFromName(String ref, String cla) {
-		EClass eclass = mapClassClass.get(cla);
+		EClass eclass = sigs2classes.get(cla);
 		return eclass.getEStructuralFeature(ref);
 	}
 	
@@ -602,7 +614,7 @@ class ECore2Alloy {
 	 * @return the features
 	 */
 	Collection<Field> getFields() {
-		return mapSfField.values();
+		return features2fields.values();
 	}
 
 	/**
@@ -611,7 +623,7 @@ class ECore2Alloy {
 	 * @return the matching class
 	 */
 	EClass getEClassFromName(String s) {
-		return mapClassClass.get(s);
+		return sigs2classes.get(s);
 	}
 
 	/** 
@@ -620,8 +632,8 @@ class ECore2Alloy {
  	 * @return the matching class
 	 */
 	EClassifier getEClassFromSig(PrimSig s) {
-		for (String cla : mapClassSig.keySet())
-			if (mapClassSig.get(cla).isSame(s)) return epackage.getEClassifier(cla);
+		for (String cla : classes2sigs.keySet())
+			if (classes2sigs.get(cla).isSame(s)) return epackage.getEClassifier(cla);
 		return null;
 	}
 
@@ -631,7 +643,7 @@ class ECore2Alloy {
  	 * @return the matching Alloy signature
 	 */
 	PrimSig getSigFromEClass(EClass c) {
-		return mapClassSig.get(c.getName());
+		return classes2sigs.get(c.getName());
 	}
 
 	/** 
@@ -640,7 +652,7 @@ class ECore2Alloy {
  	 * @return the state field
 	 */
 	Field getStateFieldFromSig(PrimSig s) {
-		return mapSigState.get(s);
+		return sigs2statefields.get(s);
 	}
 	
 	/**
@@ -649,9 +661,9 @@ class ECore2Alloy {
 	 */
 	List<PrimSig> getEnumSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>();
-		for (String cname : mapClassSig.keySet())
-			if (epackage.getEClassifier(cname) instanceof EEnum) aux.add(mapClassSig.get(epackage.getEClassifier(cname)));
-		aux.addAll(mapLitSig.values());
+		for (String cname : classes2sigs.keySet())
+			if (epackage.getEClassifier(cname) instanceof EEnum) aux.add(classes2sigs.get(epackage.getEClassifier(cname)));
+		aux.addAll(literals2sigs.values());
 		return aux;
 	}
 
@@ -660,9 +672,9 @@ class ECore2Alloy {
 	 * @return the signatures
 	 */
 	List<PrimSig> getAllSigs() {
-		List<PrimSig> aux = new ArrayList<PrimSig>(mapClassSig.values());
-		aux.addAll(mapLitSig.values());
-		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(order);
+		List<PrimSig> aux = new ArrayList<PrimSig>(classes2sigs.values());
+		aux.addAll(literals2sigs.values());
+		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(sig_order);
 		return aux;
 	}
 
@@ -674,7 +686,7 @@ class ECore2Alloy {
 	Func getConforms() throws ErrorAlloy {
 		Func f;
 		try {
-			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint);
+			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 		return f;
 	}
@@ -688,7 +700,7 @@ class ECore2Alloy {
 	Func getGenerate() throws ErrorAlloy {
 		Func f;
 		try {
-			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(constraintdecl)), null, constraint.and(genconstraint));
+			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 		return f;
 	}
@@ -699,7 +711,7 @@ class ECore2Alloy {
 	 * @return the matching signature
 	 */
 	PrimSig getSigFromEEnumLiteral(EEnumLiteral e) {
-		return mapLitSig.get(e);
+		return literals2sigs.get(e);
 	}
 	
 	/**
@@ -707,7 +719,7 @@ class ECore2Alloy {
 	 * @return the matching enum literal
 	 */
 	EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
-		return mapLitSig.inverse().get(s);
+		return literals2sigs.inverse().get(s);
 	}
 	
 	/** 
@@ -725,7 +737,7 @@ class ECore2Alloy {
 		try {
 			Decl s1 = sig.oneOf("m_"),s2 = (s1.get().join(ord.join(next))).oneOf("n_");
 			Expr ops = Sig.NONE.some();
-			for (Func fun : functions) {
+			for (Func fun : operations) {
 				List<Decl> decls = new ArrayList<Decl>();
 				List<ExprHasName> vars = new ArrayList<ExprHasName>();
 				for (int i = 0; i < fun.decls.size() -2; i ++) {
@@ -750,15 +762,15 @@ class ECore2Alloy {
 			
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage());	}
 
-		order = ord;
+		sig_order = ord;
 	}
 	
 	public Map<String,Integer> getOCLAreNews() {
-		return news;
+		return elem_creation_count;
 	}
 	
-	/** calculates the possible all possible root classes for this meta-model
-	 * root classes are those classes not contained in any reference
+	/** calculates all possible root classes for this meta-model
+	 * root classes are those classes not contained in any container reference
 	 * @return the list of root classes
 	 */
 	List<EClass> getRootClass() {
@@ -776,7 +788,6 @@ class ECore2Alloy {
 				if (!candidates.keySet().contains(sups.get(0).getClassifierID()))
 					candidates.remove(obj.getClassifierID());				
 		}			
-		//System.out.println("Tops: "+candidates);
 		return new ArrayList<EClass>(candidates.values());
 	}
 	

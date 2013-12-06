@@ -25,6 +25,14 @@
     <attributes
         name="location"/>
   </classes>
+  <classes name="asdas"
+      persistent="true"/>
+  <classes name="asdasd"
+      persistent="true"/>
+  <classes name="dddd"
+      persistent="true"/>
+  <classes name="fdsfdsf"
+      persistent="true"/>
   <associations
       source="//@classes.0"
       target="//@classes.3"

@@ -12,6 +12,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -72,12 +73,8 @@ public class ModelGenerateWizard extends Wizard {
 					}
 				}		
 			}
-			try {
-				ProjectPropertiesManager.getProperties(res.getProject()).generate(res,scopes,page.getPath());
-			} catch (ErrorUnsupported | ErrorParser | ErrorTransform | ErrorAPI e) {
-				MessageDialog.openInformation(shell, "Error generating.", e.getMessage());
-			}
-		} catch (ErrorInternalEngine e) {
+			ProjectPropertiesManager.getProperties(res.getProject()).generate(res,scopes,page.getPath());
+		} catch (EchoError e) {
 			MessageDialog.openInformation(shell, "Error generating instance", e.getMessage());
 		}
 		return true;

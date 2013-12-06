@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -354,7 +355,7 @@ public class AlloyOptimizations {
 								for (int j = 0; j < decls.size() ; j++)
 									decls.set(j, new Decl(decls.get(j).isPrivate, decls.get(j).disjoint, decls.get(j).disjoint2, decls.get(j).names, AlloyUtil.replace(decls.get(j).expr,d.get(),d.expr)));
 							}
-						} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage());}
+						} catch (EchoError e) { throw new ErrorFatal(e.getMessage());}
 	        		}
 	        		if (true) {
 		        		List<Decl> delcsaux = new ArrayList<Decl>(decls);
@@ -377,7 +378,7 @@ public class AlloyOptimizations {
 								sub = AlloyUtil.replace(sub, d.get(), d.expr);
 								decls.remove(d);
 							}
-						} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage());}
+						} catch (EchoError e) { throw new ErrorFatal(e.getMessage());}
 	        		}
 	        		if (decls.size() > 0) return x.op.make(null, null, decls, sub);
 	        		else return sub;

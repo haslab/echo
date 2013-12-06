@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -80,6 +81,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 								Job j = new QVTChangedJob(f);
 								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
+								
 							} 
 						}
 					break;
@@ -234,7 +236,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 							"Meta-model will be untracked.");
 					try {
 						resmanager.remMetamodel(res);
-					} catch (ErrorAPI | ErrorParser e1) {
+					} catch (EchoError e1) {
 						e1.printStackTrace();
 					}
 					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
@@ -271,7 +273,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 				} catch (Exception e) {
 					try {
 						resmanager.remModel(res);
-					} catch (ErrorAPI | ErrorParser e1) {
+					} catch (EchoError e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}

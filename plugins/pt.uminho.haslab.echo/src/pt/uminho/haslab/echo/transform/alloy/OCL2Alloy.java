@@ -25,9 +25,9 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
@@ -80,7 +80,7 @@ public class OCL2Alloy implements OCLTranslator{
 		else return ExprConstant.FALSE;
 	}
 
-	Expr oclExprToAlloy (UnlimitedNaturalLiteralExp expr) throws ErrorTransform{
+	Expr oclExprToAlloy (UnlimitedNaturalLiteralExp expr) throws EchoError {
 		Number n = expr.getUnlimitedNaturalSymbol();
 
 		if (n.toString().equals("*"))  throw new ErrorTransform ("No support for unlimited integers.");
@@ -93,7 +93,7 @@ public class OCL2Alloy implements OCLTranslator{
 		return ExprConstant.makeNUMBER(n.intValue());
 	}
 
-	Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (ObjectTemplateExp temp) throws EchoError {
 		Expr result = Sig.NONE.no();
 		
 		for (PropertyTemplateItem part: temp.getPart()) {
@@ -141,23 +141,16 @@ public class OCL2Alloy implements OCLTranslator{
 		return result;
 	}
 	
-	Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
 
-		Relation2Alloy trans = null;
 		Func func = null;
-		try {
-			func = parentq.transformation_trans.getRecRelationCall(new QVTRelation(expr.getReferredRelation()), parentq.getDirection());
-			EchoReporter.getInstance().debug("Should not be null: "+func);
-			if (func == null) {
-				QVTRelation rel = new QVTRelation(expr.getReferredRelation());
-				trans = new Relation2Alloy (parentq,rel);
-				func = parentq.transformation_trans.getRecRelationCall(rel,parentq.getDirection());
-			}
-		} catch (ErrorParser e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		func = parentq.transformation_trans.getRecRelationCall(new QVTRelation(expr.getReferredRelation()), parentq.getDirection());
+		EchoReporter.getInstance().debug("Should not be null: "+func);
+		if (func == null) {
+			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
+			new Relation2Alloy (parentq,rel);
+			func = parentq.transformation_trans.getRecRelationCall(rel,parentq.getDirection());
 		}
-		
 		List<ExprHasName> aux = new ArrayList<ExprHasName>();
 		for (Entry<String, ExprHasName> x : (isPre?prevars:posvars).entrySet())
 			aux.add(x.getValue());
@@ -179,7 +172,7 @@ public class OCL2Alloy implements OCLTranslator{
 		return res;
 	}
 
-	Expr oclExprToAlloy (IfExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (IfExp expr) throws EchoError {
 		Expr res = null;
 		
 		Expr eif = oclExprToAlloy(expr.getCondition());
@@ -190,11 +183,11 @@ public class OCL2Alloy implements OCLTranslator{
 		return res;
 	}
 	
-	Expr oclExprToAlloy (IteratorExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (IteratorExp expr) throws EchoError {
 		Expr res = null;
 		
 		List<org.eclipse.ocl.examples.pivot.Variable> variterator = expr.getIterator();
-		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure: "+variterator);
+		if (variterator.size() != 1) throw new ErrorTransform("Invalid variables on closure: "+variterator);
 		Variable x = Variable.getVariable(variterator.get(0));
 	
 		Decl d = AlloyUtil.variableListToExpr(new HashSet<Variable>(Arrays.asList(x)),varstates,isPre?prevars:posvars).get(variterator.get(0).getName());
@@ -257,13 +250,13 @@ public class OCL2Alloy implements OCLTranslator{
 			} catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 			res = src.join(res.closure());	
 		}
-		else throw new ErrorUnsupported ("OCL iterator not supported: "+expr.getReferredIteration()+".");
+		else throw new ErrorUnsupported("OCL iterator not supported: "+expr.getReferredIteration()+".");
 		varstates.remove(d.get());
 		
 		return res;
 	}
 	
-	Expr oclExprToAlloy (TypeExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (TypeExp expr) throws EchoError {
 		String metamodeluri = URIUtil.resolveURI(expr.getReferredType().getPackage().getEPackage().eResource());
 		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, expr.getReferredType().getName());
 		Expr state = (isPre?prevars:posvars).get(metamodeluri);
@@ -271,7 +264,7 @@ public class OCL2Alloy implements OCLTranslator{
 	}
 	
 	
-	Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (PropertyCallExp expr) throws EchoError {
 		Expr res = null;
 		isPre = expr.isPre();
 		Expr var = oclExprToAlloy(expr.getSource());
@@ -283,7 +276,7 @@ public class OCL2Alloy implements OCLTranslator{
 		return res;
 	}
 	
-	Expr oclExprToAlloy (OperationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (OperationCallExp expr) throws EchoError {
 		Expr res = null; 
 		isPre = expr.isPre();
 		Expr src = oclExprToAlloy(expr.getSource());
@@ -389,7 +382,7 @@ public class OCL2Alloy implements OCLTranslator{
 	}
 
 	
-	public Expr oclExprToAlloy (OCLExpression expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (OCLExpression expr) throws EchoError {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);
@@ -405,7 +398,7 @@ public class OCL2Alloy implements OCLTranslator{
 	
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	Expr propertyToField (Property prop, Expr var) throws ErrorTransform {		
+	Expr propertyToField (Property prop, Expr var) throws EchoError {		
 		String metamodeluri = URIUtil.resolveURI(prop.getOwningType().getPackage().getEPackage().eResource());
 		
 		Expr exp;
@@ -448,7 +441,7 @@ public class OCL2Alloy implements OCLTranslator{
 		 * @throws ErrorAlloy
 		 * @throws ErrorUnsupported
 		 */
-		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws EchoError {
 			Expr res = Sig.NONE.no();
 			OperationCallExp a = null,b = null;
 			if ((x instanceof OperationCallExp) && ((OperationCallExp)x).getReferredOperation().getName().equals("includes") && 

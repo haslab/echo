@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
@@ -45,7 +46,7 @@ public class QVTCondition implements Condition {
 
 	}
 	
-	public Expr translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr translate() throws EchoError {
 
 		Expr expr = Sig.NONE.no();
 		for (OCLExpression ex : exps) {

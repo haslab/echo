@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -43,7 +44,7 @@ class Transformation2Alloy {
 	 * @throws ErrorUnsupported
 	 * @throws ErrorAlloy
 	 */
-	Transformation2Alloy (Transformation transformation) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Transformation2Alloy (Transformation transformation) throws EchoError {
 		Expr fact = Sig.NONE.no();
 		this.transformation = transformation;
 		Map<String,Decl> argsdecls = new HashMap<String, Decl>();

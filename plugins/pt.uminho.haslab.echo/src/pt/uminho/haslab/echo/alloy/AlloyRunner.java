@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.EClass;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -37,7 +38,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
-
 import static com.google.common.primitives.Ints.max;
 
 public class AlloyRunner implements EngineRunner{
@@ -199,7 +199,7 @@ public class AlloyRunner implements EngineRunner{
 	 */
 	public boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope) throws ErrorAlloy, ErrorUnsupported {
 		List<EClass> rootobjects = AlloyEchoTranslator.getInstance().getRootClass(metaModelUri);
-		if (rootobjects.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootobjects);
+		if (rootobjects.size() != 1) throw new ErrorUnsupported(ErrorUnsupported.MULTIPLE_ROOT,"Could not resolve root class: "+rootobjects,"Check the meta-model containment tree.",Task.GENERATE_TASK);
 
 		if (scope.get(rootobjects.get(0).getName()) == null)
 			scope.put(new SimpleEntry<String,String>(URIUtil.resolveURI(rootobjects.get(0).getEPackage().eResource()),rootobjects.get(0).getName()),1);
