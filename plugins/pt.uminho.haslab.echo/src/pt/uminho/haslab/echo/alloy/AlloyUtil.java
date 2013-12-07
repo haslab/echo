@@ -107,7 +107,7 @@ public class AlloyUtil {
 	
 	
 	// methods used to append prefixes to expressions
-	public static String pckPrefix (EPackage pck, String str) {
+	public static String classSigName (EPackage pck, String str) {
 		return (URIUtil.resolveURI(pck.eResource()) + "@" + str);
 	}
 

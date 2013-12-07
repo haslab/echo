@@ -115,7 +115,7 @@ class ECore2Alloy {
 			throw new ErrorAlloy(
 					ErrorAlloy.FAIL_CREATE_VAR,
 					"Failed to create model variable at meta-model translation.",
-					"Alloy error encountered: " + a.getMessage(),
+					a,
 					Task.TRANSLATE_METAMODEL);
 		}
 	}
@@ -160,23 +160,7 @@ class ECore2Alloy {
 		
 	}
 
-    private void processHeritage(PrimSig s) throws ErrorAlloy {
-        Expr childrenUnion = Sig.NONE;
 
-        try {
-        	if(!(s.children().isEmpty())){
-                for(PrimSig child : s.children())
-                    childrenUnion = childrenUnion.plus(sigs2statefields.get(child).join(model_var.get()));
-
-                if(s.isAbstract!= null)
-                    constraint_conforms = constraint_conforms.and(childrenUnion.equal(sigs2statefields.get(s).join(model_var.get())));
-                else
-                	constraint_conforms = constraint_conforms.and(childrenUnion.in(sigs2statefields.get(s).join(model_var.get())));
-            }
-        } catch (Err err) {
-            throw new ErrorAlloy(err.getMessage());
-        }
-    }
 
     /**
 	 * Translates an {@link EClass}
@@ -192,21 +176,25 @@ class ECore2Alloy {
 		Field statefield;
 		if (classes2sigs.get(ec.getName()) != null) return;
 		List<EClass> superTypes = ec.getESuperTypes();
-		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
+		if(superTypes.size() > 1) throw new ErrorUnsupported(
+				ErrorUnsupported.MULTIPLE_INHERITANCE,
+				"Multiple inheritance not allowed: "+ec.getName()+".",
+				"",Task.TRANSLATE_METAMODEL);
 		if(!superTypes.isEmpty()) {
 			parent = classes2sigs.get(superTypes.get(0).getName());
-			if(parent == null) {
+			if(parent == null)
 				processClass(superTypes.get(0));	
-			}
 		}
-		String signame = AlloyUtil.pckPrefix(epackage,ec.getName());
+		String signame = AlloyUtil.classSigName(epackage,ec.getName());
 		try {
 			if(ec.isAbstract()) ecsig = new PrimSig(signame,parent,Attr.ABSTRACT);
 			else ecsig = new PrimSig(signame,parent);
 			statefield = ecsig.addField(AlloyUtil.stateFieldName(epackage,ec),sig_metamodel.setOf());
 			Expr stateatoms = ecsig.equal(statefield.join(sig_metamodel));
 			ecsig.addFact(stateatoms);
-		} catch (Err a) {throw new ErrorAlloy (a.getMessage());}	
+		} catch (Err a) {
+			throw new ErrorAlloy (ErrorAlloy.FAIL_CREATE_SIG,"Failed to create class sig.",a,Task.TRANSLATE_METAMODEL);
+		}	
 		sigs2statefields.put(ecsig,statefield);
 		classes2sigs.put(ec.getName(), ecsig);
 		sigs2classes.put(ec.getName(), ec);
@@ -217,53 +205,48 @@ class ECore2Alloy {
 	 * New fields: unary field if EBoolean
 	 * New fields: binary field if EInt or EString
 	 * New facts: multiplicity constraints for binary fields
+	 * New facts: if Attribute is set to ID creates uniqueness constraint
 	 * @param attributes the list of attributes to translate
 	 * @throws ErrorUnsupported the attribute type is not supported
 	 * @throws ErrorAlloy
 	 */
 	private void processAttributes(List<EAttribute> attributes) throws EchoError {
 		Field field = null;
-		Expr fact = null;
 		for(EAttribute attr : attributes) {
 			PrimSig classsig = classes2sigs.get(attr.getEContainingClass().getName());
-			if(attr.getEType().getName().equals("EBoolean")) {
-				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),sig_metamodel.setOf());
-				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);					
-			} else if(attr.getEType().getName().equals("EString")) {
-				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),Sig.STRING.product(sig_metamodel));
-					fact = field.join(model_var.get());
-					Expr bound = sigs2statefields.get(classsig).join(model_var.get()).any_arrow_one(Sig.STRING);
-					fact = fact.in(bound);
-					constraint_conforms = constraint_conforms.and(fact);
-				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
-			} else if(attr.getEType().getName().equals("EInt")) {
-				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),Sig.SIGINT.product(sig_metamodel));
-					fact = field.join(model_var.get());
-					Expr bound = sigs2statefields.get(classsig).join(model_var.get()).any_arrow_one(Sig.SIGINT);
-					fact = fact.in(bound);
-					constraint_conforms = constraint_conforms.and(fact);
-				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
-			} 
-			else if (attr.getEType() instanceof EEnum) {
-				PrimSig sigType = classes2sigs.get(attr.getEType().getName());
-				try {
-					field = classsig.addField(AlloyUtil.pckPrefix(epackage,attr.getName()),sigType.product(sig_metamodel));
-					fact = field.join(model_var.get());
-					Expr bound = sigs2statefields.get(classsig).join(model_var.get()).any_arrow_one(sigType);
-					fact = fact.in(bound);
-					constraint_conforms = constraint_conforms.and(fact);
-				} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-				features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
-			} 
-			else throw new ErrorUnsupported("Primitive type for attribute not supported: "+attr+".");
-		}
+			try {
+				if(attr.getEType().getName().equals("EBoolean"))
+					field = classsig.addField(AlloyUtil.classSigName(epackage,attr.getName()),sig_metamodel.setOf());
+				else {
+					PrimSig type = null;
+					Expr fact = null;
+					if(attr.getEType().getName().equals("EString"))
+						type = Sig.STRING;
+					else if(attr.getEType().getName().equals("EInt"))
+						type = Sig.SIGINT;
+					else if (attr.getEType() instanceof EEnum)
+						type = classes2sigs.get(attr.getEType().getName());
+					else 
+						throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,"Primitive type of attribute not supported: "+attr+".","",Task.TRANSLATE_METAMODEL);
 
+					field = classsig.addField(AlloyUtil.classSigName(epackage,attr.getName()),type.product(sig_metamodel));
+					fact = field.join(model_var.get());
+					Expr bound;
+					if (attr.isID())
+						bound = sigs2statefields.get(classsig).join(model_var.get()).lone_arrow_one(type);
+					else
+						bound = sigs2statefields.get(classsig).join(model_var.get()).any_arrow_one(type);
+					fact = fact.in(bound);
+					constraint_conforms = constraint_conforms.and(fact);
+					
+				}
+			} catch (Err err) {
+				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FIELD,"Could not create attribute field: "+attr.getName(),err,Task.TRANSLATE_METAMODEL);
+			}
+			
+			features2fields.put(attr.getEContainingClass().getName()+"::"+attr.getName(),field);
+			
+		}
 	}
 	
 	/**
@@ -291,7 +274,7 @@ class ECore2Alloy {
 				PrimSig trgsig = classes2sigs.get(cc.getName());
 				Field field;
 				try{
-					String aux = AlloyUtil.pckPrefix(epackage,reference.getName());
+					String aux = AlloyUtil.classSigName(epackage,reference.getName());
 					field = classsig.addField(aux,trgsig.product(sig_metamodel));
 				}
 				catch (Err a) {throw new ErrorAlloy (a.getMessage());}
@@ -499,18 +482,44 @@ class ECore2Alloy {
 		PrimSig enumSig = null;
 		for(EEnum enu: enums) {
 			try{ 
-				enumSig = new PrimSig(AlloyUtil.pckPrefix(epackage,enu.getName()),Attr.ABSTRACT);
+				enumSig = new PrimSig(AlloyUtil.classSigName(epackage,enu.getName()),Attr.ABSTRACT);
 			} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 			classes2sigs.put(enu.getName(), enumSig);
 			PrimSig litSig = null;
 			for(EEnumLiteral lit : enu.getELiterals()) {
 				try { 
-					litSig = new PrimSig(AlloyUtil.pckPrefix(epackage,lit.getLiteral()),enumSig,Attr.ONE); 
+					litSig = new PrimSig(AlloyUtil.classSigName(epackage,lit.getLiteral()),enumSig,Attr.ONE); 
 				} catch (Err a) {throw new ErrorAlloy(a.getMessage());}
 				literals2sigs.put(lit, litSig);
 			}		
 		}
 	}
+	
+	/**
+	 * Creates the Alloy facts managing local state fields regarding hierarchy
+	 * Annexed to <code>constraint_conforms</code>
+	 * If abstract, child1 + ... + childn = parent
+	 * If not, child1 + ... + childn in parent
+	 * @param s the parent signature beeing processed
+	 * @throws ErrorAlloy
+	 */
+    private void processHeritage(PrimSig s) throws ErrorAlloy {
+        Expr childrenUnion = Sig.NONE;
+        try {
+        	if(!(s.children().isEmpty())){
+                for(PrimSig child : s.children())
+                    childrenUnion = childrenUnion.plus(sigs2statefields.get(child).join(model_var.get()));
+
+                if(s.isAbstract!= null)
+                    constraint_conforms = constraint_conforms.and(childrenUnion.equal(sigs2statefields.get(s).join(model_var.get())));
+                else
+                	constraint_conforms = constraint_conforms.and(childrenUnion.in(sigs2statefields.get(s).join(model_var.get())));
+            }
+        } catch (Err err) {
+            throw new ErrorAlloy(ErrorAlloy.FAIL_GET_CHILDREN,"Faild to find sub-sigs",err,Task.TRANSLATE_METAMODEL);
+        }
+    }
+	
 	
 	/**
 	 * Calculates the delta {@link Expr} for particular state {@link PrimSig}
