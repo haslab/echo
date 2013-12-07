@@ -227,7 +227,7 @@ class ECore2Alloy {
 					else if (attr.getEType() instanceof EEnum)
 						type = classes2sigs.get(attr.getEType().getName());
 					else 
-						throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,"Primitive type of attribute not supported: "+attr+".","",Task.TRANSLATE_METAMODEL);
+						throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,"Primitive type of attribute not supported: "+attr.getName()+".","",Task.TRANSLATE_METAMODEL);
 
 					field = classsig.addField(AlloyUtil.classSigName(epackage,attr.getName()),type.product(sig_metamodel));
 					fact = field.join(model_var.get());
