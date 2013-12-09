@@ -148,12 +148,12 @@ public class OCL2Alloy implements OCLTranslator{
 	Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
 
 		Func func = null;
-		func = parentq.transformation_trans.getRecRelationCall(new QVTRelation(expr.getReferredRelation()), parentq.getDirection());
+		func = parentq.transformation_trans.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.getDirection());
 		EchoReporter.getInstance().debug("Should not be null: "+func);
 		if (func == null) {
 			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
 			new Relation2Alloy (parentq,rel);
-			func = parentq.transformation_trans.getRecRelationCall(rel,parentq.getDirection());
+			func = parentq.transformation_trans.callRelation(rel,parentq.getDirection());
 		}
 		List<ExprHasName> aux = new ArrayList<ExprHasName>();
 		for (Entry<String, ExprHasName> x : (isPre?prevars:posvars).entrySet())

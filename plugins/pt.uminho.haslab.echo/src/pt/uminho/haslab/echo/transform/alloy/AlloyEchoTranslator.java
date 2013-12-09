@@ -335,7 +335,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	public Func getQVTFact(String uri) {
 		//EchoReporter.getInstance().debug(uri + " over "+qvtalloys.keySet());
 		if (qvtalloys.get(uri) == null) return null;
-		return qvtalloys.get(uri).getFunc();
+		return qvtalloys.get(uri).getTransformationConstraint();
 	}
 	
 	public ConstList<CommandScope> getScopes(){

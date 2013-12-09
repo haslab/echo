@@ -337,7 +337,8 @@ public class EchoRunner {
 		ITERATION("iteration"),
 		TRANSLATE_METAMODEL("translatemetamodel"),
 		TRANSLATE_MODEL("translatemodel"), 
-		TRANSLATE_OCL("translateocl");
+		TRANSLATE_OCL("translateocl"), 
+		TRANSLATE_TRANSFORMATION("translatetransformation");
 
 		private Task(String label) { this.label = label; }
 

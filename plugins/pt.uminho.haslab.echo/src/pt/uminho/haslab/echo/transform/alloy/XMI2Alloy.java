@@ -14,6 +14,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.EchoRunner.Task;
@@ -61,12 +62,16 @@ class XMI2Alloy {
 	 * @throws EchoError
 	 */
 	XMI2Alloy(EObject obj, ECore2Alloy t, PrimSig stateSig) throws EchoError {
+		EchoReporter.getInstance().start(Task.TRANSLATE_MODEL, stateSig.label);
+
 		eobject = obj;
 		translator = t;
 		model_sig = stateSig;
 		initContent();
 		makeSigList(eobject);
 		makeFactExpr();
+		
+		EchoReporter.getInstance().result(Task.TRANSLATE_MODEL, true);
 	}
 	
 	/**

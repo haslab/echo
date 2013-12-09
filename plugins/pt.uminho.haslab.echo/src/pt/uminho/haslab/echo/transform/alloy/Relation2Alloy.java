@@ -114,7 +114,7 @@ public class Relation2Alloy {
 		if (!top) {
 			try {
 				field = addRelationFields(mdecls);
-				transformation_trans.addRecRelationCall(new Func(null, AlloyUtil.relationFieldName(rel,direction), mdecls, field.type().toExpr(), field));
+				transformation_trans.addSubRelationCall(new Func(null, AlloyUtil.relationFieldName(rel,direction), mdecls, field.type().toExpr(), field));
 			} catch (Err e) {
 				e.printStackTrace();
 			}	
@@ -339,7 +339,7 @@ public class Relation2Alloy {
 		try {
 			Expr e = field.equal(fact.comprehensionOver(fst,snd));
 			f = new Func(null, field.label+"def",mdecls,null,e);
-			transformation_trans.addRecRelationDef(f);
+			transformation_trans.addSubRelationDef(f);
 		} catch (Err e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
