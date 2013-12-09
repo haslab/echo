@@ -222,7 +222,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		}
 		
 		for (PrimSig sig : scopesincrement.keySet()) {
-			int count = x2a.getSigMap().get(sig.label)==null?0:x2a.getSigMap().get(sig.label).size();
+			int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
 			if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
 			else scopesmap.put(sig, scopesmap.get(sig) + count);
 			PrimSig up = sig.parent;
@@ -250,7 +250,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		
 		for (PrimSig sig : e2a.getAllSigs()) {
 			//System.out.println("SigMap: "+x2a.getSigMap());
-			int count = x2a.getSigMap().get(sig.label)==null?0:x2a.getSigMap().get(sig.label).size();
+			int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
 			if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
 			else scopesmap.put(sig, scopesmap.get(sig) + count);
 			PrimSig up = sig.parent;
@@ -287,8 +287,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	 * @throws ErrorTransform */
 	public void writeInstance(A4Solution sol,String trguri, PrimSig targetstate) throws EchoError {
 		XMI2Alloy inst = modelalloys.get(trguri);
-		List<PrimSig> instsigs = inst.getSigList();
-		EObject rootobj = inst.getRootEObject();
+		List<PrimSig> instsigs = inst.getAllSigs();
+		EObject rootobj = inst.eobject;
 		PrimSig rootsig = inst.getSigFromEObject(rootobj);
 		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
 	}
@@ -327,7 +327,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	
 	public Expr getModelFact(String uri){
 		if (modelalloys.get(uri) == null) return null;
-		Expr fact = modelalloys.get(uri).getFact();
+		Expr fact = modelalloys.get(uri).getModelConstraint();
 		//EchoReporter.getInstance().debug("Model fact: "+fact);
 		return fact;
 	}
@@ -422,8 +422,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return metamodelalloys.get(metamodeluri).getDeltaRelFunc();
 	}
 
-	public Map<String, List<PrimSig>> getInstanceSigs(String uri) {
-		return modelalloys.get(uri).getSigMap();
+	public List<PrimSig> getInstanceSigs(String uri) {
+		return modelalloys.get(uri).getAllSigs();
 	}
 	
 	public String getModelMetamodel(String modeluri) {

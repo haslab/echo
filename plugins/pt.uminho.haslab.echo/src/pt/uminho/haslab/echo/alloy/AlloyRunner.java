@@ -450,8 +450,7 @@ public class AlloyRunner implements EngineRunner{
 	 * @throws ErrorAlloy 
 	 */
 	private PrimSig addInstanceSigs (String modeluri) throws ErrorAlloy {
-		for (List<PrimSig> x : AlloyEchoTranslator.getInstance().getInstanceSigs(modeluri).values())
-			allsigs.addAll(x);
+		allsigs.addAll(AlloyEchoTranslator.getInstance().getInstanceSigs(modeluri));
 		PrimSig state = AlloyEchoTranslator.getInstance().getModelStateSig(modeluri);
 		allsigs.add(state);
 		allsigs.add(state.parent);

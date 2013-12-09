@@ -335,7 +335,8 @@ public class EchoRunner {
 		ENFORCE_TASK("enforcetask"),
 		GENERATE_TASK("generatetask"),
 		ITERATION("iteration"),
-		TRANSLATE_METAMODEL("translatemetamodel");
+		TRANSLATE_METAMODEL("translatemetamodel"),
+		TRANSLATE_MODEL("translatemodel");
 
 		private Task(String label) { this.label = label; }
 
