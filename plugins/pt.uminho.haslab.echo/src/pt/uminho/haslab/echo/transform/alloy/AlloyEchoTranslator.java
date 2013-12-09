@@ -201,7 +201,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 			else {
 				//EchoReporter.getInstance().debug(cla.getKey() + ", "+ metamodelalloys.keySet());
 				ECore2Alloy e2a = metamodelalloys.get(cla.getKey());
-				PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cla.getValue()));
+				EClassifier eclass = e2a.epackage.getEClassifier(cla.getValue());
+				PrimSig sig = e2a.getSigFromEClassifier(eclass);
 				sc.put(sig, scopesmap.get(cla));
 			}
 		}
@@ -214,9 +215,10 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		ECore2Alloy e2a = x2a.translator;
 
 		scopesincrement = new HashMap<Sig.PrimSig, Integer>();
-		for (String cl : e2a.getOCLAreNews().keySet()) {
-			PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cl));
-			scopesincrement.put(sig,e2a.getOCLAreNews().get(cl));
+		for (String cl : e2a.getCreationCount().keySet()) {
+			EClassifier eclass = e2a.epackage.getEClassifier(cl);
+			PrimSig sig = e2a.getSigFromEClassifier(eclass);
+			scopesincrement.put(sig,e2a.getCreationCount().get(cl));
 		}
 		
 		for (PrimSig sig : scopesincrement.keySet()) {
@@ -295,7 +297,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
 		List<EClass> rootclasses = e2a.getRootClass();
 		if (rootclasses.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootclasses);
-		PrimSig sig = e2a.getSigFromEClass(rootclasses.get(0));
+		PrimSig sig = e2a.getSigFromEClassifier(rootclasses.get(0));
 		writeXMIAlloy(sol,modeluri,sig,state,e2a,null);
 	}
 	
@@ -372,30 +374,23 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		else if (c.getName().equals("EBoolean")) return Sig.NONE;
 		else {
 			ECore2Alloy e2a = metamodelalloys.get(c.getEPackage().eResource().getURI().path());
-			return e2a.getSigFromEClass((EClass) c);
+			return e2a.getSigFromEClassifier((EClass) c);
 		}
 	}
 
-	public PrimSig getSigFromClassName(String metamodeluri, String classname) {
+	public PrimSig getSigFromClass(String metamodeluri, EClass eclass) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
-		EClass ecl =  e2a.getEClassFromName(classname);
-		if (ecl == null) {
-			EchoReporter.getInstance().debug("Could not found "+classname+" at "+metamodeluri);
-			return null;
-		}
-		else return e2a.getSigFromEClass(ecl);
+		return e2a.getSigFromEClassifier(eclass);
 	}
 	
-	public Field getStateFieldFromClassName(String metamodeluri, String classname) {
+	public Field getStateFieldFromClass(String metamodeluri, EClass eclass) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
-		EClass ecl =  e2a.getEClassFromName(classname);
-		return e2a.getStateFieldFromSig(e2a.getSigFromEClass(ecl));
+		return e2a.getStateFieldFromClass(eclass);
 	}
 	
-	public Field getFieldFromClassName(String metamodeluri, String classname, String fieldname) {
+	public Field getFieldFromFeature(String metamodeluri, EStructuralFeature f) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
-		EStructuralFeature sf = e2a.getSFeatureFromName(fieldname, classname);
-		return e2a.getFieldFromSFeature(sf);
+		return e2a.getFieldFromSFeature(f);
 	}
 	
 	public List<PrimSig> getMetamodelSigs(String metamodeluri) throws ErrorAlloy{
@@ -409,7 +404,14 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	public EStructuralFeature getESFeatureFromName(String pck, String cla, String fie) {
 		ECore2Alloy e2a = metamodelalloys.get(pck);
 		if (e2a == null) return null;
-		else return e2a.getSFeatureFromName(fie, cla);
+		EClass eclass = (EClass) e2a.epackage.getEClassifier(cla);
+		return eclass.getEStructuralFeature(fie);
+	}
+
+	public EClassifier getEClassifierFromName(String pck, String cla) {
+		ECore2Alloy e2a = metamodelalloys.get(pck);
+		if (e2a == null) return null;
+		return e2a.epackage.getEClassifier(cla);
 	}
 
 	public Func getMetamodelDeltaExpr(String metamodeluri) throws ErrorAlloy {

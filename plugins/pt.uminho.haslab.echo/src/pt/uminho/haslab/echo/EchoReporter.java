@@ -10,6 +10,9 @@ import pt.uminho.haslab.echo.EchoRunner.Task;
 public class EchoReporter {
 
 	private Map<Task,List<String>> warnings = new HashMap<Task,List<String>>();
+	private Map<Task,Long> inittime = new HashMap<Task,Long>();
+	private Map<Task,Long> endtime = new HashMap<Task,Long>();
+	private Map<Task,String> messages = new HashMap<Task,String>();
 	
 	protected static EchoReporter instance;
 
@@ -28,7 +31,13 @@ public class EchoReporter {
 			System.out.println(msg);
 	}
 
-	public void result (Task qualifier, boolean result, long time) {
+	public void start(Task qualifier,String message) {
+		inittime.put(qualifier, System.currentTimeMillis());
+	}
+	
+	public void result (Task qualifier, boolean result) {
+		long time = System.currentTimeMillis() - inittime.get(qualifier);
+		endtime.put(qualifier, time);
 		switch (qualifier) {
 			case ECHO_RUN :
 				if (result) System.out.println("Bye (" + time + "ms).");
@@ -54,6 +63,9 @@ public class EchoReporter {
 			case CHECK_TASK :
 				if (result) System.out.println("Models consistent by QVT-R constraints (" + time + "ms).");
 				else System.out.println("Models inconsistent by QVT-R constraints (" + time + "ms).");
+				break;
+			case TRANSLATE_METAMODEL :
+				System.out.println("Meta-model "+messages.get(qualifier)+" translated (" + time + "ms).");
 				break;
 		default:
 			break;

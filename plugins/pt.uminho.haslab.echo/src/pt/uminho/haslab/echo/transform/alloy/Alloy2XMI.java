@@ -74,12 +74,12 @@ class Alloy2XMI {
 		try {
 			type = (PrimSig)ex.type().toExpr();
 			if (instancesigs.contains(type)) {
-				ec = (EClass) e2a.getEClassFromSig(type.parent);
+				ec = (EClass) e2a.getEClassifierFromSig(type.parent);
 			}
 			else {
-				ec = (EClass) e2a.getEClassFromSig(type);
+				ec = (EClass) e2a.getEClassifierFromSig(type);
 				if (ec == null)
-					ec = (EClass) e2a.getEClassFromSig(type.parent);
+					ec = (EClass) e2a.getEClassifierFromSig(type.parent);
 			}
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 

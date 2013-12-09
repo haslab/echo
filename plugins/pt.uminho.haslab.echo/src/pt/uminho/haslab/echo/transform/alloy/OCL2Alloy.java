@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
 import org.eclipse.ocl.examples.pivot.IfExp;
 import org.eclipse.ocl.examples.pivot.IteratorExp;
@@ -258,7 +261,8 @@ public class OCL2Alloy implements OCLTranslator{
 	
 	Expr oclExprToAlloy (TypeExp expr) throws EchoError {
 		String metamodeluri = URIUtil.resolveURI(expr.getReferredType().getPackage().getEPackage().eResource());
-		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, expr.getReferredType().getName());
+		EClassifier eclass = AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, expr.getReferredType().getName());
+		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodeluri, (EClass) eclass);
 		Expr state = (isPre?prevars:posvars).get(metamodeluri);
 		return field.join(state);
 	}
@@ -351,7 +355,8 @@ public class OCL2Alloy implements OCLTranslator{
 			if (newi == null) news.put(cl,1);
 			else news.put(cl,newi+1);
 			
-			Field statefield = AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri,cl);
+			EClass ecl =  (EClass) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, cl);
+			Field statefield = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodeluri,ecl);
 			Expr pre = Sig.NONE;
 			Expr pos = Sig.NONE;
 			if (varstates.get(var.toString()) != null && varstates.get(var.toString()).getValue() != null) {
@@ -417,9 +422,12 @@ public class OCL2Alloy implements OCLTranslator{
 					}
 				}
 		}
-		Field field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri,prop.getOwningType().getName(),prop.getName());
+		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, prop.getOwningType().getName(),prop.getName());
+		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri,feature);
+		
 		if (field == null && prop.getOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
-			field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri,prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
+			feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
+			field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri,feature);
 			exp = (field.join(statesig)).transpose();
 		}
 		else {

@@ -11,6 +11,8 @@ public class ErrorAlloy extends  ErrorInternalEngine {
 	public static final String FAIL_GET_CHILDREN = "A002";
 	public static final String FAIL_CREATE_SIG = "A003";
 	public static final String FAIL_CREATE_FIELD = "A004";
+	public static final String FAIL_CREATE_FUNC = "A005";
+	public static final String FAIL_CREATE_FACT = "A006";
 	
 	public ErrorAlloy(String msg) { super(msg); }
 	public ErrorAlloy(String code, String msg, Err err, Task task) { super(msg); }

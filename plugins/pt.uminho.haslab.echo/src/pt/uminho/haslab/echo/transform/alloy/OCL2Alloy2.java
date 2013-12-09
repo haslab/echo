@@ -265,7 +265,7 @@ public class OCL2Alloy2 implements OCLTranslator{
 		}
 		String metamodeluri = str[0];
 		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, str[1], propn);
-		Field field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri, str[1], propn);
+		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri, feature);
 		Expr exp = null;
 		
 		Expr statesig = null;
@@ -275,7 +275,8 @@ public class OCL2Alloy2 implements OCLTranslator{
 			statesig = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
 
 		if (field == null && feature instanceof EchoReporter && ((EReference) feature).getEOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
-			field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri,((EReference) feature).getEOpposite().getEContainingClass().getName(),((EReference) feature).getEOpposite().getName());
+			feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, ((EReference) feature).getEOpposite().getEContainingClass().getName(),((EReference) feature).getEOpposite().getName());
+			field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri,feature);
 			exp = (field.join(statesig)).transpose();
 		}
 		else {

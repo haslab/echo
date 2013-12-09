@@ -9,10 +9,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.ocl.examples.pivot.Type;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.consistency.Model;
@@ -64,12 +68,22 @@ public class AlloyUtil {
 		return label.split("@")[0];
 	}
 
-	public static String getClassOrFeatureName(String label) {
+	public static String getClassifierName(String label) {
 		String res = null;
 		String[] aux = label.split("@");
 		if (aux.length > 1) {
 			if (isElement(label)) res = aux[1].split("#")[0];
 			else res = aux[1];
+		}
+		return res;
+	}
+	
+	public static String getFeatureName(String label) {
+		String res = null;
+		String[] aux = label.split("@");
+		if (aux.length > 2) {
+			if (isElement(label)) res = aux[2].split("#")[0];
+			else res = aux[2];
 		}
 		return res;
 	}
@@ -105,11 +119,18 @@ public class AlloyUtil {
 	}
 	
 	
-	
-	// methods used to append prefixes to expressions
-	public static String classSigName (EPackage pck, String str) {
-		return (URIUtil.resolveURI(pck.eResource()) + "@" + str);
+	public static String classifierKey (EPackage pck, EClassifier ec) {
+		return (URIUtil.resolveURI(pck.eResource()) + "@" + ec.getName());
 	}
+	
+	public static String featureKey (EPackage pck, EStructuralFeature ec) {
+		return (URIUtil.resolveURI(pck.eResource()) + "@" + ec.getEContainingClass().getName() + "@" + ec.getName());
+	}
+	
+	public static String literalKey (EPackage pck, EEnumLiteral ec) {
+		return (URIUtil.resolveURI(pck.eResource()) + "@" + ec.getEEnum().getName() + "@" + ec.getName());
+	}
+
 
 	public static String stateFieldName (EPackage pck, EClass cls) {
 		return URIUtil.resolveURI(pck.eResource()) +"@"+ cls.getName() +"@";
@@ -375,6 +396,7 @@ public class AlloyUtil {
 	
 	// creates a list of Alloy declarations from a list of OCL variables
 		public static Map<String,Decl> variableListToExpr (Collection<Variable> ovars, Map<String,Entry<ExprHasName,String>> varstates, Map<String,ExprHasName> vars) throws ErrorTransform, ErrorAlloy {
+				AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
 				Map<String,Decl> avars = new LinkedHashMap<String,Decl>();
 				
 				for (Variable ovar : ovars) {
@@ -409,11 +431,11 @@ public class AlloyUtil {
 								state = vars.get(varstates.get(ovar.getName()).getValue());
 							
 							if (state == null)
-								state = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
+								state = translator.getMetaModelStateSig(metamodeluri);
 
-							//EchoReporter.getInstance().debug("AAA"+metamodeluri);
-
-							Decl d = (AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, type).join(state)).oneOf(ovar.getName());
+							EClass eclass =  (EClass) translator.getEClassifierFromName(metamodeluri, type);
+							Expr statefield = translator.getStateFieldFromClass(metamodeluri, eclass);
+							Decl d = (statefield.join(state)).oneOf(ovar.getName());
 
 							avars.put(d.get().label,d);
 						}					

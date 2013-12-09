@@ -32,8 +32,6 @@ class Transformation2Alloy {
 	private Map<String,Func> recRelationDefs = new HashMap<String,Func>();
 	private Map<String,Func> recRelationRecCalls = new HashMap<String,Func>();
 	private Map<String,Func> recRelationTopCalls = new HashMap<String,Func>();
-
-	
 	
 	/** Constructs a new QVT Transformation to Alloy translator.
 	 * A {@code QVTRelation2Alloy} is called for every top QVT Relation and direction.

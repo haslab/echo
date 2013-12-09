@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
@@ -141,8 +140,7 @@ class XMI2Alloy {
 		//List<Sig> listSiblings;
 		Expr aux = null;
 		Object eG;
-		EClass cc = translator.getEClassFromName(it.eClass().getName());
-		PrimSig parent = translator.getSigFromEClass(cc);
+		PrimSig parent = translator.getSigFromEClassifier(it.eClass());
 		PrimSig res;
 		//System.out.println(parent + ", " + counter);
 		try {
