@@ -384,8 +384,12 @@ class ECore2Alloy {
 					Expr fact = null;
 					if (attr.getEType().getName().equals("EString"))
 						type = Sig.STRING;
-					else if (attr.getEType().getName().equals("EInt"))
+					else if (attr.getEType().getName().equals("EInt")) {
 						type = Sig.SIGINT;
+						EchoReporter.getInstance().warning(
+								"Integer attributes require enough bitwidth to represent values", 
+								Task.TRANSLATE_METAMODEL);
+					}
 					else if (attr.getEType() instanceof EEnum)
 						type = class2sig.get(AlloyUtil.classifierKey(
 								epackage, attr.getEType()));
