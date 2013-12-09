@@ -33,6 +33,7 @@ import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Variable;
@@ -289,8 +290,10 @@ public class OCL2Alloy implements OCLTranslator{
 			res = src.not();
 		else if (expr.getReferredOperation().getName().equals("isEmpty"))
 			res = src.no();
-		else if (expr.getReferredOperation().getName().equals("size"))
+		else if (expr.getReferredOperation().getName().equals("size")) {
+			EchoReporter.getInstance().warning("Integer operators (size) require suitable bitwidths.", Task.TRANSLATE_OCL);
 			res = src.cardinality();
+		}
 		else if (expr.getReferredOperation().getName().equals("=")) {
 			Expr aux = oclExprToAlloy(expr.getArgument().get(0));
 			if (expr.getArgument().get(0).getType().getName().equals("Boolean"))
