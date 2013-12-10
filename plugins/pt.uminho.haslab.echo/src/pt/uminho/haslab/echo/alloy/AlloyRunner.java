@@ -449,15 +449,19 @@ public class AlloyRunner implements EngineRunner{
 		if(sol!=null)
         return new EchoSolution(){
 
+			AlloyTuple tuple = new AlloyTuple(sol,targetstate);			
+			
             @Override
             public Object getContents() {
-                return new AlloyTuple(sol,targetstate);
+                return tuple;
             }
 
             @Override
             public boolean satisfiable() {
                 return sol.satisfiable();
             }
+            
+
         };
         else return null;
 	}

@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
+import pt.uminho.haslab.echo.alloy.AlloyTuple;
 import pt.uminho.haslab.echo.alloy.GraphPainter;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
@@ -21,10 +23,12 @@ import edu.mit.csail.sdg.alloy4viz.VizState;
 public class EchoRunner {
 
     //TODO: Finished Runner-> store the last finished runner, and use that one in write etc.
-    private EngineRunner runner = null;
+	private EngineRunner runner = null;
     private EngineFactory engineFactory;
 	private ExecutorService executor = Executors.newFixedThreadPool(5);
     private Future<Boolean> currentOperation = null;
+	private List<EchoSolution> solutions = new ArrayList<EchoSolution>();
+	private int current_solution = 0;
     public EchoRunner(EngineFactory factory) {
         engineFactory = factory;
         EchoTranslator.init(factory);
@@ -273,7 +277,14 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public void next() throws EchoError {
-		runner.nextInstance();
+		current_solution++;
+		if (current_solution >= solutions.size())
+			runner.nextInstance();
+	}
+	
+	public void previous() throws EchoError {
+		if (current_solution > 0)
+			current_solution--;
 	}
 
 	/**
@@ -281,12 +292,19 @@ public class EchoRunner {
 	 * @return the Alloy instance, if satisfiable
 	 */
 	public EchoSolution getAInstance() {
-		if (runner != null &&
-                runner.getSolution()!= null &&
-                runner.getSolution().satisfiable())
-            return runner.getSolution();
-		else
-            return null;
+		EchoSolution sol = null;
+
+		if (solutions.size() > current_solution && solutions.get(current_solution) != null) {
+			sol = solutions.get(current_solution);
+		}
+		else if (runner != null && runner.getSolution() != null
+				&& runner.getSolution().satisfiable()) {
+			solutions.add(current_solution,runner.getSolution());
+			sol = runner.getSolution();
+		} 
+		EchoReporter.getInstance().debug("s: "+solutions.get(0).getContents());
+
+		return sol;
 	}
 
 	/**
