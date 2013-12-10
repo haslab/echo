@@ -56,7 +56,7 @@ public class QVTCondition implements Condition {
 		return expr;
 	}
 	
-	public Map<Variable,String> getVariables(String metamodel) throws ErrorUnsupported, ErrorTransform {
+	public Map<Variable,String> getVariables(String metamodel) throws EchoError {
 		Map<Variable,String> res = new HashMap<Variable,String>();
 		for (OCLExpression predicate : exps) {
 			res.putAll(OCLUtil.variablesOCLExpression(predicate,metamodel));
