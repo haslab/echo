@@ -125,8 +125,11 @@ class ECore2Alloy {
  	 * @return the matching class
 	 */
 	EClassifier getEClassifierFromSig(PrimSig s) {
+		EchoReporter.getInstance().debug("FAILS AT "+s);
+		EchoReporter.getInstance().debug("FOR "+class2sig);
+
 		for (String cla : class2sig.keySet())
-			if (class2sig.get(cla).isSame(s)) return epackage.getEClassifier(cla);
+			if (class2sig.get(cla).isSame(s)) return epackage.getEClassifier(AlloyUtil.getClassifierName(cla));
 		return null;
 	}
 

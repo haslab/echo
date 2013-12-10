@@ -102,8 +102,12 @@ public class AlloyUtil {
 
 
 
-	public static boolean mayBeClassOrFeature(String label) {
+	public static boolean mayBeClass(String label) {
 		return label.split("@").length == 2;
+	}
+
+	public static boolean mayBeFeature(String label) {
+		return label.split("@").length == 3;
 	}
 
 	public static boolean mayBeStateOrLiteral(String label) {
@@ -111,12 +115,12 @@ public class AlloyUtil {
 	}
 
 	public static boolean isElement(String label) {
-		return mayBeClassOrFeature(label) && label.split("#").length == 2 && label.endsWith("#");
+		return mayBeClass(label) && label.split("#").length == 2 && label.endsWith("#");
 	}
 
 
 	public static boolean isStateField(String label) {
-		return mayBeClassOrFeature(label) && label.endsWith("@");
+		return mayBeClass(label) && label.endsWith("@");
 	}
 
 

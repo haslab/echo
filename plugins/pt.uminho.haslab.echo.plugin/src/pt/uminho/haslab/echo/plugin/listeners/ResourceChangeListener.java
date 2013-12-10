@@ -39,7 +39,6 @@ public class ResourceChangeListener implements IResourceChangeListener {
 	 */
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
-		EchoReporter.getInstance().debug("I'm here !!!");
 		switch (event.getType()) {
 		case IResourceChangeEvent.POST_CHANGE:
 			try {
@@ -245,8 +244,6 @@ public class ResourceChangeListener implements IResourceChangeListener {
 
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
-
-				EchoReporter.getInstance().debug("IM ALIVE");
 				ResourceManager resmanager = ProjectPropertiesManager
 						.getProperties(res.getProject());
 				try {
