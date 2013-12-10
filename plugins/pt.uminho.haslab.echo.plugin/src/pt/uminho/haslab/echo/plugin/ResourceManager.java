@@ -305,7 +305,7 @@ public class ResourceManager {
 		} else {
 			qvt = parser.getTransformation(qvturi);
 		}
-		reporter.debug(qvt.getModelParameter().get(0).getUsedPackage().get(0).getName()+ fst.eClass().getEPackage().getName());
+
 		if (!qvt.getModelParameter().get(0).getUsedPackage().get(0).getName().equals(fst.eClass().getEPackage().getName()))
 			throw new ErrorAPI("First model does not type-check.");
 		if (!qvt.getModelParameter().get(1).getUsedPackage().get(0).getName().equals(snd.eClass().getEPackage().getName()))

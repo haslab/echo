@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
 import pt.uminho.haslab.echo.alloy.AlloyUtil;
@@ -155,6 +156,7 @@ public class Relation2Alloy {
 			fact = opt.trading(fact);
 			fact = opt.onePoint(fact);
 		}
+		EchoReporter.getInstance().debug("Post-opt: "+fact);
 		
 		if (top)
 			addRelationPred(fact);
@@ -363,9 +365,11 @@ public class Relation2Alloy {
 			Expr e = field.equal(fact.comprehensionOver(fst,snd));
 			f = new Func(null, field.label+"def",model_params_decls,null,e);
 			transformation_translator.addSubRelationDef(f);
-		} catch (Err e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Err a) {
+			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
+					"Failed to create sub relation field constraint: "
+							+ relation.getName(), a,
+							Task.TRANSLATE_TRANSFORMATION);
 		}
 	}
 	

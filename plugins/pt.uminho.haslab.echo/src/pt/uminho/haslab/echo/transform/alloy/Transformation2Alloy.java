@@ -107,7 +107,7 @@ class Transformation2Alloy {
 	 * @param f the function definition
 	 */
 	void addSubRelationDef(Func f) {
-		subrelationcall_funcs.put(f.label, f);
+		subrelationcall_defs.put(f.label, f);
 	}
 	
 	/** 

@@ -68,7 +68,6 @@ public class OCL2Alloy implements OCLTranslator{
 	}
 	
 	public OCL2Alloy(Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
-		EchoReporter.getInstance().debug("OCL2Alloy created: "+vardecls +", "+prevars+", "+argsvars);
 		this.varstates = vardecls;
 		this.prevars = prevars;
 		this.posvars = argsvars;
@@ -149,7 +148,6 @@ public class OCL2Alloy implements OCLTranslator{
 
 		Func func = null;
 		func = parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.direction);
-		EchoReporter.getInstance().debug("Should not be null: "+func);
 		if (func == null) {
 			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
 			new Relation2Alloy (parentq,rel);
@@ -204,10 +202,6 @@ public class OCL2Alloy implements OCLTranslator{
 			if (src.hasVar(var) && varstates.get(s).getValue() != null)
 				varstates.put(d.get().label, new SimpleEntry<ExprHasName,String>(d.get(),varstates.get(s).getValue()));
 		}
-		
-		//EchoReporter.getInstance().debug(varstates+"");
-		
-
 		
 		Expr bdy = oclExprToAlloy(expr.getBody());
 
@@ -285,7 +279,6 @@ public class OCL2Alloy implements OCLTranslator{
 		Expr res = null; 
 		isPre = expr.isPre();
 		Expr src = oclExprToAlloy(expr.getSource());
-		EchoReporter.getInstance().debug("Hi "+src + ", "+expr.getReferredOperation().getName());
 		if (expr.getReferredOperation().getName().equals("not"))
 			res = src.not();
 		else if (expr.getReferredOperation().getName().equals("isEmpty"))
