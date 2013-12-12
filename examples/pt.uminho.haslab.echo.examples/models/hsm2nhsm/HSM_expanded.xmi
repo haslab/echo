@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ASCII"?>
+<hsm:StateMachine
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:hsm="HSM"
+    xsi:schemaLocation="HSM /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore"
+    name="machine">
+  <states xsi:type="hsm:CompositeState"
+      name="Active"/>
+  <states name="Idle"/>
+  <states name="Running"
+      container="//@states.0"/>
+  <states name="Waiting"
+      container="//@states.0"/>
+  <transitions
+      source="//@states.1"
+      target="//@states.3"/>
+  <transitions
+      source="//@states.3"
+      target="//@states.2"/>
+</hsm:StateMachine>
