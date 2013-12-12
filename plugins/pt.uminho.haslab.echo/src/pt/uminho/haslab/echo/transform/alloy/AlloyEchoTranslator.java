@@ -327,7 +327,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	public Expr getModelFact(String uri){
 		if (modelalloys.get(uri) == null) return null;
 		Expr fact = modelalloys.get(uri).getModelConstraint();
-		//EchoReporter.getInstance().debug("Model fact: "+fact);
+		EchoReporter.getInstance().debug("Model fact: "+fact);
 		return fact;
 	}
 
@@ -342,7 +342,9 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	}
 
 	public ConstList<CommandScope> getScopes(int strings) throws ErrorAlloy{
-		List<CommandScope> aux = new ArrayList<CommandScope>(scopes);
+		List<CommandScope> aux = new ArrayList<CommandScope>();
+		if (scopes != null)
+			aux = new ArrayList<CommandScope>(scopes);
 		try {
 			aux.add(new CommandScope(PrimSig.STRING, true, strings));
 		} catch (ErrorSyntax e) {

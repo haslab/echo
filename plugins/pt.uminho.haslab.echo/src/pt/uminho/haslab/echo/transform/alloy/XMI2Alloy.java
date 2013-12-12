@@ -180,7 +180,7 @@ class XMI2Alloy {
 					}
 				} else if (value instanceof EObject) {
 					EReference op = ((EReference) sf).getEOpposite();
-					if (op == null && translator.getFieldFromSFeature(op) == null) {}
+					if (op != null && translator.getFieldFromSFeature(op) == null) {}
 					else {
 						processReference((EObject) value, field, objectsig);
 					}

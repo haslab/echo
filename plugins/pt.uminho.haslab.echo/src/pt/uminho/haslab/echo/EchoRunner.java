@@ -135,6 +135,8 @@ public class EchoRunner {
 	}
 	
 	public boolean show(List<String> modeluris) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
 		runner = engineFactory.createRunner();
 		runner.show(modeluris);
 		return runner.getSolution().satisfiable();
@@ -147,6 +149,9 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public void repair(String targeturi) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner = engineFactory.createRunner();
 		runner.repair(targeturi);
 	}
@@ -161,6 +166,9 @@ public class EchoRunner {
 	 * @throws ErrorUnsupported 
 	 */
 	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner =  engineFactory.createRunner();
 		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
@@ -208,6 +216,9 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public boolean enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner = engineFactory.createRunner();
 		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
@@ -230,6 +241,7 @@ public class EchoRunner {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ExecutionException e) {
+			e.printStackTrace();
 			throw (EchoError) e.getCause();
 		}
 		return true;
@@ -245,6 +257,9 @@ public class EchoRunner {
 	 * @throws ErrorUnsupported 
 	 */
 	public void generateQvt(final String qvtUri, final String metaModelUri, final List<String> modelUris, final String targetUri) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner =  engineFactory.createRunner();
 		Callable<Boolean> x = new Callable<Boolean>() {
             @Override

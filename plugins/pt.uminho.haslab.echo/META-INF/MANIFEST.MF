@@ -43,6 +43,7 @@ Export-Package: edu.mit.csail.sdg.alloy4compiler.translator;
    pt.uminho.haslab.echo.consistency,
    edu.mit.csail.sdg.alloy4viz,
    edu.mit.csail.sdg.alloy4compiler.translator",
+ pt.uminho.haslab.echo.consistency,
  pt.uminho.haslab.echo.emf;
   uses:="org.eclipse.ocl.examples.pivot,
    org.eclipse.emf.ecore.resource,

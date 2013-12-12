@@ -313,6 +313,9 @@
   <attribute
         name="opposite">
   </attribute>
+  <attribute
+        name="parameter">
+  </attribute>
         </extension>      
         <extension
          point="org.eclipse.core.expressions.propertyTesters">

@@ -68,9 +68,8 @@ class Transformation2Alloy {
 
 		for (Relation rel : transformation.getRelations())
 			if (rel.isTop()) {
-				for (Model mdl : transformation.getModels()) {
+				for (Model mdl : transformation.getModels())
 					new Relation2Alloy(this,mdl,rel);
-				}
 			}
 		
 		for (Func f : toprelationcall_funcs.values())

@@ -268,6 +268,8 @@ public class AlloyRunner implements EngineRunner{
 	 * @throws ErrorAlloy
 	 */
 	public boolean enforce(String qvturi, List<String> modeluris, String diruri) throws ErrorAlloy {
+		EchoReporter.getInstance().debug("Enforce params: "+modeluris);
+
 		if (EchoOptionsSetup.getInstance().isOperationBased())
 			AlloyEchoTranslator.getInstance().createScopesFromOps(diruri);
 		else
@@ -315,10 +317,11 @@ public class AlloyRunner implements EngineRunner{
 				} else {
 					sigs.add(state);			
 				}
-				finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getModelFact(modeluri));
+				finalfact = finalfact.and(AlloyEchoTranslator.getInstance().getModelFact(modeluri));				
 			}
+			EchoReporter.getInstance().debug("Created params: "+sigs);
 			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs.size()])));
-            while(!sol.satisfiable()) {
+			while(!sol.satisfiable()) {
             	if (delta >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
             	if (overall >= EchoOptionsSetup.getInstance().getMaxDelta()) return false;
             	increment();

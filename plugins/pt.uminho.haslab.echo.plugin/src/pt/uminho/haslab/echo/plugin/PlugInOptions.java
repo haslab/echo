@@ -71,7 +71,8 @@ public class PlugInOptions implements EchoOptions {
 	}
 
 	public boolean isPersistent() {
-		return EchoPlugin.getInstance().getPreferenceStore().getBoolean(ISPERSISTENT);
+		return false;
+		//return EchoPlugin.getInstance().getPreferenceStore().getBoolean(ISPERSISTENT);
 	}
 
 	public void setIsPersistent(boolean b) {
