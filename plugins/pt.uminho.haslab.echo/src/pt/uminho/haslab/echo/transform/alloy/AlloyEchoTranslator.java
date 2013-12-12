@@ -174,7 +174,6 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		Transformation2Alloy qvtrans = new Transformation2Alloy(q);	
 		String qvturi = URIUtil.resolveURI(qvt.eResource());
 		qvtalloys.put(qvturi, qvtrans);
-		EchoReporter.getInstance().debug("QVT insts: "+qvtalloys.values());
 	}
 	
 	public boolean remQVT(String qvturi)  {

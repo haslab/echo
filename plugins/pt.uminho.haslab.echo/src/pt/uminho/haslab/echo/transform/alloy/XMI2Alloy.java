@@ -100,7 +100,9 @@ class XMI2Alloy {
 	 * @return all signatures defined in the object
 	 */
 	List<PrimSig> getClassSigs(PrimSig sig) {
-		return new ArrayList<PrimSig>(classsig2sigs.get(sig.label));
+		List<PrimSig> sigs = classsig2sigs.get(sig.label);
+		if (sigs == null) sigs = new ArrayList<PrimSig>();
+		return new ArrayList<PrimSig>(sigs);
 	}
 
 	/** the Alloy constraint defining this model */
@@ -171,17 +173,16 @@ class XMI2Alloy {
 				if (value instanceof EList<?>) {
 					if (!((EList<?>) value).isEmpty()) {
 						EReference op = ((EReference) sf).getEOpposite();
-						if (op != null && field == null) {
-						} else {
+						if (op != null && translator.getFieldFromSFeature(op) == null) {} 
+						else {
 							processReference((EList<?>) value, field, objectsig);
-							
 						}
 					}
 				} else if (value instanceof EObject) {
 					EReference op = ((EReference) sf).getEOpposite();
-					if (op == null || (op != null && !op.isContainment())) {
+					if (op == null && translator.getFieldFromSFeature(op) == null) {}
+					else {
 						processReference((EObject) value, field, objectsig);
-						
 					}
 				} else if (value == null) {
 				} else throw new ErrorUnsupported(ErrorUnsupported.ECORE,

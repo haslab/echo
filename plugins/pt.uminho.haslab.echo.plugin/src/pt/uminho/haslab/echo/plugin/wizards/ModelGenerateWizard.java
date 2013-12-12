@@ -6,18 +6,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -59,25 +58,48 @@ public class ModelGenerateWizard extends Wizard {
 	 */
 	@Override
 	public boolean performFinish() {
-		try {
-			res = page.getMetamodel();
-			Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
-			if (page.getScopes() != null && ! page.getScopes().equals("")) {
-				String[] args = page.getScopes().split(", ");
-				if (args != null) {
-					for (int i = 0; i < args.length ; i++) {
-						String[] aux = args[i].split(" ");
-						if (aux.length == 2)
-							scopes.put(new SimpleEntry<String,String>(res.getFullPath().toString(),aux[1]),Integer.parseInt(aux[0]));					
-						else MessageDialog.openInformation(shell, "Scope error", "Invalid scopes.");
-					}
-				}		
-			}
-			ProjectPropertiesManager.getProperties(res.getProject()).generate(res,scopes,page.getPath());
-		} catch (EchoError e) {
-			MessageDialog.openInformation(shell, "Error generating instance", e.getMessage());
+		res = page.getMetamodel();
+		Map<Entry<String,String>,Integer> scopes = new HashMap<Entry<String,String>,Integer>();
+		if (page.getScopes() != null && ! page.getScopes().equals("")) {
+			String[] args = page.getScopes().split(", ");
+			if (args != null) {
+				for (int i = 0; i < args.length ; i++) {
+					String[] aux = args[i].split(" ");
+					if (aux.length == 2)
+						scopes.put(new SimpleEntry<String,String>(res.getFullPath().toString(),aux[1]),Integer.parseInt(aux[0]));					
+					else MessageDialog.openInformation(shell, "Scope error", "Invalid scopes.");
+				}
+			}		
 		}
+		Job j = new ModelGenerateJob(scopes,page.getPath());
+		j.setRule(new ResourceRules(res,ResourceRules.READ));
+		j.schedule();
 		return true;
+	}
+	
+	
+	class ModelGenerateJob extends Job {
+
+		String path;
+		Map<Entry<String,String>,Integer> scopes;
+		
+		public ModelGenerateJob(Map<Entry<String,String>,Integer> scopes, String path) {
+			super("Generating model "+page.getPath()+".");
+			this.path = path;
+			this.scopes = scopes;
+		}
+
+		@Override
+		public IStatus run(IProgressMonitor monitor) {
+			try {
+				ProjectPropertiesManager.getProperties(res.getProject()).generate(res,scopes,path);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Status.CANCEL_STATUS;
+			}
+			return Status.OK_STATUS;
+		}
+		
 	}
 
 }

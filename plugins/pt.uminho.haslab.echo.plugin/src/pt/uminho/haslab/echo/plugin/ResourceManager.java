@@ -108,7 +108,7 @@ public class ResourceManager {
 	
 	public EObject addModel(IResource resmodel) throws EchoError {
 		EObject o = addModelAction( resmodel);
-		conformMeta( resmodel);
+		conformMeta(resmodel);
 		return o;
 	}
 
@@ -136,7 +136,7 @@ public class ResourceManager {
 	
 	public EObject reloadModel(IResource resmodel) throws EchoError {
 		EObject o = reloadModelAction(resmodel);
-		conformMeta( resmodel);
+		conformMeta(resmodel);
 		conformAllQVT(resmodel);
 		return o;
 	}
@@ -226,7 +226,7 @@ public class ResourceManager {
 
 		for (IResource resmodel : tracked.get(metamodeluri)) {
 			reloadModelAction(resmodel);
-			conformMeta( resmodel);
+			conformMeta(resmodel);
 			conformAllQVT(resmodel);
 		}
 

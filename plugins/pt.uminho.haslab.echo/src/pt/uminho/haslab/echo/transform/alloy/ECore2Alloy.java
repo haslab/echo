@@ -447,9 +447,9 @@ class ECore2Alloy {
 			if (op != null && EchoOptionsSetup.getInstance().isOptimize()) {
 				if (op.isContainment())
 					return;
-				if (!reference.isContainment() && op.getLowerBound() == 1
-						&& op.getUpperBound() == 1)
-					return; // ????
+//				if (!reference.isContainment() && op.getLowerBound() == 1
+//						&& op.getUpperBound() == 1)
+//					return; // ????
 				if (getFieldFromSFeature(op) != null)
 					return;
 			}
@@ -478,6 +478,8 @@ class ECore2Alloy {
 				if (opField != null) {
 					fact = field.join(model_var.get()).equal(
 							opField.join(model_var.get()).transpose());
+					EchoReporter.getInstance().debug("PROBLEMATIC: "+fact);
+					
 					constraint_conforms = constraint_conforms.and(fact);
 				}
 			}
@@ -504,6 +506,8 @@ class ECore2Alloy {
 						&& reference.getUpperBound() == 1) {
 					fact = (d.get()).join(field.join(model_var.get())).one()
 							.forAll(d);
+					EchoReporter.getInstance().debug("PROBLEMATIC: "+fact+" with src_::"+d.expr);
+
 					constraint_conforms = constraint_conforms.and(fact);
 				} else if (reference.getLowerBound() == 0
 						&& reference.getUpperBound() == 1) {

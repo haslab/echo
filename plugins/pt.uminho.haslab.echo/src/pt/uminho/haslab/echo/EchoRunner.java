@@ -302,8 +302,6 @@ public class EchoRunner {
 			solutions.add(current_solution,runner.getSolution());
 			sol = runner.getSolution();
 		} 
-		EchoReporter.getInstance().debug("s: "+solutions.get(0).getContents());
-
 		return sol;
 	}
 

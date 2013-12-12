@@ -206,8 +206,15 @@ public class Relation2Alloy {
 			}	
 			fact = (sourceexpr.implies(targetexpr));
 
-			if (sourcevar2alloydecl.size() == 1)
+
+			for (Decl d : sourcevar2alloydecl.values())
+				EchoReporter.getInstance().debug("Source var decl: "+d.names+"::"+d.expr);
+			for (Decl d : targetvar2alloydecl.values())
+				EchoReporter.getInstance().debug("Target var decl: "+d.names+"::"+d.expr);
+
+			if (sourcevar2alloydecl.size() == 1) {
 				fact = fact.forAll(sourcevar2alloydecl.values().iterator().next());
+			}
 			else if (sourcevar2alloydecl.size() > 1) {
 				arraydecl = sourcevar2alloydecl.values().toArray(
 						new Decl[sourcevar2alloydecl.size()]);

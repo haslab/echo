@@ -52,7 +52,6 @@ public class QVTCondition implements Condition {
 		for (OCLExpression ex : exps) {
 			expr = AlloyUtil.cleanAnd(expr,trad.oclExprToAlloy(ex));
 		}
-		System.out.println("Expr = " + expr);
 		return expr;
 	}
 	
