@@ -2,9 +2,11 @@ package pt.uminho.haslab.echo.transform.kodkod;
 
 import java.util.*;
 
+import com.google.gson.internal.Pair;
 import kodkod.ast.Relation;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 
 
@@ -15,10 +17,11 @@ class XMI2Kodkod {
 
     private Ecore2Kodkod translator;
 
-    /*map of the objects in every relation*/
+    /*map of the objects in every class relation*/
     private Map<Relation,Set<Object>> bounds;
+    private Set allAtoms;
 	
-	XMI2Kodkod(EObject obj,Ecore2Kodkod t) throws ErrorUnsupported {
+	XMI2Kodkod(EObject obj,Ecore2Kodkod t) throws ErrorUnsupported, ErrorTransform {
 		eObj =obj;
 		translator = t;
         bounds = new HashMap<>();
@@ -28,16 +31,16 @@ class XMI2Kodkod {
 	}
 
     private void initBounds() {
-        Collection<Relation> lRel = translator.getClassRelations().values();
+        Collection<Relation> lRel = translator.getAllRelations();
         for(Relation rel : lRel)
-            bounds.put(rel,new TreeSet<>());
+            bounds.put(rel,new HashSet<>());
     }
 
 
-    private void makeAtomsList(EObject it) throws ErrorUnsupported {
+    private void makeAtomsList(EObject it) throws ErrorUnsupported, ErrorTransform {
         //TODO
         EClass cc = translator.getEClassFromName(it.eClass().getName());
-        Relation classRel = translator.getClassRelations().get(cc);
+        Relation classRel = translator.getRelation(cc);
 
         //adding obj to corresponding class relation.
         Set<Object> auxSet = bounds.get(classRel);
@@ -49,7 +52,7 @@ class XMI2Kodkod {
         for(EStructuralFeature sf : cc.getEAllStructuralFeatures()){
             Object obj = it.eGet(sf);
             if(sf instanceof EAttribute)
-                handleAttribute(obj,sf,it);
+                handleAttribute(obj,(EAttribute) sf,it);
 
             else if (sf instanceof EReference)
 
@@ -63,8 +66,24 @@ class XMI2Kodkod {
         //TODO
     }
 
-    private void handleAttribute(Object obj, EStructuralFeature sf, EObject it) {
+    private void handleAttribute(Object obj, EAttribute attr, EObject it) throws ErrorTransform {
         //TODO
+        Relation rel = translator.getRelation(attr);
+        Set<Object> set = bounds.get(rel);
+        if(obj instanceof Boolean)
+            set.add(it);
+        else
+        {
+            if(obj instanceof Integer){
+                Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
+                Integer max = (int) (Math.pow(2, bitwidth) / 2);
+                if ((Integer) obj >= max || (Integer) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
+
+            }
+
+            Pair<EObject,Object> pair = new Pair<>(it,obj);
+            set.add(pair);
+        }
     }
 
 }

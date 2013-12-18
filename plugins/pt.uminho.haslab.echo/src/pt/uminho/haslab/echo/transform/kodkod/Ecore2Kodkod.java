@@ -1,10 +1,6 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import kodkod.ast.Decl;
 import kodkod.ast.Expression;
@@ -117,7 +113,7 @@ class Ecore2Kodkod {
 					eOpposite.getUpperBound() == 1 &&
 					EchoOptionsSetup.getInstance().isOptimize())) {} //do notting
 			else if((eOpposite != null
-					&& getRelationFromSFeature(eOpposite) != null &&
+					&& getRelation(eOpposite) != null &&
 					EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
 				EClass cc = mapClassClass.get(eReference.getEReferenceType().getName());
@@ -128,7 +124,7 @@ class Ecore2Kodkod {
 				mapSfRel.put(eReference.getEContainingClass().getName()+"::"+eReference.getName(),refRel);
 				
 				if(eOpposite!= null){
-					Relation opRel = getRelationFromSFeature(eOpposite);
+					Relation opRel = getRelation(eOpposite);
 					if(opRel!=null)
 						facts = facts.and(refRel.eq(opRel.transpose()));
 				}
@@ -195,6 +191,7 @@ class Ecore2Kodkod {
 				facts = facts.and(attribute.function(classRel, KodkodUtil.stringRel));				
 			} else if(attr.getEType().getName().equals("EInt")) {
 				attribute = Relation.binary(attrName);
+                //TODO check if i can really use that Expression.INTS...
 				facts = facts.and(attribute.function(classRel, Expression.INTS));
 			} 
 			else if (attr.getEType() instanceof EEnum) {
@@ -246,12 +243,31 @@ class Ecore2Kodkod {
 		
 	}
 
-	public Map<String,Relation> getClassRelations(){
+	Collection<Relation> getClassRelations(){
 		
-		return mapClassRel;
-	};
+		return mapClassRel.values();
+	}
 
-	Relation getRelationFromSFeature(EStructuralFeature f) {
+
+
+    Collection<Relation> getSfRelations(){
+        return mapSfRel.values();
+    }
+
+
+    Collection<Relation> getAllRelations(){
+        Collection<Relation> res = new HashSet<>();
+        res.addAll(mapSfRel.values());
+        res.addAll(mapClassRel.values());
+        return res;
+    }
+
+    Relation getRelation(EClass cc)
+    {
+        return  mapClassRel.get(cc.getName());
+    }
+
+	Relation getRelation(EStructuralFeature f) {
 		return mapSfRel.get(f.getEContainingClass().getName()+"::"+f.getName());
 	}
 	
@@ -264,7 +280,7 @@ class Ecore2Kodkod {
 		return mapClassClass.get(s);
 	}
 	
-	EClassifier getEClassFromSig(Relation r) {
+	EClassifier getEClassFromRelation(Relation r) {
 		//not sure of equals.
 		for (String cla : mapClassRel.keySet())
 			if (mapClassRel.get(cla).equals(r)) return ePackage.getEClassifier(cla);
