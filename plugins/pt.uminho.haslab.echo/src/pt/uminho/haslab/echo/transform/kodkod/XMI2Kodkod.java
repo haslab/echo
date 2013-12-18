@@ -74,14 +74,17 @@ class XMI2Kodkod {
             set.add(it);
         else
         {
+            Pair<EObject,?> pair;
             if(obj instanceof Integer){
                 Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
                 Integer max = (int) (Math.pow(2, bitwidth) / 2);
                 if ((Integer) obj >= max || (Integer) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
 
-            }
+                pair = new Pair<>(it,obj.toString());
 
-            Pair<EObject,Object> pair = new Pair<>(it,obj);
+
+            }else
+                pair = new Pair<>(it,obj);
             set.add(pair);
         }
     }

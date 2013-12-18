@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
+import kodkod.instance.Bounds;
+
 /**
  * Created with IntelliJ IDEA.
  * User: tmg
@@ -14,5 +16,13 @@ class Binder {
     {
            ;
     }
+
+
+
+
+   public Bounds getBounds()
+   {
+        return null;
+   }
 
 }
