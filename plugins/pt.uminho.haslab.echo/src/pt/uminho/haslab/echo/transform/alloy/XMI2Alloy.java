@@ -74,7 +74,7 @@ class XMI2Alloy {
 	
 	/**
 	 * Return the signature representing the <code>obj</code> object
-	 * @param obj the EObject
+	 * @param o the EObject
 	 * @return the respective Sig
 	 */
 	PrimSig getSigFromEObject(EObject o) {

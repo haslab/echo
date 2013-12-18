@@ -162,9 +162,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
 	
-	/** Translates the QVT transformation to the respective Alloy specs 
-	 * @throws ErrorParser 
-	 * @throws Err */
+	/** Translates the QVT transformation to the respective Alloy specs
+	 * @throws EchoError */
 	public void translateQVT(RelationalTransformation qvt) throws EchoError {
 		QVTTransformation q = new QVTTransformation(qvt);
 
