@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.consistency.Condition;
@@ -46,10 +47,10 @@ public class QVTCondition implements Condition {
 		return trad.translateExpressions(exps);
 	}
 	
-	public Map<Variable,String> getVariables(String metamodel) throws ErrorUnsupported, ErrorTransform {
+	public Map<Variable,String> getVariables(String metamodel) throws EchoError {
 		Map<Variable,String> res = new HashMap<Variable,String>();
 		for (Object predicate : exps) {
-			res.putAll(OCLUtil.variablesOCLExpression((OCLExpression) predicate,metamodel));
+			res.putAll(OCLUtil.variablesOCLExpression(predicate,metamodel));
 		}
 		return res;
 

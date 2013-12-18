@@ -14,13 +14,13 @@ import pt.uminho.haslab.echo.plugin.views.GraphView;
  * @author nmm
  *
  */
-public class SolutionNextHandler extends AbstractHandler {
+public class SolutionPreviousHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		try {
-			EchoPlugin.getInstance().getRunner().next();
+			EchoPlugin.getInstance().getRunner().previous();
 			
 			GraphView amv = EchoPlugin.getInstance().getGraphView();
 			if(amv!= null) amv.drawGraph();

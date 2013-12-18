@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
 import org.eclipse.ocl.examples.pivot.IfExp;
 import org.eclipse.ocl.examples.pivot.IteratorExp;
@@ -25,11 +28,12 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.consistency.qvt.QVTRelation;
 import pt.uminho.haslab.echo.emf.URIUtil;
@@ -78,7 +82,7 @@ public class OCL2Alloy implements ConditionTranslator{
 		else return ExprConstant.FALSE;
 	}
 
-	Expr oclExprToAlloy (UnlimitedNaturalLiteralExp expr) throws ErrorTransform{
+	Expr oclExprToAlloy (UnlimitedNaturalLiteralExp expr) throws EchoError {
 		Number n = expr.getUnlimitedNaturalSymbol();
 
 		if (n.toString().equals("*"))  throw new ErrorTransform ("No support for unlimited integers.");
@@ -91,7 +95,7 @@ public class OCL2Alloy implements ConditionTranslator{
 		return ExprConstant.makeNUMBER(n.intValue());
 	}
 
-	Expr oclExprToAlloy (ObjectTemplateExp temp) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (ObjectTemplateExp temp) throws EchoError {
 		Expr result = Sig.NONE.no();
 		
 		for (PropertyTemplateItem part: temp.getPart()) {
@@ -139,23 +143,15 @@ public class OCL2Alloy implements ConditionTranslator{
 		return result;
 	}
 	
-	Expr oclExprToAlloy (RelationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
 
-		Relation2Alloy trans = null;
 		Func func = null;
-		try {
-			func = parentq.transformation_trans.getRecRelationCall(new QVTRelation(expr.getReferredRelation()), parentq.getDirection());
-			EchoReporter.getInstance().debug("Should not be null: "+func);
-			if (func == null) {
-				QVTRelation rel = new QVTRelation(expr.getReferredRelation());
-				trans = new Relation2Alloy (parentq,rel);
-				func = parentq.transformation_trans.getRecRelationCall(rel,parentq.getDirection());
-			}
-		} catch (ErrorParser e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		func = parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.direction);
+		if (func == null) {
+			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
+			new Relation2Alloy (parentq,rel);
+			func = parentq.transformation_translator.callRelation(rel,parentq.direction);
 		}
-		
 		List<ExprHasName> aux = new ArrayList<ExprHasName>();
 		for (Entry<String, ExprHasName> x : (isPre?prevars:posvars).entrySet())
 			aux.add(x.getValue());
@@ -177,7 +173,7 @@ public class OCL2Alloy implements ConditionTranslator{
 		return res;
 	}
 
-	Expr oclExprToAlloy (IfExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (IfExp expr) throws EchoError {
 		Expr res = null;
 		
 		Expr eif = oclExprToAlloy(expr.getCondition());
@@ -188,11 +184,11 @@ public class OCL2Alloy implements ConditionTranslator{
 		return res;
 	}
 	
-	Expr oclExprToAlloy (IteratorExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (IteratorExp expr) throws EchoError {
 		Expr res = null;
 		
 		List<org.eclipse.ocl.examples.pivot.Variable> variterator = expr.getIterator();
-		if (variterator.size() != 1) throw new ErrorTransform ("Invalid variables on closure: "+variterator);
+		if (variterator.size() != 1) throw new ErrorTransform("Invalid variables on closure: "+variterator);
 		Variable x = Variable.getVariable(variterator.get(0));
 	
 		Decl d = AlloyUtil.variableListToExpr(new HashSet<Variable>(Arrays.asList(x)),varstates,isPre?prevars:posvars).get(variterator.get(0).getName());
@@ -205,10 +201,6 @@ public class OCL2Alloy implements ConditionTranslator{
 			if (src.hasVar(var) && varstates.get(s).getValue() != null)
 				varstates.put(d.get().label, new SimpleEntry<ExprHasName,String>(d.get(),varstates.get(s).getValue()));
 		}
-		
-		//EchoReporter.getInstance().debug(varstates+"");
-		
-
 		
 		Expr bdy = oclExprToAlloy(expr.getBody());
 
@@ -255,21 +247,22 @@ public class OCL2Alloy implements ConditionTranslator{
 			} catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 			res = src.join(res.closure());	
 		}
-		else throw new ErrorUnsupported ("OCL iterator not supported: "+expr.getReferredIteration()+".");
+		else throw new ErrorUnsupported("OCL iterator not supported: "+expr.getReferredIteration()+".");
 		varstates.remove(d.get());
 		
 		return res;
 	}
 	
-	Expr oclExprToAlloy (TypeExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (TypeExp expr) throws EchoError {
 		String metamodeluri = URIUtil.resolveURI(expr.getReferredType().getPackage().getEPackage().eResource());
-		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri, expr.getReferredType().getName());
+		EClassifier eclass = AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, expr.getReferredType().getName());
+		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodeluri, (EClass) eclass);
 		Expr state = (isPre?prevars:posvars).get(metamodeluri);
 		return field.join(state);
 	}
 	
 	
-	Expr oclExprToAlloy (PropertyCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (PropertyCallExp expr) throws EchoError {
 		Expr res = null;
 		isPre = expr.isPre();
 		Expr var = oclExprToAlloy(expr.getSource());
@@ -281,17 +274,18 @@ public class OCL2Alloy implements ConditionTranslator{
 		return res;
 	}
 	
-	Expr oclExprToAlloy (OperationCallExp expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Expr oclExprToAlloy (OperationCallExp expr) throws EchoError {
 		Expr res = null; 
 		isPre = expr.isPre();
 		Expr src = oclExprToAlloy(expr.getSource());
-		EchoReporter.getInstance().debug("Hi "+src + ", "+expr.getReferredOperation().getName());
 		if (expr.getReferredOperation().getName().equals("not"))
 			res = src.not();
 		else if (expr.getReferredOperation().getName().equals("isEmpty"))
 			res = src.no();
-		else if (expr.getReferredOperation().getName().equals("size"))
+		else if (expr.getReferredOperation().getName().equals("size")) {
+			EchoReporter.getInstance().warning("Integer operators (size) require suitable bitwidths.", Task.TRANSLATE_OCL);
 			res = src.cardinality();
+		}
 		else if (expr.getReferredOperation().getName().equals("=")) {
 			Expr aux = oclExprToAlloy(expr.getArgument().get(0));
 			if (expr.getArgument().get(0).getType().getName().equals("Boolean"))
@@ -356,7 +350,8 @@ public class OCL2Alloy implements ConditionTranslator{
 			if (newi == null) news.put(cl,1);
 			else news.put(cl,newi+1);
 			
-			Field statefield = AlloyEchoTranslator.getInstance().getStateFieldFromClassName(metamodeluri,cl);
+			EClass ecl =  (EClass) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, cl);
+			Field statefield = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodeluri,ecl);
 			Expr pre = Sig.NONE;
 			Expr pos = Sig.NONE;
 			if (varstates.get(var.toString()) != null && varstates.get(var.toString()).getValue() != null) {
@@ -387,7 +382,7 @@ public class OCL2Alloy implements ConditionTranslator{
 	}
 
 	
-	public Expr oclExprToAlloy (OCLExpression expr) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr oclExprToAlloy (OCLExpression expr) throws EchoError {
 		if (expr instanceof ObjectTemplateExp) return oclExprToAlloy((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp) return oclExprToAlloy((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp) return oclExprToAlloy((VariableExp) expr);
@@ -402,7 +397,45 @@ public class OCL2Alloy implements ConditionTranslator{
 	}
 	
 
-	/**
+	// retrieves the Alloy field corresponding to an OCL property (attribute)
+	Expr propertyToField (Property prop, Expr var) throws EchoError {		
+		String metamodeluri = URIUtil.resolveURI(prop.getOwningType().getPackage().getEPackage().eResource());
+		
+		Expr exp;
+		Expr statesig = null;
+		if ((isPre?prevars:posvars) != null && var instanceof ExprHasName) 
+			statesig = (isPre?prevars:posvars).get(varstates.get(((ExprHasName)var).label).getValue());
+		if (statesig == null) {
+				statesig = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
+				for (Entry<ExprHasName,String> x : varstates.values()) {
+					try {
+						if(x.getKey().type().toExpr().isSame(statesig))
+							statesig = x.getKey();
+					} catch (Err e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+		}
+		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, prop.getOwningType().getName(),prop.getName());
+		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri,feature);
+		
+		if (field == null && prop.getOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
+			feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
+			field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri,feature);
+			exp = (field.join(statesig)).transpose();
+		}
+		else {
+			exp = (field.join(statesig));
+		}
+
+		if (exp == null) throw new Error ("Field not found: "+metamodeluri+", "+prop.getName());
+		return exp;
+	}
+	
+	
+
+		/**
 		 * Tries to convert an OCL transitive closure into an Alloy reflexive closure
 		 * @param x
 		 * @param y
@@ -411,7 +444,7 @@ public class OCL2Alloy implements ConditionTranslator{
 		 * @throws ErrorAlloy
 		 * @throws ErrorUnsupported
 		 */
-		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+		private Expr closure2Reflexive (OCLExpression x, OCLExpression y) throws EchoError {
 			Expr res = Sig.NONE.no();
 			OperationCallExp a = null,b = null;
 			if ((x instanceof OperationCallExp) && ((OperationCallExp)x).getReferredOperation().getName().equals("includes") && 
@@ -459,39 +492,7 @@ public class OCL2Alloy implements ConditionTranslator{
 			return news;
 		}
 
-		// retrieves the Alloy field corresponding to an OCL property (attribute)
-		Expr propertyToField (Property prop, Expr var) throws ErrorTransform {		
-			String metamodeluri = URIUtil.resolveURI(prop.getOwningType().getPackage().getEPackage().eResource());
-			
-			Expr exp;
-			Expr statesig = null;
-			if ((isPre?prevars:posvars) != null && var instanceof ExprHasName) 
-				statesig = (isPre?prevars:posvars).get(varstates.get(((ExprHasName)var).label).getValue());
-			if (statesig == null) {
-					statesig = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
-					for (Entry<ExprHasName,String> x : varstates.values()) {
-						try {
-							if(x.getKey().type().toExpr().isSame(statesig))
-								statesig = x.getKey();
-						} catch (Err e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-			}
-			Field field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri,prop.getOwningType().getName(),prop.getName());
-			if (field == null && prop.getOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
-				field = AlloyEchoTranslator.getInstance().getFieldFromClassName(metamodeluri,prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
-				exp = (field.join(statesig)).transpose();
-			}
-			else {
-				exp = (field.join(statesig));
-			}
 		
-			if (exp == null) throw new Error ("Field not found: "+metamodeluri+", "+prop.getName());
-			return exp;
-		}
-
 		@Override
 		public Object translateExpressions(List<Object> lex) throws ErrorAlloy, ErrorTransform, ErrorUnsupported{		
 			

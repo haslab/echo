@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -128,8 +129,7 @@ IWorkbenchPropertyPage {
 			if (!ProjectPropertiesManager.getProperties(project).isManagedModel((IResource) x))
 				try {
 					ProjectPropertiesManager.getProperties(project).addModel((IResource) x);
-				} catch (ErrorUnsupported | ErrorInternalEngine | ErrorTransform
-						| ErrorParser | ErrorAPI e) {
+				} catch (EchoError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -138,7 +138,7 @@ IWorkbenchPropertyPage {
 			if (!Arrays.asList(modellist.getCheckedElements()).contains(x))
 				try {
 					ProjectPropertiesManager.getProperties(project).remModel(x);
-				} catch (ErrorParser | ErrorAPI e) {
+				} catch (EchoError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

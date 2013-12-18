@@ -16,7 +16,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -37,7 +39,7 @@ class Alloy2XMI {
 	private final List<PrimSig> instancesigs;
 	private Map<String,ExprVar> mapAtoms;
 	
-	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo, PrimSig state, List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform 
+	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo, PrimSig state, List<PrimSig> instsigs) throws EchoError 
 	{
 		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom: "+rootatom);
 		instancesigs = (instsigs==null)?new ArrayList<PrimSig>():instsigs;
@@ -65,19 +67,18 @@ class Alloy2XMI {
 	
 	//TODO : Recheck relation arity
 	
-	private EObject createObject(ExprVar ex) throws ErrorAlloy
-	{
+	private EObject createObject(ExprVar ex) throws EchoError {
 		EClass ec = null;
 		PrimSig type = null;
 		try {
 			type = (PrimSig)ex.type().toExpr();
 			if (instancesigs.contains(type)) {
-				ec = (EClass) e2a.getEClassFromSig(type.parent);
+				ec = (EClass) e2a.getEClassifierFromSig(type.parent);
 			}
 			else {
-				ec = (EClass) e2a.getEClassFromSig(type);
+				ec = (EClass) e2a.getEClassifierFromSig(type);
 				if (ec == null)
-					ec = (EClass) e2a.getEClassFromSig(type.parent);
+					ec = (EClass) e2a.getEClassifierFromSig(type.parent);
 			}
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 

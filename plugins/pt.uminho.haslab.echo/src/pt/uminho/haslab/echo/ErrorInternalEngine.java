@@ -6,7 +6,7 @@ package pt.uminho.haslab.echo;
  * Date: 10/24/13
  * Time: 3:52 PM
  */
-public abstract class ErrorInternalEngine extends Exception{
+public abstract class ErrorInternalEngine extends EchoError {
 
 
     /**

@@ -34,6 +34,11 @@
             name="Next instance">
       </command>
       <command
+            defaultHandler="pt.uminho.haslab.echo.plugin.handlers.SolutionPreviousHandler"
+            id="pt.uminho.haslab.echo.commands.alloyprevious"
+            name="Previous instance">
+      </command>
+      <command
             id="pt.uminho.haslab.echo.commands.constraint"
             name="New inter-model constraint">
       </command>
@@ -170,6 +175,12 @@
             allPopups="false"
             locationURI="toolbar:pt.uminho.haslab.echo.graphviewer">
          <command
+               commandId="pt.uminho.haslab.echo.commands.alloyprevious"
+               icon="icons/previous.gif"
+               label="Previous instance"
+               style="push">
+         </command>
+         <command
                commandId="pt.uminho.haslab.echo.commands.alloynext"
                icon="icons/next.gif"
                label="Next instance"
@@ -301,6 +312,9 @@
   </attribute>
   <attribute
         name="opposite">
+  </attribute>
+  <attribute
+        name="parameter">
   </attribute>
         </extension>      
         <extension

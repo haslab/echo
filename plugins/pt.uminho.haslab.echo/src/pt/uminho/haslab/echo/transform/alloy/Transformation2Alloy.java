@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.consistency.Model;
 import pt.uminho.haslab.echo.consistency.Relation;
 import pt.uminho.haslab.echo.consistency.Transformation;
@@ -23,94 +22,118 @@ class Transformation2Alloy {
 
 	/** the Alloy expression rising from this QVT Transformation*/
 	private Func func;
+	
+	/** the transformation being translated */
 	private Transformation transformation;
 	
-	/** the additional facts, defining the fields of internal QVT calls */
-	private Map<String,Func> recRelationDefs = new HashMap<String,Func>();
-	private Map<String,Func> recRelationRecCalls = new HashMap<String,Func>();
-	private Map<String,Func> recRelationTopCalls = new HashMap<String,Func>();
+	/** the Alloy functions defining sub-relation consistency */
+	private Map<String,Func> subrelationcall_defs = new HashMap<String,Func>();
 
+	/** the Alloy functions defining sub-relation calls */
+	private Map<String,Func> subrelationcall_funcs = new HashMap<String,Func>();
 	
+	/** the Alloy functions defining top-relation calls */
+	private Map<String,Func> toprelationcall_funcs = new HashMap<String,Func>();
 	
-	/** Constructs a new QVT Transformation to Alloy translator.
+	/** 
+	 * Constructs a new QVT Transformation to Alloy translator.
 	 * A {@code QVTRelation2Alloy} is called for every top QVT Relation and direction.
-	 * 
 	 * @param transformation the QVT Transformation being translated
-	 * 
-	 * @throws ErrorTransform, 
-	 * @throws ErrorUnsupported
-	 * @throws ErrorAlloy
+	 * @throws EchoError
 	 */
-	Transformation2Alloy (Transformation transformation) throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	Transformation2Alloy (Transformation transformation) throws EchoError {
+		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION, transformation.getName());
 		Expr fact = Sig.NONE.no();
 		this.transformation = transformation;
-		Map<String,Decl> argsdecls = new HashMap<String, Decl>();
-		List<Decl> decls = new ArrayList<Decl>();
-		List<ExprHasName> vars = new ArrayList<ExprHasName>();
+		List<Decl> model_params_decls = new ArrayList<Decl>();
+		List<ExprHasName> model_params_vars = new ArrayList<ExprHasName>();
 
 		for (Model mdl : transformation.getModels()) {
 			Decl d;
+			String metamodeluri = mdl.getMetamodelURI();
 			try {
-				String metamodeluri = mdl.getMetamodelURI();
-				EchoReporter.getInstance().debug(metamodeluri);
 				d = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri).oneOf(mdl.getName());
-			} catch (Err a) { throw new ErrorAlloy(a.getMessage()); }
-			argsdecls.put(mdl.getName(), d);
-			decls.add(d);
-			vars.add(d.get());
+			} catch (Err a) { 
+				throw new ErrorAlloy(
+						ErrorAlloy.FAIL_CREATE_VAR,
+						"Failed to create transformation model variable: "+mdl.getName(),
+						a,Task.TRANSLATE_TRANSFORMATION); 
+			}
+			model_params_decls.add(d);
+			model_params_vars.add(d.get());
 		}
 
 		for (Relation rel : transformation.getRelations())
 			if (rel.isTop()) {
-				for (Model mdl : transformation.getModels()) {
-					//TypedModel mdl = qvt.getModelParameter().get(0);
+				for (Model mdl : transformation.getModels())
 					new Relation2Alloy(this,mdl,rel);
-				}
 			}
-		for (Func f : recRelationTopCalls.values()) {
-			fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
-		}		
-		for (Func f : recRelationDefs.values()) {
-			fact = fact.and(f.call(vars.toArray(new ExprVar[vars.size()])));
-		}
+		
+		for (Func f : toprelationcall_funcs.values())
+			fact = fact.and(f.call(model_params_vars.toArray(new ExprVar[model_params_vars.size()])));
+
+		for (Func f : subrelationcall_defs.values())
+			fact = fact.and(f.call(model_params_vars.toArray(new ExprVar[model_params_vars.size()])));
 
 		try {
-			func = new Func(null, transformation.getName(), decls, null, fact);		
-		} catch (Err a) { throw new ErrorAlloy(a.getMessage()); } 
+			func = new Func(null, transformation.getName(), model_params_decls, null, fact);		
+		} catch (Err a) { 
+			throw new ErrorAlloy(
+					ErrorAlloy.FAIL_CREATE_FUNC,
+					"Failed to create transformation function: "+transformation.getName(),
+					a,Task.TRANSLATE_TRANSFORMATION); 
+		}
+		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, true);
+
 	}
 	
-	/** Returns the Alloy fact corresponding to this QVT Transformation
-	 * 
+	/**
+	 * Returns the Alloy function corresponding to this QVT Transformation
+	 * Function parameters are the model variables
 	 * @return this.fact
 	 */	
-	Func getFunc() {
+	Func getTransformationConstraint() {
 		return func;
 	}
 
-	Transformation getTransformation() {
-		return transformation;
+	/** 
+	 * Adds a new sub-relation definition
+	 * Function parameters are the model variables
+	 * called by containing relations
+	 * @param f the function definition
+	 */
+	void addSubRelationDef(Func f) {
+		subrelationcall_defs.put(f.label, f);
 	}
 	
 	/** 
-	 * Adds a new Alloy function defining a non-top QVT relation field
-	 * should be used by descendants on parent
+	 * Adds a new sub-relation call function
+	 * Function parameters are the model variables and the domain variables
+	 * called by containing relations
+	 * @param f the function definition
 	 */
-	void addRecRelationDef(Func x) {
-		recRelationDefs.put(x.label, x);
+	void addSubRelationCall(Func x) {
+		subrelationcall_funcs.put(x.label, x);
 	}
 	
-	void addRecRelationCall(Func x) {
-		recRelationRecCalls.put(x.label, x);
-	}
-	
+	/** 
+	 * Adds a new top-relation call function
+	 * Function parameters are the model variables
+	 * called by containing relations
+	 * @param f the function definition
+	 */
 	void addTopRelationCall(Func x) {
-		recRelationTopCalls.put(x.label, x);
+		toprelationcall_funcs.put(x.label, x);
 	}
 	
-	
-	Func getRecRelationCall(Relation n, Model dir) {
-		Func f = recRelationRecCalls.get(AlloyUtil.relationFieldName(n,dir));
-		return f;
+	/** 
+	 * Returns the function call of a sub-relation
+	 * @param n the relation being called
+	 * @param dir the direction of the call
+	 * @return the respective Alloy function
+	 */
+	Func callRelation(Relation n, Model dir) {
+		return subrelationcall_funcs.get(AlloyUtil.relationFieldName(n,dir));
 	}
 
 }

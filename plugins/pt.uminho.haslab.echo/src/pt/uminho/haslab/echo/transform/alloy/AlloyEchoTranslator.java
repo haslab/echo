@@ -20,10 +20,10 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
@@ -65,13 +65,13 @@ public class AlloyEchoTranslator extends EchoTranslator {
     }
 
     @Override
-    public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorAlloy {
+    public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws EchoError {
         writeAllInstances(((AlloyTuple) solution.getContents()).getSolution(),metaModelUri,modelUri,
                 ((AlloyTuple)solution.getContents()).getState());
     }
 
     @Override
-    public void writeInstance(EchoSolution solution, String modelUri) throws ErrorAlloy, ErrorTransform {
+    public void writeInstance(EchoSolution solution, String modelUri) throws EchoError {
         writeInstance(((AlloyTuple)solution.getContents()).getSolution(),modelUri,((AlloyTuple)solution.getContents()).getState());
     }
 
@@ -113,20 +113,20 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Translates ECore meta-models to the respective Alloy specs.
 	 * @param metaModel the meta-model to translate
 	 */
-	public void translateMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+	public void translateMetaModel(EPackage metaModel) throws EchoError {
 		createModelStateSigs(metaModel);
 		ECore2Alloy mmtrans = new ECore2Alloy(metaModel,(PrimSig) metamodelstatesigs.get(URIUtil.resolveURI(metaModel.eResource())));
 		metamodelalloys.put(URIUtil.resolveURI(metaModel.eResource()),mmtrans);
 		try {
 			mmtrans.translate();
-		} catch (ErrorUnsupported | ErrorAlloy |ErrorTransform |ErrorParser e) {
+		} catch (EchoError e) {
 			metamodelalloys.remove(URIUtil.resolveURI(metaModel.eResource()));
 			throw e;
 		}
 	}
 
     /** Creates the metamodels abstract state signatures */
-	private void createModelStateSigs(EPackage metamodel) throws ErrorAlloy, ErrorTransform {
+	private void createModelStateSigs(EPackage metamodel) throws EchoError {
 		PrimSig s = null;
 		try {
 			//if (EchoOptionsSetup.getInstance().isOperationBased())
@@ -140,7 +140,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Translates EObject models to the respective Alloy specs.
 	 * @param model the model to translate
 	 */
-	public void translateModel(EObject model) throws ErrorUnsupported, ErrorAlloy, ErrorTransform, ErrorParser {
+	public void translateModel(EObject model) throws EchoError {
 		createInstanceStateSigs(model);
 		String modeluri = URIUtil.resolveURI(model.eResource());
 		String metamodeluri = EchoParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
@@ -152,7 +152,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	}
 	
     /** Creates the instances singleton state signatures */
-	private void createInstanceStateSigs(EObject model) throws ErrorAlloy, ErrorTransform {
+	private void createInstanceStateSigs(EObject model) throws EchoError {
 		String modeluri = model.eResource().getURI().toString();
 		String metamodeluri = EchoParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
 		try {
@@ -165,13 +165,12 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Translates the QVT transformation to the respective Alloy specs 
 	 * @throws ErrorParser 
 	 * @throws Err */
-	public void translateQVT(RelationalTransformation qvt) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, ErrorParser {
+	public void translateQVT(RelationalTransformation qvt) throws EchoError {
 		QVTTransformation q = new QVTTransformation(qvt);
 
 		Transformation2Alloy qvtrans = new Transformation2Alloy(q);	
 		String qvturi = URIUtil.resolveURI(qvt.eResource());
 		qvtalloys.put(qvturi, qvtrans);
-		EchoReporter.getInstance().debug("QVT insts: "+qvtalloys.values());
 	}
 	
 	public boolean remQVT(String qvturi)  {
@@ -198,7 +197,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 			else {
 				//EchoReporter.getInstance().debug(cla.getKey() + ", "+ metamodelalloys.keySet());
 				ECore2Alloy e2a = metamodelalloys.get(cla.getKey());
-				PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cla.getValue()));
+				EClassifier eclass = e2a.epackage.getEClassifier(cla.getValue());
+				PrimSig sig = e2a.getSigFromEClassifier(eclass);
 				sc.put(sig, scopesmap.get(cla));
 			}
 		}
@@ -211,13 +211,14 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		ECore2Alloy e2a = x2a.translator;
 
 		scopesincrement = new HashMap<Sig.PrimSig, Integer>();
-		for (String cl : e2a.getOCLAreNews().keySet()) {
-			PrimSig sig = e2a.getSigFromEClass(e2a.getEClassFromName(cl));
-			scopesincrement.put(sig,e2a.getOCLAreNews().get(cl));
+		for (String cl : e2a.getCreationCount().keySet()) {
+			EClassifier eclass = e2a.epackage.getEClassifier(cl);
+			PrimSig sig = e2a.getSigFromEClassifier(eclass);
+			scopesincrement.put(sig,e2a.getCreationCount().get(cl));
 		}
 		
 		for (PrimSig sig : scopesincrement.keySet()) {
-			int count = x2a.getSigMap().get(sig.label)==null?0:x2a.getSigMap().get(sig.label).size();
+			int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
 			if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
 			else scopesmap.put(sig, scopesmap.get(sig) + count);
 			PrimSig up = sig.parent;
@@ -228,11 +229,11 @@ public class AlloyEchoTranslator extends EchoTranslator {
 			}
 		}
 
-		scopesincrement.put(e2a.statesig,1);
+		scopesincrement.put(e2a.sig_metamodel,1);
 		//scopesincrement.put(PrimSig.STRING,1);
 		
 		Map<PrimSig,Integer> aux = new HashMap<PrimSig, Integer>();
-		aux.put(e2a.statesig,1);
+		aux.put(e2a.sig_metamodel,1);
 
 		scopes = AlloyUtil.createScope(scopesmap,aux);
 	}	
@@ -245,7 +246,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		
 		for (PrimSig sig : e2a.getAllSigs()) {
 			//System.out.println("SigMap: "+x2a.getSigMap());
-			int count = x2a.getSigMap().get(sig.label)==null?0:x2a.getSigMap().get(sig.label).size();
+			int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
 			if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
 			else scopesmap.put(sig, scopesmap.get(sig) + count);
 			PrimSig up = sig.parent;
@@ -280,23 +281,23 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Writes an Alloy solution in the target instance file 
 	 * @throws ErrorAlloy 
 	 * @throws ErrorTransform */
-	private void writeInstance(A4Solution sol,String trguri, PrimSig targetstate) throws ErrorAlloy, ErrorTransform{
+	private void writeInstance(A4Solution sol,String trguri, PrimSig targetstate) throws EchoError {
 		XMI2Alloy inst = modelalloys.get(trguri);
-		List<PrimSig> instsigs = inst.getSigList();
-		EObject rootobj = inst.getRootEObject();
+		List<PrimSig> instsigs = inst.getAllSigs();
+		EObject rootobj = inst.eobject;
 		PrimSig rootsig = inst.getSigFromEObject(rootobj);
 		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
 	}
 	
-	private void writeAllInstances(A4Solution sol, String metamodeluri, String modeluri, PrimSig state) throws ErrorAlloy, ErrorTransform, ErrorUnsupported{
+	private void writeAllInstances(A4Solution sol, String metamodeluri, String modeluri, PrimSig state) throws EchoError {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
 		List<EClass> rootclasses = e2a.getRootClass();
 		if (rootclasses.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootclasses);
-		PrimSig sig = e2a.getSigFromEClass(rootclasses.get(0));
+		PrimSig sig = e2a.getSigFromEClassifier(rootclasses.get(0));
 		writeXMIAlloy(sol,modeluri,sig,state,e2a,null);
 	}
 	
-	private void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws ErrorAlloy, ErrorTransform {
+	private void writeXMIAlloy(A4Solution sol, String uri, PrimSig rootatom, PrimSig state, ECore2Alloy trad,List<PrimSig> instsigs) throws EchoError {
 		Alloy2XMI a2x = new Alloy2XMI(sol,rootatom,trad,state,instsigs);
 		
 		ResourceSet resourceSet = new ResourceSetImpl();
@@ -322,15 +323,15 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	
 	Expr getModelFact(String uri){
 		if (modelalloys.get(uri) == null) return null;
-		Expr fact = modelalloys.get(uri).getFact();
-		//EchoReporter.getInstance().debug("Model fact: "+fact);
+		Expr fact = modelalloys.get(uri).getModelConstraint();
+		EchoReporter.getInstance().debug("Model fact: "+fact);
 		return fact;
 	}
 
 	Func getQVTFact(String uri) {
 		//EchoReporter.getInstance().debug(uri + " over "+qvtalloys.keySet());
 		if (qvtalloys.get(uri) == null) return null;
-		return qvtalloys.get(uri).getFunc();
+		return qvtalloys.get(uri).getTransformationConstraint();
 	}
 	
 	
@@ -344,7 +345,9 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	}
 
 	ConstList<CommandScope> getScopes(int strings) throws ErrorAlloy{
-		List<CommandScope> aux = new ArrayList<CommandScope>(scopes);
+		List<CommandScope> aux = new ArrayList<CommandScope>();
+		if (scopes != null)
+			aux = new ArrayList<CommandScope>(scopes);
 		try {
 			aux.add(new CommandScope(PrimSig.STRING, true, strings));
 		} catch (ErrorSyntax e) {
@@ -375,30 +378,23 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		else if (c.getName().equals("EBoolean")) return Sig.NONE;
 		else {
 			ECore2Alloy e2a = metamodelalloys.get(c.getEPackage().eResource().getURI().path());
-			return e2a.getSigFromEClass((EClass) c);
+			return e2a.getSigFromEClassifier((EClass) c);
 		}
 	}
 
-	PrimSig getSigFromClassName(String metamodeluri, String classname) {
+	PrimSig getSigFromClass(String metamodeluri, EClass eclass) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
-		EClass ecl =  e2a.getEClassFromName(classname);
-		if (ecl == null) {
-			EchoReporter.getInstance().debug("Could not found "+classname+" at "+metamodeluri);
-			return null;
-		}
-		else return e2a.getSigFromEClass(ecl);
+		return e2a.getSigFromEClassifier(eclass);
 	}
 	
-	Field getStateFieldFromClassName(String metamodeluri, String classname) {
+	Field getStateFieldFromClass(String metamodeluri, EClass eclass) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
-		EClass ecl =  e2a.getEClassFromName(classname);
-		return e2a.getStateFieldFromSig(e2a.getSigFromEClass(ecl));
+		return e2a.getStateFieldFromClass(eclass);
 	}
 	
-	Field getFieldFromClassName(String metamodeluri, String classname, String fieldname) {
+	Field getFieldFromFeature(String metamodeluri, EStructuralFeature f) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
-		EStructuralFeature sf = e2a.getSFeatureFromName(fieldname, classname);
-		return e2a.getFieldFromSFeature(sf);
+		return e2a.getFieldFromSFeature(f);
 	}
 	
 	public List<PrimSig> getMetamodelSigs(String metamodeluri) throws ErrorAlloy{
@@ -412,7 +408,14 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	public EStructuralFeature getESFeatureFromName(String pck, String cla, String fie) {
 		ECore2Alloy e2a = metamodelalloys.get(pck);
 		if (e2a == null) return null;
-		else return e2a.getSFeatureFromName(fie, cla);
+		EClass eclass = (EClass) e2a.epackage.getEClassifier(cla);
+		return eclass.getEStructuralFeature(fie);
+	}
+
+	public EClassifier getEClassifierFromName(String pck, String cla) {
+		ECore2Alloy e2a = metamodelalloys.get(pck);
+		if (e2a == null) return null;
+		return e2a.epackage.getEClassifier(cla);
 	}
 
 	Func getMetamodelDeltaExpr(String metamodeluri) throws ErrorAlloy {
@@ -423,8 +426,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return metamodelalloys.get(metamodeluri).getDeltaRelFunc();
 	}
 
-	public Map<String, List<PrimSig>> getInstanceSigs(String uri) {
-		return modelalloys.get(uri).getSigMap();
+	public List<PrimSig> getInstanceSigs(String uri) {
+		return modelalloys.get(uri).getAllSigs();
 	}
 	
 	public String getModelMetamodel(String modeluri) {
@@ -474,7 +477,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	 * @return true if able to determine determinism, false otherwise
 	 * @throws ErrorUnsupported 
 	 */
-	Boolean isFunctional(Expr exp) throws ErrorUnsupported {
+	Boolean isFunctional(Expr exp) throws EchoError {
 		IsFunctionalQuery q = new IsFunctionalQuery();
 		try {
 			return q.visitThis(exp);
@@ -526,7 +529,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
        }
     }
 
-	public void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorTransform, ErrorAlloy, ErrorUnsupported, ErrorParser {
+	public void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError {
 		ATLTransformation a = new ATLTransformation(atl,mdl1,mdl2);
 
 		Transformation2Alloy qvtrans = new Transformation2Alloy(a);	

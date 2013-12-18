@@ -1,13 +1,20 @@
 package pt.uminho.haslab.echo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
+import pt.uminho.haslab.echo.transform.alloy.AlloyTuple;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
@@ -16,9 +23,12 @@ import edu.mit.csail.sdg.alloy4viz.VizState;
 public class EchoRunner {
 
     //TODO: Finished Runner-> store the last finished runner, and use that one in write etc.
-    private EngineRunner runner = null;
+	private EngineRunner runner = null;
     private EngineFactory engineFactory;
-    private Thread currentOperation = null;
+	private ExecutorService executor = Executors.newFixedThreadPool(5);
+    private Future<Boolean> currentOperation = null;
+	private List<EchoSolution> solutions = new ArrayList<EchoSolution>();
+	private int current_solution = 0;
     public EchoRunner(EngineFactory factory) {
         engineFactory = factory;
         EchoTranslator.init(factory);
@@ -32,7 +42,7 @@ public class EchoRunner {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+	public void addMetaModel(EPackage metaModel) throws EchoError {
 		EchoTranslator.getInstance().translateMetaModel(metaModel);
 	}
 
@@ -60,7 +70,7 @@ public class EchoRunner {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addModel(EObject model) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+	public void addModel(EObject model) throws EchoError {
 		EchoTranslator.getInstance().translateModel(model);
 	}
 
@@ -88,7 +98,7 @@ public class EchoRunner {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addQVT(RelationalTransformation qvt) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+	public void addQVT(RelationalTransformation qvt) throws EchoError {
 		EchoTranslator.getInstance().translateQVT(qvt);
 	}
 
@@ -106,7 +116,7 @@ public class EchoRunner {
         return EchoTranslator.getInstance().getMetaModelFromModelPath(path);
     }
 	
-	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError {
 		EchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
 	}
 
@@ -118,13 +128,15 @@ public class EchoRunner {
 	 * @return true if all models conform to the meta-models
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean conforms(List<String> modeluris) throws ErrorInternalEngine {
+	public boolean conforms(List<String> modeluris) throws EchoError {
 		EngineRunner runner  = engineFactory.createRunner();
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
 	}
 	
-	public boolean show(List<String> modeluris) throws ErrorInternalEngine {
+	public boolean show(List<String> modeluris) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
 		runner = engineFactory.createRunner();
 		runner.show(modeluris);
 		return runner.getSolution().satisfiable();
@@ -136,7 +148,10 @@ public class EchoRunner {
 	 * @return true if the model was successfully repaired
 	 * @throws ErrorInternalEngine
 	 */
-	public void repair(String targeturi) throws ErrorInternalEngine {
+	public void repair(String targeturi) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner = engineFactory.createRunner();
 		runner.repair(targeturi);
 	}
@@ -150,28 +165,33 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
+	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner =  engineFactory.createRunner();
-        currentOperation = new Thread(new Runnable() {
+		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
-            public void run() {
+            public Boolean call() throws EchoError {
                 try {
-                    runner.generate(metamodeluri,scope);
-                } catch (ErrorInternalEngine e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (InterruptedException e) {
-                    System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
-                } catch (ErrorUnsupported errorUnsupported) {
-                    errorUnsupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+					runner.generate(metamodeluri,scope);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					return false;
+				}
+                return true;
             }
-        });
-        currentOperation.start();
-        try {
-            currentOperation.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        };
+        currentOperation = executor.submit(x);
+        
+		try {
+			currentOperation.get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			throw (EchoError) e.getCause();
+		}
 	}
 
 	/**
@@ -181,7 +201,7 @@ public class EchoRunner {
 	 * @return true if consistent
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean check(String qvturi, List<String> modeluris) throws ErrorInternalEngine {
+	public boolean check(String qvturi, List<String> modeluris) throws EchoError {
 		EngineRunner runner =  engineFactory.createRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
@@ -195,28 +215,36 @@ public class EchoRunner {
 	 * @return 
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws ErrorInternalEngine, InterruptedException {
+	public boolean enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner = engineFactory.createRunner();
-        currentOperation = new Thread(new Runnable() {
+		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
-            public void run() {
+            public Boolean call() throws EchoError {
                 try {
                     runner.enforce(qvturi, modeluris, targeturi);
-                } catch (ErrorInternalEngine e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (InterruptedException e) {
-                   System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
-                }
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					return false;
+				}
+                return true;
             }
-        });
-        currentOperation.start();
-        try {
-            currentOperation.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            return false;
-        }
-        return true;
+        };
+        
+        currentOperation = executor.submit(x);
+        
+		try {
+			currentOperation.get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+			throw (EchoError) e.getCause();
+		}
+		return true;
     }
 
 	/**
@@ -228,28 +256,32 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorUnsupported 
 	 */
-	public void generateQvt(final String qvtUri, final String metaModelUri, final List<String> modelUris, final String targetUri) throws ErrorInternalEngine, ErrorUnsupported {
+	public void generateQvt(final String qvtUri, final String metaModelUri, final List<String> modelUris, final String targetUri) throws EchoError {
+		solutions = new ArrayList<EchoSolution>();
+		current_solution = 0;
+
 		runner =  engineFactory.createRunner();
-        currentOperation = new Thread(new Runnable() {
+		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
-            public void run() {
+            public Boolean call() throws EchoError {
                 try {
                     runner.generateQvt(qvtUri, modelUris, targetUri, metaModelUri);
-                } catch (ErrorInternalEngine e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (InterruptedException e) {
-                    System.out.println("Operation Interrupted");  //To change body of catch statement use File | Settings | File Templates.
-                } catch (ErrorUnsupported errorUnsupported) {
-                    errorUnsupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					return false;
+				}
+                return true;
             }
-        });
-        currentOperation.start();
-        try {
-            currentOperation.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        };
+        
+		try {
+			currentOperation.get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			throw (EchoError) e.getCause();
+		}
 
 	}
 
@@ -259,8 +291,15 @@ public class EchoRunner {
 	 * @return true if able to generate another instance
 	 * @throws ErrorInternalEngine
 	 */
-	public void next() throws ErrorInternalEngine {
-		runner.nextInstance();
+	public void next() throws EchoError {
+		current_solution++;
+		if (current_solution >= solutions.size())
+			runner.nextInstance();
+	}
+	
+	public void previous() throws EchoError {
+		if (current_solution > 0)
+			current_solution--;
 	}
 
 	/**
@@ -268,12 +307,17 @@ public class EchoRunner {
 	 * @return the Alloy instance, if satisfiable
 	 */
 	public EchoSolution getAInstance() {
-		if (runner != null &&
-                runner.getSolution()!= null &&
-                runner.getSolution().satisfiable())
-            return runner.getSolution();
-		else
-            return null;
+		EchoSolution sol = null;
+
+		if (solutions.size() > current_solution && solutions.get(current_solution) != null) {
+			sol = solutions.get(current_solution);
+		}
+		else if (runner != null && runner.getSolution() != null
+				&& runner.getSolution().satisfiable()) {
+			solutions.add(current_solution,runner.getSolution());
+			sol = runner.getSolution();
+		} 
+		return sol;
 	}
 
 	/**
@@ -292,7 +336,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorUnsupported 
 	 */
-	public void writeAllInstances (String metamodeluri, String modeluri) throws ErrorInternalEngine, ErrorTransform, ErrorUnsupported {
+	public void writeAllInstances (String metamodeluri, String modeluri) throws EchoError {
 		//if(currentOperation!=null && !currentOperation.isAlive())
             EchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri);
 	}
@@ -303,18 +347,14 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorInternalEngine
 	 */
-	public void writeInstance (String modeluri) throws ErrorInternalEngine, ErrorTransform {
+	public void writeInstance (String modeluri) throws EchoError {
         //if(currentOperation!=null && !currentOperation.isAlive())
             EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri);
 	}
 
-    public  boolean isRunning(){
-        return currentOperation != null && currentOperation.isAlive();
-    }
-
     public void cancel(){
-        if(currentOperation!=null && currentOperation.isAlive())
-            currentOperation.stop();
+        if(currentOperation!=null)
+            currentOperation.cancel(true);
     }
 	
 	public enum Task {
@@ -325,7 +365,11 @@ public class EchoRunner {
 		CHECK_TASK("checktask"),
 		ENFORCE_TASK("enforcetask"),
 		GENERATE_TASK("generatetask"),
-		ITERATION("iteration");
+		ITERATION("iteration"),
+		TRANSLATE_METAMODEL("translatemetamodel"),
+		TRANSLATE_MODEL("translatemodel"), 
+		TRANSLATE_OCL("translateocl"), 
+		TRANSLATE_TRANSFORMATION("translatetransformation");
 
 		private Task(String label) { this.label = label; }
 

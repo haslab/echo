@@ -9,15 +9,7 @@
   <states xsi:type="hsm:CompositeState"
       name="Active"/>
   <states name="Idle"/>
-  <states name="Running"
-      container="//@states.0"/>
-  <states name="Waiting"
-      container="//@states.0"/>
-  <states name="Idle"/>
   <transitions
       source="//@states.1"
-      target="//@states.3"/>
-  <transitions
-      source="//@states.3"
-      target="//@states.4"/>
+      target="//@states.0"/>
 </hsm:StateMachine>

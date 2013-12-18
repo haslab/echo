@@ -81,8 +81,6 @@ public class OCLUtil {
 					vars.put(x, aux.get(x));
 		}
 		else if (exp instanceof IteratorExp) {
-			EchoReporter.getInstance().debug("\n\nRetrieving vars from iterator: ");
-			EchoReporter.getInstance().debug("pre: "+vars);
 			Map<Variable,String> aux = variablesOCLExpression(((IteratorExp) exp).getSource(),mdl);
 			for (Variable x : aux.keySet())
 				if (vars.get(x) == null)
@@ -94,7 +92,6 @@ public class OCLUtil {
 			for (VariableDeclaration x : ((IteratorExp) exp).getIterator())
 				for (Variable y : new ArrayList<Variable>(vars.keySet()))
 					if (x.getName().equals(y.getName())) vars.remove(y);
-			EchoReporter.getInstance().debug("pos: "+vars+"\n\nf");
 		}
 		else if (exp instanceof IfExp) {
 			Map<Variable,String> aux = variablesOCLExpression(((IfExp) exp).getCondition(),mdl);

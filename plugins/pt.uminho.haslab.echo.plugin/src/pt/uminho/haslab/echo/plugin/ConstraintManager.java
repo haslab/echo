@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+
+import pt.uminho.haslab.echo.emf.EchoParser;
 
 /**
  * Manages a set of inter-model constraints
@@ -96,12 +99,17 @@ public class ConstraintManager {
 	public class Constraint {
 		public final IResource fstmodel;
 		public final IResource sndmodel;
+		public final String fstparam;
+		public final String sndparam;
 		public final IResource constraint;
 
 		private Constraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
 			this.fstmodel = fstmodel;
 			this.sndmodel = sndmodel;
 			this.constraint = constraint;
+			RelationalTransformation rel = EchoParser.getInstance().getTransformation(constraint.getFullPath().toString());
+			fstparam = rel.getModelParameter().get(0).getName();
+			sndparam = rel.getModelParameter().get(1).getName();
 		}
 
 		@Override

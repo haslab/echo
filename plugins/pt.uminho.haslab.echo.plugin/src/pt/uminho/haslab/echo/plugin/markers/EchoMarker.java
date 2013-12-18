@@ -26,6 +26,8 @@ public class EchoMarker {
 	public final static String CONSTRAINT = "constraint";
 	/** inter-model error marker opposite model attribute */
 	public final static String OPPOSITE = "opposite";
+	/** inter-model error marker model parameter model attribute */
+	public final static String PARAM = "parameter";
 
 	/** graph edit distance */
 	public final static String GED = "ged";
@@ -89,12 +91,12 @@ public class EchoMarker {
 		try {
 			if (constraint.sndmodel.findMarkers(INTRA_ERROR,false,0).length == 0) {
 				mark = createSingleInterMarker(constraint.fstmodel, constraint.sndmodel, constraint.constraint
-						.getFullPath().toString());
+						.getFullPath().toString(),constraint.fstparam);
 				marks.add(mark);
 			}
 			if (constraint.fstmodel.findMarkers(INTRA_ERROR,false,0).length == 0) {
 				mark = createSingleInterMarker(constraint.sndmodel, constraint.fstmodel, constraint.constraint
-					.getFullPath().toString());
+					.getFullPath().toString(),constraint.sndparam);
 			marks.add(mark);
 			}
 		} catch (CoreException e) {
@@ -111,7 +113,7 @@ public class EchoMarker {
 	 * @throws ErrorAPI 
 	 */
 	private static IMarker createSingleInterMarker(IResource modelres,
-			IResource relatedres, String qvtRule) throws ErrorAPI {
+			IResource relatedres, String qvtRule, String name) throws ErrorAPI {
 		IMarker mark;
 		
 		
@@ -128,6 +130,7 @@ public class EchoMarker {
 			mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			mark.setAttribute(EchoMarker.CONSTRAINT, qvtRule);
 			mark.setAttribute(EchoMarker.OPPOSITE, relatedres.getFullPath().toString());
+			mark.setAttribute(EchoMarker.PARAM, name);
 		}
 		catch (CoreException e) {
 			throw new ErrorAPI("Failed to create marker.");
