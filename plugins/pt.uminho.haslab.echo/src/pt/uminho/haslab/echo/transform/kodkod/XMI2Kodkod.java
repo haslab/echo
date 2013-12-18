@@ -2,13 +2,13 @@ package pt.uminho.haslab.echo.transform.kodkod;
 
 import java.util.*;
 
-import com.google.gson.internal.Pair;
+
 import kodkod.ast.Relation;
 import org.eclipse.emf.ecore.*;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-
+import pt.uminho.haslab.echo.util.Pair;
 
 class XMI2Kodkod {
 
@@ -19,7 +19,6 @@ class XMI2Kodkod {
 
     /*map of the objects in every class relation*/
     private Map<Relation,Set<Object>> bounds;
-    private Set allAtoms;
 	
 	XMI2Kodkod(EObject obj,Ecore2Kodkod t) throws ErrorUnsupported, ErrorTransform {
 		eObj =obj;
