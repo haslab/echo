@@ -43,14 +43,14 @@ public class QVTCondition implements Condition {
 
 	}
 	
-	public Object translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Object translate() throws EchoError {
 		return trad.translateExpressions(exps);
 	}
 	
 	public Map<Variable,String> getVariables(String metamodel) throws EchoError {
 		Map<Variable,String> res = new HashMap<Variable,String>();
 		for (Object predicate : exps) {
-			res.putAll(OCLUtil.variablesOCLExpression(predicate,metamodel));
+			res.putAll(OCLUtil.variablesOCLExpression((OCLExpression)predicate,metamodel));
 		}
 		return res;
 

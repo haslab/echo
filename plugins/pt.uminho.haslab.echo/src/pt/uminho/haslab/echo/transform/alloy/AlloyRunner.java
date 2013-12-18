@@ -302,7 +302,7 @@ public class AlloyRunner implements EngineRunner{
 						try {
 							Collection<Sig> aux = new ArrayList<Sig>();
 							aux.add(PrimSig.UNIV);
-							SubsetSig news = new SubsetSig(AlloyUtil.AlloyUtil.NEWSNAME, aux, new Attr[0]);
+							SubsetSig news = new SubsetSig(AlloyUtil.NEWSNAME, aux, new Attr[0]);
 							allsigs.add(news);
 							finalfact = finalfact.and(news.equal(edelta));
 						} catch (Err e) {

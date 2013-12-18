@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.consistency.Model;
@@ -110,7 +112,7 @@ class Transformation2Alloy {
 	 * Adds a new sub-relation call function
 	 * Function parameters are the model variables and the domain variables
 	 * called by containing relations
-	 * @param f the function definition
+	 * @param x the function definition
 	 */
 	void addSubRelationCall(Func x) {
 		subrelationcall_funcs.put(x.label, x);
@@ -120,7 +122,7 @@ class Transformation2Alloy {
 	 * Adds a new top-relation call function
 	 * Function parameters are the model variables
 	 * called by containing relations
-	 * @param f the function definition
+	 * @param x the function definition
 	 */
 	void addTopRelationCall(Func x) {
 		toprelationcall_funcs.put(x.label, x);

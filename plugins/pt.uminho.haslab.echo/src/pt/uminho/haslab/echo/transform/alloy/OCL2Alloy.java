@@ -494,7 +494,7 @@ public class OCL2Alloy implements ConditionTranslator{
 
 		
 		@Override
-		public Object translateExpressions(List<Object> lex) throws ErrorAlloy, ErrorTransform, ErrorUnsupported{		
+		public Object translateExpressions(List<Object> lex) throws EchoError{
 			
 			Expr expr = Sig.NONE.no();
 			

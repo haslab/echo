@@ -28,12 +28,8 @@ import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -136,7 +132,7 @@ class ECore2Alloy {
 	
 	/** 
 	 * Returns the state {@link Field} representing a {@link PrimSig}
-	 * @param s the EClass
+	 * @param eclass the EClass
  	 * @return the state field
 	 */
 	Field getStateFieldFromClass(EClass eclass) {
@@ -146,7 +142,7 @@ class ECore2Alloy {
 	
 	/** 
 	 * Returns the state {@link Field} representing a {@link PrimSig}
-	 * @param s the signature
+	 * @param sig the signature
  	 * @return the state field
 	 */
 	Field getStateFieldFromSig(PrimSig sig) {
@@ -316,8 +312,7 @@ class ECore2Alloy {
 	 * New fields: the state field of the signature
 	 * New facts: all elements must belong to the state field
 	 * @param ec the EClass to translate
-	 * @throws ErrorAlloy
-	 * @throws ErrorTransform
+	 * @throws EchoError
 	 */
 	private void processClass(EClass ec) throws EchoError {
 		PrimSig ecsig, parent = null;
@@ -431,8 +426,7 @@ class ECore2Alloy {
 	 * New facts: if reference is containment, no free elements outside field
 	 * Optimizations: if opposite reference is container, do not translate to Alloy
 	 * @param references the list of references to translate
-	 * @throws ErrorAlloy
-	 * @throws ErrorTransform
+	 * @throws EchoError
 	 */
 	private void processReferences(List<EReference> references)
 			throws EchoError {
@@ -880,7 +874,6 @@ class ECore2Alloy {
 	
 	/** 
 	 * creates the total order over states defined by the defined operations
-	 * @param sig the state signature for which the order is being defined
 	 * @throws ErrorAlloy
 	 */
 	void createOrder() throws ErrorAlloy {
