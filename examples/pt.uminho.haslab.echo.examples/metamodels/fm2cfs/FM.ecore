@@ -7,6 +7,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="FeatureModel">
     <eStructuralFeatures xsi:type="ecore:EReference" name="features" upperBound="-1"
-        eType="#//Feature" containment="true"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/fm2cfs/FM.ecore#//Feature"
+        containment="true"/>
   </eClassifiers>
 </ecore:EPackage>

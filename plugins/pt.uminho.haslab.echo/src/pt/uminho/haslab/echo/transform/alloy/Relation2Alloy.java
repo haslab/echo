@@ -142,10 +142,6 @@ public class Relation2Alloy {
 		}
 
 		initVariableLists();
-		EchoReporter.getInstance().debug("source var: "+sourcevar2alloydecl);
-		EchoReporter.getInstance().debug("when var: "+whenvar2alloydecl);
-		EchoReporter.getInstance().debug("target var: "+targetvar2alloydecl);
-		EchoReporter.getInstance().debug("root var: "+rootvar2alloydecl);
 
 		Field field = null;
 		if (!top)
@@ -264,7 +260,7 @@ public class Relation2Alloy {
 
 		for (Domain dom : sourcedomains) {
 			Condition cond = dom.getCondition();
-			sourcevar2model = cond.getVariables(dom.getModel().getName());
+			sourcevar2model.putAll(cond.getVariables(dom.getModel().getName()));
 		}
 
 		for (Variable x : whenvar2model.keySet()) {
@@ -309,6 +305,12 @@ public class Relation2Alloy {
 	    	for (Variable s : rootvariables.keySet())
 				var2model.put(s.getName(),rootvariables.get(s));
 		
+	    
+		EchoReporter.getInstance().debug("sourcevar2model var: "+sourcevar2model);
+		EchoReporter.getInstance().debug("var2varmodel var: "+var2varmodel());
+		EchoReporter.getInstance().debug("modelparam2var var: "+modelparam2var);
+
+	    
 		sourcevar2alloydecl = AlloyUtil.variableListToExpr(sourcevar2model.keySet(),var2varmodel(),modelparam2var);
 	  	for (String s : sourcevar2alloydecl.keySet())
 			var2var.put(s, sourcevar2alloydecl.get(s).get());
