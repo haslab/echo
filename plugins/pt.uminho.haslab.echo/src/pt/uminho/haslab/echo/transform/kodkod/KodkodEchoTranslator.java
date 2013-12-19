@@ -5,7 +5,12 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.emf.EchoParser;
+import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,8 +21,12 @@ import pt.uminho.haslab.echo.transform.EchoTranslator;
 public class KodkodEchoTranslator extends EchoTranslator {
     public KodkodEchoTranslator(){}
 
-    //TODO map URIs into E2K and X2K
-
+    /** maps meta-models Uris into translators*/
+    private Map<String,Ecore2Kodkod> metaModels = new HashMap<>();
+    /** maps models Uris into translators*/
+    private Map<String,XMI2Kodkod> models = new HashMap<>();
+    /** maps models Uris into meta-models Uris*/
+    private Map<String,String> model2metaModel = new HashMap<>();
 
     @Override
     public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorInternalEngine {
@@ -39,7 +48,13 @@ public class KodkodEchoTranslator extends EchoTranslator {
         //TODO: Register meta-models already parsed.
 
         Ecore2Kodkod e2k = new Ecore2Kodkod(metaModel);
-        e2k.translate();
+        metaModels.put(URIUtil.resolveURI(metaModel.eResource()), e2k);
+        try {
+            e2k.translate();
+        } catch (EchoError e) {
+            metaModels.remove(URIUtil.resolveURI(metaModel.eResource()));
+            throw e;
+        }
     }
 
     @Override
@@ -49,14 +64,12 @@ public class KodkodEchoTranslator extends EchoTranslator {
 
     @Override
     public void translateModel(EObject model) throws EchoError {
-        /*TODO
-        * Register models already parsed.
-        * Get the appropriate meta-model
-        */
-
-
-        XMI2Kodkod x2k = new XMI2Kodkod(model,null);
-
+        String modelUri = URIUtil.resolveURI(model.eResource());
+        String metaModelURI = EchoParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
+        Ecore2Kodkod e2k = metaModels.get(metaModelURI);
+        XMI2Kodkod x2k = new XMI2Kodkod(model,e2k);
+        models.put(modelUri,x2k);
+        model2metaModel.put(modelUri, metaModelURI);
     }
 
     @Override
