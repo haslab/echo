@@ -26,11 +26,7 @@ import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.wizards.ConstraintAddWizard;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
@@ -131,7 +127,7 @@ IWorkbenchPropertyPage {
 			Constraint c = (Constraint) x.getData();
 			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
 				try {
-					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.fstmodel, c.sndmodel);
+					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.models);
 				} catch (EchoError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -181,15 +177,8 @@ IWorkbenchPropertyPage {
 
 		public String getText(Object obj) {
 			Constraint qvt = (Constraint) obj;
-			switch (i) {
-			case 0:
-				return qvt.constraint.getProjectRelativePath().toString();
-			case 1:
-				return qvt.fstmodel.getProjectRelativePath().toString();
-			case 2:
-				return qvt.sndmodel.getProjectRelativePath().toString();
-			}
-			return null;
+			if (i == 0) return qvt.constraint.getProjectRelativePath().toString();
+			else return qvt.models.get(i-1).getProjectRelativePath().toString();
 		}
 
 		public Image getImage(Object obj) {

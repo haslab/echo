@@ -94,7 +94,6 @@ class Alloy2XMI {
 		for(EStructuralFeature sf: ec.getEAllStructuralFeatures())
 		{	
 			field = e2a.getFieldFromSFeature(sf);
-		
 			if(sf instanceof EAttribute)
 			{
 
@@ -130,6 +129,7 @@ class Alloy2XMI {
 			else if(sf instanceof EReference)
 			{
 				ref = (EReference) sf;
+				EchoReporter.getInstance().debug("NULL? "+field);
 				if (EchoOptionsSetup.getInstance().isOptimize() && ref.getEOpposite() != null && field == null) {}
 				else {
 					try {

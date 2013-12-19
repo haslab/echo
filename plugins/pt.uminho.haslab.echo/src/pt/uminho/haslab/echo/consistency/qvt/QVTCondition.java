@@ -15,6 +15,7 @@ import pt.uminho.haslab.echo.emf.OCLUtil;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class QVTCondition implements Condition {
 	private List<Object> exps = new ArrayList<Object>();

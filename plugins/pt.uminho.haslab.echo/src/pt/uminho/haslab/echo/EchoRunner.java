@@ -365,7 +365,6 @@ public class EchoRunner {
 		CHECK_TASK("checktask"),
 		ENFORCE_TASK("enforcetask"),
 		GENERATE_TASK("generatetask"),
-		ITERATION("iteration"),
 		TRANSLATE_METAMODEL("translatemetamodel"),
 		TRANSLATE_MODEL("translatemodel"), 
 		TRANSLATE_OCL("translateocl"), 

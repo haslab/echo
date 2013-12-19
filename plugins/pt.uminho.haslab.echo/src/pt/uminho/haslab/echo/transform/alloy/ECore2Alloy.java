@@ -164,6 +164,7 @@ class ECore2Alloy {
 	 */
 	Field getFieldFromSFeature(EStructuralFeature f) {
 		if (f == null) EchoReporter.getInstance().debug("getFieldFromSFeature: null argument.");
+		EchoReporter.getInstance().debug("looking for "+AlloyUtil.featureKey(epackage, f) +" in "+feature2field.keySet());
 		return feature2field.get(AlloyUtil.featureKey(epackage, f));
 	}
 	
@@ -393,7 +394,6 @@ class ECore2Alloy {
 
 					field = classsig.addField(fieldname,
 							type.product(sig_metamodel));
-					EchoReporter.getInstance().debug("FIELD "+field.type());
 					fact = field.join(model_var.get());
 					Expr bound;
 					if (attr.isID())

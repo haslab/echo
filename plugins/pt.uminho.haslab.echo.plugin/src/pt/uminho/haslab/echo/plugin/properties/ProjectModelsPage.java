@@ -31,11 +31,7 @@ import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.wizards.ModelGenerateWizard;
 

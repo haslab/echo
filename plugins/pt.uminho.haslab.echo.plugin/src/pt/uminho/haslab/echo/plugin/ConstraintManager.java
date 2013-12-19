@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.emf.EchoParser;
@@ -17,51 +18,52 @@ import pt.uminho.haslab.echo.emf.EchoParser;
  */
 public class ConstraintManager {
 
-	private Map<IResource,List<Constraint>> cnsconstraints = new HashMap<IResource, List<Constraint>>();
-	private Map<IResource,List<Constraint>> mdlconstraints = new HashMap<IResource, List<Constraint>>();
+	/** maps constraint resources to related existing inter-model constraints */
+	private Map<IResource,List<Constraint>> cres2constraints = new HashMap<IResource, List<Constraint>>();
+	/** maps model resources to related existing inter-model constraints */
+	private Map<IResource,List<Constraint>> mres2constraints = new HashMap<IResource, List<Constraint>>();
 
-	public Constraint addConstraint(IResource constraint, IResource fstmodel, IResource sndmodel){
-		List<Constraint> cs = cnsconstraints.get(constraint);
+	public Constraint addConstraint(IResource constraint, List<IResource> models){
+		List<Constraint> cs = cres2constraints.get(constraint);
 		if (cs == null) cs = new ArrayList<Constraint>();
 		for (Constraint c : cs) {
-			if (c.fstmodel.equals(fstmodel) && c.sndmodel.equals(sndmodel)) return c;
-			if (c.fstmodel.equals(sndmodel) && c.sndmodel.equals(fstmodel)) return c;
+			boolean same = true;
+			for (int i = 0; i < models.size() && same; i ++)
+				same = same && c.models.get(i).equals(models.get(i));
+			if (same) return c;
 		}
-		Constraint c = new Constraint(fstmodel, sndmodel, constraint);
+		Constraint c = new Constraint(models, constraint);
 		cs.add(c);
-		cnsconstraints.put(constraint, cs);
+		cres2constraints.put(constraint, cs);
 
-		cs = mdlconstraints.get(fstmodel);
-		if (cs == null) cs = new ArrayList<Constraint>();
-		cs.add(c);
-		mdlconstraints.put(fstmodel, cs);
-
-		cs = mdlconstraints.get(sndmodel);
-		if (cs == null) cs = new ArrayList<Constraint>();
-		cs.add(c);
-		mdlconstraints.put(sndmodel, cs);	
+		for (IResource model : models) {
+			cs = mres2constraints.get(model);
+			if (cs == null) cs = new ArrayList<Constraint>();
+			cs.add(c);
+			mres2constraints.put(model, cs);
+		}
 
 		return c;
 	}
 
 	public List<Constraint> getAllConstraints() {
 		List<Constraint> aux = new ArrayList<Constraint>();
-		for (List<Constraint> x : cnsconstraints.values())
+		for (List<Constraint> x : cres2constraints.values())
 			aux.addAll(x);
 		return aux;	
 	}
 
 	public List<Constraint> getAllConstraintsModel(IResource model) {
-		List<Constraint> res = mdlconstraints.get(model);
+		List<Constraint> res = mres2constraints.get(model);
 		return res == null? new ArrayList<Constraint>() : res;
 	}
 
 	public List<Constraint> getAllConstraintsConstraint(IResource constraint) {
-		return cnsconstraints.get(constraint);
+		return cres2constraints.get(constraint);
 	}
 
-	public Constraint removeConstraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
-		Constraint c = new Constraint(fstmodel, sndmodel, constraint);
+	public Constraint removeConstraint(List<IResource> models, IResource constraint) {
+		Constraint c = new Constraint(models, constraint);
 		removeConstraint(c);
 		return c;
 	}
@@ -69,47 +71,37 @@ public class ConstraintManager {
 
 	public void removeConstraint(Constraint constraint) {
 		List<Constraint> cs = new ArrayList<Constraint>();
-		for (Constraint c : cnsconstraints.get(constraint.constraint)) {
+		for (Constraint c : cres2constraints.get(constraint.constraint)) {
 			if (!(c.equals(constraint)))
 				cs.add(c);
 		}
-		cnsconstraints.put(constraint.constraint, cs);
+		cres2constraints.put(constraint.constraint, cs);
 
-		cs = new ArrayList<Constraint>();
-		for (Constraint c : mdlconstraints.get(constraint.fstmodel)) {
-			if (!(c.equals(constraint)))
-				cs.add(c);
+		for (IResource model : constraint.models) {
+			cs = new ArrayList<Constraint>();
+			for (Constraint c : mres2constraints.get(model)) {
+				if (!(c.equals(constraint)))
+					cs.add(c);
+			}
+			mres2constraints.put(model, cs);
 		}
-		mdlconstraints.put(constraint.fstmodel, cs);
-
-		cs = new ArrayList<Constraint>();
-		for (Constraint c : mdlconstraints.get(constraint.sndmodel)) {
-			if (!(c.equals(constraint)))
-				cs.add(c);
-		}
-		mdlconstraints.put(constraint.sndmodel, cs);
-
 	}
 
 	/**
 	 * Represents a particular constraint
 	 * @author nmm
-	 *
 	 */
 	public class Constraint {
-		public final IResource fstmodel;
-		public final IResource sndmodel;
-		public final String fstparam;
-		public final String sndparam;
+		public final List<IResource> models;
+		public final List<String> params = new ArrayList<String>();
 		public final IResource constraint;
 
-		private Constraint(IResource fstmodel, IResource sndmodel, IResource constraint) {
-			this.fstmodel = fstmodel;
-			this.sndmodel = sndmodel;
+		private Constraint(List<IResource> models, IResource constraint) {
+			this.models = new ArrayList<IResource>(models);
 			this.constraint = constraint;
 			RelationalTransformation rel = EchoParser.getInstance().getTransformation(constraint.getFullPath().toString());
-			fstparam = rel.getModelParameter().get(0).getName();
-			sndparam = rel.getModelParameter().get(1).getName();
+			for (TypedModel mdl : rel.getModelParameter())
+				params.add(mdl.getName());
 		}
 
 		@Override
@@ -117,20 +109,23 @@ public class ConstraintManager {
 			if (!(cons instanceof Constraint))
 				return false;
 			Constraint constraint = (Constraint) cons;
-			return (this.constraint.equals(constraint.constraint) && ((this.fstmodel
-					.equals(constraint.fstmodel) && this.sndmodel
-					.equals(constraint.sndmodel)) || (this.fstmodel
-							.equals(constraint.sndmodel) && this.sndmodel
-							.equals(constraint.fstmodel))));
+			if (!this.constraint.equals(constraint.constraint)) return false;
+			if (this.models.size() != constraint.models.size()) return false;
+			boolean same = true;
+			for (int i = 0; i < this.models.size() && same; i++)
+				same = same && this.models.get(i).equals(constraint.models.get(i));
+			return same;
 		}
 		
 		@Override
 		public String toString() {
 			StringBuilder s = new StringBuilder(constraint.getName());
 			s.append(": ");
-			s.append(fstmodel.getName());
-			s.append(" <-> ");
-			s.append(sndmodel.getName());
+			s.append(models.get(0).getName());
+			for (int i = 1; i < models.size(); i ++) {
+	 			s.append(" <-> ");
+				s.append(models.get(i).getName()); 
+			}		
 			return s.toString();
 		}
 

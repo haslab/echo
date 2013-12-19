@@ -2,9 +2,19 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="src" path="/pt.uminho.haslab.echo"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/edu.mit.csail.sdg.alloy4"/>
-	<classpathentry kind="lib" path="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.emf.ecore_2.9.0.v20130528-0742.jar" sourcepath="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.emf.ecore_2.9.0.v20130528-0742.jar">
+	<classpathentry combineaccessrules="false" kind="src" path="/pt.uminho.haslab.echo"/>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/org.eclipse.emf.common_2.9.1.v20130827-0309.jar" sourcepath="/Applications/eclipse/plugins/org.eclipse.emf.common.source_2.9.1.v20130827-0309.jar">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/common/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/common/archive/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/common/command/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/common/notify/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/common/notify/impl/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/common/util/*"/>
+			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/org.eclipse.emf.ecore_2.9.1.v20130827-0309.jar" sourcepath="/Applications/eclipse/plugins/org.eclipse.emf.ecore.source_2.9.1.v20130827-0309.jar">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/*"/>
 			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/impl/*"/>
@@ -22,7 +32,15 @@
 			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.qvtd.pivot.qvtrelation_0.10.0.v20130519-1744.jar" sourcepath="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.qvtd.pivot.qvtrelation_0.10.0.v20130519-1744.jar">
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/org.eclipse.emf.ecore.xmi_2.9.1.v20130827-0309.jar" sourcepath="/Applications/eclipse/plugins/org.eclipse.emf.ecore.xmi.source_2.9.1.v20130827-0309.jar">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/xmi/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/xmi/impl/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/xmi/util/*"/>
+			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/org.eclipse.qvtd.pivot.qvtrelation_0.11.0.v20131008-1331.jar" sourcepath="/Applications/eclipse/plugins/org.eclipse.qvtd.pivot.qvtrelation_0.11.0.v20131008-1331.jar">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/eclipse/qvtd/pivot/qvtrelation/*"/>
 			<accessrule kind="accessible" pattern="org/eclipse/qvtd/pivot/qvtrelation/attributes/*"/>
@@ -33,35 +51,12 @@
 			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/nmm/Downloads/eclipse/plugins/org.apache.commons.cli_1.2.0.v201105210650.jar"/>
-	<classpathentry kind="lib" path="/Users/nmm/Downloads/eclipse/plugins/org.apache.log4j_1.2.15.v201012070815.jar"/>
-	<classpathentry kind="lib" path="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.emf.common_2.9.0.v20130528-0742.jar" sourcepath="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.emf.common_2.9.0.v20130528-0742.jar">
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/org.apache.commons.cli_1.2.0.v201105210650.jar" sourcepath="/Applications/eclipse/plugins/org.apache.commons.cli_1.2.0.v201105210650.jar">
 		<accessrules>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/common/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/common/archive/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/common/command/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/common/notify/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/common/notify/impl/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/common/util/*"/>
+			<accessrule kind="accessible" pattern="org/apache/commons/cli/*"/>
 			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.emf.ecore.xmi_2.9.0.v20130528-0742.jar" sourcepath="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.emf.ecore.xmi_2.9.0.v20130528-0742.jar">
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/xmi/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/xmi/impl/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/xmi/util/*"/>
-			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.m2m.atl.core_3.4.0.v201305211502.jar" sourcepath="/Users/nmm/Downloads/eclipse/plugins/org.eclipse.m2m.atl.core_3.4.0.v201305211502.jar">
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/eclipse/m2m/atl/core/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/m2m/atl/core/launch/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/m2m/atl/core/service/*"/>
-			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/nmm/Documents/Work/Research/qvt-alloy/git/echo/plugins/pt.uminho.haslab.echo.atl.jar"/>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/org.apache.log4j_1.2.15.v201012070815.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

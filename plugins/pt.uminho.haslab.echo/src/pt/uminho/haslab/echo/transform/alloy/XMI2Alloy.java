@@ -61,7 +61,6 @@ class XMI2Alloy {
 	 */
 	XMI2Alloy(EObject obj, ECore2Alloy t, PrimSig stateSig) throws EchoError {
 		EchoReporter.getInstance().start(Task.TRANSLATE_MODEL, stateSig.label);
-
 		eobject = obj;
 		translator = t;
 		model_sig = stateSig;
@@ -171,15 +170,13 @@ class XMI2Alloy {
 				if (value instanceof EList<?>) {
 					if (!((EList<?>) value).isEmpty()) {
 						EReference op = ((EReference) sf).getEOpposite();
-						if (op != null && translator.getFieldFromSFeature(op) == null) {} 
-						else {
+						if (field != null) {
 							processReference((EList<?>) value, field, objectsig);
 						}
 					}
 				} else if (value instanceof EObject) {
 					EReference op = ((EReference) sf).getEOpposite();
-					if (op != null && translator.getFieldFromSFeature(op) == null) {}
-					else {
+					if (field != null) {
 						processReference((EObject) value, field, objectsig);
 					}
 				} else if (value == null) {
@@ -223,6 +220,8 @@ class XMI2Alloy {
 	private Expr processReference(EList<?> values, Field field, PrimSig objectsig) throws EchoError {
 		Expr res = null;
 		PrimSig ref;
+
+		EchoReporter.getInstance().debug("Reference list of "+field);
 
 		for (Object o : values)
 			if (o instanceof EObject) {

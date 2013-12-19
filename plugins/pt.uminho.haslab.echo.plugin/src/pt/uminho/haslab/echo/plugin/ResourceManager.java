@@ -279,24 +279,24 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	private Constraint addQVTConstraintAction(IResource resqvt, IResource resmodelfst,
-			IResource resmodelsnd) throws EchoError {
+	private Constraint addQVTConstraintAction(IResource resqvt, List<IResource> resmodels) throws EchoError {
 		String qvturi = resqvt.getFullPath().toString();
-		if (!isManagedModel(resmodelfst)) addModel(resmodelfst);
-		if (!isManagedModel(resmodelsnd)) addModel(resmodelsnd);
-		EObject fst = parser.getModelFromUri(resmodelfst.getFullPath().toString());
-		EObject snd = parser.getModelFromUri(resmodelsnd.getFullPath().toString());
-		String mmfst = parser.getMetamodelURI(fst.eClass().getEPackage().getName());
-		String mmsnd = parser.getMetamodelURI(snd.eClass().getEPackage().getName());
-		
-		List<IResource> l = ctracked.get(mmfst);
-		if (l == null) l = new ArrayList<IResource>();
-		l.add(resqvt);
-		ctracked.put(mmfst, l);
-		l = ctracked.get(mmsnd);
-		if (l == null) l = new ArrayList<IResource>();
-		l.add(resqvt);
-		ctracked.put(mmsnd, l);
+		List<EObject> models = new ArrayList<EObject>();
+		List<String> metamodels = new ArrayList<String>();
+
+		for (IResource resmodel : resmodels){
+			if (!isManagedModel(resmodel)) addModel(resmodel);
+			EObject obj = parser.getModelFromUri(resmodel.getFullPath().toString());
+			models.add(obj);
+			metamodels.add(parser.getMetamodelURI(obj.eClass().getEPackage().getName()));
+		}
+			
+		for (String mm : metamodels) {
+			List<IResource> l = ctracked.get(mm);
+			if (l == null) l = new ArrayList<IResource>();
+			l.add(resqvt);
+			ctracked.put(mm, l);
+		}
 		
 		RelationalTransformation qvt;
 		if (!runner.hasQVT(qvturi)) {
@@ -306,32 +306,26 @@ public class ResourceManager {
 			qvt = parser.getTransformation(qvturi);
 		}
 
-		if (!qvt.getModelParameter().get(0).getUsedPackage().get(0).getName().equals(fst.eClass().getEPackage().getName()))
-			throw new ErrorAPI("First model does not type-check.");
-		if (!qvt.getModelParameter().get(1).getUsedPackage().get(0).getName().equals(snd.eClass().getEPackage().getName()))
-			throw new ErrorAPI("Second model does not type-check.");
-	
+		for (int i=0;i<qvt.getModelParameter().size();i++) {
+			if (!qvt.getModelParameter().get(i).getUsedPackage().get(0).getName().equals(models.get(i).eClass().getEPackage().getName()))
+				throw new ErrorAPI("Model does not type-check.");
+		}
+		
+		
 		if (!runner.hasQVT(qvturi)) {
 			runner.addQVT(qvt);
 			reporter.debug("QVT-R "+qvturi+" processed.");
 		}
 		
-		String mmqvtfst = URIUtil.resolveURI(qvt.getModelParameter().get(0)
-				.getUsedPackage().get(0).getEPackage().eResource());
-		String mmqvtsnd = URIUtil.resolveURI(qvt.getModelParameter().get(1)
-				.getUsedPackage().get(0).getEPackage().eResource());
-
-		if (!mmqvtfst.equals(mmfst) || !mmqvtsnd.equals(mmsnd))
-			throw new ErrorParser("Model parameters do not type-check");
 		
-		Constraint c = constraints.addConstraint(resqvt,resmodelfst,resmodelsnd);
+		Constraint c = constraints.addConstraint(resqvt,resmodels);
 		return c;
 	}
 	
-	public Constraint addQVTConstraint(IResource resqvt, IResource resmodelfst, IResource resmodelsnd)
+	public Constraint addQVTConstraint(IResource resqvt, List<IResource> resmodels)
 			throws EchoError {
 		
-		Constraint c = addQVTConstraintAction( resqvt, resmodelfst, resmodelsnd);
+		Constraint c = addQVTConstraintAction( resqvt, resmodels);
 		conformQVT(c);
 		return c;
 	}
@@ -436,8 +430,8 @@ public class ResourceManager {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
 		List<String> modeluris = new ArrayList<String>(2);
-		modeluris.add(c.fstmodel.getFullPath().toString());
-		modeluris.add(c.sndmodel.getFullPath().toString());
+		for (IResource model : c.models)
+			modeluris.add(model.getFullPath().toString());
 
 		if (!runner.check(c.constraint.getFullPath().toString(), modeluris))
 				EchoMarker.createInterMarker(c);
@@ -462,11 +456,11 @@ public class ResourceManager {
 		for (Constraint c : cs) {
 			IResource partner;
 			int i;
-			if (c.fstmodel.equals(res)) {
-				partner = c.sndmodel;
+			if (c.models.get(0).equals(res)) {
+				partner = c.models.get(1);
 				i = 1;
 			} else {
-				partner = c.fstmodel;
+				partner = c.models.get(0);
 				i = 0;
 			}
 			modeluris.add(i, partner.getFullPath().toString());
@@ -552,10 +546,17 @@ public class ResourceManager {
 	 */
 	public void modelGenerated(IResource resmodel) throws EchoError {
 		addModel(resmodel);
-		if (qvtwaiting != null && fstwaiting != null)
-			addQVTConstraint(qvtwaiting, fstwaiting, resmodel);
-		if (qvtwaiting != null && sndwaiting != null)
-			addQVTConstraint(qvtwaiting, resmodel, sndwaiting);
+		List<IResource> modelres = new ArrayList<IResource>();
+		if (qvtwaiting != null && fstwaiting != null) {
+			modelres.add(fstwaiting);
+			modelres.add(resmodel);
+			addQVTConstraint(qvtwaiting, modelres);
+		}
+		if (qvtwaiting != null && sndwaiting != null) {
+			modelres.add(resmodel);
+			modelres.add(sndwaiting);
+			addQVTConstraint(qvtwaiting, modelres);		
+		}
 		qvtwaiting = null;
 		fstwaiting = null;
 		sndwaiting = null;
