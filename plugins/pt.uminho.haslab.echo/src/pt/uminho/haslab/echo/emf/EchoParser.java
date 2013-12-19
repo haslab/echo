@@ -1,6 +1,9 @@
 package pt.uminho.haslab.echo.emf;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,7 +76,19 @@ public class EchoParser {
 	 * Loads the EPackages its uri
 	 */
 	public EPackage loadMetamodel(String uri) throws ErrorParser{
-		Resource load_resource = resourceSet.getResource(URI.createURI(uri),true);
+		Resource load_resource = null;
+		if (!EchoOptionsSetup.getInstance().isStandalone())
+			load_resource = resourceSet.getResource(URI.createURI(uri),true);
+		else {
+			File file = new File(uri);
+			try {
+				load_resource = resourceSet.getResource(URI.createFileURI(file.getCanonicalPath()),true);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 		load_resource.unload();
 		try {
 			load_resource.load(resourceSet.getLoadOptions());

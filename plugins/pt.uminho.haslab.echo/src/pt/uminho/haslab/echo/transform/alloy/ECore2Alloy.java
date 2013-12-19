@@ -403,7 +403,6 @@ class ECore2Alloy {
 
 					field = classsig.addField(fieldname,
 							type.product(sig_metamodel));
-					EchoReporter.getInstance().debug("FIELD "+field.type());
 					fact = field.join(model_var.get());
 					Expr bound;
 					if (attr.isID())
@@ -462,6 +461,7 @@ class ECore2Alloy {
 			Field field;
 			String feature_key = AlloyUtil.featureKey(epackage, reference);
 
+			EchoReporter.getInstance().debug("lokiing for "+reference.getName()+reference.getEReferenceType());
 			try {
 				field = classsig.addField(feature_key,
 						trgsig.product(sig_metamodel));

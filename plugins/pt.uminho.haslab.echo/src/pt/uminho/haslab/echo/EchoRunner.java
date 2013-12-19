@@ -14,7 +14,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.alloy.AlloyTuple;
 import pt.uminho.haslab.echo.alloy.GraphPainter;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
@@ -365,7 +364,6 @@ public class EchoRunner {
 		CHECK_TASK("checktask"),
 		ENFORCE_TASK("enforcetask"),
 		GENERATE_TASK("generatetask"),
-		ITERATION("iteration"),
 		TRANSLATE_METAMODEL("translatemetamodel"),
 		TRANSLATE_MODEL("translatemodel"), 
 		TRANSLATE_OCL("translateocl"), 
