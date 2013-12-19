@@ -4,11 +4,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 /**
@@ -20,7 +16,8 @@ import pt.uminho.haslab.echo.transform.EchoTranslator;
 public class KodkodEchoTranslator extends EchoTranslator {
     public KodkodEchoTranslator(){}
 
-    //TODO
+    //TODO map URIs into E2K and X2K
+
 
     @Override
     public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorInternalEngine {
@@ -51,7 +48,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
     }
 
     @Override
-    public void translateModel(EObject model) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+    public void translateModel(EObject model) throws EchoError {
         /*TODO
         * Register models already parsed.
         * Get the appropriate meta-model

@@ -235,11 +235,7 @@ class Ecore2Kodkod {
 	}
 
 	private void processEnums(List<EEnum> enumList) {
-		// TODO Enums
-		
-		/*
-		 * ->Enums podem ser tratados nas instancias?
-		 */
+		// TODO Enums   -> save and then bind?
 		
 	}
 
@@ -273,17 +269,17 @@ class Ecore2Kodkod {
 	
 	/**
 	 * Returns the {@link EClass} matching the class  name
-	 * @param s the class name
+	 * @param name the class name
 	 * @return the matching class
 	 */
-	EClass getEClassFromName(String s) {
-		return mapClassClass.get(s);
+	EClass getEClass(String name) {
+		return mapClassClass.get(name);
 	}
 	
-	EClassifier getEClassFromRelation(Relation r) {
-		//not sure of equals.
+	EClassifier getEClass(Relation classRelation) {
+		//TODO: not sure of equals.
 		for (String cla : mapClassRel.keySet())
-			if (mapClassRel.get(cla).equals(r)) return ePackage.getEClassifier(cla);
+			if (mapClassRel.get(cla).equals(classRelation)) return ePackage.getEClassifier(cla);
 		return null;
 	}
 	

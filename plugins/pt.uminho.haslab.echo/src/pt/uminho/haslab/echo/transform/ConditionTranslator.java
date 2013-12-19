@@ -16,7 +16,7 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 public interface ConditionTranslator {
 	
 	
-	public Object translateExpressions(List<Object> lex) throws ErrorInternalEngine, ErrorTransform, ErrorUnsupported, EchoError;
+	public Object translateExpressions(List<Object> lex) throws  EchoError;
 
 
 }
