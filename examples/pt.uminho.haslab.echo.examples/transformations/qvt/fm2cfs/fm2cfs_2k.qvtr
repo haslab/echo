@@ -1,0 +1,12 @@
+import FM : '../../../metamodels/fm2cfs/FM.ecore' :: FM;
+import CF : '../../../metamodels/fm2cfs/CF.ecore' :: CF;
+
+transformation fm2cfs (fm : FM, cf1 : CF, cf2 : CF) {
+
+	top relation FM2CFS {
+		n : String;
+		domain fm f : Feature {name = n, mandatory = true};
+		domain cf1 s1 : Feature {name = n};
+		domain cf2 s2 : Feature {name = n};
+	}
+}
