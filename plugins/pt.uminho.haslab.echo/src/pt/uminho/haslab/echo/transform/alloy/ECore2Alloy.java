@@ -457,6 +457,9 @@ class ECore2Alloy {
 			}
 
 			EClass cc = reference.getEReferenceType();
+			if (cc == null)
+				throw new ErrorParser(ErrorParser.METAMODEL,"Failed to find reference '"+reference.getName()+"' type.",
+						"Check the meta-model specification.",Task.TRANSLATE_METAMODEL);
 			PrimSig trgsig = class2sig.get(AlloyUtil.classifierKey(epackage,
 					cc));
 			Field field;

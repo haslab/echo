@@ -16,8 +16,6 @@
   </tables>
   <tables name="Department">
     <columns
-        name="x"/>
-    <columns
-        name="y"/>
+        name="name"/>
   </tables>
 </rdbms:Scheme>

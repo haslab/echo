@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -16,6 +18,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
+import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
@@ -78,7 +81,7 @@ public class ModelGenerateWizard extends Wizard {
 	}
 	
 	
-	class ModelGenerateJob extends Job {
+	class ModelGenerateJob extends WorkspaceJob {
 
 		String path;
 		Map<Entry<String,String>,Integer> scopes;
@@ -90,13 +93,14 @@ public class ModelGenerateWizard extends Wizard {
 		}
 
 		@Override
-		public IStatus run(IProgressMonitor monitor) {
+		public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+
 			try {
 				ProjectPropertiesManager.getProperties(res.getProject()).generate(res,scopes,path);
 			} catch (Exception e) {
-				e.printStackTrace();
-				return Status.CANCEL_STATUS;
+				throw new CoreException(new Status(IStatus.ERROR, EchoPlugin.ID, e.getMessage(), e));
 			}
+		
 			return Status.OK_STATUS;
 		}
 		

@@ -1,0 +1,17 @@
+import M : '../../../metamodels/family_flatten/Family.ecore' :: geneology;
+import N : '../../../metamodels/family_flatten/World.ecore' :: world;
+
+transformation uml2rdbms (geneology : M, world : N) {
+	
+	top relation MaleMember2Male {
+		gn : String;
+		domain geneology m : Member {
+			name = gn
+		};
+		domain world p : Male {
+			name = gn
+		};
+		
+	}
+	
+}

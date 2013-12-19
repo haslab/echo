@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ASCII"?>
+<geneology:Geneology xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:geneology="geneology" xsi:schemaLocation="geneology /pt.uminho.haslab.echo.examples/metamodels/family_flatten/Family.ecore">
+  <families name="String0">
+    <members name="ksad"/>
+    <members name="ADSA"/>
+  </families>
+</geneology:Geneology>

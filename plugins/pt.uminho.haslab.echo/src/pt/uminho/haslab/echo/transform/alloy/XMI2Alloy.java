@@ -171,18 +171,16 @@ class XMI2Alloy {
 			if (sf instanceof EReference) {
 				if (value instanceof EList<?>) {
 					if (!((EList<?>) value).isEmpty()) {
-						EReference op = ((EReference) sf).getEOpposite();
-						if (field != null) {
+						if (field != null)
 							processReference((EList<?>) value, field, objectsig);
-						}
 					}
-				} else if (value instanceof EObject) {
-					EReference op = ((EReference) sf).getEOpposite();
-					if (field != null) {
+				} 
+				else if (value instanceof EObject) {
+					if (field != null)
 						processReference((EObject) value, field, objectsig);
-					}
-				} else if (value == null) {
-				} else throw new ErrorUnsupported(ErrorUnsupported.ECORE,
+				} 
+				else if (value == null) {} 
+				else throw new ErrorUnsupported(ErrorUnsupported.ECORE,
 							"EReference type not supported: "
 									+ value.getClass().getName(), "",
 							Task.TRANSLATE_MODEL);

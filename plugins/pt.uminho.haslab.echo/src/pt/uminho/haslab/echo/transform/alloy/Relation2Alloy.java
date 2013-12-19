@@ -145,6 +145,10 @@ public class Relation2Alloy {
 		}
 
 		initVariableLists();
+		EchoReporter.getInstance().debug("source var: "+sourcevar2alloydecl);
+		EchoReporter.getInstance().debug("when var: "+whenvar2alloydecl);
+		EchoReporter.getInstance().debug("target var: "+targetvar2alloydecl);
+		EchoReporter.getInstance().debug("root var: "+rootvar2alloydecl);
 
 		Field field = null;
 		if (!top)
@@ -207,10 +211,10 @@ public class Relation2Alloy {
 			fact = (sourceexpr.implies(targetexpr));
 
 
-			for (Decl d : sourcevar2alloydecl.values())
-				EchoReporter.getInstance().debug("Source var decl: "+d.names+"::"+d.expr);
-			for (Decl d : targetvar2alloydecl.values())
-				EchoReporter.getInstance().debug("Target var decl: "+d.names+"::"+d.expr);
+//			for (Decl d : sourcevar2alloydecl.values())
+//				EchoReporter.getInstance().debug("Source var decl: "+d.names+"::"+d.expr);
+//			for (Decl d : targetvar2alloydecl.values())
+//				EchoReporter.getInstance().debug("Target var decl: "+d.names+"::"+d.expr);
 
 			if (sourcevar2alloydecl.size() == 1) {
 				fact = fact.forAll(sourcevar2alloydecl.values().iterator().next());
