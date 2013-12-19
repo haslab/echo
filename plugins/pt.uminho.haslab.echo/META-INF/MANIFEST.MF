@@ -34,15 +34,6 @@ Export-Package: edu.mit.csail.sdg.alloy4compiler.translator;
    pt.uminho.haslab.echo.transform,
    edu.mit.csail.sdg.alloy4viz,
    org.eclipse.qvtd.pivot.qvtrelation",
- pt.uminho.haslab.echo.alloy;
-  uses:="org.eclipse.emf.ecore,
-   pt.uminho.haslab.echo.transform,
-   edu.mit.csail.sdg.alloy4compiler.ast,
-   edu.mit.csail.sdg.alloy4,
-   pt.uminho.haslab.echo,
-   pt.uminho.haslab.echo.consistency,
-   edu.mit.csail.sdg.alloy4viz,
-   edu.mit.csail.sdg.alloy4compiler.translator",
  pt.uminho.haslab.echo.consistency,
  pt.uminho.haslab.echo.emf;
   uses:="org.eclipse.ocl.examples.pivot,

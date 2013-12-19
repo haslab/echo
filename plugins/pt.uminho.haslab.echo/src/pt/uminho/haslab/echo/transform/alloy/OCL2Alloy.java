@@ -34,12 +34,10 @@ import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.consistency.qvt.QVTRelation;
 import pt.uminho.haslab.echo.emf.URIUtil;
-import pt.uminho.haslab.echo.transform.OCLTranslator;
+import pt.uminho.haslab.echo.transform.ConditionTranslator;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -52,7 +50,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-public class OCL2Alloy implements OCLTranslator{
+public class OCL2Alloy implements ConditionTranslator{
 
 	private Map<String,Entry<ExprHasName,String>> varstates;
 	private Map<String,ExprHasName> posvars;
@@ -68,6 +66,7 @@ public class OCL2Alloy implements OCLTranslator{
 	}
 	
 	public OCL2Alloy(Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+		EchoReporter.getInstance().debug("OCL2Alloy created: "+vardecls +", "+prevars+", "+argsvars);
 		this.varstates = vardecls;
 		this.prevars = prevars;
 		this.posvars = argsvars;
@@ -493,4 +492,15 @@ public class OCL2Alloy implements OCLTranslator{
 			return news;
 		}
 
+		
+		@Override
+		public Object translateExpressions(List<Object> lex) throws EchoError{
+			
+			Expr expr = Sig.NONE.no();
+			
+			for (Object ex : lex) {
+				expr = AlloyUtil.cleanAnd(expr, this.oclExprToAlloy((OCLExpression) ex));
+			}
+			return expr;
+		}
 }

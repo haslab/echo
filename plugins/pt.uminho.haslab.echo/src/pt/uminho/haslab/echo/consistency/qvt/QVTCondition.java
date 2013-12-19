@@ -9,23 +9,21 @@ import java.util.Map.Entry;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.emf.OCLUtil;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class QVTCondition implements Condition {
-	private List<OCLExpression> exps = new ArrayList<OCLExpression>();
+	private List<Object> exps = new ArrayList<Object>();
 	private OCL2Alloy trad;
 
 	@Override
 	public void addCondition(Object expr) {
-		exps.add((OCLExpression) expr);
+		exps.add(expr);
 	}
 
 	@Override
@@ -43,19 +41,14 @@ public class QVTCondition implements Condition {
 
 	}
 	
-	public Expr translate() throws EchoError {
-
-		Expr expr = Sig.NONE.no();
-		for (OCLExpression ex : exps) {
-			expr = AlloyUtil.cleanAnd(expr,trad.oclExprToAlloy(ex));
-		}
-		return expr;
+	public Object translate() throws EchoError {
+		return trad.translateExpressions(exps);
 	}
 	
 	public Map<Variable,String> getVariables(String metamodel) throws EchoError {
 		Map<Variable,String> res = new HashMap<Variable,String>();
-		for (OCLExpression predicate : exps) {
-			res.putAll(OCLUtil.variablesOCLExpression(predicate,metamodel));
+		for (Object predicate : exps) {
+			res.putAll(OCLUtil.variablesOCLExpression((OCLExpression)predicate,metamodel));
 		}
 		return res;
 

@@ -42,7 +42,7 @@ public abstract class EchoTranslator {
 
     public abstract void translateQVT(RelationalTransformation qvt) throws EchoError;
 
-    public abstract Object getQVTFact(String qvtUri);
+    public abstract boolean hasQVT(String qvtUri);
 
     public abstract void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError;
 

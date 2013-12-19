@@ -13,9 +13,6 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.alloy.AlloyOptimizations;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Domain;
 import pt.uminho.haslab.echo.consistency.Model;
@@ -187,11 +184,11 @@ public class Relation2Alloy {
 			if (postCondition != null) {
 				postCondition.initTranslation(parent_translator, var2varmodel(),
 						modelparam2var, null);
-				postexpr = postCondition.translate();
+				postexpr =(Expr) postCondition.translate();
 			}
 
 			targetCondition.initTranslation(parent_translator,var2varmodel(),modelparam2var,null);
-			Expr targetexpr = targetCondition.translate();
+			Expr targetexpr =(Expr) targetCondition.translate();
 			targetexpr = targetexpr.and(postexpr);
 
 			if (targetvar2alloydecl.size() == 1)
@@ -206,7 +203,7 @@ public class Relation2Alloy {
 			for (Domain dom : sourcedomains) {
 				Condition sourceCondition = dom.getCondition();
 				sourceCondition.initTranslation(parent_translator,var2varmodel(),modelparam2var,null);
-				sourceexpr = sourceexpr.and(sourceCondition.translate());
+				sourceexpr = sourceexpr.and((Expr) sourceCondition.translate());
 			}	
 			fact = (sourceexpr.implies(targetexpr));
 
@@ -230,7 +227,7 @@ public class Relation2Alloy {
 			if (preCondition != null) {
 				preCondition.initTranslation(parent_translator, var2varmodel(),
 						modelparam2var, null);
-				whenexpr = preCondition.translate();
+				whenexpr = (Expr) preCondition.translate();
 
 				fact = (whenexpr.implies(fact));
 				for (Decl d : whenvar2alloydecl.values())

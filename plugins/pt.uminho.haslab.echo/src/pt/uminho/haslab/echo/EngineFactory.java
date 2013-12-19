@@ -1,7 +1,7 @@
 package pt.uminho.haslab.echo;
 
-import pt.uminho.haslab.echo.alloy.AlloyFactory;
-import pt.uminho.haslab.echo.kodkod.KodkodFactory;
+import pt.uminho.haslab.echo.transform.alloy.AlloyFactory;
+import pt.uminho.haslab.echo.transform.kodkod.KodkodFactory;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 /**

@@ -10,24 +10,21 @@ import org.eclipse.emf.ecore.EObject;
 
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.emf.OCLUtil;
+import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy2;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 public class ATLCondition implements Condition {
-	private List<EObject> exps = new ArrayList<EObject>();
+	private List<Object> exps = new ArrayList<Object>();
 	private OCL2Alloy2 trad;
 
 	@Override
 	public void addCondition(Object expr) {
-		exps.add((EObject) expr);
+		exps.add(expr);
 	}
 
 	@Override
@@ -46,19 +43,16 @@ public class ATLCondition implements Condition {
 
 	}
 	
-	public Expr translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Object translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 
-		Expr expr = Sig.NONE.no();
-		for (EObject ex : exps) {
-			expr = AlloyUtil.cleanAnd(expr,trad.oclExprToAlloy(ex));
-		}
-		return expr;
+		
+		return trad.translateExpressions(exps);
 	}
 	
 	public Map<Variable,String> getVariables(String metamodel) throws ErrorUnsupported, ErrorTransform {
 		Map<Variable,String> res = new HashMap<Variable,String>();
-		for (EObject predicate : exps) {
-			res.putAll(OCLUtil.variablesOCLExpression(predicate,metamodel));
+		for (Object predicate : exps) {
+			res.putAll(OCLUtil.variablesOCLExpression((EObject) predicate,metamodel));
 		}
 		return res;
 

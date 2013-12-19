@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,15 +14,15 @@ import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
-import pt.uminho.haslab.echo.transform.OCLTranslator;
+import pt.uminho.haslab.echo.transform.ConditionTranslator;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
-public class OCL2Alloy2 implements OCLTranslator{
+public class OCL2Alloy2 implements ConditionTranslator{
 
 	private Map<String,Entry<ExprHasName,String>> varstates;
 	private Map<String,ExprHasName> posvars;
@@ -61,9 +62,12 @@ public class OCL2Alloy2 implements OCLTranslator{
 		isPre = false;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature("source");
 		EObject sourceo = (EObject) expr.eGet(source);
+		
+		/* Type unused
 		EStructuralFeature type = sourceo.eClass().getEStructuralFeature("type");
 		EObject typeo = (EObject) sourceo.eGet(type);
-
+		*/
+		
 		Expr var = oclExprToAlloy(sourceo);
 		EStructuralFeature oname = expr.eClass().getEStructuralFeature("name");
 		
@@ -131,6 +135,7 @@ public class OCL2Alloy2 implements OCLTranslator{
 		String operatorname = (String) expr.eGet(operat);
 		Expr src = oclExprToAlloy((EObject) expr.eGet(source));
 		EStructuralFeature arguments = expr.eClass().getEStructuralFeature("arguments");
+		@SuppressWarnings("unchecked")
 		EList<EObject> argumentso = (EList<EObject>) expr.eGet(arguments);
 		if (operatorname.equals("not"))
 			res = src.not();
@@ -344,6 +349,16 @@ public class OCL2Alloy2 implements OCLTranslator{
 		
 		public Map<String,Integer> getOCLAreNews() {
 			return news;
+		}
+
+		@Override
+		public Object translateExpressions(List<Object> lex) throws ErrorAlloy,
+				ErrorTransform, ErrorUnsupported {
+			Expr expr = Sig.NONE.no();
+			for (Object ex : lex) {
+				expr = AlloyUtil.cleanAnd(expr, oclExprToAlloy((EObject) ex));
+			}
+			return expr;
 		}
 
 }

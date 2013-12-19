@@ -9,5 +9,5 @@ package pt.uminho.haslab.echo;
 public abstract class ErrorInternalEngine extends EchoError {
 
 
-    public ErrorInternalEngine(String msg) { super(msg); }
+	public ErrorInternalEngine(String msg) { super(msg); }
 }

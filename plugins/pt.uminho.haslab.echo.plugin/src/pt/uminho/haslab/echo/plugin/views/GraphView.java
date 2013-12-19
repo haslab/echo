@@ -15,13 +15,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 
+
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.alloy.AlloyTuple;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 public class GraphView extends ViewPart {
@@ -101,9 +101,10 @@ public class GraphView extends ViewPart {
 	 */
 	public void drawGraph() {
 		EchoRunner runner = EchoPlugin.getInstance().getRunner();
+
 		if (runner == null) return;
-		AlloyTuple tuple = ((AlloyTuple) runner.getAInstance().getContents());
-		A4Solution sol = tuple.getSolution();
+		EchoSolution sol = runner.getAInstance();
+
 		try {
 			if (sol != null && sol.satisfiable()) {
 				sol.writeXML(".dummy.xml");

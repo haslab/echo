@@ -26,9 +26,6 @@ import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.alloy.AlloyTuple;
-import pt.uminho.haslab.echo.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
 import pt.uminho.haslab.echo.consistency.qvt.QVTTransformation;
 import pt.uminho.haslab.echo.emf.EchoParser;
@@ -104,7 +101,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	private Map<String,String> modelmetamodel = new HashMap<String,String>();
 	
 	/** the abstract top level state sig */
-    public static final PrimSig STATE;
+    static final PrimSig STATE;
     static{
     	PrimSig s = null;
     	try {s = new PrimSig(AlloyUtil.STATESIGNAME,Attr.ABSTRACT);}
@@ -165,9 +162,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 	}
 	
-	/** Translates the QVT transformation to the respective Alloy specs 
-	 * @throws ErrorParser 
-	 * @throws Err */
+	/** Translates the QVT transformation to the respective Alloy specs
+	 * @throws EchoError */
 	public void translateQVT(RelationalTransformation qvt) throws EchoError {
 		QVTTransformation q = new QVTTransformation(qvt);
 
@@ -263,7 +259,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		//System.out.println(this.scopes);
 	}	
 	
-	public ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
+	ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
 		List<CommandScope> list = new ArrayList<CommandScope>();
 		
 		//System.out.println("incs: "+scopesincrement);
@@ -284,7 +280,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Writes an Alloy solution in the target instance file 
 	 * @throws ErrorAlloy 
 	 * @throws ErrorTransform */
-	public void writeInstance(A4Solution sol,String trguri, PrimSig targetstate) throws EchoError {
+	private void writeInstance(A4Solution sol,String trguri, PrimSig targetstate) throws EchoError {
 		XMI2Alloy inst = modelalloys.get(trguri);
 		List<PrimSig> instsigs = inst.getAllSigs();
 		EObject rootobj = inst.eobject;
@@ -292,7 +288,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
 	}
 	
-	public void writeAllInstances(A4Solution sol, String metamodeluri, String modeluri, PrimSig state) throws EchoError {
+	private void writeAllInstances(A4Solution sol, String metamodeluri, String modeluri, PrimSig state) throws EchoError {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
 		List<EClass> rootclasses = e2a.getRootClass();
 		if (rootclasses.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootclasses);
@@ -324,24 +320,30 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		
 	}
 	
-	public Expr getModelFact(String uri){
+	Expr getModelFact(String uri){
 		if (modelalloys.get(uri) == null) return null;
 		Expr fact = modelalloys.get(uri).getModelConstraint();
 		EchoReporter.getInstance().debug("Model fact: "+fact);
 		return fact;
 	}
 
-	public Func getQVTFact(String uri) {
+	Func getQVTFact(String uri) {
 		//EchoReporter.getInstance().debug(uri + " over "+qvtalloys.keySet());
 		if (qvtalloys.get(uri) == null) return null;
 		return qvtalloys.get(uri).getTransformationConstraint();
 	}
 	
-	public ConstList<CommandScope> getScopes(){
+	
+	public boolean hasQVT(String uri)
+	{
+		return qvtalloys.get(uri) != null;
+	}
+	
+	ConstList<CommandScope> getScopes(){
 		return scopes;
 	}
 
-	public ConstList<CommandScope> getScopes(int strings) throws ErrorAlloy{
+	ConstList<CommandScope> getScopes(int strings) throws ErrorAlloy{
 		List<CommandScope> aux = new ArrayList<CommandScope>();
 		if (scopes != null)
 			aux = new ArrayList<CommandScope>(scopes);
@@ -362,15 +364,15 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return aux;
 	}	
 
-	public Expr getMetaModelStateSig(String metamodeluri){
+	Expr getMetaModelStateSig(String metamodeluri){
        		return metamodelstatesigs.get(metamodeluri);
 	}
 	
-	public PrimSig getModelStateSig (String modeluri){
+	PrimSig getModelStateSig (String modeluri){
 		return modelstatesigs.get(modeluri);
 	}
 
-	public PrimSig getClassifierFromSig(EClassifier c) {
+	PrimSig getClassifierFromSig(EClassifier c) {
 		if (c.getName().equals("EString")) return Sig.STRING;
 		else if (c.getName().equals("EBoolean")) return Sig.NONE;
 		else {
@@ -379,17 +381,17 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		}
 	}
 
-	public PrimSig getSigFromClass(String metamodeluri, EClass eclass) {
+	PrimSig getSigFromClass(String metamodeluri, EClass eclass) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
 		return e2a.getSigFromEClassifier(eclass);
 	}
 	
-	public Field getStateFieldFromClass(String metamodeluri, EClass eclass) {
+	Field getStateFieldFromClass(String metamodeluri, EClass eclass) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
 		return e2a.getStateFieldFromClass(eclass);
 	}
 	
-	public Field getFieldFromFeature(String metamodeluri, EStructuralFeature f) {
+	Field getFieldFromFeature(String metamodeluri, EStructuralFeature f) {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
 		return e2a.getFieldFromSFeature(f);
 	}
@@ -415,11 +417,11 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return e2a.epackage.getEClassifier(cla);
 	}
 
-	public Func getMetamodelDeltaExpr(String metamodeluri) throws ErrorAlloy {
+	Func getMetamodelDeltaExpr(String metamodeluri) throws ErrorAlloy {
 		return metamodelalloys.get(metamodeluri).getDeltaSetFunc();
 	}
 
-	public Func getMetamodelDeltaRelFunc(String metamodeluri) throws ErrorAlloy {
+	Func getMetamodelDeltaRelFunc(String metamodeluri) throws ErrorAlloy {
 		return metamodelalloys.get(metamodeluri).getDeltaRelFunc();
 	}
 
@@ -431,23 +433,24 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return modelmetamodel.get(modeluri);
 	}
 	
-	public Expr getConformsInstance(String uri) throws ErrorAlloy {
+	Expr getConformsInstance(String uri) throws ErrorAlloy {
 		Func f = modelalloys.get(uri).translator.getConforms();
 		//EchoReporter.getInstance().debug("Model fact: "+f.getBody());
 		return f.call(modelstatesigs.get(uri));
 	}
 
-	public Expr getConformsInstance(String uri, PrimSig sig) throws ErrorAlloy {
+	Expr getConformsInstance(String uri, PrimSig sig) throws ErrorAlloy {
 		Func f = modelalloys.get(uri).translator.getConforms();
 		return f.call(sig);
 	}
 	
-	public Expr getGenerateInstance(String metamodeluri, PrimSig sig) throws ErrorAlloy {
+	Expr getGenerateInstance(String metamodeluri, PrimSig sig) throws ErrorAlloy {
 		Func f = metamodelalloys.get(metamodeluri).getGenerate();
 		return f.call(sig);
 	}
 
-	public Expr getConformsAllInstances(String metamodeluri) throws ErrorAlloy {
+	//Unused!
+	Expr getConformsAllInstances(String metamodeluri) throws ErrorAlloy {
 		Func f = metamodelalloys.get(metamodeluri).getConforms();
 		return f.call(metamodelstatesigs.get(metamodeluri));
 	}
@@ -473,7 +476,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	 * @return true if able to determine determinism, false otherwise
 	 * @throws ErrorUnsupported 
 	 */
-	public Boolean isFunctional(Expr exp) throws EchoError {
+	Boolean isFunctional(Expr exp) throws EchoError {
 		IsFunctionalQuery q = new IsFunctionalQuery();
 		try {
 			return q.visitThis(exp);
