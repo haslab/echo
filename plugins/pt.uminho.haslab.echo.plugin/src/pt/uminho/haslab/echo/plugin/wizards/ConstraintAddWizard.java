@@ -1,5 +1,8 @@
 package pt.uminho.haslab.echo.plugin.wizards;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -79,13 +82,14 @@ public class ConstraintAddWizard extends Wizard {
 
 		} else if (new_count == 0) {
 			try {
-				IResource fst_resource = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(page.getModels().get(0));
-				IResource snd_resource = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(page.getModels().get(1));
+				List<IResource> models = new ArrayList<IResource>();
+				for (String s : page.getModels())
+					models.add(ResourcesPlugin.getWorkspace().getRoot()
+						.findMember(s));
+			
 				IResource qvt_resource = page.getQvt();
 				ProjectPropertiesManager.getProperties(qvt_resource.getProject())
-						.addQVTConstraint(qvt_resource, fst_resource, snd_resource);
+						.addQVTConstraint(qvt_resource, models);
 			} catch (Exception e) {
 				MessageDialog.openError(shell, "Error translating QVT-R",
 						e.getMessage());

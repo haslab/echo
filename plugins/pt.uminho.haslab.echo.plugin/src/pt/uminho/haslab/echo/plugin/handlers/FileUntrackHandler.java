@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 

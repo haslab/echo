@@ -16,10 +16,10 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.alloy.AlloyTuple;
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
@@ -27,7 +27,7 @@ import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
 public class CLIMain {
 
-	public static void main(String[] args) throws ErrorParser, ErrorUnsupported, ErrorAlloy, ErrorTransform, IOException, Err {	
+	public static void main(String[] args) throws IOException, Err, EchoError {	
 	
 		CLIOptions options = null;
 		
@@ -50,7 +50,7 @@ public class CLIMain {
 
 		reporter.beginStage(Task.ECHO_RUN);
 		EchoParser parser = EchoParser.getInstance();
-		EchoRunner runner = EchoRunner.getInstance();
+		EchoRunner runner = new EchoRunner(EngineFactory.ALLOY);
 
 		reporter.beginStage(Task.PROCESS_RESOURCES);		
 		for (String metamodeluri : options.getMetamodels()){
@@ -79,18 +79,11 @@ public class CLIMain {
 			reporter.result(Task.CONFORMS_TASK,conforms);
 		} else if (options.isGenerate()) {
 			reporter.beginStage(Task.GENERATE_TASK);
-			success = runner.generate(options.getMetamodels()[0],options.getScopes());
+			runner.generate(options.getMetamodels()[0],options.getScopes());
 			reporter.result(Task.GENERATE_TASK,success);
 		} else if (options.isRepair()) {
 			reporter.beginStage(Task.REPAIR_TASK);
-			reporter.beginStage(Task.ITERATION);
-			success = runner.repair(options.getDirection());
-			reporter.result(Task.ITERATION,success);
-			while (!success) {
-				reporter.beginStage(Task.ITERATION);
-				success = runner.increment();			
-				reporter.result(Task.ITERATION,success);
-			}
+			runner.repair(options.getDirection());
 			reporter.result(Task.REPAIR_TASK,success);
 		}
 		if (options.isCheck() && conforms) {
@@ -102,14 +95,7 @@ public class CLIMain {
 			/*if (options.isNew())
 				success = echo.enforcenew(options.getQVTPath(),Arrays.asList(options.getInstances()),options.getDirection());
 			else*/ 
-			reporter.beginStage(Task.ITERATION);
 			success = runner.enforce(options.getQVTURI(),Arrays.asList(options.getModels()),options.getDirection());
-			reporter.result(Task.ITERATION,success);
-			while (!success) {
-				reporter.beginStage(Task.ITERATION);
-				success = runner.increment();			
-				reporter.result(Task.ITERATION,success);
-			}
 			reporter.result(Task.ENFORCE_TASK,success);
 		}
 		String next = "n";
@@ -121,7 +107,7 @@ public class CLIMain {
 			}*/
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			next = "y";
-			A4Solution sol = runner.getAInstance();
+			A4Solution sol = ((AlloyTuple) runner.getAInstance().getContents()).getSolution();
 			sol.writeXML("alloy_output.xml");
 			VizGUI viz = new VizGUI(true, "alloy_output.xml",null, null, null, true);
 			Window win = SwingUtilities.getWindowAncestor(viz.getPanel());
@@ -132,26 +118,22 @@ public class CLIMain {
 			viz.doShowViz();
 			reporter.askUser("Search another instance? (y)");
 			next = in.readLine();
-			while (success&&next.equals("y")) {
-				success = runner.next();
-				if (success) {
-					sol = runner.getAInstance();
-					sol.writeXML("alloy_output.xml");
-					viz.loadXML("alloy_output.xml", true);
-					reporter.askUser("Search another instance? (y)");
-					next = in.readLine();
-				}
+			while (next.equals("y")) {
+				runner.next();
+				sol = ((AlloyTuple) runner.getAInstance().getContents()).getSolution();
+				sol.writeXML("alloy_output.xml");
+				viz.loadXML("alloy_output.xml", true);
+				reporter.askUser("Search another instance? (y)");
+				next = in.readLine();
 			}  
 			in.close();
-			if (success) {
-				if (options.isGenerate())
-					for (String uri : options.getMetamodels())
-						runner.writeAllInstances(uri,"new.xmi");	
-				else if(options.isRepair()&&options.isOverwrite())
-					runner.writeInstance(options.getDirection());	
-				else if(options.isEnforce()&&options.isOverwrite())
-					runner.writeInstance(options.getDirection());			
-			}
+			if (options.isGenerate())
+				for (String uri : options.getMetamodels())
+					runner.writeAllInstances(uri,"new.xmi");	
+			else if(options.isRepair()&&options.isOverwrite())
+				runner.writeInstance(options.getDirection());	
+			else if(options.isEnforce()&&options.isOverwrite())
+				runner.writeInstance(options.getDirection());			
 			SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();
 			new File("alloy_output.xml").delete();
 		}

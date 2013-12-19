@@ -1,6 +1,8 @@
 package pt.uminho.haslab.echo.plugin.properties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
@@ -104,9 +106,11 @@ public class ProjectPropertiesManager {
 		for (Constraint c : man.getConstraints()) {
 			builder.append(c.constraint);
 			builder.append("@");
-			builder.append(c.fstmodel);
-			builder.append("@");
-			builder.append(c.sndmodel);
+			builder.append(c.models.get(0));
+			for (int i = 1; i < c.models.size(); i ++) {
+				builder.append("@");
+				builder.append(c.models.get(i));
+			}
 			builder.append(",");
 		}
 		return builder.toString();
@@ -123,15 +127,14 @@ public class ProjectPropertiesManager {
 		String constraints = propertiesstring.split(",")[0];
 		for (String constraint : constraints.split(",")) {
 			String[] reses = constraint.split("@");
-			if (reses.length == 3) {
-				IResource con = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(reses[0]);
-				IResource fst = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(reses[1]);
-				IResource snd = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(reses[2]);
-				man.addQVTConstraint(con, fst, snd);
-			}
+			IResource con = ResourcesPlugin.getWorkspace().getRoot()
+					.findMember(reses[0]);
+			List<IResource> imodels = new ArrayList<IResource>();
+			for (int i = 1; i < reses.length; i ++)
+			imodels.add(ResourcesPlugin.getWorkspace().getRoot()
+						.findMember(reses[i]));
+		
+			man.addQVTConstraint(con, imodels);
 		}
 
 	}

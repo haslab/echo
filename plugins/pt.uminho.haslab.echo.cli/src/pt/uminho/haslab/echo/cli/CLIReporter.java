@@ -1,9 +1,5 @@
 package pt.uminho.haslab.echo.cli;
 
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
@@ -15,13 +11,10 @@ import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
 
 public class CLIReporter extends EchoReporter {
 		
-	private Map<Task,BigInteger> times = new HashMap<Task,BigInteger>();
-
 	public CLIReporter() {
 		super();
 		EchoReporter.init(this);
 	}
-	
 	
 	public void debug(String msg) {
 		super.debug(msg);
@@ -31,22 +24,13 @@ public class CLIReporter extends EchoReporter {
 		super.iteration(delta);
 	}
 	
-	public long result(Task task, boolean result) {
-		BigInteger now = BigInteger.valueOf(System.currentTimeMillis());
-		BigInteger time = now.subtract(times.get(task));
-		times.put(task, time);
-		super.result(task,result,time.longValue());
-		return time.longValue();
-
+	public void result(Task task, boolean result) {
+		super.result(task,result);
 	}
 	
 	public void beginStage(Task task) {
-		BigInteger now = BigInteger.valueOf(System.currentTimeMillis());
-		times.put(task, now);
-		super.debug("Starting: "+ task);
+		super.start(task, "");
 	}
-	
-
 
 	public void askUser(String msg) {
 		System.out.println(msg);

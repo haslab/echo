@@ -11,17 +11,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.IJobChangeListener;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.PlatformUI;
-
-import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
 import pt.uminho.haslab.echo.plugin.ResourceRules;

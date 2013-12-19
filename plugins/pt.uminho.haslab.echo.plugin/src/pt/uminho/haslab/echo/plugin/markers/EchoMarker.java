@@ -89,14 +89,14 @@ public class EchoMarker {
 		List<IMarker> marks = new ArrayList<IMarker>();
 		IMarker mark;
 		try {
-			if (constraint.sndmodel.findMarkers(INTRA_ERROR,false,0).length == 0) {
-				mark = createSingleInterMarker(constraint.fstmodel, constraint.sndmodel, constraint.constraint
-						.getFullPath().toString(),constraint.fstparam);
+			if (constraint.models.get(1).findMarkers(INTRA_ERROR,false,0).length == 0) {
+				mark = createSingleInterMarker(constraint.models.get(0), constraint.models.get(1), constraint.constraint
+						.getFullPath().toString(),constraint.params.get(0));
 				marks.add(mark);
 			}
-			if (constraint.fstmodel.findMarkers(INTRA_ERROR,false,0).length == 0) {
-				mark = createSingleInterMarker(constraint.sndmodel, constraint.fstmodel, constraint.constraint
-					.getFullPath().toString(),constraint.sndparam);
+			if (constraint.models.get(0).findMarkers(INTRA_ERROR,false,0).length == 0) {
+				mark = createSingleInterMarker(constraint.models.get(1), constraint.models.get(0), constraint.constraint
+					.getFullPath().toString(),constraint.params.get(1));
 			marks.add(mark);
 			}
 		} catch (CoreException e) {
@@ -172,19 +172,19 @@ public class EchoMarker {
 	 * @throws ErrorAPI
 	 */
 	public static void removeRelatedInterMarker(Constraint constraint) throws ErrorAPI {
-		String fstmodeluri = constraint.fstmodel.getFullPath().toString();
-		String sndmodeluri = constraint.sndmodel.getFullPath().toString();
+		String fstmodeluri = constraint.models.get(0).getFullPath().toString();
+		String sndmodeluri = constraint.models.get(1).getFullPath().toString();
 		String constrainturi = constraint.constraint.getFullPath().toString();
 
 		try {
-			if(constraint.fstmodel.isAccessible())
-				for (IMarker mk : constraint.fstmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+			if(constraint.models.get(0).isAccessible())
+				for (IMarker mk : constraint.models.get(0).findMarkers(EchoMarker.INTER_ERROR,false, 0))
 					if (mk.getAttribute(EchoMarker.OPPOSITE).equals(sndmodeluri)
 							&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
 						mk.delete();
 			
-			if(constraint.sndmodel.isAccessible())
-				for (IMarker mk : constraint.sndmodel.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+			if(constraint.models.get(1).isAccessible())
+				for (IMarker mk : constraint.models.get(1).findMarkers(EchoMarker.INTER_ERROR,false, 0))
 					if (mk.getAttribute(EchoMarker.OPPOSITE).equals(fstmodeluri)
 							&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
 						mk.delete();

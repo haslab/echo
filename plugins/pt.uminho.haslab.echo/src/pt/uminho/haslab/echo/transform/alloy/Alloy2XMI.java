@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.alloy.ErrorAlloy;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -95,7 +96,6 @@ class Alloy2XMI {
 		for(EStructuralFeature sf: ec.getEAllStructuralFeatures())
 		{	
 			field = e2a.getFieldFromSFeature(sf);
-		
 			if(sf instanceof EAttribute)
 			{
 
@@ -131,6 +131,7 @@ class Alloy2XMI {
 			else if(sf instanceof EReference)
 			{
 				ref = (EReference) sf;
+				EchoReporter.getInstance().debug("NULL? "+field);
 				if (EchoOptionsSetup.getInstance().isOptimize() && ref.getEOpposite() != null && field == null) {}
 				else {
 					try {
