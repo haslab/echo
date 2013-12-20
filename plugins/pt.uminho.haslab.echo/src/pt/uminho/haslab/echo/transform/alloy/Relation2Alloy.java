@@ -305,12 +305,7 @@ public class Relation2Alloy {
 	    	for (Variable s : rootvariables.keySet())
 				var2model.put(s.getName(),rootvariables.get(s));
 		
-	    
-		EchoReporter.getInstance().debug("sourcevar2model var: "+sourcevar2model);
-		EchoReporter.getInstance().debug("var2varmodel var: "+var2varmodel());
-		EchoReporter.getInstance().debug("modelparam2var var: "+modelparam2var);
-
-	    
+	    	    
 		sourcevar2alloydecl = AlloyUtil.variableListToExpr(sourcevar2model.keySet(),var2varmodel(),modelparam2var);
 	  	for (String s : sourcevar2alloydecl.keySet())
 			var2var.put(s, sourcevar2alloydecl.get(s).get());

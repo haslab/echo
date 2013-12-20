@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="ASCII"?>
-<rdbms:Scheme
-    xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:rdbms="RDBMS"
-    xsi:schemaLocation="RDBMS /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore#RDBMS"
-    name="Company">
+<rdbms:Scheme xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rdbms="RDBMS" xsi:schemaLocation="RDBMS /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore#RDBMS" name="Company">
   <tables name="Employer">
-    <columns
-        name="name"/>
+    <columns name="name"/>
   </tables>
   <tables name="Employee">
-    <columns
-        name="name"/>
+    <columns name="name"/>
   </tables>
-  <tables name="Department">
-    <columns
-        name="name"/>
+  <tables name="Employer">
+    <columns name="name"/>
   </tables>
 </rdbms:Scheme>

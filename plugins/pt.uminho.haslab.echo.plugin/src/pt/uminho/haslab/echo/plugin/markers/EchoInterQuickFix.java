@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.plugin.markers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
@@ -54,23 +55,14 @@ public class EchoInterQuickFix implements IMarkerResolution {
 	 */
 	@Override
 	public void run(IMarker marker) {
-		EchoParser parser = EchoParser.getInstance();
-		ArrayList<String> list = new ArrayList<String>(1);
+		List<String> list = new ArrayList<String>(1);
 		IResource res = marker.getResource();
-		String path = res.getFullPath().toString();
 
 		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
 
 			try {
-				RelationalTransformation trans = parser.getTransformation(marker.getAttribute(EchoMarker.CONSTRAINT).toString());
-				String metadir = EchoPlugin.getInstance().getRunner().getMetaModelFromModelPath(path);
-				if (marker.getAttribute(EchoMarker.PARAM).toString().equals(trans.getModelParameter().get(0).getName())) {
-					list.add(path);
-					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
-				} else {
-					list.add(marker.getAttribute(EchoMarker.OPPOSITE).toString());
-					list.add(path);
-				}
+				list =  Arrays.asList(((String) marker.getAttribute(EchoMarker.MODELS)).split(";"));
+
 				((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
 				
 				Job j = new ModelRepairJob(res, list, marker.getAttribute(EchoMarker.CONSTRAINT).toString());
