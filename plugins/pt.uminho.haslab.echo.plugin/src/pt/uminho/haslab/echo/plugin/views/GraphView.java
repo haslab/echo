@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -14,7 +16,6 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
-
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
@@ -29,7 +30,7 @@ public class GraphView extends ViewPart {
 	/** the main windows of the graph visualizer */
 	private VizGUI viz;
 	/** The path of the generated target instances */
-	private String targetPath;
+	private List<String> targetPaths = new ArrayList<String>();
 	/** The metamodel of the newly generated instances */
 	private IResource resmetamodel;
 	/** If the generated target model is a new model */
@@ -126,34 +127,37 @@ public class GraphView extends ViewPart {
 		EchoRunner runner = EchoPlugin.getInstance().getRunner();
 
 		try {
-			if (targetPath == null) {
+			if (targetPaths.isEmpty()) {
 				Shell shell = this.getSite().getShell();
 				MessageDialog.openInformation(shell, "No instance to save.",
 						"No instance to save.");
 			} 
 			else if (!isNewModel) {
-				if (!EchoOptionsSetup.getInstance().isOverwrite()) 
-					runner.backUpInstance(targetPath);
-				runner.writeInstance(targetPath);
+				for (String targetPath : targetPaths) {
+					if (!EchoOptionsSetup.getInstance().isOverwrite()) 
+						runner.backUpInstance(targetPath);
+					runner.writeInstance(targetPath); 
+				}
 			}
 			else {
-				runner.writeAllInstances(resmetamodel.getFullPath().toString(),
-						targetPath);
-				IResource modelA = ResourcesPlugin.getWorkspace().getRoot()
-						.findMember(targetPath);
-				ProjectPropertiesManager.getProperties(modelA.getProject()).modelGenerated(modelA);
-
-				try {
-					ProjectPropertiesManager.saveProjectProperties(modelA.getProject());
-				} catch (ErrorParser e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				for (String targetPath : targetPaths) {
+					runner.writeAllInstances(resmetamodel.getFullPath().toString(),
+							targetPath);
+					IResource modelA = ResourcesPlugin.getWorkspace().getRoot()
+							.findMember(targetPath);
+					ProjectPropertiesManager.getProperties(modelA.getProject()).modelGenerated(modelA);
+	
+					try {
+						ProjectPropertiesManager.saveProjectProperties(modelA.getProject());
+					} catch (ErrorParser e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-			
 			}
 			
 			
-			targetPath = null;
+			targetPaths = new ArrayList<String>();
 		} catch (Exception e) {
 			Shell shell = this.getSite().getShell();
 			MessageDialog.openError(shell, "Error saving update.",
@@ -174,9 +178,17 @@ public class GraphView extends ViewPart {
 	 * @param isNew if the generated instance is a new model
 	 * @param mm the metamodel of the target model (may be null if already exists)
 	 */
-	public void setTargetPath(String path, boolean isNew, IResource mm) {
-		targetPath = path;
+	public void setTargetPath(List<String> paths, boolean isNew, IResource mm) {
+		targetPaths = paths;
 		isNewModel = isNew;
 		resmetamodel = mm;
 	}
+
+	public void setTargetPath(String path, boolean isNew, IResource mm) {
+		targetPaths = new ArrayList<String>();
+		targetPaths.add(path);
+		isNewModel = isNew;
+		resmetamodel = mm;
+	}
+
 }

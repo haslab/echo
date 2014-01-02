@@ -1,5 +1,8 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
+import java.util.List;
+import java.util.Map;
+
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 
@@ -14,16 +17,16 @@ class AlloyTuple {
 
 
     private A4Solution sol;
-    private Sig.PrimSig state;
+    private Map<String,Sig.PrimSig> state;
 
-    public AlloyTuple(A4Solution sol, Sig.PrimSig state)
+    public AlloyTuple(A4Solution sol, Map<String,Sig.PrimSig> state)
     {
         this.sol =sol;
         this.state = state;
     }
 
-    public Sig.PrimSig getState() {
-        return state;
+    public Sig.PrimSig getState(String modeluri) {
+        return state.get(modeluri);
     }
 
     public A4Solution getSolution() {

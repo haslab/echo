@@ -11,7 +11,7 @@ import org.eclipse.ui.IMarkerResolutionGenerator;
  *
  */
 public class EchoQuickFixer implements IMarkerResolutionGenerator {
-    public IMarkerResolution[] getResolutions(IMarker mk) {
+	public IMarkerResolution[] getResolutions(IMarker mk) {
        try {
           String problem = mk.getType();
           if (problem.equals(EchoMarker.INTRA_ERROR))
@@ -21,9 +21,9 @@ public class EchoQuickFixer implements IMarkerResolutionGenerator {
 	          };
           else if (problem.equals(EchoMarker.INTER_ERROR)) {
         	  return new IMarkerResolution[] {
- 	             new EchoInterQuickFix(EchoMarker.GED),
- 	             new EchoInterQuickFix(EchoMarker.OBD),
-        	  };
+        	             new EchoInterQuickFix(mk,EchoMarker.GED),
+        	             new EchoInterQuickFix(mk,EchoMarker.OBD),
+        	   	  };
           }
           else return new IMarkerResolution[0];
        }

@@ -470,7 +470,7 @@ public class ResourceManager {
 			runner.addMetaModel(metamodel);
 		}
 			
-		runner.generate(metamodeluri, scopes);
+		runner.generate(metamodeluri, scopes, target);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
 		amv.setTargetPath(target, true, resMetaModel);

@@ -67,12 +67,13 @@ public class AlloyEchoTranslator extends EchoTranslator {
     @Override
     public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws EchoError {
         writeAllInstances(((AlloyTuple) solution.getContents()).getSolution(),metaModelUri,modelUri,
-                ((AlloyTuple)solution.getContents()).getState());
+                ((AlloyTuple)solution.getContents()).getState(modelUri));
     }
 
     @Override
     public void writeInstance(EchoSolution solution, String modelUri) throws EchoError {
-        writeInstance(((AlloyTuple)solution.getContents()).getSolution(),modelUri,((AlloyTuple)solution.getContents()).getState());
+    	PrimSig statesig = ((AlloyTuple)solution.getContents()).getState(modelUri);
+        writeInstance(((AlloyTuple)solution.getContents()).getSolution(),modelUri,statesig);
     }
 
     @Override
@@ -204,55 +205,62 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
-	public void createScopesFromOps(String uri) throws ErrorAlloy {
+	public void createScopesFromOps(List<String> uris) throws ErrorAlloy {
 		Map<PrimSig,Integer> scopesmap = new HashMap<PrimSig,Integer>();
-		XMI2Alloy x2a = modelalloys.get(uri);
-		ECore2Alloy e2a = x2a.translator;
-
-		scopesincrement = new HashMap<Sig.PrimSig, Integer>();
-		for (String cl : e2a.getCreationCount().keySet()) {
-			EClassifier eclass = e2a.epackage.getEClassifier(cl);
-			PrimSig sig = e2a.getSigFromEClassifier(eclass);
-			scopesincrement.put(sig,e2a.getCreationCount().get(cl));
-		}
+		Map<PrimSig,Integer> scopesexact = new HashMap<PrimSig, Integer>();
 		
-		for (PrimSig sig : scopesincrement.keySet()) {
-			int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
-			if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
-			else scopesmap.put(sig, scopesmap.get(sig) + count);
-			PrimSig up = sig.parent;
-			while (up != Sig.UNIV && up != null){
-				if (scopesmap.get(up) == null) scopesmap.put(up, count);
-				else scopesmap.put(up, scopesmap.get(up) + count);
-				up = up.parent;
+		for (String uri : uris) {
+			XMI2Alloy x2a = modelalloys.get(uri);
+			ECore2Alloy e2a = x2a.translator;
+	
+			scopesincrement = new HashMap<Sig.PrimSig, Integer>();
+			for (String cl : e2a.getCreationCount().keySet()) {
+				EClassifier eclass = e2a.epackage.getEClassifier(cl);
+				PrimSig sig = e2a.getSigFromEClassifier(eclass);
+				scopesincrement.put(sig,e2a.getCreationCount().get(cl));
 			}
+			
+			for (PrimSig sig : scopesincrement.keySet()) {
+				int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
+				if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
+				else scopesmap.put(sig, scopesmap.get(sig) + count);
+				PrimSig up = sig.parent;
+				while (up != Sig.UNIV && up != null){
+					if (scopesmap.get(up) == null) scopesmap.put(up, count);
+					else scopesmap.put(up, scopesmap.get(up) + count);
+					up = up.parent;
+				}
+			}
+	
+			scopesincrement.put(e2a.sig_metamodel,1);
+			//scopesincrement.put(PrimSig.STRING,1);
+			
+			Integer s = scopesexact.get(e2a.sig_metamodel);
+			s = (s==null)?1:s+1;
+			scopesexact.put(e2a.sig_metamodel,s);
 		}
 
-		scopesincrement.put(e2a.sig_metamodel,1);
-		//scopesincrement.put(PrimSig.STRING,1);
-		
-		Map<PrimSig,Integer> aux = new HashMap<PrimSig, Integer>();
-		aux.put(e2a.sig_metamodel,1);
-
-		scopes = AlloyUtil.createScope(scopesmap,aux);
+		scopes = AlloyUtil.createScope(scopesmap,scopesexact);
 	}	
 	
-	public void createScopesFromURI(String uri) throws ErrorAlloy {
-		XMI2Alloy x2a = modelalloys.get(uri);
-		ECore2Alloy e2a = x2a.translator;
+	public void createScopesFromURI(List<String> uris) throws ErrorAlloy {
 		Map<PrimSig,Integer> scopesmap = new HashMap<PrimSig,Integer>();
 		Map<PrimSig,Integer> exact = new HashMap<PrimSig,Integer>();
-		
-		for (PrimSig sig : e2a.getAllSigs()) {
-			//System.out.println("SigMap: "+x2a.getSigMap());
-			int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
-			if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
-			else scopesmap.put(sig, scopesmap.get(sig) + count);
-			PrimSig up = sig.parent;
-			while (up != Sig.UNIV && up != null){
-				if (scopesmap.get(up) == null) scopesmap.put(up, count);
-				else scopesmap.put(up, scopesmap.get(up) + count);
-				up = up.parent;
+		for (String uri : uris) {
+			XMI2Alloy x2a = modelalloys.get(uri);
+			ECore2Alloy e2a = x2a.translator;
+			
+			for (PrimSig sig : e2a.getAllSigs()) {
+				//System.out.println("SigMap: "+x2a.getSigMap());
+				int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
+				if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
+				else scopesmap.put(sig, scopesmap.get(sig) + count);
+				PrimSig up = sig.parent;
+				while (up != Sig.UNIV && up != null){
+					if (scopesmap.get(up) == null) scopesmap.put(up, count);
+					else scopesmap.put(up, scopesmap.get(up) + count);
+					up = up.parent;
+				}
 			}
 		}
 		scopes = AlloyUtil.createScope(scopesmap,exact);
@@ -287,6 +295,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		PrimSig rootsig = inst.getSigFromEObject(rootobj);
 		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
 	}
+
 	
 	private void writeAllInstances(A4Solution sol, String metamodeluri, String modeluri, PrimSig state) throws EchoError {
 		ECore2Alloy e2a = metamodelalloys.get(metamodeluri);
