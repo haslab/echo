@@ -225,8 +225,8 @@ public class OCL2Alloy implements ConditionTranslator{
 			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("collect")) {
 			try {
-				res = d.get().in(src.join(bdy));
-				res = res.comprehensionOver(d);
+				res = d.get().in(src);
+				res = src.join(res.comprehensionOver(d,bdy.oneOf("2_")));
 			}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("select")) {
