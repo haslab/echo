@@ -26,10 +26,17 @@ import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.consistency.EDependency;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.ERelation;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
+import pt.uminho.haslab.echo.consistency.qvt.QVTRelation;
 import pt.uminho.haslab.echo.consistency.qvt.QVTTransformation;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
+import pt.uminho.haslab.echo.model.EElement;
+import pt.uminho.haslab.echo.model.EModel;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -89,7 +96,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** maps metamodel URIs to the respective Alloy translator*/
 	private Map<String,ECore2Alloy> metamodelalloys = new HashMap<String,ECore2Alloy>();
 	/** maps instance URIs to the respective Alloy translator*/
-	private Map<String,XMI2Alloy> modelalloys = new HashMap<String,XMI2Alloy>();
+	private Map<String,EAlloyModel> modelalloys = new HashMap<String,EAlloyModel>();
 	/** maps qvt-r URIs to the respective Alloy translator*/
 	private Map<String,Transformation2Alloy> qvtalloys = new HashMap<String,Transformation2Alloy>();
 	/** the initial command scopes of the target instance 
@@ -142,18 +149,19 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	 * @param model the model to translate
 	 */
 	public void translateModel(EObject model) throws EchoError {
-		createInstanceStateSigs(model);
+		createModelStateSigs(model);
 		String modeluri = URIUtil.resolveURI(model.eResource());
 		String metamodeluri = EchoParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
 		PrimSig state = modelstatesigs.get(URIUtil.resolveURI(model.eResource()));
 		ECore2Alloy mmtrans = metamodelalloys.get(metamodeluri);	
-		XMI2Alloy insttrans = new XMI2Alloy(model,mmtrans,state);
+		EAlloyModel modeltrans = new EAlloyModel(new EModel(model),mmtrans,state);
+		//XMI2Alloy insttrans = new XMI2Alloy(model,mmtrans,state);
 		modelmetamodel.put(modeluri, metamodeluri);
-		modelalloys.put(modeluri,insttrans);
+		modelalloys.put(modeluri,modeltrans);
 	}
 	
     /** Creates the instances singleton state signatures */
-	private void createInstanceStateSigs(EObject model) throws EchoError {
+	private void createModelStateSigs(EObject model) throws EchoError {
 		String modeluri = model.eResource().getURI().toString();
 		String metamodeluri = EchoParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
 		try {
@@ -164,11 +172,23 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	}
 	
 	/** Translates the QVT transformation to the respective Alloy specs
+	 * Assumes default model dependencies
 	 * @throws EchoError */
 	public void translateQVT(RelationalTransformation qvt) throws EchoError {
 		QVTTransformation q = new QVTTransformation(qvt);
 
-		Transformation2Alloy qvtrans = new Transformation2Alloy(q);	
+		Map<String,List<EDependency>> deps = new HashMap<String,List<EDependency>>();
+		for (ERelation r : q.getRelations()) {
+			List<EDependency> aux2 = new ArrayList<EDependency>();
+			for (EModelDomain dom : r.getDomains()) {
+				List<EModelDomain> aux = new ArrayList<EModelDomain>(r.getDomains());
+				aux.remove(dom);
+				aux2.add(new EDependency(dom,aux));
+			}
+			deps.put(r.getName(),aux2);
+		}
+		
+		Transformation2Alloy qvtrans = new Transformation2Alloy(q,deps);	
 		String qvturi = URIUtil.resolveURI(qvt.eResource());
 		qvtalloys.put(qvturi, qvtrans);
 	}
@@ -210,7 +230,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		Map<PrimSig,Integer> scopesexact = new HashMap<PrimSig, Integer>();
 		
 		for (String uri : uris) {
-			XMI2Alloy x2a = modelalloys.get(uri);
+			EAlloyModel x2a = modelalloys.get(uri);
 			ECore2Alloy e2a = x2a.translator;
 	
 			scopesincrement = new HashMap<Sig.PrimSig, Integer>();
@@ -247,7 +267,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		Map<PrimSig,Integer> scopesmap = new HashMap<PrimSig,Integer>();
 		Map<PrimSig,Integer> exact = new HashMap<PrimSig,Integer>();
 		for (String uri : uris) {
-			XMI2Alloy x2a = modelalloys.get(uri);
+			EAlloyModel x2a = modelalloys.get(uri);
 			ECore2Alloy e2a = x2a.translator;
 			
 			for (PrimSig sig : e2a.getAllSigs()) {
@@ -289,11 +309,11 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	 * @throws ErrorAlloy 
 	 * @throws ErrorTransform */
 	private void writeInstance(A4Solution sol,String trguri, PrimSig targetstate) throws EchoError {
-		XMI2Alloy inst = modelalloys.get(trguri);
-		List<PrimSig> instsigs = inst.getAllSigs();
-		EObject rootobj = inst.eobject;
-		PrimSig rootsig = inst.getSigFromEObject(rootobj);
-		writeXMIAlloy(sol,trguri,rootsig,targetstate,inst.translator,instsigs);
+		EAlloyModel model = modelalloys.get(trguri);
+		List<PrimSig> instsigs = model.getAllSigs();
+		EElement rootobj = model.emodel.root;
+		PrimSig rootsig = model.getSigFromEObject(rootobj);
+		writeXMIAlloy(sol,trguri,rootsig,targetstate,model.translator,instsigs);
 	}
 
 	
@@ -540,7 +560,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	public void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError {
 		ATLTransformation a = new ATLTransformation(atl,mdl1,mdl2);
 
-		Transformation2Alloy qvtrans = new Transformation2Alloy(a);	
+		Transformation2Alloy qvtrans = new Transformation2Alloy(a,new HashMap<String,List<EDependency>>());	
 		String qvturi = URIUtil.resolveURI(atl.eResource());
 		qvtalloys.put(qvturi, qvtrans);
 	}

@@ -18,9 +18,11 @@ import org.eclipse.ocl.examples.pivot.Type;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.consistency.Relation;
-import pt.uminho.haslab.echo.consistency.Variable;
+import pt.uminho.haslab.echo.consistency.EDependency;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.EVariable;
 import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import edu.mit.csail.sdg.alloy4.ConstList;
@@ -138,12 +140,12 @@ public class AlloyUtil {
 		return URIUtil.resolveURI(pck.eResource()) +"@"+ cls.getName() +"@";
 	}
 
-	public static String relationFieldName (Relation rel, Model dir) {
-		return rel.getName() +"@"+dir.getName()+"@";
+	public static String relationFieldName (ERelation rel, EModelDomain dir) {
+		return rel.getName() +"@"+dir.getModel().getName()+"@";
 	}
 
-	public static String relationPredName (Relation rel, Model dir) {
-		return rel.getName() +"_"+dir.getName();
+	public static String relationPredName (ERelation rel, EModelDomain dir) {
+		return rel.getName() +"_"+dir.getModel().getName();
 	}
 
 	public static String elementName(PrimSig parent) {
@@ -411,13 +413,13 @@ public class AlloyUtil {
 	 * @throws EchoError
 	 */
 	public static Map<String, Decl> variableListToExpr(
-			Collection<Variable> variable_decls,
+			Collection<EVariable> variable_decls,
 			Map<String, Entry<ExprHasName, String>> variable_models,
 			Map<String, ExprHasName> modelparam2var) throws EchoError {
 		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
 		Map<String, Decl> alloy_variable_decls = new LinkedHashMap<String, Decl>();
 
-		for (Variable variable_decl : variable_decls) {
+		for (EVariable variable_decl : variable_decls) {
 			try {
 				Expr range = Sig.NONE;
 				EObject t = variable_decl.getType();

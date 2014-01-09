@@ -7,14 +7,14 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 
-public class Variable {
+public class EVariable {
 	
-	private static Map<EObject,Variable> vars = new HashMap<EObject,Variable>();
+	private static Map<EObject,EVariable> vars = new HashMap<EObject,EVariable>();
 	
 	
-	public static Variable getVariable(EObject xx) {
+	public static EVariable getVariable(EObject xx) {
 		if (vars.get(xx)==null) {
-			vars.put(xx, new Variable(xx));
+			vars.put(xx, new EVariable(xx));
 		}
 		return vars.get(xx);
 	}
@@ -22,12 +22,12 @@ public class Variable {
 	private String name;
 	private EObject type;
 	
-	public Variable(String name, EObject type) {
+	public EVariable(String name, EObject type) {
 		this.name = name;
 		this.type = type;
 	}
 	
-	private Variable(EObject xx) {
+	private EVariable(EObject xx) {
 		if (xx instanceof VariableDeclaration) {
 			this.type = ((VariableDeclaration) xx).getType();
 			this.name = ((VariableDeclaration) xx).getName();

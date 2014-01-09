@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.consistency.Relation;
-import pt.uminho.haslab.echo.consistency.Transformation;
+import pt.uminho.haslab.echo.consistency.EDependency;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.ETransformation;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -26,7 +27,7 @@ class Transformation2Alloy {
 	private Func func;
 	
 	/** the transformation being translated */
-	private Transformation transformation;
+	private ETransformation transformation;
 	
 	/** the Alloy functions defining sub-relation consistency */
 	private Map<String,Func> subrelationcall_defs = new HashMap<String,Func>();
@@ -43,14 +44,14 @@ class Transformation2Alloy {
 	 * @param transformation the QVT Transformation being translated
 	 * @throws EchoError
 	 */
-	Transformation2Alloy (Transformation transformation) throws EchoError {
+	Transformation2Alloy (ETransformation transformation, Map<String,List<EDependency>> dependencies) throws EchoError {
 		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION, transformation.getName());
 		Expr fact = Sig.NONE.no();
 		this.transformation = transformation;
 		List<Decl> model_params_decls = new ArrayList<Decl>();
 		List<ExprHasName> model_params_vars = new ArrayList<ExprHasName>();
 
-		for (Model mdl : transformation.getModels()) {
+		for (EModelParameter mdl : transformation.getModels()) {
 			Decl d;
 			String metamodeluri = mdl.getMetamodelURI();
 			try {
@@ -65,10 +66,10 @@ class Transformation2Alloy {
 			model_params_vars.add(d.get());
 		}
 
-		for (Relation rel : transformation.getRelations())
+		for (ERelation rel : transformation.getRelations())
 			if (rel.isTop()) {
-				for (Model mdl : transformation.getModels())
-					new Relation2Alloy(this,mdl,rel);
+				for (EDependency dep : dependencies.get(rel.getName()))
+					new Relation2Alloy(this,dep,rel);
 			}
 		
 		for (Func f : toprelationcall_funcs.values())
@@ -134,8 +135,8 @@ class Transformation2Alloy {
 	 * @param dir the direction of the call
 	 * @return the respective Alloy function
 	 */
-	Func callRelation(Relation n, Model dir) {
-		return subrelationcall_funcs.get(AlloyUtil.relationFieldName(n,dir));
+	Func callRelation(ERelation n, EDependency dep) {
+		return subrelationcall_funcs.get(AlloyUtil.relationFieldName(n,dep.getTarget()));
 	}
 
 }

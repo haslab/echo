@@ -5,11 +5,11 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationDomain;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.consistency.Domain;
-import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.consistency.Variable;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.EVariable;
 
-public class QVTDomain implements Domain {
+public class QVTDomain extends EModelDomain {
 	private RelationDomain domain;
 
 	public QVTDomain(org.eclipse.qvtd.pivot.qvtbase.Domain dom) throws ErrorParser {
@@ -19,13 +19,13 @@ public class QVTDomain implements Domain {
 	}
 
 	@Override
-	public Model getModel() {
+	public EModelParameter getModel() {
 		return QVTModel.get(domain.getTypedModel());
 	}
 
 	@Override
-	public Variable getVariable() {
-		return Variable.getVariable(domain.getRootVariable());
+	public EVariable getRootVariable() {
+		return EVariable.getVariable(domain.getRootVariable());
 
 	}
 

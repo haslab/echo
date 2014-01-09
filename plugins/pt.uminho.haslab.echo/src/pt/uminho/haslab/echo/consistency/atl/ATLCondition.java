@@ -10,15 +10,15 @@ import org.eclipse.emf.ecore.EObject;
 
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.consistency.Condition;
-import pt.uminho.haslab.echo.consistency.Variable;
+import pt.uminho.haslab.echo.consistency.ECondition;
+import pt.uminho.haslab.echo.consistency.EVariable;
 import pt.uminho.haslab.echo.emf.OCLUtil;
 import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy2;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 
-public class ATLCondition implements Condition {
+public class ATLCondition implements ECondition {
 	private List<Object> exps = new ArrayList<Object>();
 	private OCL2Alloy2 trad;
 
@@ -49,8 +49,8 @@ public class ATLCondition implements Condition {
 		return trad.translateExpressions(exps);
 	}
 	
-	public Map<Variable,String> getVariables(String metamodel) throws ErrorUnsupported, ErrorTransform {
-		Map<Variable,String> res = new HashMap<Variable,String>();
+	public Map<EVariable,String> getVariables(String metamodel) throws ErrorUnsupported, ErrorTransform {
+		Map<EVariable,String> res = new HashMap<EVariable,String>();
 		for (Object predicate : exps) {
 			res.putAll(OCLUtil.variablesOCLExpression((EObject) predicate,metamodel));
 		}

@@ -10,17 +10,17 @@ import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.consistency.Relation;
-import pt.uminho.haslab.echo.consistency.Transformation;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.ETransformation;
 
 
-public class QVTTransformation implements Transformation {
+public class QVTTransformation implements ETransformation {
 
 	private static Map<RelationalTransformation,QVTTransformation> list = new HashMap<RelationalTransformation,QVTTransformation>();
 
-	private List<Model> models = new ArrayList<Model>();
-	private List<Relation> relations = new ArrayList<Relation>();
+	private List<EModelParameter> models = new ArrayList<EModelParameter>();
+	private List<ERelation> relations = new ArrayList<ERelation>();
 	private RelationalTransformation transformation;
 	
 	public QVTTransformation(org.eclipse.qvtd.pivot.qvtbase.Transformation transformation) throws ErrorParser {
@@ -36,13 +36,13 @@ public class QVTTransformation implements Transformation {
 	}
 
 	@Override
-	public List<Model> getModels() {
+	public List<EModelParameter> getModels() {
 
 		return models;
 	}
 
 	@Override
-	public List<Relation> getRelations() {
+	public List<ERelation> getRelations() {
 		return relations;
 	}
 

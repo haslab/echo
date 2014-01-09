@@ -9,12 +9,12 @@ import org.eclipse.qvtd.pivot.qvtbase.Rule;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.consistency.Domain;
-import pt.uminho.haslab.echo.consistency.Relation;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.ERelation;
 
-public class QVTRelation implements Relation {
+public class QVTRelation implements ERelation {
 	private org.eclipse.qvtd.pivot.qvtrelation.Relation relation;
-	private List<Domain> domains = new ArrayList<Domain>();
+	private List<EModelDomain> domains = new ArrayList<EModelDomain>();
 	
 	
 	public QVTRelation(Rule rule) throws ErrorParser {
@@ -41,7 +41,7 @@ public class QVTRelation implements Relation {
 	}
 
 	@Override
-	public List<Domain> getDomains() {
+	public List<EModelDomain> getDomains() {
 		return domains;
 
 	}

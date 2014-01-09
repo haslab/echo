@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
 
-import pt.uminho.haslab.echo.consistency.Model;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
 
-public class ATLModel implements Model {
+public class ATLModel extends EModelParameter {
 
 	private static Map<EObject,ATLModel> list = new HashMap<EObject,ATLModel>();
 	private EObject mdl;

@@ -10,17 +10,17 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.consistency.Relation;
-import pt.uminho.haslab.echo.consistency.Transformation;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.ETransformation;
 
 
-public class ATLTransformation implements Transformation {
+public class ATLTransformation implements ETransformation {
 
 	private static Map<EObject,ATLTransformation> list = new HashMap<EObject,ATLTransformation>();
 
-	private List<Model> models = new ArrayList<Model>();
-	private List<Relation> relations = new ArrayList<Relation>();
+	private List<EModelParameter> models = new ArrayList<EModelParameter>();
+	private List<ERelation> relations = new ArrayList<ERelation>();
 	private EObject transformation;
 	public final EObject mdl1;
 	public final EObject mdl2;
@@ -55,12 +55,12 @@ public class ATLTransformation implements Transformation {
 	}
 
 	@Override
-	public List<Model> getModels() {
+	public List<EModelParameter> getModels() {
 		return models;
 	}
 
 	@Override
-	public List<Relation> getRelations() {
+	public List<ERelation> getRelations() {
 		return relations;
 	}
 

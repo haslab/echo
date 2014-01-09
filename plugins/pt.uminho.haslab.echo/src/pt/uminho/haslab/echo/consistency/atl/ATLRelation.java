@@ -7,12 +7,12 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.consistency.Domain;
-import pt.uminho.haslab.echo.consistency.Relation;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.ERelation;
 
-public class ATLRelation implements Relation {
+public class ATLRelation implements ERelation {
 	private EObject relation;
-	private List<Domain> domains = new ArrayList<Domain>();
+	private List<EModelDomain> domains = new ArrayList<EModelDomain>();
 	
 	
 	public ATLRelation(EObject rule) throws ErrorParser {
@@ -46,7 +46,7 @@ public class ATLRelation implements Relation {
 	}
 
 	@Override
-	public List<Domain> getDomains() {
+	public List<EModelDomain> getDomains() {
 		return domains;
 
 	}
