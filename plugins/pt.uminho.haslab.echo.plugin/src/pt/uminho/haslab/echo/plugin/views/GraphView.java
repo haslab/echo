@@ -1,13 +1,6 @@
 package pt.uminho.haslab.echo.plugin.views;
 
-import java.awt.Frame;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import edu.mit.csail.sdg.alloy4viz.VizGUI;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -16,14 +9,20 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
-
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
-import edu.mit.csail.sdg.alloy4viz.VizGUI;
+
+import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GraphView extends ViewPart {
 
@@ -174,7 +173,7 @@ public class GraphView extends ViewPart {
 
 	/**
 	 * Sets the path of the generated target instance
-	 * @param path the path of the target instance
+	 * @param paths the path of the target instance
 	 * @param isNew if the generated instance is a new model
 	 * @param mm the metamodel of the target model (may be null if already exists)
 	 */

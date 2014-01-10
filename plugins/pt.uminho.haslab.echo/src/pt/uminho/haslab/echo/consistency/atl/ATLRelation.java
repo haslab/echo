@@ -1,14 +1,13 @@
 package pt.uminho.haslab.echo.consistency.atl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.consistency.EModelDomain;
 import pt.uminho.haslab.echo.consistency.ERelation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ATLRelation implements ERelation {
 	private EObject relation;

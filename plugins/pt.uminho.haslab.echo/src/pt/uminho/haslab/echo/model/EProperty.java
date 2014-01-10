@@ -1,9 +1,9 @@
 package pt.uminho.haslab.echo.model;
 
+import org.eclipse.emf.ecore.EStructuralFeature;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.emf.ecore.EStructuralFeature;
 
 public class EProperty {
 	public final EStructuralFeature feature;

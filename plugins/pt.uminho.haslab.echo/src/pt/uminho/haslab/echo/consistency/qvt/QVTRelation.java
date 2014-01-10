@@ -1,16 +1,15 @@
 package pt.uminho.haslab.echo.consistency.qvt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.qvtd.pivot.qvtbase.Pattern;
 import org.eclipse.qvtd.pivot.qvtbase.Predicate;
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.consistency.EModelDomain;
 import pt.uminho.haslab.echo.consistency.ERelation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QVTRelation implements ERelation {
 	private org.eclipse.qvtd.pivot.qvtrelation.Relation relation;

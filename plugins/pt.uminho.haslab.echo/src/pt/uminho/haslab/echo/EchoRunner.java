@@ -1,24 +1,19 @@
 package pt.uminho.haslab.echo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import edu.mit.csail.sdg.alloy4viz.VizState;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.TransformFactory;
 import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
-import edu.mit.csail.sdg.alloy4viz.VizState;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.*;
 
 public class EchoRunner {
 

@@ -1,11 +1,10 @@
 package pt.uminho.haslab.echo.consistency.atl;
 
+import org.eclipse.emf.ecore.EObject;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.eclipse.emf.ecore.EObject;
-
-import pt.uminho.haslab.echo.consistency.EModelParameter;
 
 public class ATLModel extends EModelParameter {
 

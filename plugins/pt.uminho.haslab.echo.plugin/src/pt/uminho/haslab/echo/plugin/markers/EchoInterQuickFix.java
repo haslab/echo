@@ -1,9 +1,5 @@
 package pt.uminho.haslab.echo.plugin.markers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -14,20 +10,20 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.ProgressProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
-
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Marker resolution for inter-model errors

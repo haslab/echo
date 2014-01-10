@@ -1,22 +1,17 @@
 package pt.uminho.haslab.echo.model;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.*;
+import org.eclipse.emf.ecore.EEnumLiteral;
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EEnumLiteral;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.EchoRunner.Task;
 
 /**
  * The Echo representation of a model instance.

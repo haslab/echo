@@ -1,12 +1,11 @@
 package pt.uminho.haslab.echo.consistency.qvt;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
-
 import pt.uminho.haslab.echo.consistency.EModelParameter;
 import pt.uminho.haslab.echo.emf.URIUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class QVTModel extends EModelParameter {
 

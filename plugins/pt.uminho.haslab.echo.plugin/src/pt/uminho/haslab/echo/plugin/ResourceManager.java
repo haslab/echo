@@ -1,31 +1,23 @@
 package pt.uminho.haslab.echo.plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Manages the project resources being tracked by Echo
@@ -271,8 +263,7 @@ public class ResourceManager {
 	 * Adds a new QVT constraint to the system.
 	 * If models are not tracked, adds them to the system.
 	 * @param resqvt the qvt resource
-	 * @param resmodelfst the first model to be related
-	 * @param resmodelsnd the second model to be related
+	 * @param resmodels the first model to be related
 	 * @throws ErrorUnsupported
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform
