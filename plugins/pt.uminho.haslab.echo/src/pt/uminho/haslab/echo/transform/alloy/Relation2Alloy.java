@@ -1,17 +1,31 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.consistency.*;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
-import java.util.Map.Entry;
+import pt.uminho.haslab.echo.consistency.ECondition;
+import pt.uminho.haslab.echo.consistency.EDependency;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.EVariable;
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.Func;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class Relation2Alloy {
 
@@ -19,10 +33,10 @@ public class Relation2Alloy {
 	public final Transformation2Alloy transformation_translator;
 
 	/** the relation being transformed */
-	public final Relation relation;
+	public final ERelation relation;
 	
 	/** the direction of the test being generated */
-	public final Model direction;
+	public final EDependency dependency;
 
 	/** whether the relation is being called at top level or not
 	 * this is not the same as being a top relation */
@@ -32,13 +46,13 @@ public class Relation2Alloy {
 	public final Relation2Alloy parent_translator;
 
 	/** the root variables of the relation being translated*/
-	private Map<Variable,String> rootvariables = new HashMap<Variable,String>();
+	private Map<EVariable,String> rootvariables = new HashMap<EVariable,String>();
 	
 	/** the target relation domain */
-	private Domain targetdomain;
+	private EModelDomain targetdomain;
 	
 	/** the source relation domains */
-	private List<Domain> sourcedomains = new ArrayList<Domain>();
+	private List<EModelDomain> sourcedomains = new ArrayList<EModelDomain>();
 
 	/** the Alloy declarations of the variables occurring in the when constraint
 	 * if non-top relation, does not contain root variables*/
@@ -77,8 +91,8 @@ public class Relation2Alloy {
 	 * @param relation the relation to be translated
 	 * @throws EchoError
 	 */
-	public Relation2Alloy (Relation2Alloy parent_translator, Relation relation) throws EchoError {
-		this (parent_translator.transformation_translator, false, parent_translator, parent_translator.direction,relation);
+	public Relation2Alloy (Relation2Alloy parent_translator, ERelation relation) throws EchoError {
+		this (parent_translator.transformation_translator, false, parent_translator, parent_translator.dependency,relation);
 	}
 
 	/**
@@ -88,8 +102,8 @@ public class Relation2Alloy {
 	 * @param relation the relation being translated
 	 * @throws EchoError
 	 */
-	public Relation2Alloy (Transformation2Alloy transformation_translator, Model direction, Relation relation) throws EchoError {
-		this (transformation_translator,true,null,direction,relation);
+	public Relation2Alloy (Transformation2Alloy transformation_translator, EDependency dependency, ERelation relation) throws EchoError {
+		this (transformation_translator,true,null,dependency,relation);
 	}
 
 	/** 
@@ -101,15 +115,15 @@ public class Relation2Alloy {
 	 * @throws EchoError
 	 */
 	Relation2Alloy(Transformation2Alloy transformation_translator, Boolean top,
-			Relation2Alloy parent_translator, Model direction, Relation relation)
+			Relation2Alloy parent_translator, EDependency dependency, ERelation relation)
 			throws EchoError {
 		this.relation = relation;
-		this.direction = direction;
+		this.dependency = dependency;
 		this.top = top;
 		this.transformation_translator = transformation_translator;
 		this.parent_translator = top ? this : parent_translator;
 
-		for (Model mdl : relation.getTransformation().getModels()) {
+		for (EModelParameter mdl : relation.getTransformation().getModels()) {
 			Decl d;
 			String metamodeluri = mdl.getMetamodelURI();
 			try {
@@ -161,8 +175,8 @@ public class Relation2Alloy {
 		Expr fact = Sig.NONE.no(), sourceexpr = Sig.NONE.no(), postexpr = Sig.NONE.no(), whenexpr = Sig.NONE.no();
 		Decl[] arraydecl;
 
-		Condition postCondition = relation.getPost();
-		Condition targetCondition = targetdomain.getCondition();
+		ECondition postCondition = relation.getPost();
+		ECondition targetCondition = targetdomain.getCondition();
 		try {
 			if (postCondition != null) {
 				postCondition.initTranslation(parent_translator, var2varmodel(),
@@ -183,18 +197,18 @@ public class Relation2Alloy {
 						Arrays.copyOfRange(arraydecl, 1, arraydecl.length));
 			}
 
-			for (Domain dom : sourcedomains) {
-				Condition sourceCondition = dom.getCondition();
+			for (EModelDomain dom : sourcedomains) {
+				ECondition sourceCondition = dom.getCondition();
 				sourceCondition.initTranslation(parent_translator,var2varmodel(),modelparam2var,null);
 				sourceexpr = sourceexpr.and((Expr) sourceCondition.translate());
 			}	
 			fact = (sourceexpr.implies(targetexpr));
 
 
-			for (Decl d : sourcevar2alloydecl.values())
-				EchoReporter.getInstance().debug("Source var decl: "+d.names+"::"+d.expr);
-			for (Decl d : targetvar2alloydecl.values())
-				EchoReporter.getInstance().debug("Target var decl: "+d.names+"::"+d.expr);
+//			for (Decl d : sourcevar2alloydecl.values())
+//				EchoReporter.getInstance().debug("Source var decl: "+d.names+"::"+d.expr);
+//			for (Decl d : targetvar2alloydecl.values())
+//				EchoReporter.getInstance().debug("Target var decl: "+d.names+"::"+d.expr);
 
 			if (sourcevar2alloydecl.size() == 1) {
 				fact = fact.forAll(sourcevar2alloydecl.values().iterator().next());
@@ -206,7 +220,7 @@ public class Relation2Alloy {
 						Arrays.copyOfRange(arraydecl, 1, arraydecl.length));
 			}
 
-			Condition preCondition = relation.getPre();
+			ECondition preCondition = relation.getPre();
 			if (preCondition != null) {
 				preCondition.initTranslation(parent_translator, var2varmodel(),
 						modelparam2var, null);
@@ -231,67 +245,69 @@ public class Relation2Alloy {
 	 * @todo Support fom <code>CollectionTemplateExp</code>
 	 */
 	private void initVariableLists() throws EchoError {
-		Map<Variable,String> whenvar2model = new HashMap<Variable,String>();
-		Map<Variable,String> sourcevar2model = new HashMap<Variable,String>();
-		Map<Variable,String> targetvar2model = new HashMap<Variable,String>();
+		Map<EVariable,String> whenvar2model = new HashMap<EVariable,String>();
+		Map<EVariable,String> sourcevar2model = new HashMap<EVariable,String>();
+		Map<EVariable,String> targetvar2model = new HashMap<EVariable,String>();
 		
-		for (Domain dom : relation.getDomains()) {
-			rootvariables.put(dom.getVariable(),dom.getModel().getName());
-			if (dom.getModel().equals(direction)) targetdomain = dom;
+		EchoReporter.getInstance().debug(dependency.toString());
+		for (EModelDomain dom : relation.getDomains()) {
+			rootvariables.put(dom.getRootVariable(),dom.getModel().getName());
+			if (dependency.getTarget().equals(dom)) targetdomain = dom;
 			else sourcedomains.add(dom);
 		}
 		
-		Condition preCondition = relation.getPre();
+		ECondition preCondition = relation.getPre();
 		if (preCondition != null)
 			whenvar2model = preCondition.getVariables(null);
 
-		for (Domain dom : sourcedomains) {
-			Condition cond = dom.getCondition();
-			sourcevar2model = cond.getVariables(dom.getModel().getName());
+		for (EModelDomain dom : sourcedomains) {
+			ECondition cond = dom.getCondition();
+			sourcevar2model.putAll(cond.getVariables(dom.getModel().getName()));
 		}
 
-		for (Variable x : whenvar2model.keySet()) {
+		for (EVariable x : whenvar2model.keySet()) {
 			whenvar2model.put(x, sourcevar2model.get(x));
 			sourcevar2model.remove(x);
 		}
 		
-		Condition temp = targetdomain.getCondition();
+		ECondition temp = targetdomain.getCondition();
 		targetvar2model = temp.getVariables(targetdomain.getModel().getName());
 		
-		Condition postCondition = relation.getPost();
+		ECondition postCondition = relation.getPost();
 		if (postCondition != null)
-			for (Variable x : postCondition.getVariables(null).keySet())
+			for (EVariable x : postCondition.getVariables(null).keySet())
 				if (targetvar2model.get(x) == null) targetvar2model.put(x,null);
 		
-		for (Variable x : sourcevar2model.keySet()) {
+		for (EVariable x : sourcevar2model.keySet()) {
 			if (sourcevar2model.get(x) == null) 
 				sourcevar2model.put(x, targetvar2model.get(x));
 			targetvar2model.remove(x); 
 		}
 		
-		for (Variable x : whenvar2model.keySet()) {
+		for (EVariable x : whenvar2model.keySet()) {
 			if (whenvar2model.get(x) == null) 
 				whenvar2model.put(x, targetvar2model.get(x));
 			targetvar2model.remove(x); 
 		}
 
 		if (!top)
-			for (Variable x : rootvariables.keySet()) {
+			for (EVariable x : rootvariables.keySet()) {
 				whenvar2model.remove(x);
 				targetvar2model.remove(x);
 				sourcevar2model.remove(x);
 			}
 	 
-	    for (Variable s : sourcevar2model.keySet())
+	    for (EVariable s : sourcevar2model.keySet())
 			var2model.put(s.getName(),sourcevar2model.get(s));
-		for (Variable s : targetvar2model.keySet())
+		for (EVariable s : targetvar2model.keySet())
 			var2model.put(s.getName(),targetvar2model.get(s));
-		for (Variable s : whenvar2model.keySet())
+		for (EVariable s : whenvar2model.keySet())
 			var2model.put(s.getName(),whenvar2model.get(s));
 	    if (!top)
-	    	for (Variable s : rootvariables.keySet())
+	    	for (EVariable s : rootvariables.keySet())
 				var2model.put(s.getName(),rootvariables.get(s));
 		
+	    	    
 		sourcevar2alloydecl = AlloyUtil.variableListToExpr(sourcevar2model.keySet(),var2varmodel(),modelparam2var);
 	  	for (String s : sourcevar2alloydecl.keySet())
 			var2var.put(s, sourcevar2alloydecl.get(s).get());
@@ -318,19 +334,19 @@ public class Relation2Alloy {
 	private Field addRelationFields() throws EchoError {
 		Field field = null;
 		Decl fst = rootvar2alloydecl.get(relation.getDomains().get(0)
-				.getVariable().getName());
+				.getRootVariable().getName());
 		/*Decl snd = rootvar2alloydecl.get(relation.getDomains().get(1)
 				.getVariable().getName());*/
 		try {
 			Sig s = (Sig) fst.expr.type().toExpr();
 			for (Field f : s.getFields()) {
 				if (f.label.equals(AlloyUtil.relationFieldName(relation,
-						direction)))
+						dependency.getTarget())))
 					field = f;
 			}
 			if (field == null) {
 				field = s.addField(
-						AlloyUtil.relationFieldName(relation, direction),
+						AlloyUtil.relationFieldName(relation, dependency.getTarget()),
 						/*type.setOf()*/Sig.UNIV.setOf());
 			}
 		} catch (Err a) { 
@@ -349,8 +365,8 @@ public class Relation2Alloy {
 	 * @throws EchoError
 	 */
 	private void addRelationDef(Expr fact, Field field) throws EchoError {
-		Decl fst = rootvar2alloydecl.get(relation.getDomains().get(0).getVariable().getName());
-		Decl snd = rootvar2alloydecl.get(relation.getDomains().get(1).getVariable().getName());
+		Decl fst = rootvar2alloydecl.get(relation.getDomains().get(0).getRootVariable().getName());
+		Decl snd = rootvar2alloydecl.get(relation.getDomains().get(1).getRootVariable().getName());
 		Func f;
 		try {
 			Expr e = field.equal(fact.comprehensionOver(fst,snd));
@@ -371,7 +387,7 @@ public class Relation2Alloy {
 	 */
 	private void addRelationPred(Expr fact) throws EchoError {
 		try {
-			transformation_translator.addTopRelationCall(new Func(null,AlloyUtil.relationPredName(relation,direction),
+			transformation_translator.addTopRelationCall(new Func(null,AlloyUtil.relationPredName(relation,dependency.getTarget()),
 					model_params_decls, null, fact));
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
@@ -391,7 +407,7 @@ public class Relation2Alloy {
 		try {
 			field = addRelationFields();
 			transformation_translator.addSubRelationCall(new Func(null,
-					AlloyUtil.relationFieldName(relation, direction),
+					AlloyUtil.relationFieldName(relation, dependency.getTarget()),
 					model_params_decls, field.type().toExpr(), field));
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,

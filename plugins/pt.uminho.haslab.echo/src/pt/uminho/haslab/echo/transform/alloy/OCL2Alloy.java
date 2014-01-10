@@ -14,7 +14,7 @@ import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.consistency.Variable;
+import pt.uminho.haslab.echo.consistency.EVariable;
 import pt.uminho.haslab.echo.consistency.qvt.QVTRelation;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.transform.ConditionTranslator;
@@ -119,11 +119,11 @@ public class OCL2Alloy implements ConditionTranslator{
 	Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
 
 		Func func = null;
-		func = parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.direction);
+		func = parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.dependency);
 		if (func == null) {
 			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
 			new Relation2Alloy (parentq,rel);
-			func = parentq.transformation_translator.callRelation(rel,parentq.direction);
+			func = parentq.transformation_translator.callRelation(rel,parentq.dependency);
 		}
 		List<ExprHasName> aux = new ArrayList<ExprHasName>();
 		for (Entry<String, ExprHasName> x : (isPre?prevars:posvars).entrySet())
@@ -162,9 +162,9 @@ public class OCL2Alloy implements ConditionTranslator{
 		
 		List<org.eclipse.ocl.examples.pivot.Variable> variterator = expr.getIterator();
 		if (variterator.size() != 1) throw new ErrorTransform("Invalid variables on closure: "+variterator);
-		Variable x = Variable.getVariable(variterator.get(0));
+		EVariable x = EVariable.getVariable(variterator.get(0));
 	
-		Decl d = AlloyUtil.variableListToExpr(new HashSet<Variable>(Arrays.asList(x)),varstates,isPre?prevars:posvars).get(variterator.get(0).getName());
+		Decl d = AlloyUtil.variableListToExpr(new HashSet<EVariable>(Arrays.asList(x)),varstates,isPre?prevars:posvars).get(variterator.get(0).getName());
 		
 		Expr src = oclExprToAlloy(expr.getSource());
 		varstates.put(d.get().label, new SimpleEntry<ExprHasName,String>(d.get(),null));
@@ -196,10 +196,10 @@ public class OCL2Alloy implements ConditionTranslator{
 				res = res.forOne(d);
 			}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
-		} else if (expr.getReferredIteration().getName().equals("forAll")) { //????
+		} else if (expr.getReferredIteration().getName().equals("collect")) {
 			try {
-				res = ((d.get().in(src)).and(bdy));
-				res = res.forSome(d);
+				res = d.get().in(src);
+				res = src.join(res.comprehensionOver(d,bdy.oneOf("2_")));
 			}
 			catch (Err e) { throw new ErrorAlloy(e.getMessage());}
 		} else if (expr.getReferredIteration().getName().equals("select")) {
@@ -441,9 +441,9 @@ public class OCL2Alloy implements ConditionTranslator{
 					a1.getReferredVariable().equals(b2.getReferredVariable())) || 
 					(a2.getReferredVariable().equals(b2.getReferredVariable()) && 
 					a1.getReferredVariable().equals(b1.getReferredVariable()))) {
-				HashSet<Variable> aux = new HashSet<Variable>();
+				HashSet<EVariable> aux = new HashSet<EVariable>();
 				for (VariableDeclaration xx : it.getIterator())
-					aux.add(Variable.getVariable(xx));
+					aux.add(EVariable.getVariable(xx));
 				Decl d = AlloyUtil.variableListToExpr(aux, varstates, isPre?prevars:posvars).get(it.getIterator().get(0).getName());
 				try{
 					varstates.put(d.get().label,new SimpleEntry<ExprHasName,String>(d.get(),null));

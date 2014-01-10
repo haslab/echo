@@ -4,11 +4,11 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.consistency.Domain;
-import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.consistency.Variable;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.EVariable;
 
-public class ATLDomain implements Domain {
+public class ATLDomain extends EModelDomain {
 	private EObject domain;
 
 	public ATLDomain(EObject dom) throws ErrorParser {
@@ -19,7 +19,7 @@ public class ATLDomain implements Domain {
 	}
 
 	@Override
-	public Model getModel() {
+	public EModelParameter getModel() {
 		EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
 		EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
 		EObject var = objs.get(0);
@@ -31,11 +31,11 @@ public class ATLDomain implements Domain {
 	}
 
 	@Override
-	public Variable getVariable() {
+	public EVariable getRootVariable() {
 		EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
 		EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
 		EObject obj = objs.get(0);
-		return Variable.getVariable(obj);
+		return EVariable.getVariable(obj);
 	}
 
 	@Override

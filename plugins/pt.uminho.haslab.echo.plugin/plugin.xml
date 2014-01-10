@@ -297,7 +297,10 @@
      </enabledWhen>
   </page>
    </extension>
-        <extension name="Echo intra-model inconsistency" id="pt.uminho.haslab.echo.plugin.intrainconsistency" point="org.eclipse.core.resources.markers">
+        <extension 
+        	name="Echo intra-model inconsistency" 
+        	id="pt.uminho.haslab.echo.plugin.intrainconsistency" 
+        	point="org.eclipse.core.resources.markers">
                 <super type="org.eclipse.core.resources.problemmarker"/>
                 <persistent value="false"/>
         </extension>
@@ -352,6 +355,7 @@
          markerType="pt.uminho.haslab.echo.plugin.interinconsistency"
          class="pt.uminho.haslab.echo.plugin.markers.EchoQuickFixer"/>
  </extension>
+  
 <extension point="org.eclipse.ui.handlers">
   <handler class="pt.uminho.haslab.echo.plugin.handlers.FileUntrackHandler"
            commandId="pt.uminho.haslab.echo.commands.fileremove">

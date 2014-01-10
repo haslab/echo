@@ -1,7 +1,9 @@
 package pt.uminho.haslab.echo.plugin.wizards;
 
+import java.awt.Panel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -18,7 +20,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -43,6 +47,8 @@ public class ConstraintAddWizardPage extends WizardPage {
 
 	private Map<String,IResource> model2resource = new HashMap<String,IResource>();
 
+	private List<Composite> dependecies = new ArrayList<Composite>();
+	private List<String> params = new ArrayList<String>();
 	
 	private final String DEFAULT_MESSAGE = "Select two model instances to be constrained by the QVT-R transformation.";
 	private Composite container;
@@ -82,6 +88,7 @@ public class ConstraintAddWizardPage extends WizardPage {
 	    // Required to avoid an error in the system
 	    setControl(container);
 	    setPageComplete(false);
+		container.layout(true);
 	}
 	
 	private void buildTexts() {
@@ -97,8 +104,9 @@ public class ConstraintAddWizardPage extends WizardPage {
 			for (Label c : model2label.values()) c.dispose();
 			
 			qvt = EchoParser.getInstance().loadQVT(qvtresource.getFullPath().toString());
-			
+			params = new ArrayList<String>();
 			for (TypedModel mdl : qvt.getModelParameter()) {
+				params.add(mdl.getName());
 				Label label = new Label(container, SWT.NULL);
 				label.setText(mdl.getName() + " model:");
 
@@ -112,18 +120,79 @@ public class ConstraintAddWizardPage extends WizardPage {
 				bModel.addSelectionListener(new ButtonSelectionListener(mdl
 						.getName()));
 				bModel.setText("Browse");
+				
+				
 
 				model2label.put(mdl.getName(),label);
 				model2button.put(mdl.getName(),bModel);
 				model2text.put(mdl.getName(),text);
 
-				container.layout(true);
 
 			}
+			addDependency();
+			
+
 		} catch (ErrorParser | ErrorTransform e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void addDependency() {
+
+		Label label = new Label(container, SWT.NULL);
+		label.setText("Dependency:");
+
+		Button check = new Button(container, SWT.CHECK);
+		check.setText("Manage dependencies:");
+
+		Button add = new Button(container, SWT.PUSH);
+		add.setText("+");
+		add.setEnabled(false);
+
+
+		for (int i = 0; i < params.size(); i++) {
+			for (int j = 0; j < params.size(); j++) {
+				if (j != i) {
+					GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+					GridLayout l = new GridLayout(3,false);
+					l.marginTop = 0;
+					l.marginBottom = 0;
+					l.verticalSpacing = 0;
+					l.marginHeight = 0;
+					
+					
+					new Label(container, SWT.None);
+					Composite teste = new Composite(container, SWT.None);
+					
+					teste.setLayout(l);
+					teste.setLayoutData(gd);
+
+					Button ad = new Button(teste, SWT.PUSH);
+					ad.setText("+");
+					ad.setEnabled(false);
+					
+					Combo aModel = new Combo(teste, SWT.DROP_DOWN | SWT.READ_ONLY);
+					aModel.setItems(params.toArray(new String[params.size()]));
+					aModel.setEnabled(false);
+					aModel.select(i);
+					aModel.setLayoutData(gd);
+					
+					Combo bModel = new Combo(teste, SWT.DROP_DOWN | SWT.READ_ONLY);
+					bModel.setItems(params.toArray(new String[params.size()]));
+					bModel.setEnabled(false);
+					bModel.select(j);
+					bModel.setLayoutData(gd);
+
+					new Label(container, SWT.None);
+					
+					teste.setVisible(true);
+					
+					dependecies.add(teste); 
+				}
+			}
+		}
+
 	}
 	
 	/**
@@ -210,8 +279,6 @@ public class ConstraintAddWizardPage extends WizardPage {
 	private boolean isValid() {
 		int invalid_res = 0;
 		
-		
-		
 		for (String s : model2text.keySet()) {
 			IResource r = ResourcesPlugin.getWorkspace().getRoot().findMember(model2text.get(s).getText());
 			model2resource.put(s, r);
@@ -226,9 +293,7 @@ public class ConstraintAddWizardPage extends WizardPage {
 			if (qvtresource != null) 
 				buildTexts();
 		}
-
 		
-	
 		if (qvtresource == null) {
 			setMessage("Invalid QVT-R resource.", ERROR);
 			setPageComplete(false);

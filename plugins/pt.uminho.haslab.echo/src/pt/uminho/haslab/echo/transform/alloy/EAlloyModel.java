@@ -1,5 +1,26 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.emf.ecore.EEnumLiteral;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.model.EBoolean;
+import pt.uminho.haslab.echo.model.EElement;
+import pt.uminho.haslab.echo.model.EInteger;
+import pt.uminho.haslab.echo.model.EModel;
+import pt.uminho.haslab.echo.model.EProperty;
+import pt.uminho.haslab.echo.model.EString;
+import pt.uminho.haslab.echo.model.EValue;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -7,20 +28,11 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.*;
-import pt.uminho.haslab.echo.*;
-import pt.uminho.haslab.echo.EchoRunner.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-class XMI2Alloy {
+class EAlloyModel {
 		
 	/** the EObject model being translated */
-	final EObject eobject;
+	final EModel emodel;
 	
 	/** the Alloy signature representing this model */
 	final PrimSig model_sig;
@@ -30,7 +42,7 @@ class XMI2Alloy {
 	private Map<Field,Expr> field2elements = new HashMap<Field,Expr>();	
 	
 	/** maps EObjects to the respective Alloy signature */
-	private Map<EObject,PrimSig> object2sig = new HashMap<EObject,PrimSig>();
+	private Map<EElement,PrimSig> object2sig = new HashMap<EElement,PrimSig>();
 
 	/** maps class names to set os object signatures */
 	private Map<String,List<PrimSig>> classsig2sigs = new HashMap<String,List<PrimSig>>();
@@ -45,18 +57,18 @@ class XMI2Alloy {
 	 * Assumes that <code>obj</code> is the root of the model
 	 * and recursively processes contained objects
 	 * Unconnected objects are ignored
-	 * @param obj
+	 * @param emodel
 	 * @param t
 	 * @param stateSig
 	 * @throws EchoError
 	 */
-	XMI2Alloy(EObject obj, ECore2Alloy t, PrimSig stateSig) throws EchoError {
+	EAlloyModel(EModel emodel, ECore2Alloy t, PrimSig stateSig) throws EchoError {
 		EchoReporter.getInstance().start(Task.TRANSLATE_MODEL, stateSig.label);
-		eobject = obj;
+		this.emodel = emodel;
 		translator = t;
 		model_sig = stateSig;
 		initContent();
-		makeSigList(eobject);
+		translateElement(emodel.root);
 		makeFactExpr();
 		
 		EchoReporter.getInstance().result(Task.TRANSLATE_MODEL, true);
@@ -67,7 +79,7 @@ class XMI2Alloy {
 	 * @param o the EObject
 	 * @return the respective Sig
 	 */
-	PrimSig getSigFromEObject(EObject o) {
+	PrimSig getSigFromEObject(EElement o) {
 		return object2sig.get(o);
 	}
 
@@ -117,15 +129,15 @@ class XMI2Alloy {
 	/**
 	 * Creates the EObject signatures and respective structural features
 	 * Will recursively create objects contained in references
-	 * @param eobj the object to be translated
+	 * @param eelement the object to be translated
 	 * @return the sig representing the object
 	 * @throws EchoError
 	 */
-	private PrimSig makeSigList(EObject eobj) throws EchoError {
-		PrimSig classsig = translator.getSigFromEClassifier(eobj.eClass());
-		PrimSig objectsig;
+	private PrimSig translateElement(EElement eelement) throws EchoError {
+		PrimSig classsig = translator.getSigFromEClassifier(eelement.type);
+		PrimSig elementsig;
 		try {
-			objectsig = new PrimSig(AlloyUtil.elementName(classsig), classsig,
+			elementsig = new PrimSig(AlloyUtil.elementName(classsig), classsig,
 					Attr.ONE);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
@@ -133,72 +145,30 @@ class XMI2Alloy {
 		}
 
 		Field statefield = translator.getStateFieldFromSig(classsig);
-		Expr siblings = field2elements.get(statefield);
-		siblings = siblings.plus(objectsig);
+		Expr siblings = field2elements.get(statefield).plus(elementsig);
 		field2elements.put(statefield, siblings);
 
 		PrimSig supersig = classsig.parent;
 		while (supersig != Sig.UNIV && supersig != null) {
 			Field superstatefield = translator.getStateFieldFromSig(supersig);
-			Expr siblingsup = field2elements.get(superstatefield);
-			siblingsup = siblingsup.plus(objectsig);
+			Expr siblingsup = field2elements.get(superstatefield).plus(elementsig);
 			field2elements.put(superstatefield, siblingsup);
 			supersig = supersig.parent;
 		}
 
-		object2sig.put(eobj, objectsig);
+		object2sig.put(eelement, elementsig);
 		if (classsig2sigs.get(classsig.label) == null)
 			classsig2sigs.put(classsig.label, new ArrayList<PrimSig>());
 
-		classsig2sigs.get(classsig.label).add(objectsig);
+		classsig2sigs.get(classsig.label).add(elementsig);
 
-		List<EStructuralFeature> sfList = eobj.eClass()
-				.getEAllStructuralFeatures();
-		for (EStructuralFeature sf : sfList) {
-			Field field = translator.getFieldFromSFeature(sf);
-			Object value = eobj.eGet(sf);
-			if (sf instanceof EReference) {
-				if (value instanceof EList<?>) {
-					if (!((EList<?>) value).isEmpty()) {
-						EReference op = ((EReference) sf).getEOpposite();
-						if (field != null) {
-							processReference((EList<?>) value, field, objectsig);
-						}
-					}
-				} else if (value instanceof EObject) {
-					EReference op = ((EReference) sf).getEOpposite();
-					if (field != null) {
-						processReference((EObject) value, field, objectsig);
-					}
-				} else if (value == null) {
-				} else throw new ErrorUnsupported(ErrorUnsupported.ECORE,
-							"EReference type not supported: "
-									+ value.getClass().getName(), "",
-							Task.TRANSLATE_MODEL);
-			} else if (sf instanceof EAttribute)
-				processAttribute(value, objectsig, field);
-		}
-		return objectsig;
-	}
-	
-	/**
-	 * calculates the PrimSig representing the reference object
-	 * processes it if still unprocessed
-	 * @param obj the reference value
-	 * @return the representing sig
-	 * @throws EchoError
-	 */
-	private PrimSig processReference(EObject obj, Field field, PrimSig objectsig) throws EchoError {
-		PrimSig ref = object2sig.get(obj);
-
-		if (ref == null)
-			ref = makeSigList(obj);
-
-		Expr mappedExpr = field2elements.get(field);
-		mappedExpr = mappedExpr.plus(objectsig.product(ref));
-		field2elements.put(field, mappedExpr);
 		
-		return ref;
+		for (EProperty eprop : eelement.getProperties()) {
+			Field field = translator.getFieldFromSFeature(eprop.feature);
+			processValues(eprop.getValues(),field,elementsig);
+		}
+
+		return elementsig;
 	}
 
 	/**
@@ -208,56 +178,51 @@ class XMI2Alloy {
 	 * @return the Alloy expression representing the values
 	 * @throws EchoError
 	 */
-	private Expr processReference(EList<?> values, Field field, PrimSig objectsig) throws EchoError {
-		Expr res = null;
-		PrimSig ref;
+	private void processValues(List<EValue> values, Field field, PrimSig elementsig) throws EchoError {
 
 		EchoReporter.getInstance().debug("Reference list of "+field);
 
-		for (Object o : values)
-			if (o instanceof EObject) {
-				ref = processReference((EObject) o, field, objectsig);
-				if (res == null) res = ref;
-				else res = res.plus(ref);
-			} 
-			else throw new ErrorUnsupported(ErrorUnsupported.ECORE,
-						"EReference type not supported: "
-								+ o.getClass().getName(), "",
-						Task.TRANSLATE_MODEL);
+		for (EValue value : values)
+			processValue(value, field, elementsig);
 		
-		return res;
 	}
 
 	/** 
 	 * Adds the attribute value to the field expression 
 	 * @param value the attribute value
-	 * @param obj the owning object
 	 * @param field the field representing the attribute
+	 * @param elementsig the owning object
 	 * @throws EchoError
 	 */
-	private void processAttribute(Object value, Sig obj, Field field)
+	private void processValue(EValue value, Field field, Sig elementsig)
 			throws EchoError {
 		Expr siblings = field2elements.get(field);
-		if (value instanceof Boolean) {
-			if ((Boolean) value)
-				siblings = siblings.plus(obj);
+		if (siblings == null) return;
+		
+		if (value instanceof EElement) {
+			PrimSig ref = object2sig.get(value);
+			if (ref == null)
+				ref = translateElement((EElement) value);
+			siblings = siblings.plus(elementsig.product(ref));
+		} else if (value instanceof EBoolean) {
+			if (((EBoolean) value).getValue())
+				siblings = siblings.plus(elementsig);
 		} else if (value instanceof EEnumLiteral) {
-			siblings = siblings.plus(obj.product(translator
+			siblings = siblings.plus(elementsig.product(translator
 					.getSigFromEEnumLiteral((EEnumLiteral) value)));
-		} else if (value instanceof String) {
-			Expr str = ExprConstant.Op.STRING.make(null, (String) value);
-			siblings = siblings.plus(obj.product(str));
-		} else if (value instanceof Integer) {
+		} else if (value instanceof EString) {
+			Expr str = ExprConstant.Op.STRING.make(null, ((EString) value).getValue());
+			siblings = siblings.plus(elementsig.product(str));
+		} else if (value instanceof EInteger) {
 			Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
 			Integer max = (int) (Math.pow(2, bitwidth) / 2);
-			if ((Integer) value >= max || (Integer) value < -max)
+			Integer ival = ((EInteger) value).getValue();
+			if (ival >= max || ival < -max)
 				throw new ErrorTransform(ErrorTransform.BITWIDTH,
 						"Bitwidth not enough to represent attribute value: "
 								+ value + ".", "", Task.TRANSLATE_MODEL);
-			Expr str = ExprConstant.makeNUMBER((Integer) value);
-
-			siblings = siblings.plus(obj.product(str));
-
+			Expr eint = ExprConstant.makeNUMBER(ival);
+			siblings = siblings.plus(elementsig.product(eint));
 		} else
 			throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,
 					"Primitive type not supported: "
@@ -275,9 +240,5 @@ class XMI2Alloy {
 		}
 	}
 	
-	
-	
-
-
 	
 }

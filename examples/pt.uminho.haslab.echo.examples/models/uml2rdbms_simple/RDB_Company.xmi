@@ -6,18 +6,13 @@
     xmlns:rdbms="RDBMS"
     xsi:schemaLocation="RDBMS /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore#RDBMS"
     name="Company">
-  <tables name="Employer">
-    <columns
-        name="name"/>
-  </tables>
   <tables name="Employee">
     <columns
         name="name"/>
   </tables>
-  <tables name="Department">
+  <tables name="Employer">
     <columns
-        name="x"/>
-    <columns
-        name="y"/>
+        name="name"/>
   </tables>
+  <tables name="Department"/>
 </rdbms:Scheme>

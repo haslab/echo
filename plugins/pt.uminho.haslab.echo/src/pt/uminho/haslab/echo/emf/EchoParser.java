@@ -1,10 +1,24 @@
 package pt.uminho.haslab.echo.emf;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EValidator;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.ocl.examples.pivot.delegate.OCLDelegateDomain;
+import org.eclipse.ocl.examples.pivot.delegate.OCLInvocationDelegateFactory;
+import org.eclipse.ocl.examples.pivot.delegate.OCLSettingDelegateFactory;
+import org.eclipse.ocl.examples.pivot.delegate.OCLValidationDelegateFactory;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
@@ -13,14 +27,10 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
 import org.eclipse.xtext.resource.XtextResourceSet;
+
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EchoParser {
 	//TODO: there should be some helper classes for stuff like getRootClass, which are totally independent from kodkod or alloy
@@ -43,6 +53,15 @@ public class EchoParser {
 	
 	private EchoParser(){	
 		if (EchoOptionsSetup.getInstance().isStandalone()) {
+
+            // install the OCL standard library
+            OCLstdlib.install();
+            resourceSet.getResourceFactoryRegistry()
+             .getExtensionToFactoryMap().put("xmi",
+                             new XMIResourceFactoryImpl());
+			 resourceSet.getResourceFactoryRegistry()
+             .getExtensionToFactoryMap().put(
+                     "ecore", new EcoreResourceFactoryImpl());
 			OCLstdlib.install();		
 			QVTrelationStandaloneSetup.doSetup();
 		}
@@ -62,6 +81,7 @@ public class EchoParser {
 		}
 		EObject res = load_resource.getContents().get(0);
 		models.put(uri,res);
+
 		return res;
 	}
 	

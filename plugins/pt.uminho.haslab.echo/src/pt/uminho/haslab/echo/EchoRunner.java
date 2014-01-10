@@ -1,19 +1,24 @@
 package pt.uminho.haslab.echo;
 
-import edu.mit.csail.sdg.alloy4viz.VizState;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-import pt.uminho.haslab.echo.emf.EchoParser;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.TransformFactory;
-import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+
+import pt.uminho.haslab.echo.emf.EchoParser;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.TransformFactory;
+import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
+import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
 
@@ -155,12 +160,13 @@ public class EchoRunner {
 	 * Generates a model conforming to the given meta-model
 	 * @param metamodeluri the URI of the meta-model
 	 * @param scope the exact scopes of the model to generate
+	 * @param target 
 	 * @return true if able to generate conforming model
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope) throws EchoError {
+	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope, final String target) throws EchoError {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
@@ -169,7 +175,7 @@ public class EchoRunner {
             @Override
             public Boolean call() throws EchoError {
                 try {
-					runner.generate(metamodeluri,scope);
+					runner.generate(metamodeluri,scope,target);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					return false;
@@ -210,7 +216,7 @@ public class EchoRunner {
 	 * @return 
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean enforce(final String qvturi, final List<String> modeluris, final String targeturi) throws EchoError {
+	public boolean enforce(final String qvturi, final List<String> modeluris, final List<String> targeturi) throws EchoError {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 

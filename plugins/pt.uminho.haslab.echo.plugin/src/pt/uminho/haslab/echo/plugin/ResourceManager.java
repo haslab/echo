@@ -434,7 +434,7 @@ public class ResourceManager {
 			modeluris.add(model.getFullPath().toString());
 
 		if (!runner.check(c.constraint.getFullPath().toString(), modeluris))
-				EchoMarker.createInterMarker(c);
+			EchoMarker.createInterMarker(c);
 		else 
 			EchoMarker.removeRelatedInterMarker(c);
 	}
@@ -448,27 +448,15 @@ public class ResourceManager {
 	private void conformAllQVT(IResource res) throws EchoError {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
-		String modeluri = res.getFullPath().toString();
 		List<Constraint> cs = constraints.getAllConstraintsModel(res);
-		//EchoReporter.getInstance().debug("DEBUG: "+cs);
-		List<String> modeluris = new ArrayList<String>();
-		modeluris.add(modeluri);
 		for (Constraint c : cs) {
-			IResource partner;
-			int i;
-			if (c.models.get(0).equals(res)) {
-				partner = c.models.get(1);
-				i = 1;
-			} else {
-				partner = c.models.get(0);
-				i = 0;
-			}
-			modeluris.add(i, partner.getFullPath().toString());
+			List<String> modeluris = new ArrayList<String>();
+			for (IResource r : c.models)
+				modeluris.add(r.getFullPath().toString());
 			if (runner.check(c.constraint.getFullPath().toString(), modeluris))
 				EchoMarker.removeRelatedInterMarker(c);	
 			else
 				EchoMarker.createInterMarker(c);
-			modeluris.remove(i);
 		}
 
 	}
@@ -482,7 +470,7 @@ public class ResourceManager {
 			runner.addMetaModel(metamodel);
 		}
 			
-		runner.generate(metamodeluri, scopes);
+		runner.generate(metamodeluri, scopes, target);
 
 		GraphView amv = EchoPlugin.getInstance().getGraphView();
 		amv.setTargetPath(target, true, resMetaModel);

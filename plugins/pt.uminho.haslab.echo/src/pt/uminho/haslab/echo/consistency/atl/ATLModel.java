@@ -1,12 +1,13 @@
 package pt.uminho.haslab.echo.consistency.atl;
 
-import org.eclipse.emf.ecore.EObject;
-import pt.uminho.haslab.echo.consistency.Model;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class ATLModel implements Model {
+import org.eclipse.emf.ecore.EObject;
+
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+
+public class ATLModel extends EModelParameter {
 
 	private static Map<EObject,ATLModel> list = new HashMap<EObject,ATLModel>();
 	private EObject mdl;

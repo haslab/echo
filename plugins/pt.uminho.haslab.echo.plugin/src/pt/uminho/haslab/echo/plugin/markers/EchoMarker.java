@@ -25,7 +25,7 @@ public class EchoMarker {
 	/** inter-model error marker constraint attribute */
 	public final static String CONSTRAINT = "constraint";
 	/** inter-model error marker opposite model attribute */
-	public final static String OPPOSITE = "opposite";
+	public final static String MODELS = "opposite";
 	/** inter-model error marker model parameter model attribute */
 	public final static String PARAM = "parameter";
 
@@ -51,11 +51,11 @@ public class EchoMarker {
 			mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			
 			for (IMarker pre : res.findMarkers(INTER_ERROR, false, 0)) {
-				IResource related = res.getWorkspace().getRoot().findMember((String) pre.getAttribute(OPPOSITE));
-				for (IMarker pre2 : related.findMarkers(INTER_ERROR, false, 0)) {
-					if (pre2.getAttribute(OPPOSITE).equals(res.getFullPath().toString()))
-						pre2.delete();
-				}
+				List<IResource> related = oppositeFromString(res,(String) pre.getAttribute(MODELS));
+				for (IResource res2 : related)
+					for (IMarker pre2 : res2.findMarkers(INTER_ERROR, false, 0))
+						if (pre2.getAttribute(MODELS).equals(pre.getAttribute(MODELS)))
+							pre2.delete();
 			}
 				
 			
@@ -89,16 +89,12 @@ public class EchoMarker {
 		List<IMarker> marks = new ArrayList<IMarker>();
 		IMarker mark;
 		try {
-			if (constraint.models.get(1).findMarkers(INTRA_ERROR,false,0).length == 0) {
-				mark = createSingleInterMarker(constraint.models.get(0), constraint.models.get(1), constraint.constraint
-						.getFullPath().toString(),constraint.params.get(0));
-				marks.add(mark);
-			}
-			if (constraint.models.get(0).findMarkers(INTRA_ERROR,false,0).length == 0) {
-				mark = createSingleInterMarker(constraint.models.get(1), constraint.models.get(0), constraint.constraint
-					.getFullPath().toString(),constraint.params.get(1));
-			marks.add(mark);
-			}
+			for (int i = 0; i < constraint.models.size(); i++)
+				if (constraint.models.get(i).findMarkers(INTRA_ERROR,false,0).length == 0) {
+					mark = createSingleInterMarker(i, constraint.models, constraint.constraint
+							.getFullPath().toString(),constraint.params.get(0));
+					marks.add(mark);
+				}
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -112,24 +108,24 @@ public class EchoMarker {
 	 * @return the created marker
 	 * @throws ErrorAPI 
 	 */
-	private static IMarker createSingleInterMarker(IResource modelres,
-			IResource relatedres, String qvtRule, String name) throws ErrorAPI {
+	private static IMarker createSingleInterMarker(int targetmodel,
+			List<IResource> models, String qvtRule, String name) throws ErrorAPI {
 		IMarker mark;
 		
 		
 		try {
-			for (IMarker pre : modelres.findMarkers(INTER_ERROR, false, 0)) {
-				if (pre.getAttribute(CONSTRAINT).equals(qvtRule) && pre.getAttribute(OPPOSITE).equals(relatedres.getFullPath().toString()))
+			for (IMarker pre : models.get(targetmodel).findMarkers(INTER_ERROR, false, 0)) {
+				if (pre.getAttribute(CONSTRAINT).equals(qvtRule) && pre.getAttribute(MODELS).equals(oppositeToString(models)))
 					pre.delete();
 			}
 			
-			mark = modelres.createMarker(EchoMarker.INTER_ERROR);
+			mark = models.get(targetmodel).createMarker(EchoMarker.INTER_ERROR);
 			mark.setAttribute(IMarker.MESSAGE,
 					"Model instance is not consistent with a QVT relation");
 			mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
 			mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			mark.setAttribute(EchoMarker.CONSTRAINT, qvtRule);
-			mark.setAttribute(EchoMarker.OPPOSITE, relatedres.getFullPath().toString());
+			mark.setAttribute(EchoMarker.MODELS, oppositeToString(models));
 			mark.setAttribute(EchoMarker.PARAM, name);
 		}
 		catch (CoreException e) {
@@ -145,20 +141,13 @@ public class EchoMarker {
 	 */
 	public static void removeInterMarkers(IResource res) throws ErrorAPI {
 		try {
-			for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR,false, 0)) {
-                System.out.println("no ciclo");
-				String relatedUri = (String) mk.getAttribute(EchoMarker.OPPOSITE);
-                System.out.println(relatedUri);
-				IResource related = res.getWorkspace().getRoot().findMember(relatedUri);
-                System.out.println(related);
-				for (IMarker mk1 : related.findMarkers(EchoMarker.INTER_ERROR,false, 0)) 
-					if (mk1.getAttribute(EchoMarker.OPPOSITE).equals(res.getFullPath().toString()))
-                    {
-                        System.out.println("deleting");
-                        mk1.delete();
-                    }
-				mk.delete();
-			}
+			for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR,false, 0)) 
+				for (IResource related : oppositeFromString(res, (String) mk.getAttribute(EchoMarker.MODELS))) {
+					for (IMarker mk1 : related.findMarkers(EchoMarker.INTER_ERROR,false, 0)) 
+						if (mk1.getAttribute(EchoMarker.MODELS).equals(mk.getAttribute(EchoMarker.MODELS)))
+	                        mk1.delete();
+					mk.delete();
+				}
 		} catch (CoreException e) {
 			throw new ErrorAPI("Failed to delete marker.");
 		}
@@ -170,26 +159,36 @@ public class EchoMarker {
 	 * @throws ErrorAPI
 	 */
 	public static void removeRelatedInterMarker(Constraint constraint) throws ErrorAPI {
-		String fstmodeluri = constraint.models.get(0).getFullPath().toString();
-		String sndmodeluri = constraint.models.get(1).getFullPath().toString();
 		String constrainturi = constraint.constraint.getFullPath().toString();
 
 		try {
-			if(constraint.models.get(0).isAccessible())
-				for (IMarker mk : constraint.models.get(0).findMarkers(EchoMarker.INTER_ERROR,false, 0))
-					if (mk.getAttribute(EchoMarker.OPPOSITE).equals(sndmodeluri)
-							&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
-						mk.delete();
+			for (IResource res : constraint.models)
+				if(res.isAccessible())
+					for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR,false, 0))
+						if (mk.getAttribute(EchoMarker.MODELS).equals(oppositeToString(constraint.models))
+								&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
+							mk.delete();
 			
-			if(constraint.models.get(1).isAccessible())
-				for (IMarker mk : constraint.models.get(1).findMarkers(EchoMarker.INTER_ERROR,false, 0))
-					if (mk.getAttribute(EchoMarker.OPPOSITE).equals(fstmodeluri)
-							&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
-						mk.delete();
 
 		} catch (CoreException e) {
 			throw new ErrorAPI("\nFailed to remove markers.\n");
 		}
+	}
+	
+	private static String oppositeToString(List<IResource> models) {
+		StringBuffer s = new StringBuffer();
+		for (IResource res : models) {
+			s.append(res.getFullPath().toString());
+			s.append(";");
+		}
+		return s.toString();
+	}
+	
+	private static List<IResource> oppositeFromString(IResource src, String models) {
+		List<IResource> res = new ArrayList<IResource>();
+		for (String s : models.split(";"))
+			res.add(src.getWorkspace().getRoot().findMember(s));
+		return res;
 	}
 
 }

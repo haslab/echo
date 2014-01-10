@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ASCII"?>
+<world:World xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:world="world" xsi:schemaLocation="world /pt.uminho.haslab.echo.examples/metamodels/family_flatten/World.ecore">
+  <people xsi:type="world:Male" name="&quot;String0&quot;" surname="&quot;String0&quot;"/>
+  <people xsi:type="world:Male" name="&quot;String0&quot;" surname="&quot;String0&quot;"/>
+</world:World>

@@ -34,7 +34,7 @@ public class KodkodRunner implements EngineRunner{
     }
 
     @Override
-    public boolean generate(String metaModelUri, Map<Map.Entry<String, String>, Integer> scope) throws ErrorInternalEngine, ErrorUnsupported {
+    public boolean generate(String metaModelUri, Map<Map.Entry<String, String>, Integer> scope, String targeturi) throws ErrorInternalEngine, ErrorUnsupported {
 		return false;
         //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -45,7 +45,7 @@ public class KodkodRunner implements EngineRunner{
     }
 
     @Override
-    public boolean enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine {
+    public boolean enforce(String qvtUri, List<String> modelUris, List<String> targetUri) throws ErrorInternalEngine {
 		return false;
 		//To change body of implemented methods use File | Settings | File Templates.
     }

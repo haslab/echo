@@ -3,8 +3,8 @@ package pt.uminho.haslab.echo.consistency.qvt;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.consistency.Condition;
-import pt.uminho.haslab.echo.consistency.Variable;
+import pt.uminho.haslab.echo.consistency.ECondition;
+import pt.uminho.haslab.echo.consistency.EVariable;
 import pt.uminho.haslab.echo.emf.OCLUtil;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class QVTCondition implements Condition {
+public class QVTCondition implements ECondition {
 	private List<Object> exps = new ArrayList<Object>();
 	private OCL2Alloy trad;
 
@@ -43,8 +43,8 @@ public class QVTCondition implements Condition {
 		return trad.translateExpressions(exps);
 	}
 	
-	public Map<Variable,String> getVariables(String metamodel) throws EchoError {
-		Map<Variable,String> res = new HashMap<Variable,String>();
+	public Map<EVariable,String> getVariables(String metamodel) throws EchoError {
+		Map<EVariable,String> res = new HashMap<EVariable,String>();
 		for (Object predicate : exps) {
 			res.putAll(OCLUtil.variablesOCLExpression((OCLExpression)predicate,metamodel));
 		}

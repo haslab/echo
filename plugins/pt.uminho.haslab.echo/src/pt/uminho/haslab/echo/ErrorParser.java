@@ -6,6 +6,7 @@ public class ErrorParser extends EchoError {
 	private static final long serialVersionUID = 1L;
 
 	public static final String OCL = "P001";
+	public static final String METAMODEL = "P002";
 
 	private Object object;
 	private String trans;

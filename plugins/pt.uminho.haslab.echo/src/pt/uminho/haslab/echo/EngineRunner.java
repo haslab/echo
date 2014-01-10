@@ -17,11 +17,11 @@ public interface EngineRunner {
 
     boolean repair(String modeluri) throws ErrorInternalEngine;
 
-    boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope) throws ErrorInternalEngine, ErrorUnsupported, InterruptedException;
+    boolean generate(String metaModelUri, Map<Entry<String, String>, Integer> scope, String target) throws ErrorInternalEngine, ErrorUnsupported, InterruptedException;
 
     void check(String qvtUri, List<String> modelUris) throws ErrorInternalEngine;
 
-    boolean enforce(String qvtUri, List<String> modelUris, String targetUri) throws ErrorInternalEngine,InterruptedException;
+    boolean enforce(String qvtUri, List<String> modelUris, List<String> targetUri) throws ErrorInternalEngine,InterruptedException;
 
     boolean generateQvt(String qvturi, List<String> insturis, String diruri, String metamodeluri) throws ErrorInternalEngine, ErrorUnsupported,InterruptedException;
 
