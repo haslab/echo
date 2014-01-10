@@ -19,7 +19,7 @@ import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.emf.URIUtil;
+import pt.uminho.haslab.mde.emf.URIUtil;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -37,7 +37,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
-
 import static com.google.common.primitives.Ints.max;
 
 public class AlloyRunner implements EngineRunner{

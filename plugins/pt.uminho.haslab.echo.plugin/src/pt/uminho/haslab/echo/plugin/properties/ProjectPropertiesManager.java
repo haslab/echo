@@ -18,9 +18,9 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
+import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 /**
  * This class stores and manages the project properties assigned to each project
@@ -103,7 +103,7 @@ public class ProjectPropertiesManager {
 			builder.append(",");
 		}
 		builder.append(";");
-		for (Constraint c : man.getConstraints()) {
+		for (EConstraint c : man.getConstraints()) {
 			builder.append(c.constraint);
 			builder.append("@");
 			builder.append(c.models.get(0));

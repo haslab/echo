@@ -4,7 +4,7 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:fm="FM"
-    xsi:schemaLocation="FM /pt.uminho.haslab.echo.examples/metamodels/fm2cfs/FM.ecore">
+    xsi:schemaLocation="FM /pt.uminho.haslab.echo.examples/metamodels/fm2cfs_simple/FM.ecore">
   <features
       name="&quot;String0&quot;"
       mandatory="true"/>

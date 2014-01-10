@@ -21,11 +21,13 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.emf.EchoParser;
-import pt.uminho.haslab.echo.emf.URIUtil;
-import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
+import pt.uminho.haslab.mde.emf.EMFParser;
+import pt.uminho.haslab.mde.emf.URIUtil;
+import pt.uminho.haslab.mde.transformation.EConstraintManager;
+import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 /**
  * Manages the project resources being tracked by Echo
@@ -37,14 +39,14 @@ public class ResourceManager {
 
 	private EchoReporter reporter = EchoReporter.getInstance();
 	private EchoRunner runner = EchoPlugin.getInstance().getRunner();
-	private EchoParser parser = EchoParser.getInstance();
+	private EMFParser parser = EMFParser.getInstance();
 
 	/** The map of managed model resources: MetamodelURI -> ListModelResources **/
 	private Map<String, List<IResource>> tracked = new HashMap<String, List<IResource>>();
 	private Map<String, List<IResource>> ctracked = new HashMap<String, List<IResource>>();
 	private Map<IResource, String> metas = new HashMap<IResource, String>();
 	/** The map of managed qvtr constraints: QVTRURI -> ListModelResources **/
-	public ConstraintManager constraints = new ConstraintManager();
+	public EConstraintManager constraints = new EConstraintManager();
 
 	/** the following are temporary variables that store resources while the user is selecting the new model
 	/** temporary qvt constraint resource */
@@ -161,7 +163,7 @@ public class ResourceManager {
 		runner.remModel(modelUri);
 		tracked.get(metaModelUri).remove(resModel);
 		
-		for (Constraint c : constraints.getAllConstraintsModel(resModel)) {
+		for (EConstraint c : constraints.getAllConstraintsModel(resModel)) {
 			reporter.debug("Will remove  " + c.constraint);
 			this.removeQVTConstraint(c);
 		}
@@ -271,6 +273,7 @@ public class ResourceManager {
 	 * Adds a new QVT constraint to the system.
 	 * If models are not tracked, adds them to the system.
 	 * @param resqvt the qvt resource
+	 * @param deps 
 	 * @param resmodelfst the first model to be related
 	 * @param resmodelsnd the second model to be related
 	 * @throws ErrorUnsupported
@@ -279,7 +282,7 @@ public class ResourceManager {
 	 * @throws ErrorParser
 	 * @throws ErrorAPI 
 	 */
-	private Constraint addQVTConstraintAction(IResource resqvt, List<IResource> resmodels) throws EchoError {
+	private EConstraint addQVTConstraintAction(IResource resqvt, List<IResource> resmodels) throws EchoError {
 		String qvturi = resqvt.getFullPath().toString();
 		List<EObject> models = new ArrayList<EObject>();
 		List<String> metamodels = new ArrayList<String>();
@@ -318,17 +321,18 @@ public class ResourceManager {
 		}
 		
 		
-		Constraint c = constraints.addConstraint(resqvt,resmodels);
+		EConstraint c = constraints.addConstraint(resqvt,resmodels);
 		return c;
 	}
 	
-	public Constraint addQVTConstraint(IResource resqvt, List<IResource> resmodels)
+	public EConstraint addQVTConstraint(IResource resqvt, List<IResource> resmodels)
 			throws EchoError {
 		
-		Constraint c = addQVTConstraintAction( resqvt, resmodels);
+		EConstraint c = addQVTConstraintAction(resqvt, resmodels);
 		conformQVT(c);
 		return c;
 	}
+
 	
 	/**
 	 * Removes a particular QVT-R constraint between two model resources
@@ -338,7 +342,7 @@ public class ResourceManager {
 	 * @throws ErrorAPI
 	 * @throws ErrorParser 
 	 */
-	public void removeQVTConstraint(Constraint c) throws EchoError {
+	public void removeQVTConstraint(EConstraint c) throws EchoError {
 		constraints.removeConstraint(c);
 		if (constraints.getAllConstraintsConstraint(c.constraint) == null ||
 				constraints.getAllConstraintsConstraint(c.constraint).size() == 0)
@@ -349,19 +353,26 @@ public class ResourceManager {
 	}
 	
 	public void removeAllQVTConstraint(IResource r) throws EchoError {
-		for (Constraint c : constraints.getAllConstraintsConstraint(r))
+		for (EConstraint c : constraints.getAllConstraintsConstraint(r))
 			this.removeQVTConstraint(c);
 	}
 
 	
-	public List<Constraint> getConstraints() {
+	public List<EConstraint> getConstraints() {
 		return constraints.getAllConstraints();
 	}
 	
+	public ETransformation getTransformation(IResource constraint) {
+		if (runner.hasQVT(constraint.getFullPath().toString())) {
+			return runner.getQVT(constraint.getFullPath().toString());
+		}
+		return null;
+		
+	}
 	
-	public List<Constraint> getConstraints(IResource constraint) {
-		List<Constraint> res = constraints.getAllConstraintsConstraint(constraint);
-		if (res == null) res = new ArrayList<Constraint>();
+	public List<EConstraint> getConstraints(IResource constraint) {
+		List<EConstraint> res = constraints.getAllConstraintsConstraint(constraint);
+		if (res == null) res = new ArrayList<EConstraint>();
 		return res;
 	}
 	
@@ -388,7 +399,7 @@ public class ResourceManager {
 
 	public void reloadQVTConstraint(IResource res) throws EchoError {
 		reloadQVTConstraintAction(res);
-		for (Constraint c : constraints.getAllConstraintsConstraint(res)) {
+		for (EConstraint c : constraints.getAllConstraintsConstraint(res)) {
              reporter.debug("Checking " + c);
              conformQVT(c);
 		 }
@@ -426,7 +437,7 @@ public class ResourceManager {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorAPI
 	 */
-	private void conformQVT(Constraint c) throws EchoError {
+	private void conformQVT(EConstraint c) throws EchoError {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
 		List<String> modeluris = new ArrayList<String>(2);
@@ -448,8 +459,8 @@ public class ResourceManager {
 	private void conformAllQVT(IResource res) throws EchoError {
 		GraphView v = EchoPlugin.getInstance().getGraphView();
 		if (v != null) v.clearGraph();
-		List<Constraint> cs = constraints.getAllConstraintsModel(res);
-		for (Constraint c : cs) {
+		List<EConstraint> cs = constraints.getAllConstraintsModel(res);
+		for (EConstraint c : cs) {
 			List<String> modeluris = new ArrayList<String>();
 			for (IResource r : c.models)
 				modeluris.add(r.getFullPath().toString());
@@ -558,5 +569,6 @@ public class ResourceManager {
 		list.add(path);
 		runner.show(list);
 	}
+	
 
 }

@@ -20,7 +20,7 @@ import pt.uminho.haslab.echo.alloy.AlloyTuple;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.emf.EchoParser;
+import pt.uminho.haslab.mde.emf.EMFParser;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
@@ -49,7 +49,7 @@ public class CLIMain {
 		EchoOptionsSetup.init(options);
 
 		reporter.beginStage(Task.ECHO_RUN);
-		EchoParser parser = EchoParser.getInstance();
+		EMFParser parser = EMFParser.getInstance();
 		EchoRunner runner = new EchoRunner(EngineFactory.ALLOY);
 
 		reporter.beginStage(Task.PROCESS_RESOURCES);		

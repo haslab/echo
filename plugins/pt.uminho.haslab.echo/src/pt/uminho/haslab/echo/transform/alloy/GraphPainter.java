@@ -5,10 +5,9 @@ import java.util.List;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
-
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 
 import edu.mit.csail.sdg.alloy4graph.DotColor;
 import edu.mit.csail.sdg.alloy4graph.DotShape;
@@ -68,7 +67,7 @@ public class GraphPainter {
 				else if (!AlloyUtil.isElement(label)){
 					String metamodeluri = AlloyUtil.getMetamodelURIfromLabel(label);
 					String classname = AlloyUtil.getClassifierName(label);
-					EClass eclass = (EClass) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, classname);					
+					EClassifier eclass = (EClassifier) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, classname);					
 					if (classname != null && AlloyEchoTranslator.getInstance().getSigFromClass(metamodeluri, eclass) != null) {
 						vizstate.label.put(atype, classname);
 						vizstate.nodeColor.put(atype, DotColor.GRAY);

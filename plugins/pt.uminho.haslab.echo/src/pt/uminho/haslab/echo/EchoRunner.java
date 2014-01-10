@@ -14,9 +14,13 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
-import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
+import pt.uminho.haslab.mde.EMDEManager;
+import pt.uminho.haslab.mde.emf.EMFParser;
+import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.qvt.QVTTransformation;
 import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
@@ -89,6 +93,10 @@ public class EchoRunner {
 		return EchoTranslator.getInstance().hasModel(modelUri);
 	}
 
+	public EModel getModel(String modelUri) {
+		return EchoTranslator.getInstance().getModel(modelUri);
+	}
+	
 	/**
 	 * Translates a QVT-R transformation into Alloy 
 	 * @param qvt the RelationalTransformation representing the QVT-R transformation to translate
@@ -98,7 +106,8 @@ public class EchoRunner {
 	 * @throws ErrorParser
 	 */
 	public void addQVT(RelationalTransformation qvt) throws EchoError {
-		EchoTranslator.getInstance().translateQVT(qvt);
+		QVTTransformation t = new QVTTransformation(qvt);
+		EchoTranslator.getInstance().translateConstraint(t);
 	}
 
 	public boolean hasQVT(String qvtUri) {
@@ -109,6 +118,9 @@ public class EchoRunner {
 		return EchoTranslator.getInstance().remQVT(qvtUri);
 	}
 	
+	public ETransformation getQVT(String qvtUri) {
+		return EchoTranslator.getInstance().getQVT(qvtUri);
+	}
 	
 	public String getMetaModelFromModelPath(String path)
     {
@@ -116,7 +128,7 @@ public class EchoRunner {
     }
 	
 	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError {
-		EchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
+		//EchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
 	}
 
 
@@ -380,8 +392,8 @@ public class EchoRunner {
 		}
 	}
 
-	public void backUpInstance(String targetPath) {
-		EchoParser.getInstance().backUpTarget(targetPath);
+	public void backUpInstance(String targetPath) throws ErrorParser {
+		EMDEManager.getInstance().backUpTarget(targetPath);
 	}
 
 

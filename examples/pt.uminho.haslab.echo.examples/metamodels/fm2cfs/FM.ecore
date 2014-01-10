@@ -4,10 +4,18 @@
   <eClassifiers xsi:type="ecore:EClass" name="Feature">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="mandatory" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="children" upperBound="-1"
+        eType="#//Feature" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GroupFeature" eSuperTypes="#//Feature">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="op" eType="#//GroupOp"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="FeatureModel">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="features" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/fm2cfs/FM.ecore#//Feature"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="#//Feature"
         containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="GroupOp">
+    <eLiterals name="And" literal="And"/>
+    <eLiterals name="Xor" literal="Xor"/>
   </eClassifiers>
 </ecore:EPackage>

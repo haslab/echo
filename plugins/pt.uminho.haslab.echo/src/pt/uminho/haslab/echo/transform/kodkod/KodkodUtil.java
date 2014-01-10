@@ -4,7 +4,7 @@ import kodkod.ast.Relation;
 
 import org.eclipse.emf.ecore.EPackage;
 
-import pt.uminho.haslab.echo.emf.URIUtil;
+import pt.uminho.haslab.mde.emf.URIUtil;
 
 class KodkodUtil {
 	

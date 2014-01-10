@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
+import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 /**
  * Manages Echo error markers
@@ -85,7 +85,7 @@ public class EchoMarker {
 	 * @return the list of created markers
 	 * @throws ErrorAPI 
 	 */
-	public static List<IMarker> createInterMarker(Constraint constraint) throws ErrorAPI {
+	public static List<IMarker> createInterMarker(EConstraint constraint) throws ErrorAPI {
 		List<IMarker> marks = new ArrayList<IMarker>();
 		IMarker mark;
 		try {
@@ -158,7 +158,7 @@ public class EchoMarker {
 	 * @param constraint the constraint to be removed
 	 * @throws ErrorAPI
 	 */
-	public static void removeRelatedInterMarker(Constraint constraint) throws ErrorAPI {
+	public static void removeRelatedInterMarker(EConstraint constraint) throws ErrorAPI {
 		String constrainturi = constraint.constraint.getFullPath().toString();
 
 		try {

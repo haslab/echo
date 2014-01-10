@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="ASCII"?>
-<cf:Configuration xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cf="CF" xsi:schemaLocation="CF /pt.uminho.haslab.echo.examples/metamodels/fm2cfs/CF.ecore">
+<cf:Configuration xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cf="CF" xsi:schemaLocation="CF /pt.uminho.haslab.echo.examples/metamodels/fm2cfs_simple/CF.ecore">
   <features name="&quot;String0&quot;"/>
 </cf:Configuration>

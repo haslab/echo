@@ -543,7 +543,7 @@ class ECore2Alloy {
 							.oneOf("trg_");
 					fact = ((field.join(model_var.get())).join(d.get())).one()
 							.forAll(d);
-					constraint_conforms = constraint_conforms.and(fact);
+					//constraint_conforms = constraint_conforms.and(fact);
 				}
 
 				Expr parState = sig2statefield.get(classsig);

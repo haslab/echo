@@ -9,4 +9,5 @@ transformation fm2cfs (fm : FM, cf1 : CF, cf2 : CF) {
 		domain cf1 s1 : Feature {name = n};
 		domain cf2 s2 : Feature {name = n};
 	}
+	
 }

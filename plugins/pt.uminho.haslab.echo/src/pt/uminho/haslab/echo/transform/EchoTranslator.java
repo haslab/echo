@@ -7,6 +7,8 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.EngineFactory;
+import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
  * Created with IntelliJ IDEA.
@@ -40,15 +42,17 @@ public abstract class EchoTranslator {
 
     public abstract void remModel(String modelUri);
 
-    public abstract void translateQVT(RelationalTransformation qvt) throws EchoError;
+    public abstract void translateConstraint(ETransformation constraint) throws EchoError;
 
     public abstract boolean hasQVT(String qvtUri);
 
-    public abstract void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError;
-
     public abstract boolean remQVT(String qvtUri);
+
+    public abstract ETransformation getQVT(String qvtUri);
 
     public abstract boolean hasMetaModel(String metaModelUri);
 
     public abstract boolean hasModel(String modelUri);
+
+	public abstract EModel getModel(String modelUri);
 }

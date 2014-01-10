@@ -22,12 +22,12 @@ import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
+import pt.uminho.haslab.mde.emf.EMFParser;
 
 /**
  * Marker resolution for inter-model errors

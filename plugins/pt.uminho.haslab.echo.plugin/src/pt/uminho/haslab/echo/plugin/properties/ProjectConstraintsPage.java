@@ -23,13 +23,15 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbenchPropertyPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.wizards.ConstraintAddWizard;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
+import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 public class ProjectConstraintsPage extends PropertyPage implements
 IWorkbenchPropertyPage {
@@ -42,7 +44,7 @@ IWorkbenchPropertyPage {
 	protected Control createContents(Composite parent) {
 		project = (IProject) getElement().getAdapter(IProject.class);
 
-		List<Constraint> constraints = ProjectPropertiesManager.getProperties(project).getConstraints();
+		List<EConstraint> constraints = ProjectPropertiesManager.getProperties(project).getConstraints();
 
 		Composite rootcomposite = new Composite(parent, SWT.NONE);
 
@@ -90,6 +92,7 @@ IWorkbenchPropertyPage {
 
 		Button addButton = new Button(buttonscomposite,SWT.PUSH);
 		Button remButton = new Button(buttonscomposite,SWT.PUSH);
+		Button depButton = new Button(buttonscomposite,SWT.PUSH);
 		Button allButton = new Button(buttonscomposite,SWT.PUSH);
 		addButton.setText("Add constraint");
 		addButton.addSelectionListener(new SelectionAdapter() {
@@ -115,7 +118,15 @@ IWorkbenchPropertyPage {
 				constraintlist.getTable().removeAll();
 			}
 		});
-		
+		depButton.setText("Manage dependencies");
+		depButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ETransformation t = ProjectPropertiesManager.getProperties(project).getTransformation(getSelectedContraint().constraint);
+				DependencyTransformationManageDialog d = new DependencyTransformationManageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),t);
+				d.open();
+			}
+		});
 		return rootcomposite;	
 
 	}
@@ -123,8 +134,7 @@ IWorkbenchPropertyPage {
 	@Override
 	protected void performApply() {
 		for (TableItem x : constraintlist.getTable().getItems()) {
-			System.out.println("BUH?");
-			Constraint c = (Constraint) x.getData();
+			EConstraint c = (EConstraint) x.getData();
 			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
 				try {
 					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.models);
@@ -134,11 +144,10 @@ IWorkbenchPropertyPage {
 				};
 
 		}
-		for (Constraint x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
-			System.out.println("BUH?");
+		for (EConstraint x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
 			boolean has = false;
 			for (TableItem y : constraintlist.getTable().getItems()) 
-				if (x.equals((Constraint) y.getData())) has = true;
+				if (x.equals((EConstraint) y.getData())) has = true;
 			if (!has) 
 				try {
 					ProjectPropertiesManager.getProperties(project).removeQVTConstraint(x);
@@ -176,7 +185,7 @@ IWorkbenchPropertyPage {
 		}
 
 		public String getText(Object obj) {
-			Constraint qvt = (Constraint) obj;
+			EConstraint qvt = (EConstraint) obj;
 			if (i == 0) return qvt.constraint.getProjectRelativePath().toString();
 			else return qvt.models.get(i-1).getProjectRelativePath().toString();
 		}
@@ -188,5 +197,9 @@ IWorkbenchPropertyPage {
 				return EchoPlugin.getInstance().getImageRegistry().get(EchoPlugin.XMI_ICON);
 		}
 
+	}
+	
+	private EConstraint getSelectedContraint() {
+		return (EConstraint) constraintlist.getTable().getSelection()[0].getData();
 	}
 }

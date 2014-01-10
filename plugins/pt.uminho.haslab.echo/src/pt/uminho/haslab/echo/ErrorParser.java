@@ -7,6 +7,7 @@ public class ErrorParser extends EchoError {
 
 	public static final String OCL = "P001";
 	public static final String METAMODEL = "P002";
+	public static final String CONSTRAINT = "P003";
 
 	private Object object;
 	private String trans;

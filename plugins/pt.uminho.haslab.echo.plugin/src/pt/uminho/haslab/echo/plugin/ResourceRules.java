@@ -5,8 +5,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
+import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 public class ResourceRules implements ISchedulingRule{
 
@@ -49,7 +49,7 @@ public class ResourceRules implements ISchedulingRule{
 						case "xmi" : return res.equals(res2);
 						case "ecore" : return manager.getMetamodel(res).equals(res2);
 						case "qvtr" : 
-							for (Constraint c : manager.getConstraints(res2))
+							for (EConstraint c : manager.getConstraints(res2))
 								if (c.models.get(0).equals(res) || c.models.get(1).equals(res))
 									return true;
 					}
@@ -59,7 +59,7 @@ public class ResourceRules implements ISchedulingRule{
 						case "ecore" : return res.equals(res2);
 						case "xmi" : return manager.getMetamodel(res2).equals(res);
 						case "qvtr" : 
-							for (Constraint c : manager.getConstraints(res2))
+							for (EConstraint c : manager.getConstraints(res2))
 								if (manager.getMetamodel(c.models.get(0)).equals(res) || manager.getMetamodel(c.models.get(1)).equals(res))
 									return true;
 					}
@@ -67,11 +67,11 @@ public class ResourceRules implements ISchedulingRule{
 				case "qvtr" :
 					switch (res2.getFileExtension()) {
 						case "ecore" :
-							for (Constraint c : manager.getConstraints(res))
+							for (EConstraint c : manager.getConstraints(res))
 								if (manager.getMetamodel(c.models.get(0)).equals(res2) || manager.getMetamodel(c.models.get(1)).equals(res2))
 									return true;
 						case "xmi" : 
-							for (Constraint c : manager.getConstraints(res))
+							for (EConstraint c : manager.getConstraints(res))
 								if (c.models.get(0).equals(res2) || c.models.get(1).equals(res2))
 									return true;
 						case "qvtr" : return res.equals(res2);

@@ -8,11 +8,11 @@ import java.util.Map;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.consistency.EDependency;
-import pt.uminho.haslab.echo.consistency.EModelDomain;
-import pt.uminho.haslab.echo.consistency.EModelParameter;
-import pt.uminho.haslab.echo.consistency.ERelation;
-import pt.uminho.haslab.echo.consistency.ETransformation;
+import pt.uminho.haslab.mde.transformation.EDependency;
+import pt.uminho.haslab.mde.transformation.EModelDomain;
+import pt.uminho.haslab.mde.transformation.EModelParameter;
+import pt.uminho.haslab.mde.transformation.ERelation;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -27,7 +27,7 @@ class Transformation2Alloy {
 	private Func func;
 	
 	/** the transformation being translated */
-	private ETransformation transformation;
+	public final ETransformation transformation;
 	
 	/** the Alloy functions defining sub-relation consistency */
 	private Map<String,Func> subrelationcall_defs = new HashMap<String,Func>();

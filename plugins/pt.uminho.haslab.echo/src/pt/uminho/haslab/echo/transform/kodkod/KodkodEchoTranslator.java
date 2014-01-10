@@ -5,9 +5,9 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.*;
-import pt.uminho.haslab.echo.emf.EchoParser;
-import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.mde.emf.EMFParser;
+import pt.uminho.haslab.mde.emf.URIUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +65,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
     @Override
     public void translateModel(EObject model) throws EchoError {
         String modelUri = URIUtil.resolveURI(model.eResource());
-        String metaModelURI = EchoParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
+        String metaModelURI = EMFParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
         Ecore2Kodkod e2k = metaModels.get(metaModelURI);
         XMI2Kodkod x2k = new XMI2Kodkod(model,e2k);
         models.put(modelUri,x2k);
