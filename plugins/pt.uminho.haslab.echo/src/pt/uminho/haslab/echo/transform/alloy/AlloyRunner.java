@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
+<<<<<<< HEAD
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,11 +33,27 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+=======
+import edu.mit.csail.sdg.alloy4.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+<<<<<<< HEAD
+=======
+import org.eclipse.emf.ecore.EClass;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.emf.URIUtil;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Map.Entry;
+
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 import static com.google.common.primitives.Ints.max;
 
 public class AlloyRunner implements EngineRunner{

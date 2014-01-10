@@ -1,10 +1,5 @@
 package pt.uminho.haslab.mde.emf;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -20,12 +15,26 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
 import org.eclipse.xtext.resource.XtextResourceSet;
-
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 
+<<<<<<< HEAD:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/mde/emf/EMFParser.java
 public class EMFParser {
+=======
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class EchoParser {
+	//TODO: there should be some helper classes for stuff like getRootClass, which are totally independent from kodkod or alloy
+	private static final EchoParser instance = new EchoParser();
+		
+	public static EchoParser getInstance() {
+		return instance;
+	}
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/echo/emf/EchoParser.java
 
 	private static final EMFParser instance = new EMFParser();
     

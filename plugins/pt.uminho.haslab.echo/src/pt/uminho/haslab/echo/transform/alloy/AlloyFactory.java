@@ -1,9 +1,8 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
+import pt.uminho.haslab.echo.transform.TransformFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +10,7 @@ import pt.uminho.haslab.echo.transform.alloy.AlloyEchoTranslator;
  * Date: 10/23/13
  * Time: 7:05 PM
  */
-public class AlloyFactory extends EngineFactory {
+public class AlloyFactory implements TransformFactory {
 
 
     @Override

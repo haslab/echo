@@ -1,12 +1,17 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
+<<<<<<< HEAD:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/mde/transformation/qvt/QVTModel.java
 
 import pt.uminho.haslab.mde.emf.URIUtil;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
+=======
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.emf.URIUtil;
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/echo/consistency/qvt/QVTModel.java
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class QVTModel extends EModelParameter {
 

@@ -1,39 +1,33 @@
 package pt.uminho.haslab.echo;
 
+import edu.mit.csail.sdg.alloy4viz.VizState;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.TransformFactory;
+import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
+import pt.uminho.haslab.mde.EMDEManager;
+import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.qvt.QVTTransformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
-import pt.uminho.haslab.mde.EMDEManager;
-import pt.uminho.haslab.mde.emf.EMFParser;
-import pt.uminho.haslab.mde.model.EModel;
-import pt.uminho.haslab.mde.transformation.ETransformation;
-import pt.uminho.haslab.mde.transformation.qvt.QVTTransformation;
-import edu.mit.csail.sdg.alloy4viz.VizState;
+import java.util.concurrent.*;
 
 public class EchoRunner {
 
     //TODO: Finished Runner-> store the last finished runner, and use that one in write etc.
 	private EngineRunner runner = null;
-    private EngineFactory engineFactory;
+    private TransformFactory transformFactory;
 	private ExecutorService executor = Executors.newFixedThreadPool(5);
     private Future<Boolean> currentOperation = null;
 	private List<EchoSolution> solutions = new ArrayList<EchoSolution>();
 	private int current_solution = 0;
-    public EchoRunner(EngineFactory factory) {
-        engineFactory = factory;
+    public EchoRunner(TransformFactory factory) {
+        transformFactory = factory;
         EchoTranslator.init(factory);
     }
 
@@ -140,7 +134,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public boolean conforms(List<String> modeluris) throws EchoError {
-		EngineRunner runner  = engineFactory.createRunner();
+		EngineRunner runner  = transformFactory.createRunner();
 		runner.conforms(modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -148,7 +142,7 @@ public class EchoRunner {
 	public boolean show(List<String> modeluris) throws EchoError {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
-		runner = engineFactory.createRunner();
+		runner = transformFactory.createRunner();
 		runner.show(modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -163,7 +157,7 @@ public class EchoRunner {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
-		runner = engineFactory.createRunner();
+		runner = transformFactory.createRunner();
 		runner.repair(targeturi);
 	}
 
@@ -181,7 +175,7 @@ public class EchoRunner {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
-		runner =  engineFactory.createRunner();
+		runner =  transformFactory.createRunner();
 		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
             public Boolean call() throws EchoError {
@@ -214,7 +208,7 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 */
 	public boolean check(String qvturi, List<String> modeluris) throws EchoError {
-		EngineRunner runner =  engineFactory.createRunner();
+		EngineRunner runner =  transformFactory.createRunner();
 		runner.check(qvturi, modeluris);
 		return runner.getSolution().satisfiable();
 	}
@@ -231,7 +225,7 @@ public class EchoRunner {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
-		runner = engineFactory.createRunner();
+		runner = transformFactory.createRunner();
 		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
             public Boolean call() throws EchoError {
@@ -272,7 +266,7 @@ public class EchoRunner {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
-		runner =  engineFactory.createRunner();
+		runner =  transformFactory.createRunner();
 		Callable<Boolean> x = new Callable<Boolean>() {
             @Override
             public Boolean call() throws EchoError {

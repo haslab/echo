@@ -3,7 +3,6 @@ package pt.uminho.haslab.mde.transformation.atl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EModelDomain;

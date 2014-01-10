@@ -1,14 +1,13 @@
 package pt.uminho.haslab.echo.plugin.markers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-
 import pt.uminho.haslab.echo.ErrorAPI;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manages Echo error markers
@@ -104,7 +103,7 @@ public class EchoMarker {
 
 	/**
 	 * Creates an individual inter-model error marker on a model resource
-	 * @param relatedres the related model
+	 *
 	 * @return the created marker
 	 * @throws ErrorAPI 
 	 */

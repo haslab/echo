@@ -1,18 +1,13 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+<<<<<<< HEAD
 import pt.uminho.haslab.mde.model.ECondition;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
@@ -26,6 +21,13 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+=======
+import pt.uminho.haslab.echo.consistency.*;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Map.Entry;
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 
 public class Relation2Alloy {
 
@@ -98,7 +100,7 @@ public class Relation2Alloy {
 	/**
 	 * Creates a relation to Alloy translator for a top relation
 	 * @param transformation_translator the parent transformation translator
-	 * @param direction the test direction
+
 	 * @param relation the relation being translated
 	 * @throws EchoError
 	 */
@@ -110,7 +112,7 @@ public class Relation2Alloy {
 	 * Constructs a new relation to Alloy translator.
 	 * Translates a relation (top or non top) to Alloy in a given direction.
 	 * @param relation the relation being translated
-	 * @param direction the target direction of the test
+
 	 * @param top whether the relation is top or not
 	 * @throws EchoError
 	 */

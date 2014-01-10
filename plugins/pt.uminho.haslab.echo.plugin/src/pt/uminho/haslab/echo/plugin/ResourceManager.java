@@ -1,17 +1,12 @@
 package pt.uminho.haslab.echo.plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+<<<<<<< HEAD
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
@@ -21,6 +16,12 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+=======
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.emf.EchoParser;
+import pt.uminho.haslab.echo.emf.URIUtil;
+import pt.uminho.haslab.echo.plugin.ConstraintManager.Constraint;
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 import pt.uminho.haslab.echo.plugin.markers.EchoMarker;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 import pt.uminho.haslab.mde.emf.EMFParser;
@@ -28,6 +29,12 @@ import pt.uminho.haslab.mde.emf.URIUtil;
 import pt.uminho.haslab.mde.transformation.EConstraintManager;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Manages the project resources being tracked by Echo
@@ -273,9 +280,13 @@ public class ResourceManager {
 	 * Adds a new QVT constraint to the system.
 	 * If models are not tracked, adds them to the system.
 	 * @param resqvt the qvt resource
+<<<<<<< HEAD
 	 * @param deps 
 	 * @param resmodelfst the first model to be related
 	 * @param resmodelsnd the second model to be related
+=======
+	 * @param resmodels the first model to be related
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 	 * @throws ErrorUnsupported
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform

@@ -1,23 +1,16 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EEnumLiteral;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EStructuralFeature;
+import edu.mit.csail.sdg.alloy4.ConstList;
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorFatal;
+import edu.mit.csail.sdg.alloy4.ErrorSyntax;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.Type;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+<<<<<<< HEAD
 import pt.uminho.haslab.mde.emf.URIUtil;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
@@ -45,6 +38,16 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
+=======
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.EVariable;
+import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
+import pt.uminho.haslab.echo.emf.URIUtil;
+
+import java.util.*;
+import java.util.Map.Entry;
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 
 public class AlloyUtil {
 

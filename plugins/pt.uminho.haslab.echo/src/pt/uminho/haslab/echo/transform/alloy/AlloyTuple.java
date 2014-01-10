@@ -1,10 +1,9 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.List;
-import java.util.Map;
-
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.

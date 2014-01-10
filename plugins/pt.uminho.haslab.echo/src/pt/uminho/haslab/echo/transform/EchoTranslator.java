@@ -2,11 +2,8 @@ package pt.uminho.haslab.echo.transform;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
@@ -24,9 +21,12 @@ public abstract class EchoTranslator {
         return instance;
     }
 
-    public static void init(EngineFactory factory){
+
+    public static void init(TransformFactory factory){
         instance = factory.createTranslator();
     }
+
+    public abstract IFormula getTrueFormula();
 
     public abstract void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws EchoError;
 

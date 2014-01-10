@@ -1,18 +1,24 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
+import org.eclipse.qvtd.pivot.qvtbase.Rule;
+import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+import pt.uminho.haslab.echo.ErrorParser;
+<<<<<<< HEAD:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/mde/transformation/qvt/QVTTransformation.java
+import pt.uminho.haslab.mde.transformation.EModelParameter;
+import pt.uminho.haslab.mde.transformation.ERelation;
+import pt.uminho.haslab.mde.transformation.ETransformation;
+=======
+import pt.uminho.haslab.echo.consistency.EModelParameter;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.ETransformation;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.qvtd.pivot.qvtbase.Rule;
-import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.mde.transformation.EModelParameter;
-import pt.uminho.haslab.mde.transformation.ERelation;
-import pt.uminho.haslab.mde.transformation.ETransformation;
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/echo/consistency/qvt/QVTTransformation.java
 
 /**
  * An implementation of a model transformation in QVT-R

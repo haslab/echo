@@ -1,11 +1,8 @@
 package pt.uminho.haslab.echo.transform;
 
-import java.util.List;
-
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,24 +1,21 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4.ConstList;
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorSyntax;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.*;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+<<<<<<< HEAD
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
@@ -60,6 +57,26 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+=======
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.consistency.EDependency;
+import pt.uminho.haslab.echo.consistency.EModelDomain;
+import pt.uminho.haslab.echo.consistency.ERelation;
+import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
+import pt.uminho.haslab.echo.consistency.qvt.QVTTransformation;
+import pt.uminho.haslab.echo.emf.EchoParser;
+import pt.uminho.haslab.echo.emf.URIUtil;
+import pt.uminho.haslab.echo.model.EElement;
+import pt.uminho.haslab.echo.model.EModel;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.IFormula;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 
 
 public class AlloyEchoTranslator extends EchoTranslator {
@@ -73,6 +90,11 @@ public class AlloyEchoTranslator extends EchoTranslator {
     }
 
     @Override
+    public IFormula getTrueFormula() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws EchoError {
         writeAllInstances(((AlloyTuple) solution.getContents()).getSolution(),metaModelUri,modelUri,
                 ((AlloyTuple)solution.getContents()).getState(modelUri));
@@ -81,7 +103,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
     @Override
     public void writeInstance(EchoSolution solution, String modelUri) throws EchoError {
     	PrimSig statesig = ((AlloyTuple)solution.getContents()).getState(modelUri);
-        writeInstance(((AlloyTuple)solution.getContents()).getSolution(),modelUri,statesig);
+        writeInstance(((AlloyTuple) solution.getContents()).getSolution(), modelUri, statesig);
     }
 
     @Override

@@ -1,11 +1,11 @@
 package pt.uminho.haslab.mde.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class EVariable {
 	

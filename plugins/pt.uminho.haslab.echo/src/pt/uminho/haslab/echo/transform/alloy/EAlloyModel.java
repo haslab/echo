@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,8 @@ import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.model.EProperty;
 import pt.uminho.haslab.mde.model.EString;
 import pt.uminho.haslab.mde.model.EValue;
+=======
+>>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -28,6 +31,16 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import org.eclipse.emf.ecore.EEnumLiteral;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.model.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class EAlloyModel {
 		
