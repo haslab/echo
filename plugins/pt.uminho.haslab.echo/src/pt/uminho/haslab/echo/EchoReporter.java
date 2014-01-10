@@ -1,11 +1,11 @@
 package pt.uminho.haslab.echo;
 
+import pt.uminho.haslab.echo.EchoRunner.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import pt.uminho.haslab.echo.EchoRunner.Task;
 
 public class EchoReporter {
 

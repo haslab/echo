@@ -1,13 +1,7 @@
 package pt.uminho.haslab.echo.consistency.atl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import org.eclipse.emf.ecore.EObject;
-
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.consistency.Condition;
@@ -16,7 +10,12 @@ import pt.uminho.haslab.echo.emf.OCLUtil;
 import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy2;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ATLCondition implements Condition {
 	private List<Object> exps = new ArrayList<Object>();

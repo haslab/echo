@@ -1,13 +1,12 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
-import java.util.*;
-
-
 import kodkod.ast.Relation;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.util.Pair;
+
+import java.util.*;
 
 class XMI2Kodkod {
 

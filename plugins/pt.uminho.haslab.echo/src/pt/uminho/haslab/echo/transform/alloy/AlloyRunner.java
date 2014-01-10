@@ -1,42 +1,20 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.eclipse.emf.ecore.EClass;
-
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.EngineRunner;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.emf.URIUtil;
-import edu.mit.csail.sdg.alloy4.A4Reporter;
-import edu.mit.csail.sdg.alloy4.ConstList;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4.ErrorWarning;
-import edu.mit.csail.sdg.alloy4.WorkerEngine;
-import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Command;
-import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
-import edu.mit.csail.sdg.alloy4compiler.ast.Func;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+import org.eclipse.emf.ecore.EClass;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.emf.URIUtil;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Map.Entry;
 
 import static com.google.common.primitives.Ints.max;
 

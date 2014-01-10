@@ -1,24 +1,18 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.consistency.Model;
+import pt.uminho.haslab.echo.consistency.Relation;
+import pt.uminho.haslab.echo.consistency.Transformation;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.consistency.Model;
-import pt.uminho.haslab.echo.consistency.Relation;
-import pt.uminho.haslab.echo.consistency.Transformation;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
-import edu.mit.csail.sdg.alloy4compiler.ast.Func;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 
 class Transformation2Alloy {
 

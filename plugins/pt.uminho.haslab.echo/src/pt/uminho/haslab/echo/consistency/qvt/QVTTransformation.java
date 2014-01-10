@@ -1,18 +1,17 @@
 package pt.uminho.haslab.echo.consistency.qvt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.consistency.Model;
 import pt.uminho.haslab.echo.consistency.Relation;
 import pt.uminho.haslab.echo.consistency.Transformation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class QVTTransformation implements Transformation {

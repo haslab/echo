@@ -1,9 +1,8 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
-import pt.uminho.haslab.echo.EngineFactory;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.kodkod.KodkodEchoTranslator;
+import pt.uminho.haslab.echo.transform.TransformFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +10,7 @@ import pt.uminho.haslab.echo.transform.kodkod.KodkodEchoTranslator;
  * Date: 10/24/13
  * Time: 12:31 PM
  */
-public class KodkodFactory extends EngineFactory{
+public class KodkodFactory implements TransformFactory {
     @Override
     public EngineRunner createRunner() {
         return new KodkodRunner();

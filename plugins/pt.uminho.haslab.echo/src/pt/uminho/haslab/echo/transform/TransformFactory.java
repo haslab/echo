@@ -1,8 +1,8 @@
-package pt.uminho.haslab.echo;
+package pt.uminho.haslab.echo.transform;
 
+import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.transform.alloy.AlloyFactory;
 import pt.uminho.haslab.echo.transform.kodkod.KodkodFactory;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,16 +10,18 @@ import pt.uminho.haslab.echo.transform.EchoTranslator;
  * Date: 10/23/13
  * Time: 6:59 PM
  */
-public abstract class EngineFactory {
+public interface TransformFactory {
 
 
-    public static final EngineFactory ALLOY = new AlloyFactory();
-    public static final EngineFactory KODKOD = new KodkodFactory();
+    public static final TransformFactory ALLOY = new AlloyFactory();
+    public static final TransformFactory KODKOD = new KodkodFactory();
 
 
     public abstract EngineRunner createRunner();
 
     public abstract EchoTranslator createTranslator();
+
+
 
 
 

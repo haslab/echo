@@ -1,23 +1,5 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EEnumLiteral;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.EchoRunner.Task;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -25,6 +7,15 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.*;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class XMI2Alloy {
 		

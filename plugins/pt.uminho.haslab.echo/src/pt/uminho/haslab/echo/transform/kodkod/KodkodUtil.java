@@ -1,9 +1,7 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
 import kodkod.ast.Relation;
-
 import org.eclipse.emf.ecore.EPackage;
-
 import pt.uminho.haslab.echo.emf.URIUtil;
 
 class KodkodUtil {

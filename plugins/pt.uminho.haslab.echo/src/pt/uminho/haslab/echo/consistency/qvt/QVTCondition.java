@@ -1,21 +1,19 @@
 package pt.uminho.haslab.echo.consistency.qvt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.consistency.Condition;
 import pt.uminho.haslab.echo.consistency.Variable;
 import pt.uminho.haslab.echo.emf.OCLUtil;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class QVTCondition implements Condition {
 	private List<Object> exps = new ArrayList<Object>();

@@ -1,12 +1,12 @@
 package pt.uminho.haslab.echo.consistency;
 
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 
 public interface Condition {
 

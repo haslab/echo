@@ -21,7 +21,7 @@ import org.osgi.framework.BundleContext;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.EngineFactory;
+import pt.uminho.haslab.echo.transform.TransformFactory;
 import pt.uminho.haslab.echo.plugin.listeners.ResourceChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
@@ -59,7 +59,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 	public EchoPlugin() {
 		super();
 		instance = this;
-        runner = new EchoRunner(EngineFactory.ALLOY);
+        runner = new EchoRunner(TransformFactory.ALLOY);
 		EchoOptionsSetup.init(new PlugInOptions());
 		EchoReporter.init(new EchoReporter());
 	}

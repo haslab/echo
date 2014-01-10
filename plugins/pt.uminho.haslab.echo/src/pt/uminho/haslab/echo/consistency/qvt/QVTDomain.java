@@ -3,7 +3,6 @@ package pt.uminho.haslab.echo.consistency.qvt;
 import org.eclipse.qvtd.pivot.qvtrelation.DomainPattern;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationDomain;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.consistency.Domain;
 import pt.uminho.haslab.echo.consistency.Model;

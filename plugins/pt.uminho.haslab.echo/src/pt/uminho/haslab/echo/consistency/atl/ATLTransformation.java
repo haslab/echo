@@ -1,18 +1,17 @@
 package pt.uminho.haslab.echo.consistency.atl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.consistency.Model;
 import pt.uminho.haslab.echo.consistency.Relation;
 import pt.uminho.haslab.echo.consistency.Transformation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class ATLTransformation implements Transformation {

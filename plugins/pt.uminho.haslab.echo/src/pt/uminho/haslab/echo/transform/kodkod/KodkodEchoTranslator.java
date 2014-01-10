@@ -3,11 +3,11 @@ package pt.uminho.haslab.echo.transform.kodkod;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.emf.EchoParser;
 import pt.uminho.haslab.echo.emf.URIUtil;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.IFormula;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +27,11 @@ public class KodkodEchoTranslator extends EchoTranslator {
     private Map<String,XMI2Kodkod> models = new HashMap<>();
     /** maps models Uris into meta-models Uris*/
     private Map<String,String> model2metaModel = new HashMap<>();
+
+    @Override
+    public IFormula getTrueFormula() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 
     @Override
     public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorInternalEngine {
