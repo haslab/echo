@@ -1,15 +1,12 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import org.eclipse.emf.ecore.EObject;
-<<<<<<< HEAD:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/mde/transformation/atl/ATLModel.java
-
-import pt.uminho.haslab.mde.transformation.EModelParameter;
-=======
-import pt.uminho.haslab.echo.consistency.EModelParameter;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/echo/consistency/atl/ATLModel.java
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.eclipse.emf.ecore.EObject;
+
+import pt.uminho.haslab.mde.model.EMetamodel;
+import pt.uminho.haslab.mde.transformation.EModelParameter;
 
 public class ATLModel extends EModelParameter {
 
@@ -34,6 +31,12 @@ public class ATLModel extends EModelParameter {
 
 	public static ATLModel get(EObject typedModel) {
 		return list.get(typedModel);
+	}
+
+	@Override
+	public EMetamodel getMetamodel() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

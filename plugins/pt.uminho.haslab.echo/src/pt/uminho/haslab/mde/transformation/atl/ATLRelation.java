@@ -2,9 +2,11 @@ package pt.uminho.haslab.mde.transformation.atl;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,7 @@ public class ATLRelation implements ERelation {
 	}
 	
 	@Override
-	public ATLTransformation getTransformation() {
+	public ETransformation getTransformation() {
 		EStructuralFeature module = relation.eClass().getEStructuralFeature("module");
 		ATLTransformation x = ATLTransformation.get((EObject) relation.eGet(module));
 		return x;

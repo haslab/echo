@@ -1,53 +1,39 @@
 package pt.uminho.haslab.echo.plugin.wizards;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-<<<<<<< HEAD
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-=======
-import org.eclipse.swt.widgets.*;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.SelectionListenerAction;
-import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
-import org.eclipse.ui.model.BaseWorkbenchContentProvider;
-import org.eclipse.ui.model.WorkbenchLabelProvider;
-<<<<<<< HEAD
-
-import pt.uminho.haslab.echo.EchoReporter;
-=======
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.mde.emf.EMFParser;
-import pt.uminho.haslab.mde.transformation.EDependency;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
+import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
+
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.transformation.EModelParameter;
+import pt.uminho.haslab.mde.transformation.qvt.QVTTransformation;
+
 public class ConstraintAddWizardPage extends WizardPage {
 
-	private boolean magage_deps = false;
+//	private boolean magage_deps = false;
 	
 	private Text qvttext;
 	private IResource qvtresource;
@@ -108,49 +94,46 @@ public class ConstraintAddWizardPage extends WizardPage {
 	
 	private void buildTexts() {
 
-		RelationalTransformation qvt;
+		QVTTransformation qvt = null;
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		KeyListener kl = new KeyListenerHelper();
 
+		for (Text c : model2text.values()) c.dispose();
+		for (Button c : model2button.values()) c.dispose();
+		for (Label c : model2label.values()) c.dispose();
+		
 		try {
-			
-			for (Text c : model2text.values()) c.dispose();
-			for (Button c : model2button.values()) c.dispose();
-			for (Label c : model2label.values()) c.dispose();
-			
-			qvt = EMFParser.getInstance().loadQVT(qvtresource.getFullPath().toString());
-			params = new ArrayList<String>();
-			for (TypedModel mdl : qvt.getModelParameter()) {
-				params.add(mdl.getName());
-				Label label = new Label(container, SWT.NULL);
-				label.setText(mdl.getName() + " model:");
-
-				Text text = new Text(container, SWT.BORDER | SWT.SINGLE);
-				text.setText("");
-				text.addKeyListener(kl);
-				text.setLayoutData(gd);
-				model2text.put(mdl.getName(),text);
-
-				Button bModel = new Button(container, SWT.PUSH);
-				bModel.addSelectionListener(new ButtonSelectionListener(mdl
-						.getName()));
-				bModel.setText("Browse");
-				
-				
-
-				model2label.put(mdl.getName(),label);
-				model2button.put(mdl.getName(),bModel);
-				model2text.put(mdl.getName(),text);
-
-
-			}
-			//addDependency();
-			
-
-		} catch (ErrorParser | ErrorTransform e) {
+			qvt = MDEManager.getInstance().getQVTTransformation(qvtresource.getFullPath().toString(),false);
+		} catch (EchoError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		params = new ArrayList<String>();
+		for (EModelParameter mdl : qvt.getModels()) {
+			params.add(mdl.getName());
+			Label label = new Label(container, SWT.NULL);
+			label.setText(mdl.getName() + " model:");
+
+			Text text = new Text(container, SWT.BORDER | SWT.SINGLE);
+			text.setText("");
+			text.addKeyListener(kl);
+			text.setLayoutData(gd);
+			model2text.put(mdl.getName(),text);
+
+			Button bModel = new Button(container, SWT.PUSH);
+			bModel.addSelectionListener(new ButtonSelectionListener(mdl
+					.getName()));
+			bModel.setText("Browse");
+			
+			
+
+			model2label.put(mdl.getName(),label);
+			model2button.put(mdl.getName(),bModel);
+			model2text.put(mdl.getName(),text);
+
+
+		}
+		//addDependency();
 	}
 	
 //	private void addDependency() {

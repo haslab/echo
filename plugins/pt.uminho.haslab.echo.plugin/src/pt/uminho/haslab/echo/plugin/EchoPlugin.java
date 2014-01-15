@@ -21,10 +21,10 @@ import org.osgi.framework.BundleContext;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.transform.TransformFactory;
 import pt.uminho.haslab.echo.plugin.listeners.ResourceChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
+import pt.uminho.haslab.echo.transform.TransformFactory;
 
 public class EchoPlugin extends AbstractUIPlugin {
 	

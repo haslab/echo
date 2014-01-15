@@ -1,5 +1,9 @@
 package pt.uminho.haslab.mde.emf;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -15,26 +19,17 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
 import org.eclipse.xtext.resource.XtextResourceSet;
+
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 
-<<<<<<< HEAD:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/mde/emf/EMFParser.java
+/**
+ * Parses EMF resources (XMI models, ECore packages, QVT-R and ATL transformations)
+ * @author nmm
+ *
+ */
 public class EMFParser {
-=======
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-public class EchoParser {
-	//TODO: there should be some helper classes for stuff like getRootClass, which are totally independent from kodkod or alloy
-	private static final EchoParser instance = new EchoParser();
-		
-	public static EchoParser getInstance() {
-		return instance;
-	}
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe:plugins/pt.uminho.haslab.echo/src/pt/uminho/haslab/echo/emf/EchoParser.java
 
 	private static final EMFParser instance = new EMFParser();
     
@@ -45,11 +40,13 @@ public class EchoParser {
 	/** the ECore resource set */
 	static private XtextResourceSet resourceSet = new XtextResourceSet();
 	
+	/**
+	 * Initializes the libraries
+	 * Should not be needed in plug-in mode (only in standalone, e.g. CLI)
+	 */
 	private EMFParser(){	
 		if (EchoOptionsSetup.getInstance().isStandalone()) {
-
             // install the OCL standard library
-            OCLstdlib.install();
             resourceSet.getResourceFactoryRegistry()
              .getExtensionToFactoryMap().put("xmi",
                              new XMIResourceFactoryImpl());
@@ -62,11 +59,13 @@ public class EchoParser {
 	}
 	
 	/**
-	 * Loads the EObject its uri
-	 * @throws ErrorParser 
+	 * Parses an EObject from an XMI resource
+	 * @param objURI the object URI
+	 * @return the parsed object
+	 * @throws ErrorParser
 	 */
-	static public EObject loadModel(String uri) throws ErrorParser {
-		Resource load_resource = resourceSet.getResource(URI.createURI(uri), true);
+	static public EObject loadModel(String objURI) throws ErrorParser {
+		Resource load_resource = resourceSet.getResource(URI.createURI(objURI), true);
 		load_resource.unload();
 		try {
 			load_resource.load(resourceSet.getLoadOptions());
@@ -79,22 +78,14 @@ public class EchoParser {
 	}
 	
 	/**
-	 * Loads the EPackages its uri
+	 * Parses an EPackage from an ECore resource
+	 * @param packURI the package URI
+	 * @return the parsed package
+	 * @throws ErrorParser
 	 */
-	static public EPackage loadMetaModel(String uri) throws ErrorParser{
-		Resource load_resource = null;
-		if (!EchoOptionsSetup.getInstance().isStandalone())
-			load_resource = resourceSet.getResource(URI.createURI(uri),true);
-		else {
-			File file = new File(uri);
-			try {
-				load_resource = resourceSet.getResource(URI.createFileURI(file.getCanonicalPath()),true);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
+	static public EPackage loadMetaModel(String packURI) throws ErrorParser{
+		Resource load_resource = resourceSet.getResource(URI.createURI(packURI),true);
+
 		load_resource.unload();
 		try {
 			load_resource.load(resourceSet.getLoadOptions());
@@ -111,18 +102,20 @@ public class EchoParser {
 	}
 	
 	/**
-	 * Loads the QVT specification from the CLI argument
-	 * @throws ErrorTransform 
+	 * Parses a QVT-R transformation from a QVT-R specification
+	 * @param qvtURI the transformation URI
+	 * @return the parsed transformation
+	 * @throws ErrorParser
 	 */
-	static public RelationalTransformation loadQVT(String uri) throws ErrorParser, ErrorTransform {
+	static public RelationalTransformation loadQVT(String qvtURI) throws ErrorParser, ErrorTransform {
 		Resource pivotResource;
         try{
         	CS2PivotResourceAdapter adapter = null;
         	URI inputURI;
         	if (EchoOptionsSetup.getInstance().isStandalone())
-        		inputURI = URI.createURI(uri);
+        		inputURI = URI.createURI(qvtURI);
         	else 
-        		inputURI = URI.createPlatformResourceURI(uri,true);
+        		inputURI = URI.createPlatformResourceURI(qvtURI,true);
             BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(inputURI, true);
             
             xtextResource.unload();
@@ -135,7 +128,7 @@ public class EchoParser {
     		adapter = xtextResource.getCS2ASAdapter(null);
             //adapter = BaseCSResource.getCS2ASAdapter(xtextResource, null);
             pivotResource = adapter.getASResource(xtextResource);
-            pivotResource.setURI(URI.createURI(uri));
+            pivotResource.setURI(URI.createURI(qvtURI));
             String message = PivotUtil.formatResourceDiagnostics(pivotResource.getErrors(), "Error parsing QVT.", "\n\t");
 			if (message != null) throw new ErrorParser (message,"QVT Parser");
 			
@@ -146,16 +139,32 @@ public class EchoParser {
 			RelationalTransformation transformation = (RelationalTransformation) rm.eContents().get(0);
 		
 			return transformation;
-		} catch (Exception e) { throw new ErrorTransform(e.getMessage());}
-		
+		} catch (Exception e) { throw new ErrorTransform(e.getMessage());}	
+	}
+	
+	/**
+	 * Parses an ATL transformation from an ATL specification
+	 * @param atlURI the transformation URI
+	 * @return the parsed transformation
+	 * @throws ErrorParser
+	 */
+	public static EObject loadATL(String atlURI) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	static public String backUpTarget(String uri) throws ErrorParser{
-		StringBuilder sb = new StringBuilder(uri);
-		sb.insert(sb.length()-4,".old");
+	/**
+	 * Backs-up a XMI resource
+	 * @param objURI the resource URI
+	 * @return the URI of the back-up
+	 * @throws ErrorParser
+	 */
+	static public String backUpTarget(String objURI) throws ErrorParser{
+		StringBuilder backupURI = new StringBuilder(objURI);
+		backupURI.insert(backupURI.length()-4,".old");
 
-		XMIResource resource = (XMIResource) resourceSet.createResource(URI.createURI(sb.toString()));
-		resource.getContents().add(EMFParser.loadModel(uri));
+		XMIResource resource = (XMIResource) resourceSet.createResource(URI.createURI(backupURI.toString()));
+		resource.getContents().add(EMFParser.loadModel(objURI));
 
 		Map<Object,Object> options = new HashMap<Object,Object>();
 		options.put(XMIResource.OPTION_SCHEMA_LOCATION, true);
@@ -165,13 +174,7 @@ public class EchoParser {
 			e.printStackTrace();
 		}
 		
-		return sb.toString();
-		
-	}
-
-	public static EObject loadATL(String atlURI) {
-		// TODO Auto-generated method stub
-		return null;
+		return backupURI.toString();	
 	}
 
 }

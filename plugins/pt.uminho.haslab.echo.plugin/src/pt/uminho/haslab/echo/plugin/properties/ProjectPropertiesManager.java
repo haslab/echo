@@ -104,12 +104,12 @@ public class ProjectPropertiesManager {
 		}
 		builder.append(";");
 		for (EConstraint c : man.getConstraints()) {
-			builder.append(c.constraint);
+			builder.append(c.transformation);
 			builder.append("@");
-			builder.append(c.models.get(0));
-			for (int i = 1; i < c.models.size(); i ++) {
+			builder.append(c.getModels().get(0));
+			for (int i = 1; i < c.getModels().size(); i ++) {
 				builder.append("@");
-				builder.append(c.models.get(i));
+				builder.append(c.getModels().get(i));
 			}
 			builder.append(",");
 		}

@@ -2,9 +2,9 @@ package pt.uminho.haslab.echo.plugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
@@ -41,7 +41,6 @@ public class ResourceRules implements ISchedulingRule{
 		} else if (rule instanceof IFile) {
 			res2 = (IFile) rule;
 		} 
-		EchoReporter.getInstance().debug("Comparing "+res+" with "+rule);
 		if (res2 != null && res2.getFileExtension() != null	) {			
 			switch (res.getFileExtension()) {
 				case "xmi" :
@@ -50,7 +49,7 @@ public class ResourceRules implements ISchedulingRule{
 						case "ecore" : return manager.getMetamodel(res).equals(res2);
 						case "qvtr" : 
 							for (EConstraint c : manager.getConstraints(res2))
-								if (c.models.get(0).equals(res) || c.models.get(1).equals(res))
+								if (c.getModels().get(0).equals(res) || c.getModels().get(1).equals(res))
 									return true;
 					}
 					break;
@@ -60,7 +59,8 @@ public class ResourceRules implements ISchedulingRule{
 						case "xmi" : return manager.getMetamodel(res2).equals(res);
 						case "qvtr" : 
 							for (EConstraint c : manager.getConstraints(res2))
-								if (manager.getMetamodel(c.models.get(0)).equals(res) || manager.getMetamodel(c.models.get(1)).equals(res))
+								if (ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(0).getMetamodel().getURI()).equals(res) || 
+										ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(1).getMetamodel().getURI()).equals(res))
 									return true;
 					}
 					break;
@@ -68,11 +68,12 @@ public class ResourceRules implements ISchedulingRule{
 					switch (res2.getFileExtension()) {
 						case "ecore" :
 							for (EConstraint c : manager.getConstraints(res))
-								if (manager.getMetamodel(c.models.get(0)).equals(res2) || manager.getMetamodel(c.models.get(1)).equals(res2))
+								if (ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(0).getMetamodel().getURI()).equals(res2) || 
+										ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(1).getMetamodel().getURI()).equals(res2))
 									return true;
 						case "xmi" : 
 							for (EConstraint c : manager.getConstraints(res))
-								if (c.models.get(0).equals(res2) || c.models.get(1).equals(res2))
+								if (c.getModels().get(0).equals(res2) || c.getModels().get(1).equals(res2))
 									return true;
 						case "qvtr" : return res.equals(res2);
 					}

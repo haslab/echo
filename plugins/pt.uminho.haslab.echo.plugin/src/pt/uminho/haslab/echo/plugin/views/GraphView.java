@@ -1,6 +1,7 @@
 package pt.uminho.haslab.echo.plugin.views;
 
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -9,12 +10,15 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
+
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.awt.*;
 import java.io.BufferedWriter;
@@ -140,8 +144,8 @@ public class GraphView extends ViewPart {
 			}
 			else {
 				for (String targetPath : targetPaths) {
-					runner.writeAllInstances(resmetamodel.getFullPath().toString(),
-							targetPath);
+					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(resmetamodel.getFullPath().toString(), false);
+					runner.writeAllInstances(metamodel.ID,targetPath);
 					IResource modelA = ResourcesPlugin.getWorkspace().getRoot()
 							.findMember(targetPath);
 					ProjectPropertiesManager.getProperties(modelA.getProject()).modelGenerated(modelA);

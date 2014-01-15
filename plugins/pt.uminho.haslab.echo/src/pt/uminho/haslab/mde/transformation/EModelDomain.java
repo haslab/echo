@@ -22,7 +22,7 @@ public abstract class EModelDomain {
 	abstract public ECondition getCondition();
 
 	public String toString() {
-		return getModel().getName() + "::" + getModel().getMetamodelURI();
+		return getModel().getName() + "::" + getModel().getMetamodel().ID;
 	}
 	
 	public boolean equals(Object obj) {

@@ -53,7 +53,7 @@ public class CLIReporter extends EchoReporter {
 			sb.append("* Instance model "+uri+"\n");
 			sb.append("State sig: "+translator.getModelStateSig(uri)+"\n");
 			sb.append("Instance sigs: "+translator.getInstanceSigs(uri)+"\n");
-			sb.append("Constraints: "+translator.getModelFact(uri)+"\n");
+			sb.append("Constraints: "+translator.getModel(uri).getModelConstraint()+"\n");
 		}
 		
 		if (options.isQVT()) {

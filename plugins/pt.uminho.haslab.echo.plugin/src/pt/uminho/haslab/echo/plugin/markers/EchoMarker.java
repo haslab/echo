@@ -2,8 +2,11 @@ package pt.uminho.haslab.echo.plugin.markers;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+
 import pt.uminho.haslab.echo.ErrorAPI;
+import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ public class EchoMarker {
 	public final static String INTER_ERROR = "pt.uminho.haslab.echo.plugin.interinconsistency";
 
 	/** inter-model error marker constraint attribute */
-	public final static String CONSTRAINT = "constraint";
+	public final static String TRANSFORMATION = "constraint";
 	/** inter-model error marker opposite model attribute */
 	public final static String MODELS = "opposite";
 	/** inter-model error marker model parameter model attribute */
@@ -88,12 +91,14 @@ public class EchoMarker {
 		List<IMarker> marks = new ArrayList<IMarker>();
 		IMarker mark;
 		try {
-			for (int i = 0; i < constraint.models.size(); i++)
-				if (constraint.models.get(i).findMarkers(INTRA_ERROR,false,0).length == 0) {
-					mark = createSingleInterMarker(i, constraint.models, constraint.constraint
-							.getFullPath().toString(),constraint.params.get(0));
+			for (int i = 0; i < constraint.getModels().size(); i++) {
+				EModel model = constraint.getModels().get(i);
+				IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(model.getURI());
+ 				if (res.findMarkers(INTRA_ERROR,false,0).length == 0) {
+					mark = createSingleInterMarker(i, constraint.getModels(), constraint.transformation.ID,constraint.transformation.getModels().get(0).getName());
 					marks.add(mark);
 				}
+			}
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,22 +113,22 @@ public class EchoMarker {
 	 * @throws ErrorAPI 
 	 */
 	private static IMarker createSingleInterMarker(int targetmodel,
-			List<IResource> models, String qvtRule, String name) throws ErrorAPI {
+			List<EModel> models, String transformationID, String name) throws ErrorAPI {
 		IMarker mark;
 		
-		
 		try {
-			for (IMarker pre : models.get(targetmodel).findMarkers(INTER_ERROR, false, 0)) {
-				if (pre.getAttribute(CONSTRAINT).equals(qvtRule) && pre.getAttribute(MODELS).equals(oppositeToString(models)))
+			IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(models.get(targetmodel).getURI());
+			for (IMarker pre : res.findMarkers(INTER_ERROR, false, 0)) {
+				if (pre.getAttribute(TRANSFORMATION).equals(transformationID) && pre.getAttribute(MODELS).equals(oppositeToString(models)))
 					pre.delete();
 			}
 			
-			mark = models.get(targetmodel).createMarker(EchoMarker.INTER_ERROR);
+			mark = res.createMarker(EchoMarker.INTER_ERROR);
 			mark.setAttribute(IMarker.MESSAGE,
 					"Model instance is not consistent with a QVT relation");
 			mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
 			mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			mark.setAttribute(EchoMarker.CONSTRAINT, qvtRule);
+			mark.setAttribute(EchoMarker.TRANSFORMATION, transformationID);
 			mark.setAttribute(EchoMarker.MODELS, oppositeToString(models));
 			mark.setAttribute(EchoMarker.PARAM, name);
 		}
@@ -140,13 +145,14 @@ public class EchoMarker {
 	 */
 	public static void removeInterMarkers(IResource res) throws ErrorAPI {
 		try {
-			for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR,false, 0)) 
+			for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR,false, 0)) {
 				for (IResource related : oppositeFromString(res, (String) mk.getAttribute(EchoMarker.MODELS))) {
 					for (IMarker mk1 : related.findMarkers(EchoMarker.INTER_ERROR,false, 0)) 
 						if (mk1.getAttribute(EchoMarker.MODELS).equals(mk.getAttribute(EchoMarker.MODELS)))
 	                        mk1.delete();
 					mk.delete();
 				}
+			}
 		} catch (CoreException e) {
 			throw new ErrorAPI("Failed to delete marker.");
 		}
@@ -158,26 +164,26 @@ public class EchoMarker {
 	 * @throws ErrorAPI
 	 */
 	public static void removeRelatedInterMarker(EConstraint constraint) throws ErrorAPI {
-		String constrainturi = constraint.constraint.getFullPath().toString();
-
+		String transformationID = constraint.transformation.ID;
 		try {
-			for (IResource res : constraint.models)
+			for (EModel model : constraint.getModels()) {
+				IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(model.getURI());
 				if(res.isAccessible())
 					for (IMarker mk : res.findMarkers(EchoMarker.INTER_ERROR,false, 0))
-						if (mk.getAttribute(EchoMarker.MODELS).equals(oppositeToString(constraint.models))
-								&& mk.getAttribute(EchoMarker.CONSTRAINT).equals(constrainturi))
+						if (mk.getAttribute(EchoMarker.MODELS).equals(oppositeToString(constraint.getModels()))
+								&& mk.getAttribute(EchoMarker.TRANSFORMATION).equals(transformationID))
 							mk.delete();
 			
-
+			}
 		} catch (CoreException e) {
 			throw new ErrorAPI("\nFailed to remove markers.\n");
 		}
 	}
 	
-	private static String oppositeToString(List<IResource> models) {
+	private static String oppositeToString(List<EModel> models) {
 		StringBuffer s = new StringBuffer();
-		for (IResource res : models) {
-			s.append(res.getFullPath().toString());
+		for (EModel model : models) {
+			s.append(model.ID);
 			s.append(";");
 		}
 		return s.toString();
@@ -186,7 +192,7 @@ public class EchoMarker {
 	private static List<IResource> oppositeFromString(IResource src, String models) {
 		List<IResource> res = new ArrayList<IResource>();
 		for (String s : models.split(";"))
-			res.add(src.getWorkspace().getRoot().findMember(s));
+			res.add(ResourcesPlugin.getWorkspace().getRoot().findMember(s));
 		return res;
 	}
 

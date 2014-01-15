@@ -1,6 +1,5 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +11,9 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.model.EBoolean;
 import pt.uminho.haslab.mde.model.EElement;
 import pt.uminho.haslab.mde.model.EInteger;
@@ -22,8 +21,6 @@ import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.model.EProperty;
 import pt.uminho.haslab.mde.model.EString;
 import pt.uminho.haslab.mde.model.EValue;
-=======
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -31,16 +28,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import org.eclipse.emf.ecore.EEnumLiteral;
-import org.eclipse.emf.ecore.EStructuralFeature;
-import pt.uminho.haslab.echo.*;
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.model.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 class EAlloyModel {
 		
@@ -63,7 +50,7 @@ class EAlloyModel {
 	/** the Alloy expression defining this model object */
 	private Expr model_constraint = null; 
 	
-	final ECore2Alloy translator;
+	final EAlloyMetamodel metamodel;
 	
 	/**
 	 * Creates a new XMI to Alloy translator
@@ -75,16 +62,20 @@ class EAlloyModel {
 	 * @param stateSig
 	 * @throws EchoError
 	 */
-	EAlloyModel(EModel emodel, ECore2Alloy t, PrimSig stateSig) throws EchoError {
-		EchoReporter.getInstance().start(Task.TRANSLATE_MODEL, stateSig.label);
+	EAlloyModel(EModel emodel, EAlloyMetamodel t) throws EchoError {
+		EchoReporter.getInstance().start(Task.TRANSLATE_MODEL, emodel.ID);
 		this.emodel = emodel;
-		translator = t;
-		model_sig = stateSig;
+		metamodel = t;
+		
+		try {
+			model_sig = new PrimSig(emodel.ID,(PrimSig) t.sig_metamodel,Attr.ONE);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
+		
 		initContent();
-		translateElement(emodel.root);
+		translateElement(emodel.getRootEElement());
 		makeFactExpr();
 		
-		EchoReporter.getInstance().result(Task.TRANSLATE_MODEL, true);
+		EchoReporter.getInstance().result(Task.TRANSLATE_MODEL, "", true);
 	}
 	
 	/**
@@ -127,10 +118,10 @@ class EAlloyModel {
 	 * Initializes <code>field2elements</code> for every field without any elements
 	 */
 	private void initContent() {
-		for(Field f: translator.getStateFields())
+		for(Field f: metamodel.getStateFields())
 			field2elements.put(f,Sig.NONE);
-		for(Field field: translator.getFields()){
-			EStructuralFeature sfeature = translator.getSFeatureFromField(field);
+		for(Field field: metamodel.getFields()){
+			EStructuralFeature sfeature = metamodel.getSFeatureFromField(field);
 			if (field != null)
 				if(sfeature.getEType().getName().equals("EBoolean"))
 					field2elements.put(field,Sig.NONE);
@@ -147,7 +138,7 @@ class EAlloyModel {
 	 * @throws EchoError
 	 */
 	private PrimSig translateElement(EElement eelement) throws EchoError {
-		PrimSig classsig = translator.getSigFromEClassifier(eelement.type);
+		PrimSig classsig = metamodel.getSigFromEClassifier(eelement.type);
 		PrimSig elementsig;
 		try {
 			elementsig = new PrimSig(AlloyUtil.elementName(classsig), classsig,
@@ -157,13 +148,13 @@ class EAlloyModel {
 					"Failed to create object sig.", a, Task.TRANSLATE_MODEL);
 		}
 
-		Field statefield = translator.getStateFieldFromSig(classsig);
+		Field statefield = metamodel.getStateFieldFromSig(classsig);
 		Expr siblings = field2elements.get(statefield).plus(elementsig);
 		field2elements.put(statefield, siblings);
 
 		PrimSig supersig = classsig.parent;
 		while (supersig != Sig.UNIV && supersig != null) {
-			Field superstatefield = translator.getStateFieldFromSig(supersig);
+			Field superstatefield = metamodel.getStateFieldFromSig(supersig);
 			Expr siblingsup = field2elements.get(superstatefield).plus(elementsig);
 			field2elements.put(superstatefield, siblingsup);
 			supersig = supersig.parent;
@@ -177,7 +168,7 @@ class EAlloyModel {
 
 		
 		for (EProperty eprop : eelement.getProperties()) {
-			Field field = translator.getFieldFromSFeature(eprop.feature);
+			Field field = metamodel.getFieldFromSFeature(eprop.feature);
 			processValues(eprop.getValues(),field,elementsig);
 		}
 
@@ -192,12 +183,8 @@ class EAlloyModel {
 	 * @throws EchoError
 	 */
 	private void processValues(List<EValue> values, Field field, PrimSig elementsig) throws EchoError {
-
-		EchoReporter.getInstance().debug("Reference list of "+field);
-
 		for (EValue value : values)
 			processValue(value, field, elementsig);
-		
 	}
 
 	/** 
@@ -214,14 +201,17 @@ class EAlloyModel {
 		
 		if (value instanceof EElement) {
 			PrimSig ref = object2sig.get(value);
-			if (ref == null)
+			if (ref == null) {
 				ref = translateElement((EElement) value);
+				siblings = field2elements.get(field);
+			}
 			siblings = siblings.plus(elementsig.product(ref));
+			EchoReporter.getInstance().debug(field+" : "+siblings+" : "+value);
 		} else if (value instanceof EBoolean) {
 			if (((EBoolean) value).getValue())
 				siblings = siblings.plus(elementsig);
 		} else if (value instanceof EEnumLiteral) {
-			siblings = siblings.plus(elementsig.product(translator
+			siblings = siblings.plus(elementsig.product(metamodel
 					.getSigFromEEnumLiteral((EEnumLiteral) value)));
 		} else if (value instanceof EString) {
 			Expr str = ExprConstant.Op.STRING.make(null, ((EString) value).getValue());
@@ -241,8 +231,8 @@ class EAlloyModel {
 					"Primitive type not supported: "
 							+ value.getClass().getName(), "",
 					Task.TRANSLATE_MODEL);
-
 		field2elements.put(field, siblings);
+		EchoReporter.getInstance().debug(field2elements.keySet()+"");
 	}
 	
 	private void makeFactExpr() {

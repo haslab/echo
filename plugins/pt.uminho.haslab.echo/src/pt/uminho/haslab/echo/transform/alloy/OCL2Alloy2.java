@@ -276,7 +276,7 @@ public class OCL2Alloy2 implements ConditionTranslator{
 		if ((isPre?prevars:posvars) != null && var instanceof ExprHasName) 
 			statesig = (isPre?prevars:posvars).get(varstates.get(((ExprHasName)var).label).getValue());
 		if (statesig == null)
-			statesig = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
+			statesig = AlloyEchoTranslator.getInstance().getMetamodel(metamodeluri).sig_metamodel;
 
 		if (field == null && feature instanceof EchoReporter && ((EReference) feature).getEOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
 			feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, ((EReference) feature).getEOpposite().getEContainingClass().getName(),((EReference) feature).getEOpposite().getName());

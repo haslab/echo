@@ -2,27 +2,31 @@ package pt.uminho.haslab.echo.transform.alloy;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 import java.util.Map.Entry;
 
-class ECore2Alloy {
+class EAlloyMetamodel {
 
 	/** the package being translated */
-	final EPackage epackage;
+	final EMetamodel metamodel;
 	
 	/** the Alloy signature representing this meta-model */
 	final PrimSig sig_metamodel;
@@ -69,11 +73,18 @@ class ECore2Alloy {
 	 * @param statesig the state signature representing the meta-model
 	 * @throws EchoError
 	 */
-	ECore2Alloy(EPackage pck, PrimSig statesig) throws ErrorAlloy {
-		this.sig_metamodel = statesig;
-		this.epackage = pck;
+	EAlloyMetamodel(EMetamodel metamodel) throws EchoError {
+
 		try {
-			model_var = statesig.oneOf("s_");
+			//if (EchoOptionsSetup.getInstance().isOperationBased())
+			sig_metamodel = new PrimSig(metamodel.ID,AlloyEchoTranslator.STATE);
+			//else
+				//s = new PrimSig(URIUtil.resolveURI(metamodel.eResource()),STATE,Attr.ABSTRACT);
+		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
+		
+		this.metamodel = metamodel;
+		try {
+			model_var = sig_metamodel.oneOf("s_");
 		} catch (Err a) {
 			throw new ErrorAlloy(
 					ErrorAlloy.FAIL_CREATE_VAR,
@@ -90,7 +101,7 @@ class ECore2Alloy {
 	 */
 	EClassifier getEClassifierFromSig(PrimSig s) {
 		for (String cla : classifier2sig.keySet())
-			if (classifier2sig.get(cla).isSame(s)) return epackage.getEClassifier(AlloyUtil.getClassifierName(cla));
+			if (classifier2sig.get(cla).isSame(s)) return metamodel.getEPackage().getEClassifier(AlloyUtil.getClassifierName(cla));
 		return null;
 	}
 
@@ -100,7 +111,15 @@ class ECore2Alloy {
  	 * @return the matching Alloy signature
 	 */
 	PrimSig getSigFromEClassifier(EClassifier c) {
-		return classifier2sig.get(AlloyUtil.classifierKey(epackage, c));
+//		EchoReporter.getInstance().debug(c.getName());
+//		EchoReporter.getInstance().debug(metamodel.getEPackage()+"");
+//		EchoReporter.getInstance().debug(metamodel.getEPackage().eResource()+"");
+//		EchoReporter.getInstance().debug(AlloyUtil.classifierKey(metamodel, c));
+//		EchoReporter.getInstance().debug(classifier2sig.keySet()+"");
+		PrimSig s = classifier2sig.get(AlloyUtil.classifierKey(metamodel, c));
+		if (s == null)
+			EchoReporter.getInstance().warning("Looking for non-existing classifier: "+c, Task.TRANSLATE_METAMODEL);
+		return s;
 	}	
 	
 	/** 
@@ -136,9 +155,12 @@ class ECore2Alloy {
 	 * @return the matching Alloy field
 	 */
 	Field getFieldFromSFeature(EStructuralFeature f) {
-		if (f == null) EchoReporter.getInstance().debug("getFieldFromSFeature: null argument.");
-		EchoReporter.getInstance().debug("looking for "+AlloyUtil.featureKey(epackage, f) +" in "+feature2field.keySet());
-		return feature2field.get(AlloyUtil.featureKey(epackage, f));
+		if (f == null) 
+			EchoReporter.getInstance().warning("Looking for null feature.",Task.TRANSLATE_METAMODEL);
+		Field fi = feature2field.get(AlloyUtil.featureKey(metamodel, f));
+		if (fi == null)
+			EchoReporter.getInstance().warning("Looking for non-existing field: "+f+".",Task.TRANSLATE_METAMODEL);
+		return fi;
 	}
 	
 	/** 
@@ -147,10 +169,16 @@ class ECore2Alloy {
  	 * @return the matching feature
 	 */
 	EStructuralFeature getSFeatureFromField(Field f) {
+		if (f == null) 
+			EchoReporter.getInstance().warning("Looking for null field.",Task.TRANSLATE_METAMODEL);
+		
 		String refname = AlloyUtil.getFeatureName(f.label);
 		String classname = AlloyUtil.getClassifierName(f.sig.label);
-		EClass cla = (EClass) epackage.getEClassifier(classname);
-		return cla.getEStructuralFeature(refname);
+		EClass cla = (EClass) metamodel.getEPackage().getEClassifier(classname);
+		EStructuralFeature fe = cla.getEStructuralFeature(refname);
+		if (fe == null)
+			EchoReporter.getInstance().warning("Looking for non-existing feature: "+f+".",Task.TRANSLATE_METAMODEL);
+		return fe;
 	}
 		
 	/**
@@ -184,7 +212,7 @@ class ECore2Alloy {
 	List<PrimSig> getEnumSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>();
 		for (String cname : classifier2sig.keySet())
-			if (epackage.getEClassifier(AlloyUtil.getClassifierName(cname)) instanceof EEnum) 
+			if (metamodel.getEPackage().getEClassifier(AlloyUtil.getClassifierName(cname)) instanceof EEnum) 
 				aux.add(classifier2sig.get(cname));
 		aux.addAll(literal2sig.values());
 		return aux;
@@ -209,7 +237,7 @@ class ECore2Alloy {
 	Func getConforms() throws ErrorAlloy {
 		Func f;
 		try {
-			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
+			f = new Func(null, metamodel.getEPackage().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 					"Failed to create conforming function.", e,
@@ -227,7 +255,7 @@ class ECore2Alloy {
 	Func getGenerate() throws ErrorAlloy {
 		Func f;
 		try {
-			f = new Func(null, epackage.getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
+			f = new Func(null, metamodel.getEPackage().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 					"Failed to create generation function.", e,
@@ -240,13 +268,13 @@ class ECore2Alloy {
 	 * Translates the information from the this.epackage (classes, attributes, references, annotations, operations, eenums)
 	 * @throws EchoError
 	 */
-	void translate() throws EchoError {
+	public void translate() throws EchoError {
 		EchoReporter.getInstance().start(Task.TRANSLATE_METAMODEL,
 				sig_metamodel.label);
 		List<EClass> classList = new LinkedList<EClass>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
 
-		for (EClassifier e : epackage.getEClassifiers()) {
+		for (EClassifier e : metamodel.getEPackage().getEClassifiers()) {
 			if (e instanceof EClass)
 				classList.add((EClass) e);
 			else if (e instanceof EEnum)
@@ -274,8 +302,7 @@ class ECore2Alloy {
 			processHeritage(s);
 
 		createOrder();
-
-		EchoReporter.getInstance().result(Task.TRANSLATE_METAMODEL, true);
+		EchoReporter.getInstance().result(Task.TRANSLATE_METAMODEL, "", true);
 	}
 
 
@@ -291,7 +318,7 @@ class ECore2Alloy {
 	private void processClass(EClass ec) throws EchoError {
 		PrimSig ecsig, parent = null;
 		Field statefield;
-		if (classifier2sig.get(AlloyUtil.classifierKey(epackage, ec)) != null)
+		if (classifier2sig.get(AlloyUtil.classifierKey(metamodel, ec)) != null)
 			return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if (superTypes.size() > 1)
@@ -299,18 +326,18 @@ class ECore2Alloy {
 					"Multiple inheritance not allowed: " + ec.getName() + ".",
 					"", Task.TRANSLATE_METAMODEL);
 		if (!superTypes.isEmpty()) {
-			parent = classifier2sig.get(AlloyUtil.classifierKey(epackage,
+			parent = classifier2sig.get(AlloyUtil.classifierKey(metamodel,
 					superTypes.get(0)));
 			if (parent == null)
 				processClass(superTypes.get(0));
 		}
-		String signame = AlloyUtil.classifierKey(epackage, ec);
+		String signame = AlloyUtil.classifierKey(metamodel, ec);
 		try {
 			if (ec.isAbstract())
 				ecsig = new PrimSig(signame, parent, Attr.ABSTRACT);
 			else
 				ecsig = new PrimSig(signame, parent);
-			statefield = ecsig.addField(AlloyUtil.stateFieldName(epackage, ec),
+			statefield = ecsig.addField(AlloyUtil.stateFieldName(metamodel, ec),
 					sig_metamodel.setOf());
 			Expr stateatoms = ecsig.equal(statefield.join(sig_metamodel));
 			ecsig.addFact(stateatoms);
@@ -319,7 +346,7 @@ class ECore2Alloy {
 					"Failed to create class sig.", a, Task.TRANSLATE_METAMODEL);
 		}
 		sig2statefield.put(ecsig, statefield);
-		classifier2sig.put(AlloyUtil.classifierKey(epackage, ec), ecsig);
+		classifier2sig.put(AlloyUtil.classifierKey(metamodel, ec), ecsig);
 	}
 	
 	/**
@@ -337,12 +364,12 @@ class ECore2Alloy {
 		Field field = null;
 		for (EAttribute attr : attributes) {
 			PrimSig classsig = classifier2sig.get(AlloyUtil.classifierKey(
-					epackage, attr.getEContainingClass()));
-			String fieldname = AlloyUtil.featureKey(epackage, attr);
+					metamodel, attr.getEContainingClass()));
+			String fieldname = AlloyUtil.featureKey(metamodel, attr);
 			try {
 				if (attr.getEType().getName().equals("EBoolean"))
 					field = classsig.addField(
-							AlloyUtil.featureKey(epackage, attr),
+							AlloyUtil.featureKey(metamodel, attr),
 							sig_metamodel.setOf());
 				else {
 					PrimSig type = null;
@@ -357,7 +384,7 @@ class ECore2Alloy {
 					}
 					else if (attr.getEType() instanceof EEnum)
 						type = classifier2sig.get(AlloyUtil.classifierKey(
-								epackage, attr.getEType()));
+								metamodel, attr.getEType()));
 					else
 						throw new ErrorUnsupported(
 								ErrorUnsupported.PRIMITIVE_TYPE,
@@ -405,7 +432,7 @@ class ECore2Alloy {
 			throws EchoError {
 		for (EReference reference : references) {
 			PrimSig classsig = classifier2sig.get(AlloyUtil.classifierKey(
-					epackage, reference.getEContainingClass()));
+					metamodel, reference.getEContainingClass()));
 			EReference op = reference.getEOpposite();
 
 			if (op != null && EchoOptionsSetup.getInstance().isOptimize()) {
@@ -422,10 +449,10 @@ class ECore2Alloy {
 			if (cc == null)
 				throw new ErrorParser(ErrorParser.METAMODEL,"Failed to find reference '"+reference.getName()+"' type.",
 						"Check the meta-model specification.",Task.TRANSLATE_METAMODEL);
-			PrimSig trgsig = classifier2sig.get(AlloyUtil.classifierKey(epackage,
+			PrimSig trgsig = classifier2sig.get(AlloyUtil.classifierKey(metamodel,
 					cc));
 			Field field;
-			String feature_key = AlloyUtil.featureKey(epackage, reference);
+			String feature_key = AlloyUtil.featureKey(metamodel, reference);
 
 			try {
 				field = classsig.addField(feature_key,
@@ -445,7 +472,6 @@ class ECore2Alloy {
 				if (opField != null) {
 					fact = field.join(model_var.get()).equal(
 							opField.join(model_var.get()).transpose());
-					EchoReporter.getInstance().debug("PROBLEMATIC: "+fact);
 					
 					constraint_conforms = constraint_conforms.and(fact);
 				}
@@ -473,7 +499,6 @@ class ECore2Alloy {
 						&& reference.getUpperBound() == 1) {
 					fact = (d.get()).join(field.join(model_var.get())).one()
 							.forAll(d);
-					EchoReporter.getInstance().debug("PROBLEMATIC: "+fact+" with src_::"+d.expr);
 
 					constraint_conforms = constraint_conforms.and(fact);
 				} else if (reference.getLowerBound() == 0
@@ -548,10 +573,10 @@ class ECore2Alloy {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		for (EAnnotation annotation : annotations) {
 			Decl self = null;
-			OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
+	OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
 			Map<String, Entry<ExprHasName, String>> sd = new HashMap<String, Entry<ExprHasName, String>>();
 			PrimSig classsig = classifier2sig.get(AlloyUtil.classifierKey(
-					epackage, (EClassifier) annotation.eContainer()));
+					metamodel, (EClassifier) annotation.eContainer()));
 			Field statefield = sig2statefield.get(classsig);
 			try {
 				self = (statefield.join(model_var.get())).oneOf("self");
@@ -622,7 +647,7 @@ class ECore2Alloy {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		for (EOperation operation : eoperations) {
 			PrimSig classsig = classifier2sig.get(AlloyUtil.classifierKey(
-					epackage, operation.getEContainingClass()));
+					metamodel, operation.getEContainingClass()));
 			List<Decl> decls = new ArrayList<Decl>();
 			Map<String, Entry<ExprHasName, String>> sd = new HashMap<String, Entry<ExprHasName, String>>();
 
@@ -712,18 +737,18 @@ class ECore2Alloy {
 		PrimSig enumSig = null;
 		for (EEnum enu : enums) {
 			try {
-				enumSig = new PrimSig(AlloyUtil.classifierKey(epackage, enu),
+				enumSig = new PrimSig(AlloyUtil.classifierKey(metamodel, enu),
 						Attr.ABSTRACT);
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
 						"Failed to create enum sig.", a,
 						Task.TRANSLATE_METAMODEL);
 			}
-			classifier2sig.put(AlloyUtil.classifierKey(epackage, enu), enumSig);
+			classifier2sig.put(AlloyUtil.classifierKey(metamodel, enu), enumSig);
 			PrimSig litSig = null;
 			for (EEnumLiteral lit : enu.getELiterals()) {
 				try {
-					litSig = new PrimSig(AlloyUtil.literalKey(epackage, lit),
+					litSig = new PrimSig(AlloyUtil.literalKey(metamodel, lit),
 							enumSig, Attr.ONE);
 				} catch (Err a) {
 					throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
@@ -919,7 +944,7 @@ class ECore2Alloy {
 	 */
 	List<EClass> getRootClass() {
 		Map<Integer, EClass> classes = new HashMap<Integer, EClass>();
-		for (EClassifier obj : epackage.getEClassifiers())
+		for (EClassifier obj : metamodel.getEPackage().getEClassifiers())
 			if (obj instanceof EClass)
 				classes.put(obj.getClassifierID(), (EClass) obj);
 		Map<Integer, EClass> candidates = new HashMap<Integer, EClass>(classes);

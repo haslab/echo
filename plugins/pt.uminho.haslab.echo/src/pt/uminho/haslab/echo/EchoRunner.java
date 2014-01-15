@@ -1,21 +1,25 @@
 package pt.uminho.haslab.echo;
 
-import edu.mit.csail.sdg.alloy4viz.VizState;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.TransformFactory;
-import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
-import pt.uminho.haslab.mde.EMDEManager;
-import pt.uminho.haslab.mde.model.EModel;
-import pt.uminho.haslab.mde.transformation.ETransformation;
-import pt.uminho.haslab.mde.transformation.qvt.QVTTransformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.TransformFactory;
+import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EMetamodel;
+import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.EConstraintManager;
+import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
+import edu.mit.csail.sdg.alloy4viz.VizState;
 
 public class EchoRunner {
 
@@ -30,6 +34,8 @@ public class EchoRunner {
         transformFactory = factory;
         EchoTranslator.init(factory);
     }
+    
+
 
 	/**
 	 * Translates a meta-model into Alloy
@@ -39,24 +45,24 @@ public class EchoRunner {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addMetaModel(EPackage metaModel) throws EchoError {
-		EchoTranslator.getInstance().translateMetaModel(metaModel);
+	public void addMetaModel(EMetamodel metamodel) throws EchoError {
+		EchoTranslator.getInstance().translateMetaModel(metamodel);
 	}
 
 	/**
 	 * Removes a meta-model from the system
 	 * @param metaModelUri the URI of the meta-model to remove
 	 */
-	public void remMetaModel(String metaModelUri) {
-		EchoTranslator.getInstance().remMetaModel(metaModelUri);
+	public void remMetaModel(String metamodelID) {
+		EchoTranslator.getInstance().remMetaModel(metamodelID);
 	}
 
 	/**
 	 * Tests if a meta-model exists in the system
 	 * @param metaModelUri the URI of the meta-model
 	 */
-	public boolean hasMetaModel(String metaModelUri) {
-		return EchoTranslator.getInstance().hasMetaModel(metaModelUri);
+	public boolean hasMetaModel(String metamodelID) {
+		return EchoTranslator.getInstance().hasMetaModel(metamodelID);
 	}
 
 	/**
@@ -67,30 +73,67 @@ public class EchoRunner {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addModel(EObject model) throws EchoError {
+	public void addModel(EModel model) throws EchoError {
 		EchoTranslator.getInstance().translateModel(model);
 	}
 
 	/**
 	 * Removes a model from the system
 	 * @param modelUri the URI of the model to remove
+	 * @throws EchoError 
 	 */
-	public void remModel(String modelUri) {
-		EchoTranslator.getInstance().remModel(modelUri);
+	public void remModel(String modelID) throws EchoError {
+		EchoTranslator.getInstance().remModel(modelID);
+		for (EConstraint c : EConstraintManager.getInstance().getConstraintsModel(modelID))
+			removeConstraint(c);
+	}
+	
+	public void reloadModel(EModel model) throws EchoError {
+		EchoTranslator.getInstance().remModel(model.ID);
+		EchoTranslator.getInstance().translateModel(model);
 	}
 
+	public EConstraint addConstraint(ETransformation transformation, List<EModel> models) {
+		return EConstraintManager.getInstance().addConstraint(transformation, models);
+	}
+	
+	public List<EConstraint> getConstraints() {
+		return EConstraintManager.getInstance().getAllConstraints();
+	}
+	
+	public List<EConstraint> getConstraintsTransformation(String transformationID) {
+		List<EConstraint> constraints = EConstraintManager.getInstance().getConstraintsTransformation(transformationID);
+		if (constraints == null) constraints = new ArrayList<EConstraint>();
+		return constraints;
+	}
+	
+	public List<EConstraint> getConstraintsModel(String modelID) {
+		List<EConstraint> constraints = EConstraintManager.getInstance().getConstraintsModel(modelID);
+		if (constraints == null) constraints = new ArrayList<EConstraint>();
+		EchoReporter.getInstance().debug(modelID + " so " +constraints);
+		return constraints;
+	}
+
+	public void removeAllConstraint(String qvtID) throws EchoError {
+		for (EConstraint c :  EConstraintManager.getInstance().getConstraintsTransformation(qvtID))
+			removeConstraint(c);
+	}
+	
+	public void removeConstraint(EConstraint c) throws EchoError {
+		EConstraintManager.getInstance().removeConstraint(c);
+		if (EConstraintManager.getInstance().getConstraintsTransformation(c.transformation.ID) == null ||
+				EConstraintManager.getInstance().getConstraintsTransformation(c.transformation.ID).size() == 0)
+			remTransformation(c.transformation.ID);
+	}
+	
 	/**
 	 * Tests if a model exists in the system
 	 * @param modelUri the URI of the model
 	 */
-	public boolean hasModel(String modelUri) {
-		return EchoTranslator.getInstance().hasModel(modelUri);
+	public boolean hasModel(String modelID) {
+		return EchoTranslator.getInstance().hasModel(modelID);
 	}
 
-	public EModel getModel(String modelUri) {
-		return EchoTranslator.getInstance().getModel(modelUri);
-	}
-	
 	/**
 	 * Translates a QVT-R transformation into Alloy 
 	 * @param qvt the RelationalTransformation representing the QVT-R transformation to translate
@@ -99,43 +142,27 @@ public class EchoRunner {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addQVT(RelationalTransformation qvt) throws EchoError {
-		QVTTransformation t = new QVTTransformation(qvt);
-		EchoTranslator.getInstance().translateConstraint(t);
+	public void addTransformation(ETransformation transformation) throws EchoError {
+		EchoTranslator.getInstance().translateTransformation(transformation);
 	}
 
-	public boolean hasQVT(String qvtUri) {
-		return EchoTranslator.getInstance().hasQVT(qvtUri);
+	public boolean hasTransformation(String transformationID) {
+		return EchoTranslator.getInstance().hasTransformation(transformationID);
 	}
 	
-	public boolean remQVT(String qvtUri) {
-		return EchoTranslator.getInstance().remQVT(qvtUri);
-	}
-	
-	public ETransformation getQVT(String qvtUri) {
-		return EchoTranslator.getInstance().getQVT(qvtUri);
-	}
-	
-	public String getMetaModelFromModelPath(String path)
-    {
-        return EchoTranslator.getInstance().getMetaModelFromModelPath(path);
-    }
-	
-	public void addATL(EObject atl, EObject mdl1, EObject mdl2) throws EchoError {
-		//EchoTranslator.getInstance().translateATL(atl,mdl1,mdl2);
+	public void remTransformation(String transformationID) {
+		EchoTranslator.getInstance().remTransformation(transformationID);
 	}
 
-
-	
 	/**
 	 * Tests if a list of models conform to their meta-models
-	 * @param modeluris the URIs of the models to test conformity
+	 * @param modelIDs the URIs of the models to test conformity
 	 * @return true if all models conform to the meta-models
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean conforms(List<String> modeluris) throws EchoError {
+	public boolean conforms(List<String> modelIDs) throws EchoError {
 		EngineRunner runner  = transformFactory.createRunner();
-		runner.conforms(modeluris);
+		runner.conforms(modelIDs);
 		return runner.getSolution().satisfiable();
 	}
 	
@@ -153,25 +180,25 @@ public class EchoRunner {
 	 * @return true if the model was successfully repaired
 	 * @throws ErrorInternalEngine
 	 */
-	public void repair(String targeturi) throws EchoError {
+	public void repair(String targetID) throws EchoError {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
 		runner = transformFactory.createRunner();
-		runner.repair(targeturi);
+		runner.repair(targetID);
 	}
 
 	/**
 	 * Generates a model conforming to the given meta-model
-	 * @param metamodeluri the URI of the meta-model
+	 * @param metamodelID the URI of the meta-model
 	 * @param scope the exact scopes of the model to generate
-	 * @param target 
+	 * @param targetURI 
 	 * @return true if able to generate conforming model
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
 	 */
-	public void generate(final String metamodeluri, final Map<Entry<String,String>,Integer> scope, final String target) throws EchoError {
+	public void generate(final String metamodelID, final Map<Entry<String,String>,Integer> scope, final String targetURI) throws EchoError {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
@@ -180,7 +207,7 @@ public class EchoRunner {
             @Override
             public Boolean call() throws EchoError {
                 try {
-					runner.generate(metamodeluri,scope,target);
+					runner.generate(metamodelID,scope,targetURI);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					return false;
@@ -202,26 +229,26 @@ public class EchoRunner {
 
 	/**
 	 * Checks if models are consistent according to a QVT-R transformation
-	 * @param qvturi the URI of the QVT-R transformation
+	 * @param qvtID the URI of the QVT-R transformation
 	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @return true if consistent
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean check(String qvturi, List<String> modeluris) throws EchoError {
+	public boolean check(String qvtID, List<String> modelIDs) throws EchoError {
 		EngineRunner runner =  transformFactory.createRunner();
-		runner.check(qvturi, modeluris);
+		runner.check(qvtID, modelIDs);
 		return runner.getSolution().satisfiable();
 	}
 
 	/**
 	 * Starts enforcement run according to a QVT-R transformation
-	 * @param qvturi the URI of the QVT-R transformation
-	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
-	 * @param targeturi the URI of the target model
+	 * @param transformationID the URI of the QVT-R transformation
+	 * @param modelIDs the URIs of the models (should be in the order of the QVT-R transformation arguments)
+	 * @param targetIDs the URI of the target model
 	 * @return 
 	 * @throws ErrorInternalEngine
 	 */
-	public boolean enforce(final String qvturi, final List<String> modeluris, final List<String> targeturi) throws EchoError {
+	public boolean enforce(final String transformationID, final List<String> modelIDs, final List<String> targetIDs) throws EchoError {
 		solutions = new ArrayList<EchoSolution>();
 		current_solution = 0;
 
@@ -230,7 +257,7 @@ public class EchoRunner {
             @Override
             public Boolean call() throws EchoError {
                 try {
-                    runner.enforce(qvturi, modeluris, targeturi);
+                    runner.enforce(transformationID, modelIDs, targetIDs);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					return false;
@@ -329,8 +356,9 @@ public class EchoRunner {
 	/**
 	 * Applies a generated Alloy theme for a given instance
 	 * @param vizstate the state of the visualizer
+	 * @throws EchoError 
 	 */
-	public void generateTheme (VizState vizstate) {
+	public void generateTheme (VizState vizstate) throws EchoError {
 		new GraphPainter(vizstate).generateTheme();
 	}
 
@@ -342,20 +370,21 @@ public class EchoRunner {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorUnsupported 
 	 */
-	public void writeAllInstances (String metamodeluri, String modeluri) throws EchoError {
+	public void writeAllInstances (String metamodelID, String modelURI) throws EchoError {
 		//if(currentOperation!=null && !currentOperation.isAlive())
-            EchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodeluri, modeluri);
+            EchoTranslator.getInstance().writeAllInstances(runner.getSolution(), metamodelID, modelURI);
 	}
 
 	/**
 	 * Writes an existing instance from the current Alloy solution into XMI
-	 * @param modeluri the URI of the existing model
+	 * @param modelID the URI of the existing model
 	 * @throws ErrorTransform 
 	 * @throws ErrorInternalEngine
 	 */
-	public void writeInstance (String modeluri) throws EchoError {
+	public void writeInstance (String modelURI) throws EchoError {
+		EModel model = MDEManager.getInstance().getModel(modelURI, false);
         //if(currentOperation!=null && !currentOperation.isAlive())
-            EchoTranslator.getInstance().writeInstance(runner.getSolution(), modeluri);
+            EchoTranslator.getInstance().writeInstance(runner.getSolution(), model.ID);
 	}
 
     public void cancel(){
@@ -374,7 +403,8 @@ public class EchoRunner {
 		TRANSLATE_METAMODEL("translatemetamodel"),
 		TRANSLATE_MODEL("translatemodel"), 
 		TRANSLATE_OCL("translateocl"), 
-		TRANSLATE_TRANSFORMATION("translatetransformation");
+		TRANSLATE_TRANSFORMATION("translatetransformation"), 
+		ALLOY_RUN("alloyrun");
 
 		private Task(String label) { this.label = label; }
 
@@ -387,7 +417,7 @@ public class EchoRunner {
 	}
 
 	public void backUpInstance(String targetPath) throws ErrorParser {
-		EMDEManager.getInstance().backUpTarget(targetPath);
+		MDEManager.getInstance().backUpTarget(targetPath);
 	}
 
 

@@ -35,7 +35,7 @@ public class EchoReporter {
 		inittime.put(qualifier, System.currentTimeMillis());
 	}
 	
-	public void result (Task qualifier, boolean result) {
+	public void result (Task qualifier, String string, boolean result) {
 		long time = System.currentTimeMillis() - inittime.get(qualifier);
 		endtime.put(qualifier, time);
 		switch (qualifier) {
@@ -78,6 +78,9 @@ public class EchoReporter {
 		if (ws == null) ws = new ArrayList<String>();
 		ws.add(message);
 		warnings.put(task, ws);		
+
+		if (EchoOptionsSetup.getInstance().isVerbose())
+			System.out.println(message);
 	}
 	
 	public void iteration (int delta) {

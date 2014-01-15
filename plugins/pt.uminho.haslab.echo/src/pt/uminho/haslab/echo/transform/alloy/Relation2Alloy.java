@@ -1,13 +1,18 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-<<<<<<< HEAD
 import pt.uminho.haslab.mde.model.ECondition;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
@@ -21,18 +26,11 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
-=======
-import pt.uminho.haslab.echo.consistency.*;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
-import java.util.Map.Entry;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 
 public class Relation2Alloy {
 
 	/** the parent transformation translator */
-	public final Transformation2Alloy transformation_translator;
+	public final EAlloyTransformation transformation_translator;
 
 	/** the relation being transformed */
 	public final ERelation relation;
@@ -104,7 +102,7 @@ public class Relation2Alloy {
 	 * @param relation the relation being translated
 	 * @throws EchoError
 	 */
-	public Relation2Alloy (Transformation2Alloy transformation_translator, EDependency dependency, ERelation relation) throws EchoError {
+	public Relation2Alloy (EAlloyTransformation transformation_translator, EDependency dependency, ERelation relation) throws EchoError {
 		this (transformation_translator,true,null,dependency,relation);
 	}
 
@@ -116,7 +114,7 @@ public class Relation2Alloy {
 	 * @param top whether the relation is top or not
 	 * @throws EchoError
 	 */
-	Relation2Alloy(Transformation2Alloy transformation_translator, Boolean top,
+	Relation2Alloy(EAlloyTransformation transformation_translator, Boolean top,
 			Relation2Alloy parent_translator, EDependency dependency, ERelation relation)
 			throws EchoError {
 		this.relation = relation;
@@ -127,10 +125,10 @@ public class Relation2Alloy {
 
 		for (EModelParameter mdl : relation.getTransformation().getModels()) {
 			Decl d;
-			String metamodeluri = mdl.getMetamodelURI();
+			String metamodelID = mdl.getMetamodel().ID;
 			try {
 				d = AlloyEchoTranslator.getInstance()
-						.getMetaModelStateSig(metamodeluri)
+						.getMetamodel(metamodelID).sig_metamodel
 						.oneOf(mdl.getName());
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
@@ -251,10 +249,9 @@ public class Relation2Alloy {
 		Map<EVariable,String> sourcevar2model = new HashMap<EVariable,String>();
 		Map<EVariable,String> targetvar2model = new HashMap<EVariable,String>();
 		
-		EchoReporter.getInstance().debug(dependency.toString());
 		for (EModelDomain dom : relation.getDomains()) {
 			rootvariables.put(dom.getRootVariable(),dom.getModel().getName());
-			if (dependency.getTarget().equals(dom)) targetdomain = dom;
+			if (dependency.target.equals(dom)) targetdomain = dom;
 			else sourcedomains.add(dom);
 		}
 		
@@ -343,12 +340,12 @@ public class Relation2Alloy {
 			Sig s = (Sig) fst.expr.type().toExpr();
 			for (Field f : s.getFields()) {
 				if (f.label.equals(AlloyUtil.relationFieldName(relation,
-						dependency.getTarget())))
+						dependency.target)))
 					field = f;
 			}
 			if (field == null) {
 				field = s.addField(
-						AlloyUtil.relationFieldName(relation, dependency.getTarget()),
+						AlloyUtil.relationFieldName(relation, dependency.target),
 						/*type.setOf()*/Sig.UNIV.setOf());
 			}
 		} catch (Err a) { 
@@ -389,7 +386,7 @@ public class Relation2Alloy {
 	 */
 	private void addRelationPred(Expr fact) throws EchoError {
 		try {
-			transformation_translator.addTopRelationCall(new Func(null,AlloyUtil.relationPredName(relation,dependency.getTarget()),
+			transformation_translator.addTopRelationCall(new Func(null,AlloyUtil.relationPredName(relation,dependency.target),
 					model_params_decls, null, fact));
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
@@ -409,7 +406,7 @@ public class Relation2Alloy {
 		try {
 			field = addRelationFields();
 			transformation_translator.addSubRelationCall(new Func(null,
-					AlloyUtil.relationFieldName(relation, dependency.getTarget()),
+					AlloyUtil.relationFieldName(relation, dependency.target),
 					model_params_decls, field.type().toExpr(), field));
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,

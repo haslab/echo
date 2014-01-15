@@ -1,22 +1,43 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.ocl.examples.pivot.*;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
+import org.eclipse.ocl.examples.pivot.IfExp;
+import org.eclipse.ocl.examples.pivot.IteratorExp;
+import org.eclipse.ocl.examples.pivot.OCLExpression;
+import org.eclipse.ocl.examples.pivot.OperationCallExp;
+import org.eclipse.ocl.examples.pivot.Property;
+import org.eclipse.ocl.examples.pivot.PropertyCallExp;
+import org.eclipse.ocl.examples.pivot.TypeExp;
+import org.eclipse.ocl.examples.pivot.UnlimitedNaturalLiteralExp;
+import org.eclipse.ocl.examples.pivot.VariableDeclaration;
+import org.eclipse.ocl.examples.pivot.VariableExp;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
-import pt.uminho.haslab.echo.*;
+
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.ConditionTranslator;
-<<<<<<< HEAD
-import pt.uminho.haslab.mde.emf.URIUtil;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.qvt.QVTRelation;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -30,12 +51,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-=======
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
-import java.util.Map.Entry;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 
 public class OCL2Alloy implements ConditionTranslator{
 
@@ -53,7 +68,6 @@ public class OCL2Alloy implements ConditionTranslator{
 	}
 	
 	public OCL2Alloy(Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
-		EchoReporter.getInstance().debug("OCL2Alloy created: "+vardecls +", "+prevars+", "+argsvars);
 		this.varstates = vardecls;
 		this.prevars = prevars;
 		this.posvars = argsvars;
@@ -241,10 +255,11 @@ public class OCL2Alloy implements ConditionTranslator{
 	}
 	
 	Expr oclExprToAlloy (TypeExp expr) throws EchoError {
-		String metamodeluri = URIUtil.resolveURI(expr.getReferredType().getPackage().getEPackage().eResource());
-		EClassifier eclass = AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, expr.getReferredType().getName());
-		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodeluri, (EClass) eclass);
-		Expr state = (isPre?prevars:posvars).get(metamodeluri);
+		String metamodeluri = EcoreUtil.getURI(expr.getReferredType().getPackage().getEPackage()).path();
+		EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
+		EClassifier eclass = AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodel.ID, expr.getReferredType().getName());
+		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodel.ID, (EClass) eclass);
+		Expr state = (isPre?prevars:posvars).get(metamodel.ID);
 		return field.join(state);
 	}
 	
@@ -331,14 +346,15 @@ public class OCL2Alloy implements ConditionTranslator{
 			
 			VariableExp var = (VariableExp) expr.getSource();
 			String cl = var.getType().getName();
-			String metamodeluri = URIUtil.resolveURI(var.getType().getPackage().getEPackage().eResource());
+			String metamodeluri = EcoreUtil.getURI(var.getType().getPackage().getEPackage()).path();
 			
 			Integer newi = news.get(cl);
 			if (newi == null) news.put(cl,1);
 			else news.put(cl,newi+1);
 			
-			EClass ecl =  (EClass) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, cl);
-			Field statefield = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodeluri,ecl);
+			EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
+			EClass ecl =  (EClass) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodel.ID, cl);
+			Field statefield = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metamodel.ID,ecl);
 			Expr pre = Sig.NONE;
 			Expr pos = Sig.NONE;
 			if (varstates.get(var.toString()) != null && varstates.get(var.toString()).getValue() != null) {
@@ -386,14 +402,14 @@ public class OCL2Alloy implements ConditionTranslator{
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
 	Expr propertyToField (Property prop, Expr var) throws EchoError {		
-		String metamodeluri = URIUtil.resolveURI(prop.getOwningType().getPackage().getEPackage().eResource());
-		
+		String metamodeluri = EcoreUtil.getURI(prop.getOwningType().getPackage().getEPackage()).path().replace("/resource", "");
+		EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
 		Expr exp;
 		Expr statesig = null;
 		if ((isPre?prevars:posvars) != null && var instanceof ExprHasName) 
 			statesig = (isPre?prevars:posvars).get(varstates.get(((ExprHasName)var).label).getValue());
 		if (statesig == null) {
-				statesig = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri);
+				statesig = AlloyEchoTranslator.getInstance().getMetamodel(metamodel.ID).sig_metamodel;
 				for (Entry<ExprHasName,String> x : varstates.values()) {
 					try {
 						if(x.getKey().type().toExpr().isSame(statesig))
@@ -404,12 +420,12 @@ public class OCL2Alloy implements ConditionTranslator{
 					}
 				}
 		}
-		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, prop.getOwningType().getName(),prop.getName());
-		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri,feature);
+		EStructuralFeature feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodel.ID, prop.getOwningType().getName(),prop.getName());
+		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodel.ID,feature);
 		
 		if (field == null && prop.getOpposite() != null && EchoOptionsSetup.getInstance().isOptimize()) {
-			feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri, prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
-			field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodeluri,feature);
+			feature = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodel.ID, prop.getOpposite().getOwningType().getName(),prop.getOpposite().getName());
+			field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metamodel.ID,feature);
 			exp = (field.join(statesig)).transpose();
 		}
 		else {

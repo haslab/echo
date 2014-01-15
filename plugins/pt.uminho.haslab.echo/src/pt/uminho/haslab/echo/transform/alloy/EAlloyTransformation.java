@@ -1,12 +1,14 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
-<<<<<<< HEAD
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.transformation.EDependency;
-import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -17,20 +19,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-=======
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.consistency.EDependency;
-import pt.uminho.haslab.echo.consistency.EModelParameter;
-import pt.uminho.haslab.echo.consistency.ERelation;
-import pt.uminho.haslab.echo.consistency.ETransformation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
-
-class Transformation2Alloy {
+class EAlloyTransformation {
 
 	/** the Alloy expression rising from this QVT Transformation*/
 	private Func func;
@@ -53,7 +43,9 @@ class Transformation2Alloy {
 	 * @param transformation the QVT Transformation being translated
 	 * @throws EchoError
 	 */
-	Transformation2Alloy (ETransformation transformation, Map<String,List<EDependency>> dependencies) throws EchoError {
+	EAlloyTransformation (ETransformation transformation, Map<String,List<EDependency>> dependencies) throws EchoError {
+		EchoReporter.getInstance().debug(""+dependencies);
+		
 		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION, transformation.getName());
 		Expr fact = Sig.NONE.no();
 		this.transformation = transformation;
@@ -62,9 +54,9 @@ class Transformation2Alloy {
 
 		for (EModelParameter mdl : transformation.getModels()) {
 			Decl d;
-			String metamodeluri = mdl.getMetamodelURI();
+			String metamodelID = mdl.getMetamodel().ID;
 			try {
-				d = AlloyEchoTranslator.getInstance().getMetaModelStateSig(metamodeluri).oneOf(mdl.getName());
+				d = AlloyEchoTranslator.getInstance().getMetamodel(metamodelID).sig_metamodel.oneOf(mdl.getName());
 			} catch (Err a) { 
 				throw new ErrorAlloy(
 						ErrorAlloy.FAIL_CREATE_VAR,
@@ -95,7 +87,7 @@ class Transformation2Alloy {
 					"Failed to create transformation function: "+transformation.getName(),
 					a,Task.TRANSLATE_TRANSFORMATION); 
 		}
-		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, true);
+		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, "", true);
 
 	}
 	
@@ -145,7 +137,7 @@ class Transformation2Alloy {
 	 * @return the respective Alloy function
 	 */
 	Func callRelation(ERelation n, EDependency dep) {
-		return subrelationcall_funcs.get(AlloyUtil.relationFieldName(n,dep.getTarget()));
+		return subrelationcall_funcs.get(AlloyUtil.relationFieldName(n,dep.target));
 	}
 
 }

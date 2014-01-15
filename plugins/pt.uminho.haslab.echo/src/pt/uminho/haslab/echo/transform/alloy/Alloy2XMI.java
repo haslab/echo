@@ -28,15 +28,15 @@ class Alloy2XMI {
 	private final EObject result;
 	private final A4Solution sol;
 	private final Expr state;
-	private final ECore2Alloy e2a;
+	private final EAlloyMetamodel metamodel;
 	private final List<PrimSig> instancesigs;
 	private Map<String,ExprVar> mapAtoms;
 	
-	Alloy2XMI(A4Solution sol, PrimSig rootatom, ECore2Alloy metaInfo, PrimSig state, List<PrimSig> instsigs) throws EchoError 
+	Alloy2XMI(A4Solution sol, PrimSig rootatom, EAlloyMetamodel metamodel, PrimSig state, List<PrimSig> instsigs) throws EchoError 
 	{
 		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom: "+rootatom);
 		instancesigs = (instsigs==null)?new ArrayList<PrimSig>():instsigs;
-		e2a = metaInfo;
+		this.metamodel = metamodel;
 		this.sol = sol;
 		this.state = state;	
 		mapAtoms = buildMapAtoms();
@@ -66,12 +66,12 @@ class Alloy2XMI {
 		try {
 			type = (PrimSig)ex.type().toExpr();
 			if (instancesigs.contains(type)) {
-				ec = (EClass) e2a.getEClassifierFromSig(type.parent);
+				ec = (EClass) metamodel.getEClassifierFromSig(type.parent);
 			}
 			else {
-				ec = (EClass) e2a.getEClassifierFromSig(type);
+				ec = (EClass) metamodel.getEClassifierFromSig(type);
 				if (ec == null)
-					ec = (EClass) e2a.getEClassifierFromSig(type.parent);
+					ec = (EClass) metamodel.getEClassifierFromSig(type.parent);
 			}
 		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
 
@@ -87,23 +87,22 @@ class Alloy2XMI {
 		EList<EObject> itList;
 		for(EStructuralFeature sf: ec.getEAllStructuralFeatures())
 		{	
-			field = e2a.getFieldFromSFeature(sf);
-			if(sf instanceof EAttribute)
-			{
+			field = metamodel.getFieldFromSFeature(sf);
+			EchoReporter.getInstance().debug(ex+", "+field+", "+state);
+			if(sf instanceof EAttribute) {
 
 				att = (EAttribute) sf;
 				if(att.getEType() instanceof EEnum){
 					try {
 						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						Expr e = mapAtoms.get(ts.iterator().next().atom(0));
-						EEnumLiteral lit = e2a.getEEnumLiteralFromSig((PrimSig)e.type().toExpr());
+						EEnumLiteral lit = metamodel.getEEnumLiteralFromSig((PrimSig)e.type().toExpr());
 						obj.eSet(sf, lit);
 					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 
 				}
 				else if(att.getEType().getName().equals("EBoolean"))
 					try {
-
 						obj.eSet(sf,sol.eval(ex.in(field.join(state))));
 					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
 				else if(att.getEType().getName().equals("EString")) {
@@ -120,10 +119,8 @@ class Alloy2XMI {
 
 				}
 			}
-			else if(sf instanceof EReference)
-			{
+			else if(sf instanceof EReference) {
 				ref = (EReference) sf;
-				EchoReporter.getInstance().debug("NULL? "+field);
 				if (EchoOptionsSetup.getInstance().isOptimize() && ref.getEOpposite() != null && field == null) {}
 				else {
 					try {

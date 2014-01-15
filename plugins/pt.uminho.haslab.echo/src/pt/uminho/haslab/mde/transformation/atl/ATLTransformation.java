@@ -3,6 +3,7 @@ package pt.uminho.haslab.mde.transformation.atl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ATLTransformation implements ETransformation {
+public class ATLTransformation extends ETransformation {
 
 	private static Map<EObject,ATLTransformation> list = new HashMap<EObject,ATLTransformation>();
 
@@ -26,7 +27,8 @@ public class ATLTransformation implements ETransformation {
 	public static Map<String,String> metamodeluris = new HashMap<String,String>();
 	
 	public ATLTransformation(EObject module, EObject mdl1, EObject mdl2) throws ErrorParser {
-        this.transformation = module;
+        super(null);
+		this.transformation = module;
         this.mdl1 = mdl1;
         this.mdl2 = mdl2;
         if (!module.eClass().getName().equals("Module")) throw new ErrorParser("Bad atl");
@@ -54,6 +56,9 @@ public class ATLTransformation implements ETransformation {
 	}
 
 	public ATLTransformation(EObject loadATL) {
+		super(null);
+		mdl1 = null;
+		mdl2 = null;
 		// TODO Auto-generated constructor stub
 	}
 
@@ -77,8 +82,13 @@ public class ATLTransformation implements ETransformation {
 		return list.get(eObject);
 	}
 
+	public void update(EObject eobj) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	@Override
-	public String getIdentifier() {
+	public String getURI() {
 		// TODO Auto-generated method stub
 		return null;
 	}

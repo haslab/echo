@@ -1,21 +1,28 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import edu.mit.csail.sdg.alloy4.ConstList;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4.ErrorFatal;
-import edu.mit.csail.sdg.alloy4.ErrorSyntax;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import org.eclipse.emf.ecore.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EEnumLiteral;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
+
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-<<<<<<< HEAD
-import pt.uminho.haslab.mde.emf.URIUtil;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
-import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
-import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.atl.ATLTransformation;
 import edu.mit.csail.sdg.alloy4.ConstList;
@@ -38,16 +45,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
-=======
-import pt.uminho.haslab.echo.consistency.EModelDomain;
-import pt.uminho.haslab.echo.consistency.ERelation;
-import pt.uminho.haslab.echo.consistency.EVariable;
-import pt.uminho.haslab.echo.consistency.atl.ATLTransformation;
-import pt.uminho.haslab.echo.emf.URIUtil;
-
-import java.util.*;
-import java.util.Map.Entry;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 
 public class AlloyUtil {
 
@@ -64,10 +61,10 @@ public class AlloyUtil {
 	 * @param sig the Alloy signature
 	 * @return the meta-model URI
 	 */
-	public static String getMetamodelURIfromExpr(ExprHasName sig) {
-		return getMetamodelURIfromLabel(sig.label);
+	public static String getMetamodelIDfromExpr(ExprHasName sig) {
+		return getMetamodelIDfromLabel(sig.label);
 	}
-	public static String getMetamodelURIfromLabel(String label) {
+	public static String getMetamodelIDfromLabel(String label) {
 		return label.split("@")[0];
 	}
 
@@ -126,21 +123,21 @@ public class AlloyUtil {
 	}
 
 
-	public static String classifierKey (EPackage pck, EClassifier ec) {
-		return (URIUtil.resolveURI(pck.eResource()) + "@" + ec.getName());
+	public static String classifierKey (EMetamodel pck, EClassifier ec) {
+		return (pck.ID + "@" + ec.getName());
 	}
 
-	public static String featureKey (EPackage pck, EStructuralFeature ec) {
-		return (URIUtil.resolveURI(pck.eResource()) + "@" + ec.getEContainingClass().getName() + "@" + ec.getName());
+	public static String featureKey (EMetamodel pck, EStructuralFeature ec) {
+		return (pck.ID + "@" + ec.getEContainingClass().getName() + "@" + ec.getName());
 	}
 
-	public static String literalKey (EPackage pck, EEnumLiteral ec) {
-		return (URIUtil.resolveURI(pck.eResource()) + "@" + ec.getEEnum().getName() + "@" + ec.getName());
+	public static String literalKey (EMetamodel pck, EEnumLiteral ec) {
+		return (pck.ID + "@" + ec.getEEnum().getName() + "@" + ec.getName());
 	}
 
 
-	public static String stateFieldName (EPackage pck, EClass cls) {
-		return URIUtil.resolveURI(pck.eResource()) +"@"+ cls.getName() +"@";
+	public static String stateFieldName (EMetamodel pck, EClass cls) {
+		return pck.ID +"@"+ cls.getName() +"@";
 	}
 
 	public static String relationFieldName (ERelation rel, EModelDomain dir) {
@@ -440,8 +437,9 @@ public class AlloyUtil {
 				else {
 					String metamodeluri = null;
 					if (t instanceof Type) {
-						metamodeluri = URIUtil.resolveURI(((Type) t)
-								.getPackage().eResource());
+						EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path());
+						EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path().replace("resource/", ""));
+						metamodeluri = EcoreUtil.getURI(((Type) t).getPackage()).path().replace(".oclas", "").replace("resource/", "");
 					} else {
 						EObject aux = (EObject) t.eGet(t.eClass()
 								.getEStructuralFeature("model"));
@@ -455,13 +453,15 @@ public class AlloyUtil {
 						state = modelparam2var.get(variable_models
 								.get(variable_decl.getName()).getValue());
 
-					if (state == null)
-						state = translator.getMetaModelStateSig(metamodeluri);
-
+					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
+					if (state == null) {
+						state = translator.getMetamodel(metamodel.ID).sig_metamodel;
+					}
+					
 					EClass eclass = (EClass) translator.getEClassifierFromName(
-							metamodeluri, type);
+							metamodel.ID, type);
 					Expr statefield = translator.getStateFieldFromClass(
-							metamodeluri, eclass);
+							metamodel.ID, eclass);
 					range = statefield.join(state);
 
 				}

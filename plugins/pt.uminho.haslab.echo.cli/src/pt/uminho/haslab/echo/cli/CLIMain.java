@@ -60,7 +60,7 @@ public class CLIMain {
 		}
 		if (options.isQVT()){
 			RelationalTransformation qvt = parser.loadQVT(options.getQVTURI());
-			runner.addQVT(qvt);
+			runner.addTransformation(qvt);
 			reporter.debug(options.getQVTURI() + " loaded.");
 		}
 		for (String modeluri : options.getModels()){

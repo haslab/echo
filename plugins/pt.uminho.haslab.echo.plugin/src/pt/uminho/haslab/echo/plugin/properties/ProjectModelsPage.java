@@ -122,13 +122,13 @@ IWorkbenchPropertyPage {
 	@Override
 	protected void performApply() {
 		for (Object x : modellist.getCheckedElements()) {
-			if (!ProjectPropertiesManager.getProperties(project).isManagedModel((IResource) x))
-				try {
+			try {
+				if (!ProjectPropertiesManager.getProperties(project).isManagedModel((IResource) x))
 					ProjectPropertiesManager.getProperties(project).addModel((IResource) x);
-				} catch (EchoError e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			} catch (EchoError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		for (IResource x : ProjectPropertiesManager.getProperties(project).getModels()) {
 			if (!Arrays.asList(modellist.getCheckedElements()).contains(x))
@@ -196,7 +196,13 @@ IWorkbenchPropertyPage {
 		}
 		@Override
 		public boolean isChecked(Object element) {
-			return ProjectPropertiesManager.getProperties(p).isManagedModel((IResource) element);
+			try {
+				return ProjectPropertiesManager.getProperties(p).isManagedModel((IResource) element);
+			} catch (EchoError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return false;
 		}
 
 		@Override

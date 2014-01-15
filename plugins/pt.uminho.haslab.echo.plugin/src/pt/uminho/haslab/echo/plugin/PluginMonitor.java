@@ -2,8 +2,6 @@ package pt.uminho.haslab.echo.plugin;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import pt.uminho.haslab.echo.EchoReporter;
-
 public class PluginMonitor implements IProgressMonitor {
 
 	@Override
@@ -33,7 +31,6 @@ public class PluginMonitor implements IProgressMonitor {
 	@Override
 	public void setCanceled(boolean value) {
 		EchoPlugin.getInstance().getRunner().cancel();
-		EchoReporter.getInstance().debug("CANCEL!!!!");		
 	}
 
 	@Override

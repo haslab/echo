@@ -11,6 +11,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
@@ -60,44 +62,51 @@ public class ResourceChangeListener implements IResourceChangeListener {
 					if ((flags & IResourceDelta.MARKERS) == 0)
 						if (res instanceof IFile) {
 							IFile f = (IFile) res;
-							if (p.isManagedModel(res)) {
-								EchoReporter.getInstance().debug("Tracked model was changed");
-								WorkspaceJob j = new ModelChangedJob(f);
-								j.setRule(new ResourceRules(f,ResourceRules.READ));
-								j.schedule();
-							} else if (p.isManagedMetamodel(res)) {
-								EchoReporter.getInstance().debug("Tracked metamodel was changed");
-								WorkspaceJob j = new MetaModelChangedJob(f);
-								j.setRule(new ResourceRules(f,ResourceRules.READ));
-								j.schedule();
-							} else if (p.isManagedQVT(res)) {
-							    EchoReporter.getInstance().debug("Tracked qvt spec was changed");
-							    WorkspaceJob j = new QVTChangedJob(f);
-								j.setRule(new ResourceRules(f,ResourceRules.READ));
-								j.schedule();
-								
-							} 
+							try {
+								if (p.isManagedModel(res)) {
+									EchoReporter.getInstance().debug("Tracked model was changed");
+									WorkspaceJob j = new ModelChangedJob(f);
+									j.setRule(new ResourceRules(f,ResourceRules.READ));
+									j.schedule();
+								} else if (p.isManagedMetamodel(res)) {
+									EchoReporter.getInstance().debug("Tracked metamodel was changed");
+									WorkspaceJob j = new MetaModelChangedJob(f);
+									j.setRule(new ResourceRules(f,ResourceRules.READ));
+									j.schedule();
+								} else if (p.isManagedQVT(res)) {
+								    EchoReporter.getInstance().debug("Tracked qvt spec was changed");
+								    WorkspaceJob j = new QVTChangedJob(f);
+									j.setRule(new ResourceRules(f,ResourceRules.READ));
+									j.schedule();
+								}
+							} catch (EchoError e) {
+								e.printStackTrace();
+							}
 						}
 					break;
 				case IResourceDelta.REMOVED:
 					if (res instanceof IFile) {
 						IFile f = (IFile) res;
-						if (p.isManagedModel(res)) {
-							EchoReporter.getInstance().debug("Tracked model was removed");
-							WorkspaceJob j = new ModelDeletedJob(f);
-							j.setRule(new ResourceRules(f,ResourceRules.READ));
-							j.schedule();
-						} else if (p.isManagedMetamodel(res)) {
-							EchoReporter.getInstance().debug("Tracked metamodel was removed");
-							WorkspaceJob j = new MetaModelChangedJob(f);
-							j.setRule(new ResourceRules(f,ResourceRules.READ));
-							j.schedule();
-						} else if (p.isManagedQVT(res)) {
-						    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
-						    WorkspaceJob j = new QVTDeletedJob(f);
-							j.setRule(new ResourceRules(f,ResourceRules.READ));
-							j.schedule();
-						} 
+						try {
+							if (p.isManagedModel(res)) {
+								EchoReporter.getInstance().debug("Tracked model was removed");
+								WorkspaceJob j = new ModelDeletedJob(f);
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
+								j.schedule();
+							} else if (p.isManagedMetamodel(res)) {
+								EchoReporter.getInstance().debug("Tracked metamodel was removed");
+								WorkspaceJob j = new MetaModelChangedJob(f);
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
+								j.schedule();
+							} else if (p.isManagedQVT(res)) {
+							    EchoReporter.getInstance().debug("Tracked qvt spec was removed");
+							    WorkspaceJob j = new QVTDeletedJob(f);
+								j.setRule(new ResourceRules(f,ResourceRules.READ));
+								j.schedule();
+							} 
+						} catch (EchoError e) {
+							e.printStackTrace();
+						}
 					}
 					break;
 				}

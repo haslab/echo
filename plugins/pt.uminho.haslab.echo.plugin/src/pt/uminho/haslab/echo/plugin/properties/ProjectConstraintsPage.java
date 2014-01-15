@@ -122,7 +122,7 @@ IWorkbenchPropertyPage {
 		depButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ETransformation t = ProjectPropertiesManager.getProperties(project).getTransformation(getSelectedContraint().constraint);
+				ETransformation t = getSelectedContraint().transformation;
 				DependencyTransformationManageDialog d = new DependencyTransformationManageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),t);
 				d.open();
 			}
@@ -135,13 +135,13 @@ IWorkbenchPropertyPage {
 	protected void performApply() {
 		for (TableItem x : constraintlist.getTable().getItems()) {
 			EConstraint c = (EConstraint) x.getData();
-			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
-				try {
-					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.constraint, c.models);
-				} catch (EchoError e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				};
+//			if (!ProjectPropertiesManager.getProperties(project).getConstraints().contains(c))
+//				try {
+//					ProjectPropertiesManager.getProperties(project).addQVTConstraint(c.transformation, c.getModels());
+//				} catch (EchoError e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				};
 
 		}
 		for (EConstraint x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
@@ -186,8 +186,8 @@ IWorkbenchPropertyPage {
 
 		public String getText(Object obj) {
 			EConstraint qvt = (EConstraint) obj;
-			if (i == 0) return qvt.constraint.getProjectRelativePath().toString();
-			else return qvt.models.get(i-1).getProjectRelativePath().toString();
+			if (i == 0) return qvt.transformation.ID.toString();
+			else return qvt.getModels().get(i-1).ID.toString();
 		}
 
 		public Image getImage(Object obj) {

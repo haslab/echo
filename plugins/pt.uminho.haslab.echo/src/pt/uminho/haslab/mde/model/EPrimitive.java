@@ -1,5 +1,8 @@
 package pt.uminho.haslab.mde.model;
 
-abstract public class EPrimitive extends EValue {
-
-}
+/**
+ * Echo representation of a primitive type value
+ * @author nmm
+ *
+ */
+abstract public class EPrimitive extends EValue {}

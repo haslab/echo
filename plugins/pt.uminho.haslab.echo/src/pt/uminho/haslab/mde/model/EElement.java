@@ -1,6 +1,7 @@
 package pt.uminho.haslab.mde.model;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -10,10 +11,12 @@ public class EElement extends EValue {
 	private Map<EStructuralFeature,EProperty> properties = new HashMap<EStructuralFeature,EProperty>();
 	private List<EElement> children = new ArrayList<EElement>();
 	private EElement parent;
+	private EObject eobject;
 	public final EClass type;
 
-	public EElement(EClass eclass) {
-		type = eclass;
+	public EElement(EObject eobject) {
+		type = eobject.eClass();
+		this.eobject = eobject;
 	}
 
 	public void addValue(EReference reference, EElement value) {
@@ -100,6 +103,10 @@ public class EElement extends EValue {
 
 	public Collection<EProperty> getProperties() {
 		return properties.values();
+	}
+
+	public EObject getEObject() {
+		return eobject;
 	}
 	
 }

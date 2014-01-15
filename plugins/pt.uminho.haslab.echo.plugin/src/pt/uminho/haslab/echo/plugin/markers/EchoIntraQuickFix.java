@@ -10,11 +10,15 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
+
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EModel;
 
 /**
  * Marker resolution for intra-model errors
@@ -47,18 +51,18 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 
 		((PlugInOptions) EchoOptionsSetup.getInstance())
 				.setOperationBased(metric.equals(EchoMarker.OBD));
-
-		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
-			Job j = new ModelRepairJob(res);
-			j.setRule(new ResourceRules(res,ResourceRules.WRITE));
-			j.schedule();
-		} else {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
-			try {
-				marker.delete();
-			} catch (CoreException e) {
-				e.printStackTrace();
+		try {
+			if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
+				Job j = new ModelRepairJob(res);
+				j.setRule(new ResourceRules(res,ResourceRules.WRITE));
+				j.schedule();
+			} else {
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
+					marker.delete();
+				
 			}
+		} catch (CoreException | EchoError e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -73,7 +77,8 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 		@Override
 		public IStatus run(IProgressMonitor monitor) {
 			try {
-				EchoPlugin.getInstance().getRunner().repair(res.getFullPath().toString());
+				EModel model = MDEManager.getInstance().getModel(res.getFullPath().toString(), false);
+				EchoPlugin.getInstance().getRunner().repair(model.ID);
 				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(), false, null);
 				EchoPlugin.getInstance().getGraphView().drawGraph();
 			} catch (Exception e) {

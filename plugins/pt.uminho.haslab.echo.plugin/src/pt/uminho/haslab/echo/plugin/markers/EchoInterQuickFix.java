@@ -13,14 +13,15 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.markers.WorkbenchMarkerResolution;
+
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
-import pt.uminho.haslab.mde.emf.EMFParser;
+import pt.uminho.haslab.mde.MDEManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,18 +58,18 @@ public class EchoInterQuickFix extends	WorkbenchMarkerResolution {
 	 */
 	@Override
 	public void run(IMarker marker) {
-		List<String> list = new ArrayList<String>(1);
+		List<String> modelIDs = new ArrayList<String>(1);
 		IResource res = marker.getResource();
 
-		if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
+		try {
 
-			try {
-				list =  Arrays.asList(((String) marker.getAttribute(EchoMarker.MODELS)).split(";"));
+			if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
 
+				modelIDs = Arrays.asList(((String) marker.getAttribute(EchoMarker.MODELS)).split(";"));
 				((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
 				List<String> aux = new ArrayList<String>();
-				aux.add(res.getFullPath().toString());
-				Job j = new ModelRepairJob(aux, list, marker.getAttribute(EchoMarker.CONSTRAINT).toString());
+				aux.add(MDEManager.getInstance().getModel(res.getFullPath().toString(),false).ID);
+				Job j = new ModelRepairJob(aux, modelIDs, marker.getAttribute(EchoMarker.TRANSFORMATION).toString());
 				IJobManager manager = Job.getJobManager();
 				
 				final PluginMonitor p = new PluginMonitor();
@@ -81,53 +82,47 @@ public class EchoInterQuickFix extends	WorkbenchMarkerResolution {
 				manager.setProgressProvider(provider);
 				j.setRule(new ResourceRules(res,ResourceRules.WRITE));
 				j.schedule();
-
-			} catch (Exception e1) {
-				MessageDialog.openError(null, "Error loading QVT-R.",e1.getMessage());
-				e1.printStackTrace();
-				return;
-			}			
 			
-		} else {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
-			try {
+			} else {
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
 				marker.delete();
-			} catch (CoreException e) {
-				e.printStackTrace();
 			}
-		}
+		} catch (EchoError | CoreException e1) {
+			MessageDialog.openError(null, "Error loading QVT-R.",e1.getMessage());
+			e1.printStackTrace();
+			return;
+		}	
 	}
 
 
 
 	public void run(IMarker[] markers,
             IProgressMonitor monitor) {
-		EchoReporter.getInstance().debug("run: "+markers);
-		List<String> constraintmodels = new ArrayList<String>();
-		String constraint;
+		List<String> modelsID = new ArrayList<String>();
+		String constraintID;
 		
 		
 		for(IMarker marker : markers)
-			if (!ProjectPropertiesManager.getProperties(marker.getResource().getProject()).isManagedModel(marker.getResource())) {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
-				try {
+			try {
+				if (!ProjectPropertiesManager.getProperties(marker.getResource().getProject()).isManagedModel(marker.getResource())) {
+					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error repairing resource.","Resource is no longer tracked.");
 					marker.delete();
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}	
 				}
+			} catch (CoreException | EchoError e) {
+				e.printStackTrace();
+			}
 			
 		try {
-			constraintmodels =  Arrays.asList(((String) markers[0].getAttribute(EchoMarker.MODELS)).split(";"));
-			constraint = markers[0].getAttribute(EchoMarker.CONSTRAINT).toString();
+			modelsID =  Arrays.asList(((String) markers[0].getAttribute(EchoMarker.MODELS)).split(";"));
+			constraintID = markers[0].getAttribute(EchoMarker.TRANSFORMATION).toString();
 
 			((PlugInOptions) EchoOptionsSetup.getInstance()).setOperationBased(metric.equals(EchoMarker.OBD));
-			List<String> aux = new ArrayList<String>();
+			List<String> targetIDs = new ArrayList<String>();
 			for (IMarker marker : markers) {
-				aux.add(marker.getResource().getFullPath().toString());
+				targetIDs.add(MDEManager.getInstance().getModel(marker.getResource().getFullPath().toString(),false).ID);
 				//test if marker over same constraint
 			}
-			Job j = new ModelRepairJob(aux, constraintmodels, constraint);
+			Job j = new ModelRepairJob(targetIDs, modelsID, constraintID);
 			IJobManager manager = Job.getJobManager();
 			
 			final PluginMonitor p = new PluginMonitor();
@@ -150,7 +145,6 @@ public class EchoInterQuickFix extends	WorkbenchMarkerResolution {
 
 	}
 	
-	
 	@Override
 	public String getDescription() {
 		// TODO Auto-generated method stub
@@ -170,7 +164,7 @@ public class EchoInterQuickFix extends	WorkbenchMarkerResolution {
 			try {
 				if (marker.getType().equals(EchoMarker.INTER_ERROR))
 					if (marker.getAttribute(EchoMarker.MODELS).equals(caller.getAttribute(EchoMarker.MODELS)) &&
-						marker.getAttribute(EchoMarker.CONSTRAINT).equals(caller.getAttribute(EchoMarker.CONSTRAINT)))
+						marker.getAttribute(EchoMarker.TRANSFORMATION).equals(caller.getAttribute(EchoMarker.TRANSFORMATION)))
 					res.add(marker);
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
@@ -182,27 +176,28 @@ public class EchoInterQuickFix extends	WorkbenchMarkerResolution {
 		return res.toArray(new IMarker[res.size()]);
 	}
 
-
-
 	class ModelRepairJob extends Job {
-		private List<String>  targets;
-		private String constraint = null;
-		private List<String> list = null;
+		private List<String> targetIDs;
+		private String transformationID = null;
+		private List<String> modelIDs = null;
 		
-		public ModelRepairJob(List<String> targets, List<String> list, String constraint) {
-			super("Repairing model "+targets+".");
-			this.targets = targets;
-			this.constraint = constraint;
-			this.list = list;
+		public ModelRepairJob(List<String> targetIDs, List<String> modelIDs, String transformationID) {
+			super("Repairing model "+targetIDs+".");
+			this.targetIDs = targetIDs;
+			this.transformationID = transformationID;
+			this.modelIDs = modelIDs;
 		}
 
 		@Override
 		public IStatus run(IProgressMonitor monitor)  {
 			boolean suc  = false;
 			try {
-				suc = EchoPlugin.getInstance().getRunner().enforce(constraint,list,targets);
+				suc = EchoPlugin.getInstance().getRunner().enforce(transformationID,modelIDs,targetIDs);
+				List<String> targetURIs = new ArrayList<String>();
+				for (String targetID : targetIDs)
+					targetURIs.add(MDEManager.getInstance().getModelID(targetID, false).getURI());
 				if (suc) {
-					EchoPlugin.getInstance().getGraphView().setTargetPath(targets,false,null);
+					EchoPlugin.getInstance().getGraphView().setTargetPath(targetURIs,false,null);
 					EchoPlugin.getInstance().getGraphView().drawGraph();
 				}
 			} catch (Exception e) {

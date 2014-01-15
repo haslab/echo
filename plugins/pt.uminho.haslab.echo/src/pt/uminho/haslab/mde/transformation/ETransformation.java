@@ -8,21 +8,27 @@ import java.util.List;
  * @author nmm
  *
  */
-public interface ETransformation {
+public abstract class ETransformation {
 
 	/** the model parameters (the transformation arguments) */
-	public List<EModelParameter> getModels();
+	public abstract List<EModelParameter> getModels();
 
 	/** the comprising relations */
-	public List<ERelation> getRelations();
+	public abstract List<ERelation> getRelations();
 	
 	/** the transformation name */
-	public String getName();
+	public abstract String getName();
+	
+	public abstract String getURI();
 
 	/** 
 	 * the transformation unique identifier 
 	 * not its URI, which may change if the resource is moved
 	 * */	
-	public String getIdentifier();
+	public final String ID;
+	
+	protected ETransformation(String ID) {
+		this.ID = ID+this.hashCode();
+	}
 	
 }

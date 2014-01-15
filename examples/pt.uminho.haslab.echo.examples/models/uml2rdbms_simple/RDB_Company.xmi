@@ -14,5 +14,4 @@
     <columns
         name="name"/>
   </tables>
-  <tables name="Department"/>
 </rdbms:Scheme>

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.mde.model.EModel;
 
 /**
@@ -14,10 +15,17 @@ import pt.uminho.haslab.mde.model.EModel;
  */
 public class EConstraintManager {
 
+	 private static EConstraintManager instance = new EConstraintManager();
+
+	    public static EConstraintManager getInstance() {
+	        return instance;
+	    }
+
+	
 	/** maps transformations to related existing inter-model constraints */
-	private Map<ETransformation,List<EConstraint>> trans2constraints = new HashMap<ETransformation, List<EConstraint>>();
+	private Map<String,List<EConstraint>> trans2constraints = new HashMap<String, List<EConstraint>>();
 	/** maps models to related existing inter-model constraints */
-	private Map<EModel,List<EConstraint>> model2constraints = new HashMap<EModel, List<EConstraint>>();
+	private Map<String,List<EConstraint>> model2constraints = new HashMap<String, List<EConstraint>>();
 
 	/**
 	 * Creates a new inter-model constraint
@@ -27,7 +35,7 @@ public class EConstraintManager {
 	 * @return the newly created constraint
 	 */
 	public EConstraint addConstraint(ETransformation transformation, List<EModel> models){
-		List<EConstraint> cs = trans2constraints.get(transformation);
+		List<EConstraint> cs = trans2constraints.get(transformation.ID);
 		if (cs == null) cs = new ArrayList<EConstraint>();
 		for (EConstraint c : cs) {
 			boolean same = true;
@@ -37,15 +45,15 @@ public class EConstraintManager {
 		}
 		EConstraint c = new EConstraint(models, transformation);
 		cs.add(c);
-		trans2constraints.put(transformation, cs);
+		trans2constraints.put(transformation.ID, cs);
 
 		for (EModel model : models) {
-			cs = model2constraints.get(model);
+			cs = model2constraints.get(model.ID);
 			if (cs == null) cs = new ArrayList<EConstraint>();
 			cs.add(c);
-			model2constraints.put(model, cs);
+			model2constraints.put(model.ID, cs);
 		}
-
+		EchoReporter.getInstance().debug("cons: "+model2constraints);
 		return c;
 	}
 
@@ -65,8 +73,9 @@ public class EConstraintManager {
 	 * @param model the model
 	 * @return constraints involving <code>model</code>
 	 */
-	public List<EConstraint> getAllConstraintsModel(EModel model) {
-		List<EConstraint> res = model2constraints.get(model);
+	public List<EConstraint> getConstraintsModel(String modelID) {
+		List<EConstraint> res = model2constraints.get(modelID);
+		EchoReporter.getInstance().debug(modelID + " at "+model2constraints.keySet()+ " so "+res);
 		return res == null? new ArrayList<EConstraint>() : res;
 	}
 
@@ -75,8 +84,8 @@ public class EConstraintManager {
 	 * @param transformation the transformation
 	 * @return constraints involving <code>transformation</code>
 	 */
-	public List<EConstraint> getAllConstraintsConstraint(ETransformation transformation) {
-		List<EConstraint> res = trans2constraints.get(transformation);
+	public List<EConstraint> getConstraintsTransformation(String transformationID) {
+		List<EConstraint> res = trans2constraints.get(transformationID);
 		return res == null? new ArrayList<EConstraint>() : res;
 	}
 
@@ -98,19 +107,19 @@ public class EConstraintManager {
 	 */
 	public void removeConstraint(EConstraint constraint) {
 		List<EConstraint> cs = new ArrayList<EConstraint>();
-		for (EConstraint c : trans2constraints.get(constraint.transformation)) {
+		for (EConstraint c : trans2constraints.get(constraint.transformation.ID)) {
 			if (!(c.equals(constraint)))
 				cs.add(c);
 		}
-		trans2constraints.put(constraint.transformation, cs);
+		trans2constraints.put(constraint.transformation.ID, cs);
 
 		for (EModel model : constraint.models) {
 			cs = new ArrayList<EConstraint>();
-			for (EConstraint c : model2constraints.get(model)) {
+			for (EConstraint c : model2constraints.get(model.ID)) {
 				if (!(c.equals(constraint)))
 					cs.add(c);
 			}
-			model2constraints.put(model, cs);
+			model2constraints.put(model.ID, cs);
 		}
 	}
 
@@ -135,6 +144,10 @@ public class EConstraintManager {
 			this.transformation = transformation;
 		}
 
+		public List<EModel> getModels() {
+			return models;
+		}
+		
 		@Override
 		public boolean equals(Object cons) {
 			if (!(cons instanceof EConstraint))

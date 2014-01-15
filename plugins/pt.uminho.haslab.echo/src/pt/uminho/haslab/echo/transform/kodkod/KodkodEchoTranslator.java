@@ -1,19 +1,19 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-import pt.uminho.haslab.echo.*;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-<<<<<<< HEAD
-import pt.uminho.haslab.mde.emf.EMFParser;
-import pt.uminho.haslab.mde.emf.URIUtil;
-=======
-import pt.uminho.haslab.echo.transform.IFormula;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
-
 import java.util.HashMap;
 import java.util.Map;
+
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.transform.EchoTranslator;
+import pt.uminho.haslab.echo.transform.IFormula;
+import pt.uminho.haslab.mde.model.EMetamodel;
+import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,35 +32,15 @@ public class KodkodEchoTranslator extends EchoTranslator {
     private Map<String,String> model2metaModel = new HashMap<>();
 
     @Override
-    public IFormula getTrueFormula() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws ErrorTransform, ErrorUnsupported, ErrorInternalEngine {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void writeInstance(EchoSolution solution, String modelUri) throws ErrorInternalEngine, ErrorTransform {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public String getMetaModelFromModelPath(String path) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void translateMetaModel(EPackage metaModel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
+    public void translateMetaModel(EMetamodel metaModel) throws ErrorUnsupported, ErrorInternalEngine, ErrorTransform, ErrorParser {
         //TODO: Register meta-models already parsed.
 
-        Ecore2Kodkod e2k = new Ecore2Kodkod(metaModel);
-        metaModels.put(URIUtil.resolveURI(metaModel.eResource()), e2k);
+        Ecore2Kodkod e2k = new Ecore2Kodkod(metaModel.getEPackage());
+        metaModels.put(metaModel.getURI(), e2k);
         try {
             e2k.translate();
         } catch (EchoError e) {
-            metaModels.remove(URIUtil.resolveURI(metaModel.eResource()));
+            metaModels.remove(metaModel.getURI());
             throw e;
         }
     }
@@ -71,48 +51,72 @@ public class KodkodEchoTranslator extends EchoTranslator {
     }
 
     @Override
-    public void translateModel(EObject model) throws EchoError {
-        String modelUri = URIUtil.resolveURI(model.eResource());
-        String metaModelURI = EMFParser.getInstance().getMetamodelURI(model.eClass().getEPackage().getName());
+    public void translateModel(EModel model) throws EchoError {
+    	String modelUri = model.getURI();
+        String metaModelURI = model.getMetamodel().getURI();
         Ecore2Kodkod e2k = metaModels.get(metaModelURI);
-        XMI2Kodkod x2k = new XMI2Kodkod(model,e2k);
+        XMI2Kodkod x2k = new XMI2Kodkod(model.getRootEElement().getEObject(),e2k);
         models.put(modelUri,x2k);
         model2metaModel.put(modelUri, metaModelURI);
     }
 
-    @Override
-    public void remModel(String modelUri) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void translateQVT(RelationalTransformation qvt) throws ErrorTransform, ErrorInternalEngine, ErrorUnsupported, ErrorParser {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void translateATL(EObject atl, EObject mdl1, EObject mdl2) throws ErrorTransform, ErrorInternalEngine, ErrorUnsupported, ErrorParser {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public boolean remQVT(String qvtUri) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public boolean hasMetaModel(String metaModelUri) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public boolean hasModel(String modelUri) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+	@Override
+	public void remModel(String modelID) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
-	public boolean hasQVT(String qvtUri) {
+	public boolean hasModel(String modelID) {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public boolean hasMetaModel(String metamodelID) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void translateTransformation(ETransformation constraint)
+			throws EchoError {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean hasTransformation(String qvtID) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void remTransformation(String qvtID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IFormula getTrueFormula() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void writeAllInstances(EchoSolution solution, String metaModelUri,
+			String modelUri) throws EchoError {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void writeInstance(EchoSolution solution, String modelUri)
+			throws EchoError {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
 }

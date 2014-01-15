@@ -1,15 +1,16 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import edu.mit.csail.sdg.alloy4graph.DotColor;
-import edu.mit.csail.sdg.alloy4graph.DotShape;
-import edu.mit.csail.sdg.alloy4viz.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-<<<<<<< HEAD
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EMetamodel;
 import edu.mit.csail.sdg.alloy4graph.DotColor;
 import edu.mit.csail.sdg.alloy4graph.DotShape;
 import edu.mit.csail.sdg.alloy4viz.AlloyModel;
@@ -17,13 +18,6 @@ import edu.mit.csail.sdg.alloy4viz.AlloyRelation;
 import edu.mit.csail.sdg.alloy4viz.AlloySet;
 import edu.mit.csail.sdg.alloy4viz.AlloyType;
 import edu.mit.csail.sdg.alloy4viz.VizState;
-=======
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
-
-import java.util.ArrayList;
-import java.util.List;
->>>>>>> 960cb62ee476b59928466292cc8561fe497aa4fe
 
 public class GraphPainter {
 
@@ -35,8 +29,9 @@ public class GraphPainter {
 	
 	/**
 	 * Generates the Alloy theme for a Viz instance
+	 * @throws EchoError 
 	 */
-	public void generateTheme() {
+	public void generateTheme() throws EchoError {
 		//vizstate = new VizState(vizstate.getOriginalInstance());
 		List<DotShape> availableshapes = new ArrayList<DotShape>();
 		availableshapes.add(DotShape.BOX);
@@ -73,14 +68,18 @@ public class GraphPainter {
 					vizstate.label.put(atype, label.replace("\"", ""));
 				}
 				else if (!AlloyUtil.isElement(label)){
-					String metamodeluri = AlloyUtil.getMetamodelURIfromLabel(label);
-					String classname = AlloyUtil.getClassifierName(label);
-					EClassifier eclass = (EClassifier) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodeluri, classname);					
-					if (classname != null && AlloyEchoTranslator.getInstance().getSigFromClass(metamodeluri, eclass) != null) {
-						vizstate.label.put(atype, classname);
-						vizstate.nodeColor.put(atype, DotColor.GRAY);
-						vizstate.shape.put(atype, availableshapes.get(i));
-						if (++i >= availableshapes.size()) i = 0;
+					String metamodelID = AlloyUtil.getMetamodelIDfromLabel(label);
+					EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(metamodelID,false);
+					if (metamodel != null) {
+						String classname = AlloyUtil.getClassifierName(label);
+						
+						EClassifier eclass = (EClassifier) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodel.ID, classname);					
+						if (classname != null && AlloyEchoTranslator.getInstance().getSigFromClass(metamodelID, eclass) != null) {
+							vizstate.label.put(atype, classname);
+							vizstate.nodeColor.put(atype, DotColor.GRAY);
+							vizstate.shape.put(atype, availableshapes.get(i));
+							if (++i >= availableshapes.size()) i = 0;
+						}
 					}
 				}
 				else if (AlloyUtil.isElement(label)){
@@ -122,7 +121,7 @@ public class GraphPainter {
 		for (AlloyRelation t : vizstate.getCurrentModel().getRelations()){
 			String label = vizstate.label.get(t);
 			if (AlloyUtil.mayBeFeature(label)) {
-				String metamodeluri = AlloyUtil.getMetamodelURIfromLabel(label);
+				String metamodeluri = AlloyUtil.getMetamodelIDfromLabel(label);
 				String ref = AlloyUtil.getFeatureName(label);
 				AlloyType sig = t.getTypes().get(0);
 				String cla = AlloyUtil.getClassifierName(sig.getName());

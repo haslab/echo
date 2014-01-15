@@ -1,9 +1,8 @@
 package pt.uminho.haslab.echo.transform;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
@@ -21,38 +20,33 @@ public abstract class EchoTranslator {
         return instance;
     }
 
-
     public static void init(TransformFactory factory){
         instance = factory.createTranslator();
     }
+	
+    public abstract void translateModel(EModel model) throws EchoError;
 
+    public abstract void remModel(String modelID);
+
+    public abstract boolean hasModel(String modelID);
+    
+    public abstract void translateMetaModel(EMetamodel metaModel) throws EchoError;
+
+    public abstract boolean hasMetaModel(String metamodelID);
+
+    public abstract void remMetaModel(String metamodelID);
+
+    public abstract void translateTransformation(ETransformation constraint) throws EchoError;
+
+    public abstract boolean hasTransformation(String qvtID);
+
+    public abstract void remTransformation(String qvtID);
+    
     public abstract IFormula getTrueFormula();
 
     public abstract void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws EchoError;
 
     public abstract void writeInstance(EchoSolution solution, String modelUri) throws EchoError;
 
-    public abstract String getMetaModelFromModelPath(String path);
 
-    public abstract void translateMetaModel(EPackage metaModel) throws EchoError;
-
-    public abstract void remMetaModel(String metaModelUri);
-
-    public abstract void translateModel(EObject model) throws EchoError;
-
-    public abstract void remModel(String modelUri);
-
-    public abstract void translateConstraint(ETransformation constraint) throws EchoError;
-
-    public abstract boolean hasQVT(String qvtUri);
-
-    public abstract boolean remQVT(String qvtUri);
-
-    public abstract ETransformation getQVT(String qvtUri);
-
-    public abstract boolean hasMetaModel(String metaModelUri);
-
-    public abstract boolean hasModel(String modelUri);
-
-	public abstract EModel getModel(String modelUri);
 }
