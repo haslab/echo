@@ -1,9 +1,9 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
-import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.EngineRunner;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import kodkod.engine.Solution;
+import kodkod.engine.Solver;
+import kodkod.engine.satlab.SATFactory;
+import pt.uminho.haslab.echo.*;
 
 import java.util.List;
 import java.util.Map;
@@ -18,13 +18,27 @@ public class KodkodRunner implements EngineRunner{
 
     public KodkodRunner(){}   //TODO
 
+
+    private Solution sol;
+
     @Override
     public void show(List<String> modelUris) throws ErrorInternalEngine {
         //To change body of implemented methods use File | Settings | File Templates.
     }
     @Override
-    public void conforms(List<String> modelUris) throws ErrorInternalEngine {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void conforms(List<String> modelIDs) throws ErrorInternalEngine {
+        for (String modelID: modelIDs)
+        {
+            XMI2Kodkod x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
+            final Solver solver = new Solver();
+
+            solver.options().setSolver(SATFactory.DefaultSAT4J);
+            solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
+
+            Ecore2Kodkod e2k = x2k.getMetaTranslator();
+            sol = solver.solve(e2k.getFacts(), new Binder(x2k).getBounds());
+        }
+
     }
 
     @Override
@@ -63,7 +77,25 @@ public class KodkodRunner implements EngineRunner{
 
     @Override
     public EchoSolution getSolution() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        if(sol!=null)
+            return new EchoSolution() {
+                @Override
+                public boolean satisfiable() {
+                    return sol.instance() != null;
+                }
+
+                @Override
+                public void writeXML(String filename) {
+
+                }
+
+                @Override
+                public Object getContents() {
+                    return sol;
+                }
+            };
+        else
+            return null;
     }
 
     @Override

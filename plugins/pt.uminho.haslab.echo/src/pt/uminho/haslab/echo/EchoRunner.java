@@ -1,15 +1,6 @@
 package pt.uminho.haslab.echo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import edu.mit.csail.sdg.alloy4viz.VizState;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.TransformFactory;
 import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
@@ -17,9 +8,14 @@ import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.EConstraintManager;
-import pt.uminho.haslab.mde.transformation.ETransformation;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
-import edu.mit.csail.sdg.alloy4viz.VizState;
+import pt.uminho.haslab.mde.transformation.ETransformation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.*;
 
 public class EchoRunner {
 
@@ -51,7 +47,7 @@ public class EchoRunner {
 
 	/**
 	 * Removes a meta-model from the system
-	 * @param metaModelUri the URI of the meta-model to remove
+	 * @param metamodelID the URI of the meta-model to remove
 	 */
 	public void remMetaModel(String metamodelID) {
 		EchoTranslator.getInstance().remMetaModel(metamodelID);
@@ -59,7 +55,7 @@ public class EchoRunner {
 
 	/**
 	 * Tests if a meta-model exists in the system
-	 * @param metaModelUri the URI of the meta-model
+	 * @param metamodelID the URI of the meta-model
 	 */
 	public boolean hasMetaModel(String metamodelID) {
 		return EchoTranslator.getInstance().hasMetaModel(metamodelID);
@@ -79,7 +75,7 @@ public class EchoRunner {
 
 	/**
 	 * Removes a model from the system
-	 * @param modelUri the URI of the model to remove
+	 * @param modelID the URI of the model to remove
 	 * @throws EchoError 
 	 */
 	public void remModel(String modelID) throws EchoError {
@@ -128,7 +124,7 @@ public class EchoRunner {
 	
 	/**
 	 * Tests if a model exists in the system
-	 * @param modelUri the URI of the model
+	 * @param modelID the URI of the model
 	 */
 	public boolean hasModel(String modelID) {
 		return EchoTranslator.getInstance().hasModel(modelID);
@@ -136,7 +132,7 @@ public class EchoRunner {
 
 	/**
 	 * Translates a QVT-R transformation into Alloy 
-	 * @param qvt the RelationalTransformation representing the QVT-R transformation to translate
+	 * @param transformation the RelationalTransformation representing the QVT-R transformation to translate
 	 * @throws ErrorUnsupported
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform

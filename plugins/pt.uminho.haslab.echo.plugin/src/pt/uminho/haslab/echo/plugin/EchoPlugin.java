@@ -1,7 +1,5 @@
 package pt.uminho.haslab.echo.plugin;
 
-import java.net.URL;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -17,7 +15,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
@@ -25,6 +22,8 @@ import pt.uminho.haslab.echo.plugin.listeners.ResourceChangeListener;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 import pt.uminho.haslab.echo.transform.TransformFactory;
+
+import java.net.URL;
 
 public class EchoPlugin extends AbstractUIPlugin {
 	
@@ -59,7 +58,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 	public EchoPlugin() {
 		super();
 		instance = this;
-        runner = new EchoRunner(TransformFactory.ALLOY);
+        runner = new EchoRunner(TransformFactory.KODKOD);
 		EchoOptionsSetup.init(new PlugInOptions());
 		EchoReporter.init(new EchoReporter());
 	}

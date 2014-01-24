@@ -17,6 +17,7 @@ class Ecore2Kodkod {
 
 
     //TODO facts that mention classes with children must be changed.
+    //TODO Use MDE
 
 	EPackage ePackage;
 	
@@ -25,17 +26,22 @@ class Ecore2Kodkod {
 	/** maps structural features into respective Kodkod relations */
 	private Map<String,Relation> mapSfRel;
 	/** maps signature names into respective classes */
-	private Map<String,EClass> mapClassClass;	
-	/**facts about the meta-model*/
+	private Map<String,EClass> mapClassClass;
+
+
+    /**facts about the meta-model*/
 	private Formula facts;
-	
+
+    public Formula getFacts() {
+        return facts;
+    }
+
 	public Ecore2Kodkod(EPackage metaModel){
 		ePackage = metaModel;
 		mapClassRel = new HashMap<String,Relation>();
 		mapClassClass =  new HashMap<String,EClass>();
 		mapSfRel = new HashMap<String,Relation>(); 
 		facts = Formula.TRUE;
-		
 	}
 	
 	public void translate() throws ErrorTransform, ErrorUnsupported{
@@ -170,13 +176,15 @@ class Ecore2Kodkod {
 			if(attr.getEType().getName().equals("EBoolean")) {					
 				attribute  = Relation.unary(attrName);
 				facts = facts.and(attribute.in(classRel));
+                mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EString")) {
 				attribute = Relation.binary(attrName);
-				facts = facts.and(attribute.function(classRel, KodkodUtil.stringRel));				
+				facts = facts.and(attribute.function(classRel, KodkodUtil.stringRel));
+                mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EInt")) {
 				attribute = Relation.binary(attrName);
-                //TODO check if i can really use that Expression.INTS...
 				facts = facts.and(attribute.function(classRel, Expression.INTS));
+                mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} 
 			else if (attr.getEType() instanceof EEnum) {
 				//TODO

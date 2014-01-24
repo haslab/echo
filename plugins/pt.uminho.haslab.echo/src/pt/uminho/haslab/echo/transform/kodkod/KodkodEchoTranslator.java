@@ -1,19 +1,14 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.IFormula;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,6 +18,11 @@ import pt.uminho.haslab.mde.transformation.ETransformation;
  */
 public class KodkodEchoTranslator extends EchoTranslator {
     public KodkodEchoTranslator(){}
+
+
+    public static KodkodEchoTranslator getInstance() {
+        return (KodkodEchoTranslator) EchoTranslator.getInstance();
+    }
 
     /** maps meta-models Uris into translators*/
     private Map<String,Ecore2Kodkod> metaModels = new HashMap<>();
@@ -36,11 +36,11 @@ public class KodkodEchoTranslator extends EchoTranslator {
         //TODO: Register meta-models already parsed.
 
         Ecore2Kodkod e2k = new Ecore2Kodkod(metaModel.getEPackage());
-        metaModels.put(metaModel.getURI(), e2k);
+        metaModels.put(metaModel.ID, e2k);
         try {
             e2k.translate();
         } catch (EchoError e) {
-            metaModels.remove(metaModel.getURI());
+            metaModels.remove(metaModel.ID);
             throw e;
         }
     }
@@ -50,14 +50,18 @@ public class KodkodEchoTranslator extends EchoTranslator {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    XMI2Kodkod getModel(String modelID){
+        return models.get(modelID);
+    }
+
     @Override
     public void translateModel(EModel model) throws EchoError {
-    	String modelUri = model.getURI();
-        String metaModelURI = model.getMetamodel().getURI();
-        Ecore2Kodkod e2k = metaModels.get(metaModelURI);
+    	String modelID = model.ID;
+        String metaModelID = model.getMetamodel().ID;
+        Ecore2Kodkod e2k = metaModels.get(metaModelID);
         XMI2Kodkod x2k = new XMI2Kodkod(model.getRootEElement().getEObject(),e2k);
-        models.put(modelUri,x2k);
-        model2metaModel.put(modelUri, metaModelURI);
+        models.put(modelID,x2k);
+        model2metaModel.put(modelID, metaModelID);
     }
 
 	@Override
@@ -68,8 +72,8 @@ public class KodkodEchoTranslator extends EchoTranslator {
 
 	@Override
 	public boolean hasModel(String modelID) {
-		// TODO Auto-generated method stub
-		return false;
+
+		return models.containsKey(modelID);
 	}
 
 	@Override
