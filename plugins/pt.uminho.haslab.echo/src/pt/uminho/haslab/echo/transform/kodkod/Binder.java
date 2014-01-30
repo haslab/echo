@@ -89,6 +89,7 @@ class Binder {
 
     public Bounds getBounds()
    {
+    	System.out.println(bounds);
         return bounds;
    }
 

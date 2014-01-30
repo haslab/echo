@@ -160,7 +160,7 @@ class Ecore2Kodkod {
 				if(eReference.isContainment()){
 					d = x.declare(Multiplicity.ONE, coDomain);
 					facts = facts.and(
-							refRel.join(d.expression()).one().forAll(d));
+							refRel.join(x).one().forAll(d));
 				}
 				
 			}
@@ -206,8 +206,8 @@ class Ecore2Kodkod {
 	 * @throws ErrorTransform
 	 */
 	private void processClass(EClass ec) throws ErrorTransform {
-		Relation eCRel,parent;
-		if (mapClassRel.get(ec.getName()) != null) return;
+		Relation eCRel;
+		if (mapClassClass.get(ec.getName()) != null) return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
 
@@ -215,22 +215,20 @@ class Ecore2Kodkod {
 
 
         if(!superTypes.isEmpty()) {
-            String parentName = superTypes.get(0).getName();
-			parent = mapClassRel.get(parentName);
-			if(parent == null) {
-				processClass(superTypes.get(0));
-                Set<String> son = new HashSet<>();
-                son.add(ec.getName());
-                mapParents.put(parentName,son);
-			}else{
-                Set<String> sons = mapParents.get(parentName);
-                if(sons == null){
-                    sons = new HashSet<>();
-                    sons.add(ec.getName());
-                    mapParents.put(parentName,sons);
-                }else
-                    sons.add(parentName);
+            EClass pEC = superTypes.get(0);
+            String parentName = pEC.getName();
+
+            if(mapClassClass.get(parentName) == null)
+                    processClass(superTypes.get(0));
+
+            Set<String> sons = mapParents.get(parentName);
+
+            if(sons == null){
+                sons = new HashSet<>();
+                mapParents.put(parentName,sons);
             }
+
+            sons.add(ec.getName());
 		}
 
 
@@ -239,20 +237,24 @@ class Ecore2Kodkod {
             eCRel = Relation.unary(relName);
             mapClassRel.put(ec.getName(), eCRel);
 
+
         }
         //TODO: What if ec is abstract
         mapClassClass.put(ec.getName(), ec);
-	}
+    }
 
 
     Expression getDomain(String className){
         Expression result = mapClassRel.get(className);
         if(result == null)
             result = Expression.NONE;
-        Set<String> sons = mapParents.get(className);
-        if(sons!=null)
+        Set<String> sons = mapParents.get(className);        
+        if(sons!=null){
         	for(String son : sons)
+        		System.out.println(son);
+            for(String son : sons)
         		result = result.union(getDomain(son));
+        }
         return result;
     }
 

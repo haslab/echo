@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.transform.kodkod;
 import kodkod.engine.Solution;
 import kodkod.engine.Solver;
 import kodkod.engine.satlab.SATFactory;
+import kodkod.util.nodes.PrettyPrinter;
 import pt.uminho.haslab.echo.*;
 
 import java.util.List;
@@ -37,8 +38,7 @@ public class KodkodRunner implements EngineRunner{
 
             Ecore2Kodkod e2k = x2k.getMetaTranslator();
 
-            System.out.println("Formula: \n" +
-                    e2k.getFacts());
+            System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
 
             sol = solver.solve(e2k.getFacts(), new Binder(x2k).getBounds());
         }
