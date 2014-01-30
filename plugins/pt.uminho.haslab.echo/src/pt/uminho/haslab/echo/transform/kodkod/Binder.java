@@ -42,7 +42,6 @@ class Binder {
             Set<Tuple> tuples = new HashSet<>();
             for(Object obj: map.get(rel))
             {
-                System.out.println("in cycle "+rel);
                 if( obj instanceof Pair){
                     Pair<?, ?> p = (Pair<?, ?>) obj;
                     tuples.add(factory.tuple(p.left,p.right));
@@ -52,7 +51,7 @@ class Binder {
             if(!tuples.isEmpty())
             	bounds.boundExactly(rel,factory.setOf(tuples));
             else
-            	System.out.println(rel);
+            	bounds.boundExactly(rel, factory.noneOf(rel.arity()));
         }
     }
 
@@ -90,7 +89,6 @@ class Binder {
 
     public Bounds getBounds()
    {
-       System.out.println(bounds);
         return bounds;
    }
 

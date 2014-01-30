@@ -108,7 +108,6 @@ class XMI2Kodkod {
 	}
 
     private void processReference(EObject value, Set<Object> set, EObject it) throws EchoError {
-    	System.out.println("value  "+ value +"\n it " + it);
         set.add(new Pair<>(it,value));
         if(!universe.contains(value))
             makeAtomsList(value);

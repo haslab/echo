@@ -36,6 +36,10 @@ public class KodkodRunner implements EngineRunner{
             solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
             Ecore2Kodkod e2k = x2k.getMetaTranslator();
+
+            System.out.println("Formula: \n" +
+                    e2k.getFacts());
+
             sol = solver.solve(e2k.getFacts(), new Binder(x2k).getBounds());
         }
 

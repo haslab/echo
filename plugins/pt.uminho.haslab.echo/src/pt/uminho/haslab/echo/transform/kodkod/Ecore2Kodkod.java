@@ -17,7 +17,7 @@ class Ecore2Kodkod {
 
 
     //TODO facts that mention classes with children must be changed.
-    //TODO Use MDE
+    //TODO Use MDE and check if MDE uses sf hierarchy properly.
 
 	EPackage ePackage;
 	
@@ -27,6 +27,9 @@ class Ecore2Kodkod {
 	private Map<String,Relation> mapSfRel;
 	/** maps signature names into respective classes */
 	private Map<String,EClass> mapClassClass;
+    /**maps the hierarchy */
+    private Map<String,Set<String>> mapParents;
+
 
 
     /**facts about the meta-model*/
@@ -40,7 +43,8 @@ class Ecore2Kodkod {
 		ePackage = metaModel;
 		mapClassRel = new HashMap<String,Relation>();
 		mapClassClass =  new HashMap<String,EClass>();
-		mapSfRel = new HashMap<String,Relation>(); 
+		mapSfRel = new HashMap<String,Relation>();
+        mapParents = new HashMap<>();
 		facts = Formula.TRUE;
 	}
 	
@@ -91,7 +95,7 @@ class Ecore2Kodkod {
 		for(EReference eReference : eReferences) {
 			String className = eReference.getEContainingClass().getName();
 			String refName = KodkodUtil.pckPrefix(ePackage,className+"->"+eReference.getName());
-			Relation classRel = mapClassRel.get(className);
+			Expression classRel = getDomain(className);
 			EReference eOpposite = eReference.getEOpposite();
 			
 			if((eOpposite != null &&
@@ -107,10 +111,10 @@ class Ecore2Kodkod {
 					EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
 				EClass cc = mapClassClass.get(eReference.getEReferenceType().getName());
-				Relation trgRel = mapClassRel.get(cc.getName());
+				Expression coDomain = getDomain(cc.getName());
 				Relation refRel = Relation.binary(refName);
 				
-				facts = facts.and(refRel.in(classRel.product(trgRel)));
+				facts = facts.and(refRel.in(classRel.product(coDomain)));
 				mapSfRel.put(eReference.getEContainingClass().getName()+"::"+eReference.getName(),refRel);
 				
 				if(eOpposite!= null){
@@ -120,7 +124,7 @@ class Ecore2Kodkod {
 				}
 				
 				
-				//TODO: check how relevant this bitwidth is in kodkod
+
 				Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
 				Integer max = (int) (Math.pow(2, bitwidth) / 2);
 				if (eReference.getLowerBound() >= max || eReference.getLowerBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+eReference.getLowerBound()+".");
@@ -154,7 +158,7 @@ class Ecore2Kodkod {
 				}
 				
 				if(eReference.isContainment()){
-					d = x.declare(Multiplicity.ONE, trgRel);
+					d = x.declare(Multiplicity.ONE, coDomain);
 					facts = facts.and(
 							refRel.join(d.expression()).one().forAll(d));
 				}
@@ -171,19 +175,19 @@ class Ecore2Kodkod {
 		
 		for(EAttribute attr : eAttributes) {
 			String className = attr.getEContainingClass().getName();
-			Relation classRel = mapClassRel.get(className);
+			Expression domain = getDomain(className);
 			String attrName = KodkodUtil.pckPrefix(ePackage,className+"->"+attr.getName());
 			if(attr.getEType().getName().equals("EBoolean")) {					
 				attribute  = Relation.unary(attrName);
-				facts = facts.and(attribute.in(classRel));
+				facts = facts.and(attribute.in(domain));
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EString")) {
 				attribute = Relation.binary(attrName);
-				facts = facts.and(attribute.function(classRel, KodkodUtil.stringRel));
+				facts = facts.and(attribute.function(domain, KodkodUtil.stringRel));
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EInt")) {
 				attribute = Relation.binary(attrName);
-				facts = facts.and(attribute.function(classRel, Expression.INTS));
+				facts = facts.and(attribute.function(domain, Expression.INTS));
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} 
 			else if (attr.getEType() instanceof EEnum) {
@@ -202,29 +206,55 @@ class Ecore2Kodkod {
 	 * @throws ErrorTransform
 	 */
 	private void processClass(EClass ec) throws ErrorTransform {
-		Relation eCRel,parent = null;
+		Relation eCRel,parent;
 		if (mapClassRel.get(ec.getName()) != null) return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
-		if(!superTypes.isEmpty()) {
-			parent = mapClassRel.get(superTypes.get(0).getName());
+
+
+
+
+        if(!superTypes.isEmpty()) {
+            String parentName = superTypes.get(0).getName();
+			parent = mapClassRel.get(parentName);
 			if(parent == null) {
 				processClass(superTypes.get(0));
-				parent = mapClassRel.get(superTypes.get(0).getName());
-			}
+                Set<String> son = new HashSet<>();
+                son.add(ec.getName());
+                mapParents.put(parentName,son);
+			}else{
+                Set<String> sons = mapParents.get(parentName);
+                if(sons == null){
+                    sons = new HashSet<>();
+                    sons.add(ec.getName());
+                    mapParents.put(parentName,sons);
+                }else
+                    sons.add(parentName);
+            }
 		}
-		String relName = KodkodUtil.pckPrefix(ePackage,ec.getName());
-		/*
-		 * TODO:Think(and implement)  Abstract.
-		 * facts and instance stuff.
-		 * fact -> child1+child2+...+childN = abstractParent
-		 * */
-		eCRel = Relation.unary(relName);
-		
-		
-		mapClassRel.put(ec.getName(), eCRel);
-		mapClassClass.put(ec.getName(), ec);	
+
+
+        if(!ec.isAbstract()){
+            String relName = KodkodUtil.pckPrefix(ePackage,ec.getName());
+            eCRel = Relation.unary(relName);
+            mapClassRel.put(ec.getName(), eCRel);
+
+        }
+        //TODO: What if ec is abstract
+        mapClassClass.put(ec.getName(), ec);
 	}
+
+
+    Expression getDomain(String className){
+        Expression result = mapClassRel.get(className);
+        if(result == null)
+            result = Expression.NONE;
+        Set<String> sons = mapParents.get(className);
+        if(sons!=null)
+        	for(String son : sons)
+        		result = result.union(getDomain(son));
+        return result;
+    }
 
 	private void processEnums(List<EEnum> enumList) {
 		// TODO Enums   -> save and then bind?
