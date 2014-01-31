@@ -48,7 +48,7 @@ For more information about how the tool is implemented please consult the paper 
 * Download and install in Eclipse (through the **Help > Install New Software...**) menu the following archives in the given order:
   + [Eclipse OCL 4.2](http://www.eclipse.org/modeling/mdt/downloads/?project=ocl) of the Model Development Tools (MDT) project;
   + [Eclipse QVTd 0.11](http://www.eclipse.org/mmt/downloads/?project=qvtd) of the Model to Model Transformation (MMT) project;
-  + [Echo 0.3](http://haslab.github.io/echo/downloads/echo-0.3.0.zip).
+  + [Echo 0.3](http://haslab.github.io/echo/downloads/echo-0.3.1.zip).
 
 For Mac OS users, versions of Java earlier than 7up40 have an issue with the bridge between AWT and SWT that does not allow the embedding of the Alloy Visualizer in Eclipse. This is fixed in posterior releases.
 <!---
