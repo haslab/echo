@@ -20,7 +20,8 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.IFormula;
+import pt.uminho.haslab.echo.transform.ast.IFormula;
+import pt.uminho.haslab.echo.transform.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EElement;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
@@ -96,9 +97,9 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Translates ECore meta-models to the respective Alloy specs.
 	 * @param metaModel the meta-model to translate
 	 */
-	public void translateMetaModel(EMetamodel metamodel) throws EchoError {
-		EAlloyMetamodel alloymm = new EAlloyMetamodel(metamodel);
-		metamodelalloys.put(metamodel.ID,alloymm);
+	public void translateMetaModel(EMetamodel metaModel) throws EchoError {
+		EAlloyMetamodel alloymm = new EAlloyMetamodel(metaModel);
+		metamodelalloys.put(metaModel.ID,alloymm);
 		alloymm.translate();
 	}
     
@@ -159,10 +160,16 @@ public class AlloyEchoTranslator extends EchoTranslator {
     
     
     
-    
+    //TODO
     @Override
     public IFormula getTrueFormula() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    //TODO
+    @Override
+    public IFormula getFalseFormula() {
+        return null;
     }
 
     @Override
@@ -175,6 +182,12 @@ public class AlloyEchoTranslator extends EchoTranslator {
     public void writeInstance(EchoSolution solution, String modelID) throws EchoError {
     	PrimSig statesig = ((AlloyTuple)solution.getContents()).getState(modelID);
         writeInstance(((AlloyTuple) solution.getContents()).getSolution(), modelID, statesig);
+    }
+
+    //TODO
+    @Override
+    public IIntExpression makeNumber(int n) {
+        return null;
     }
 
 

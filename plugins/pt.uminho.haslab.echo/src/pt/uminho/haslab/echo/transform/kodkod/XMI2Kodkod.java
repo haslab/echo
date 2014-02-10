@@ -128,7 +128,6 @@ class XMI2Kodkod {
 
 
     private void processAttribute(Object obj, Set<Object> set, EObject it) throws EchoError {
-        //TODO : check integer stuff, and add throw when type unsupported
         if(obj instanceof Boolean)
             set.add(it);
         else

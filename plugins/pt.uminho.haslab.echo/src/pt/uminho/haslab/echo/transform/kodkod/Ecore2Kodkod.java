@@ -2,11 +2,18 @@ package pt.uminho.haslab.echo.transform.kodkod;
 
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
+import kodkod.util.nodes.PrettyPrinter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
+import org.eclipse.ocl.examples.pivot.OCL;
+import org.eclipse.ocl.examples.pivot.ParserException;
+import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
+import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.transform.OCLTranslator;
+import pt.uminho.haslab.echo.transform.ast.IDecl;
+import pt.uminho.haslab.echo.transform.ast.IExpression;
 
 import java.util.*;
 
@@ -48,7 +55,7 @@ class Ecore2Kodkod {
 		facts = Formula.TRUE;
 	}
 	
-	public void translate() throws ErrorTransform, ErrorUnsupported{
+	public void translate() throws EchoError {
 		List<EClass> classList = new LinkedList<EClass>();
 		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
@@ -86,8 +93,58 @@ class Ecore2Kodkod {
 		
 	}
 
-	private void processAnnotations(EList<EAnnotation> eAnnotations) {
-		// TODO Auto-generated method stub
+	private void processAnnotations(EList<EAnnotation> eAnnotations) throws EchoError {
+        OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
+        for (EAnnotation annotation : eAnnotations) {
+        
+            OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
+
+            KodkodContext context = new KodkodContext();
+
+            IExpression cl = new KodkodExpression(getRelation((EClass)annotation.eContainer()));
+            IDecl self= cl.oneOf("self");
+            context.addVar(self.name(),self.expression());
+
+            OCLTranslator converter = new OCLTranslator(context);
+
+            if (annotation.getSource() != null) {
+                if (annotation.getSource().equals(
+                        "http://www.eclipse.org/emf/2002/Ecore/OCL")
+                        || annotation.getSource().equals("Echo/Gen"))
+                    try {
+                        for (String sExpr : annotation.getDetails().values()) {
+                            ExpressionInOCL invariant = helper
+                                    .createInvariant(sExpr);
+                            KodkodFormula oclExpr = (KodkodFormula) converter.translateFormula(
+                                    invariant.getBodyExpression());
+
+                            System.out.println(PrettyPrinter.print(oclExpr.formula, 2));
+                            System.out.println(invariant.getBodyExpression());
+
+                            Formula oclKodkod = oclExpr.formula.forAll(((KodkodDecl)self).decl);
+
+                            //TODO kodkod optimizations?
+                            /*AlloyOptimizations opt = new AlloyOptimizations();
+                            if (EchoOptionsSetup.getInstance().isOptimize()) {
+                                oclalloy = opt.trading(oclalloy);
+                                oclalloy = opt.onePoint(oclalloy);
+                            }   */
+                            if (annotation
+                                    .getSource()
+                                    .equals("http://www.eclipse.org/emf/2002/Ecore/OCL"))
+                                facts = facts.and(oclKodkod);
+                            /*TODO : generate
+                            else
+                                constraint_generate = constraint_generate
+                                        .and(oclalloy);*/
+                        }
+                    } catch (ParserException e) {
+                        throw new ErrorParser(ErrorParser.OCL,
+                                "Failed to parse OCL annotation.",
+                                e.getMessage(), EchoRunner.Task.TRANSLATE_METAMODEL);
+                    }
+            }
+        }
 		
 	}
 

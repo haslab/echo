@@ -293,7 +293,7 @@ public class OCL2Alloy2 implements ConditionTranslator{
 	
 	
 
-		/**
+		/*
 		 * Tries to convert an OCL transitive closure into an Alloy reflexive closure
 		 * @param x
 		 * @param y
