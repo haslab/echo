@@ -5,7 +5,6 @@ import kodkod.ast.Formula;
 import pt.uminho.haslab.echo.transform.ast.IDecl;
 import pt.uminho.haslab.echo.transform.ast.IExpression;
 import pt.uminho.haslab.echo.transform.ast.IFormula;
-import pt.uminho.haslab.echo.transform.ast.INode;
 
 /**
  * Created by tmg on 2/5/14.
@@ -76,10 +75,9 @@ class KodkodFormula implements IFormula {
     }
 
 
-    //TODO
     @Override
-    public INode forOne(IDecl d) {
+    public IFormula forOne(IDecl d) {
 
-        return forSome(d);
+        return comprehension(d).one();
     }
 }

@@ -57,17 +57,7 @@ public class OCLTranslator{
     }
 
 
-    /* TODO
-    * Better Typecheck.
-    *
-    * This is based on the alloy implementation, the alloy implementation has no typecheck because of the nature of Alloy Expr.
-    * That might lead to some unknown errors on the alloy impl.
-    * Here we can typecheck, if we do so, we can have better error control.
-    *
-    * Update:
-    * only Exception handling is  missing
-    *
-    */
+
     public IFormula translateFormula(ObjectTemplateExp temp) throws EchoError {
         IFormula result = Constants.TRUE();
 
@@ -318,7 +308,8 @@ public class OCLTranslator{
         else if (expr.getReferredOperation().getName().equals("-"))
             res = ((IIntExpression)src).minus(translateInteger(expr.getArgument().get(0)));
         else if (expr.getReferredOperation().getName().equals("allInstances"))
-            res = src; /*
+            res = src; /* TODO caso abaixo é para operações
+
         else if (expr.getReferredOperation().getName().equals("oclIsNew")) {
             EObject container = expr.eContainer();
             while (!(container instanceof IteratorExp) && container != null)
@@ -376,8 +367,7 @@ public class OCLTranslator{
                 return (IIntExpression) n;
         }
 
-        System.out.println("not integer");
-        return null;
+        throw new EchoTypeError("IntExpression");
 
     }
 
@@ -405,10 +395,8 @@ public class OCLTranslator{
             if(n instanceof IExpression)
                 return (IExpression) n;
         }
-        
-        System.out.println("for nao devia vir aqui\n" + expr.getClass() + "\n" + expr);
-        
-        return null;
+
+        throw new EchoTypeError("Expression");
     }
 
     public IFormula translateFormula(OCLExpression expr) throws EchoError {
@@ -433,9 +421,7 @@ public class OCLTranslator{
                 return (IFormula) n;
         }
 
-        System.out.println("exp nao devia vir aqui\n" + expr.getClass() + "\n" + expr);
-        
-        return null;
+        throw new EchoTypeError("Formula");
     }
 
     // retrieves the Alloy field corresponding to an OCL property (attribute)
@@ -495,7 +481,7 @@ public class OCLTranslator{
 
             IDecl d = context.getDecl(aux,it.getIterator().get(0).getName());
 
-            //TODO there was a catch block here.  also, bdy might be a formula, not an expression
+
             context.addVar(d.name(),d.expression());
             IExpression bdy = translateExpression(it.getBody());
             IDecl dd = bdy.oneOf("2_");

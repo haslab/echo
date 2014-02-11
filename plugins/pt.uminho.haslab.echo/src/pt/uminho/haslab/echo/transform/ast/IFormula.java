@@ -28,5 +28,5 @@ public interface IFormula extends INode{
     IFormula forAll(IDecl decl);
     IFormula forSome(IDecl decl);
 
-    INode forOne(IDecl d);
+    IFormula forOne(IDecl d);
 }
