@@ -119,7 +119,7 @@ public class OCL2Alloy implements ConditionTranslator{
 	
 	Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
 
-		Func func = null;
+		Func func;
 		func = parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.dependency);
 		if (func == null) {
 			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
@@ -222,7 +222,7 @@ public class OCL2Alloy implements ConditionTranslator{
 			res = src.join(res.closure());	
 		}
 		else throw new ErrorUnsupported("OCL iterator not supported: "+expr.getReferredIteration()+".");
-		varstates.remove(d.get());
+		varstates.remove(d.get().label);
 		
 		return res;
 	}
@@ -453,11 +453,11 @@ public class OCL2Alloy implements ConditionTranslator{
 					Expr bdy = oclExprToAlloy(it.getBody());
 					Decl dd = bdy.oneOf("2_");
 					res = res.comprehensionOver(d,dd);
-				} catch (Err e) {varstates.remove(d.get()); throw new ErrorAlloy(e.getMessage());}
+				} catch (Err e) {varstates.remove(d.get().label); throw new ErrorAlloy(e.getMessage());}
 				Expr v1 = oclExprToAlloy(a1);
 				Expr v2 = oclExprToAlloy(a2);
 				res = v2.in(v1.join(res.reflexiveClosure()));
-				varstates.remove(d.get());
+				varstates.remove(d.get().label);
 			}
 				
 			return res;
