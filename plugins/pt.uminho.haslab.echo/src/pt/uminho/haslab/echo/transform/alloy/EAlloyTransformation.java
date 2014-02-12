@@ -8,6 +8,7 @@ import java.util.Map;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.transform.EchoHelper;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
@@ -137,7 +138,7 @@ class EAlloyTransformation {
 	 * @return the respective Alloy function
 	 */
 	Func callRelation(ERelation n, EDependency dep) {
-		return subrelationcall_funcs.get(AlloyUtil.relationFieldName(n,dep.target));
+		return subrelationcall_funcs.get(EchoHelper.relationFieldName(n,dep.target));
 	}
 
 }

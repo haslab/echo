@@ -7,6 +7,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -17,8 +18,10 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.transform.EchoHelper;
 import pt.uminho.haslab.echo.transform.EchoTranslator;
 import pt.uminho.haslab.echo.transform.ast.IFormula;
 import pt.uminho.haslab.echo.transform.ast.IIntExpression;
@@ -67,7 +70,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
     static final PrimSig STATE;
     static{
     	PrimSig s = null;
-    	try {s = new PrimSig(AlloyUtil.STATESIGNAME,Attr.ABSTRACT);}
+    	try {s = new PrimSig(EchoHelper.STATESIGNAME,Attr.ABSTRACT);}
     	catch (Err a){}
     	STATE = s;
     }

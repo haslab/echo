@@ -7,6 +7,7 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.transform.EchoHelper;
 import pt.uminho.haslab.mde.model.ECondition;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
@@ -330,13 +331,13 @@ public class Relation2Alloy {
 		try {
 			Sig s = (Sig) fst.expr.type().toExpr();
 			for (Field f : s.getFields()) {
-				if (f.label.equals(AlloyUtil.relationFieldName(relation,
+				if (f.label.equals(EchoHelper.relationFieldName(relation,
 						dependency.target)))
 					field = f;
 			}
 			if (field == null) {
 				field = s.addField(
-						AlloyUtil.relationFieldName(relation, dependency.target),
+						EchoHelper.relationFieldName(relation, dependency.target),
 						/*type.setOf()*/Sig.UNIV.setOf());
 			}
 		} catch (Err a) { 
@@ -377,7 +378,7 @@ public class Relation2Alloy {
 	 */
 	private void addRelationPred(Expr fact) throws EchoError {
 		try {
-			transformation_translator.addTopRelationCall(new Func(null,AlloyUtil.relationPredName(relation,dependency.target),
+			transformation_translator.addTopRelationCall(new Func(null,EchoHelper.relationPredName(relation,dependency.target),
 					model_params_decls, null, fact));
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
@@ -397,7 +398,7 @@ public class Relation2Alloy {
 		try {
 			field = addRelationFields();
 			transformation_translator.addSubRelationCall(new Func(null,
-					AlloyUtil.relationFieldName(relation, dependency.target),
+					EchoHelper.relationFieldName(relation, dependency.target),
 					model_params_decls, field.type().toExpr(), field));
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,

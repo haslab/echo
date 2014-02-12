@@ -19,6 +19,7 @@ import org.eclipse.ocl.examples.pivot.Type;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.transform.EchoHelper;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -49,11 +50,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 public class AlloyUtil {
 
 	/** the top state signature name */	
-	public static String STATESIGNAME = "State@";
-	public static String ORDNAME = "ord@";
 	public static String STRINGNAME = "String";
 	public static String INTNAME = "Int";
-	public static String NEWSNAME = "news@";
 
 	private static Map<String,Integer> counter = new HashMap<String,Integer>();
 
@@ -62,90 +60,7 @@ public class AlloyUtil {
 	 * @return the meta-model URI
 	 */
 	public static String getMetamodelIDfromExpr(ExprHasName sig) {
-		return getMetamodelIDfromLabel(sig.label);
-	}
-	public static String getMetamodelIDfromLabel(String label) {
-		return label.split("@")[0];
-	}
-
-	public static String getClassifierName(String label) {
-		String res = null;
-		String[] aux = label.split("@");
-		if (aux.length > 1) {
-			if (isElement(label)) res = aux[1].split("#")[0];
-			else res = aux[1];
-		}
-		return res;
-	}
-
-	public static String getFeatureName(String label) {
-		String res = null;
-		String[] aux = label.split("@");
-		if (aux.length > 2) {
-			if (isElement(label)) res = aux[2].split("#")[0];
-			else res = aux[2];
-		}
-		return res;
-	}
-
-	public static String getModelName(String label) {
-		String[] aux = label.split("/");
-		if (label.charAt(0) == '\'') return "target@"+aux[aux.length-1];
-		else return "source@"+aux[aux.length-1];
-	}
-
-	public static String getMetaModelName(String label) {
-		String[] aux = label.split("/");
-		return aux[aux.length-1];
-	}
-
-
-
-	public static boolean mayBeClass(String label) {
-		return label.split("@").length == 2;
-	}
-
-	public static boolean mayBeFeature(String label) {
-		return label.split("@").length == 3;
-	}
-
-	public static boolean mayBeStateOrLiteral(String label) {
-		return label.split("@").length == 1 || label.startsWith(ORDNAME);
-	}
-
-	public static boolean isElement(String label) {
-		return mayBeClass(label) && label.split("#").length == 2 && label.endsWith("#");
-	}
-
-
-	public static boolean isStateField(String label) {
-		return mayBeClass(label) && label.endsWith("@");
-	}
-
-
-	public static String classifierKey (EMetamodel pck, EClassifier ec) {
-		return (pck.ID + "@" + ec.getName());
-	}
-
-	public static String featureKey (EMetamodel pck, EStructuralFeature ec) {
-		return (pck.ID + "@" + ec.getEContainingClass().getName() + "@" + ec.getName());
-	}
-
-	public static String literalKey (EMetamodel pck, EEnumLiteral ec) {
-		return (pck.ID + "@" + ec.getEEnum().getName() + "@" + ec.getName());
-	}
-
-
-	public static String stateFieldName (EMetamodel pck, EClass cls) {
-		return pck.ID +"@"+ cls.getName() +"@";
-	}
-
-	public static String relationFieldName (ERelation rel, EModelDomain dir) {
-		return rel.getName() +"@"+dir.getModel().getName()+"@";
-	}
-
-	public static String relationPredName (ERelation rel, EModelDomain dir) {
-		return rel.getName() +"_"+dir.getModel().getName();
+		return EchoHelper.getMetamodelIDfromLabel(sig.label);
 	}
 
 	public static String elementName(PrimSig parent) {

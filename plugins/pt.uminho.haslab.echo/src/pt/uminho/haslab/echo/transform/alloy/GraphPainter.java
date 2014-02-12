@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.transform.EchoHelper;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import edu.mit.csail.sdg.alloy4graph.DotColor;
@@ -56,22 +57,22 @@ public class GraphPainter {
 			String label = atype.toString();
 
 			if (superatype != null) {
-				if (superatype.toString().equals(AlloyUtil.STATESIGNAME))
-					vizstate.label.put(atype,AlloyUtil.getMetaModelName(label));
-				else if (model.getSuperType(superatype) != null && model.getSuperType(superatype).getName().equals(AlloyUtil.STATESIGNAME)) {
-					vizstate.label.put(atype,AlloyUtil.getModelName(label));
+				if (superatype.toString().equals(EchoHelper.STATESIGNAME))
+					vizstate.label.put(atype,EchoHelper.getMetaModelName(label));
+				else if (model.getSuperType(superatype) != null && model.getSuperType(superatype).getName().equals(EchoHelper.STATESIGNAME)) {
+					vizstate.label.put(atype,EchoHelper.getModelName(label));
 				}
-				else if (atype.getName().equals(AlloyUtil.STATESIGNAME)) {
+				else if (atype.getName().equals(EchoHelper.STATESIGNAME)) {
 					statet = atype;
 				}
-				else if (atype.getName().equals(AlloyUtil.STRINGNAME) || atype.getName().equals(AlloyUtil.INTNAME) || atype.getName().startsWith(AlloyUtil.ORDNAME)) {
+				else if (atype.getName().equals(AlloyUtil.STRINGNAME) || atype.getName().equals(AlloyUtil.INTNAME) || atype.getName().startsWith(EchoHelper.ORDNAME)) {
 					vizstate.label.put(atype, label.replace("\"", ""));
 				}
-				else if (!AlloyUtil.isElement(label)){
-					String metamodelID = AlloyUtil.getMetamodelIDfromLabel(label);
+				else if (!EchoHelper.isElement(label)){
+					String metamodelID = EchoHelper.getMetamodelIDfromLabel(label);
 					EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(metamodelID,false);
 					if (metamodel != null) {
-						String classname = AlloyUtil.getClassifierName(label);
+						String classname = EchoHelper.getClassifierName(label);
 						
 						EClassifier eclass = (EClassifier) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodel.ID, classname);					
 						if (classname != null && AlloyEchoTranslator.getInstance().getSigFromClass(metamodelID, eclass) != null) {
@@ -82,8 +83,8 @@ public class GraphPainter {
 						}
 					}
 				}
-				else if (AlloyUtil.isElement(label)){
-					String classname = AlloyUtil.getClassifierName(label);
+				else if (EchoHelper.isElement(label)){
+					String classname = EchoHelper.getClassifierName(label);
 					vizstate.label.put(atype, classname);
 					vizstate.nodeColor.put(atype, null);
 					vizstate.shape.put(atype, null);				
@@ -97,22 +98,22 @@ public class GraphPainter {
 		for (AlloySet t : vizstate.getCurrentModel().getSets()){
 			String label = vizstate.label.get(t);
 			
-			if(t.getType().getName().startsWith(AlloyUtil.ORDNAME)) 
+			if(t.getType().getName().startsWith(EchoHelper.ORDNAME)) 
 				vizstate.nodeVisible.put(t, false);
 			else
 				vizstate.nodeVisible.put(t, true);
 			
 			
-			if (AlloyUtil.mayBeFeature(label)) {
-				vizstate.label.put(t, AlloyUtil.getFeatureName(label));
+			if (EchoHelper.mayBeFeature(label)) {
+				vizstate.label.put(t, EchoHelper.getFeatureName(label));
 			}
 
-			if (AlloyUtil.isStateField(label)) {
-				vizstate.label.put(t, AlloyUtil.getClassifierName(label));
+			if (EchoHelper.isStateField(label)) {
+				vizstate.label.put(t, EchoHelper.getClassifierName(label));
 				vizstate.showAsLabel.put(t, false);
 			}
 
-			if (label.equals(AlloyUtil.NEWSNAME)) {
+			if (label.equals(EchoHelper.NEWSNAME)) {
 				vizstate.nodeColor.put(t, DotColor.GREEN);
 				vizstate.showAsLabel.put(t, false);
 				vizstate.nodeVisible.put(t, false);
@@ -120,11 +121,11 @@ public class GraphPainter {
 		}
 		for (AlloyRelation t : vizstate.getCurrentModel().getRelations()){
 			String label = vizstate.label.get(t);
-			if (AlloyUtil.mayBeFeature(label)) {
-				String metamodeluri = AlloyUtil.getMetamodelIDfromLabel(label);
-				String ref = AlloyUtil.getFeatureName(label);
+			if (EchoHelper.mayBeFeature(label)) {
+				String metamodeluri = EchoHelper.getMetamodelIDfromLabel(label);
+				String ref = EchoHelper.getFeatureName(label);
 				AlloyType sig = t.getTypes().get(0);
-				String cla = AlloyUtil.getClassifierName(sig.getName());
+				String cla = EchoHelper.getClassifierName(sig.getName());
 				EStructuralFeature sf = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri,cla,ref);
 				if (sf != null) {
 					if (sf instanceof EAttribute) {

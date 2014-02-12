@@ -12,7 +12,7 @@ import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import pt.uminho.haslab.echo.*;
-import pt.uminho.haslab.echo.transform.ERelMetamodel;
+import pt.uminho.haslab.echo.transform.EEngineMetamodel;
 import pt.uminho.haslab.echo.transform.OCLTranslator;
 import pt.uminho.haslab.echo.transform.ast.IDecl;
 import pt.uminho.haslab.echo.transform.ast.IExpression;
@@ -20,7 +20,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.*;
 
-class EKodkodMetamodel extends ERelMetamodel {
+class EKodkodMetamodel extends EEngineMetamodel {
 
     //TODO verify facts that mention classes with children must be changed.
     //TODO Use MDE and check if MDE uses sf hierarchy properly.
@@ -184,7 +184,6 @@ class EKodkodMetamodel extends ERelMetamodel {
 
 	protected void processAttributes(List<EAttribute> eAttributes) throws EchoError {
 
-		
 		Relation attribute;
 		
 		for(EAttribute attr : eAttributes) {
@@ -209,7 +208,6 @@ class EKodkodMetamodel extends ERelMetamodel {
 			} 
 			else throw new ErrorUnsupported("Primitive type for attribute not supported: "+attr+".");
 		}
-
 		
 	}
 

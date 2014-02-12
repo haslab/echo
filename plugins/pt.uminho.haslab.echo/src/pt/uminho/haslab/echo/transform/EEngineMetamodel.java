@@ -21,15 +21,14 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
-public abstract class ERelMetamodel {
+public abstract class EEngineMetamodel {
 
 	/** the package being translated */
 	public final EMetamodel metamodel;
 
-	protected ERelMetamodel(EMetamodel metamodel) throws EchoError {
+	protected EEngineMetamodel(EMetamodel metamodel) throws EchoError {
 		this.metamodel = metamodel;
 	}
-	
 	
 	/**
 	 * Translates the information from the this.epackage (classes, attributes, references, annotations, operations, eenums)

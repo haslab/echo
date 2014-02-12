@@ -78,7 +78,7 @@ class KodkodContext implements IContext{
 
             KodkodEchoTranslator translator = KodkodEchoTranslator.getInstance();
             EMetamodel metaModel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
-            EKodkodMetamodel e2k = translator.getMetaModel(metaModel.ID);
+            EKodkodMetamodel e2k = translator.getMetamodel(metaModel.ID);
             range = e2k.getRelation((EClass) e2k.metamodel.getEPackage().getEClassifier(type));
         }
         return (new KodkodExpression(range)).oneOf(x.getName());
@@ -101,7 +101,7 @@ class KodkodContext implements IContext{
 
     @Override
     public IExpression getFieldExpression(String metaModelID, String className, String fieldName) {
-        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetaModel(metaModelID);
+        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
 
         return new KodkodExpression(
                 e2k.getRelation(((EClass) e2k.metamodel.getEPackage().getEClassifier(className)).getEStructuralFeature(fieldName))
@@ -111,7 +111,7 @@ class KodkodContext implements IContext{
     @Override
     public IExpression getClassExpression(String metaModelID, String className) {
 
-        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetaModel(metaModelID);
+        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
 
         return new KodkodExpression(
                 e2k.getRelation((EClass) e2k.metamodel.getEPackage().getEClassifier(className))

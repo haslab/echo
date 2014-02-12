@@ -7,9 +7,12 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+
 import org.eclipse.emf.ecore.EClass;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.transform.EchoHelper;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
@@ -344,7 +347,7 @@ public class AlloyRunner implements EngineRunner{
 						try {
 							Collection<Sig> aux = new ArrayList<Sig>();
 							aux.add(Sig.UNIV);
-							SubsetSig news = new SubsetSig(AlloyUtil.NEWSNAME,
+							SubsetSig news = new SubsetSig(EchoHelper.NEWSNAME,
 									aux, new Attr[0]);
 							allsigs.add(news);
 							finalfact = finalfact.and(news.equal(edelta));
