@@ -215,8 +215,10 @@ public class ResourceManager {
 		EMetamodel metamodel = parser.getMetamodel(metamodeluri, true);
 		runner.addMetaModel(metamodel);
 
-		for (IResource resqvt : ctracked.get(metamodeluri))
-			reloadQVTConstraintAction(resqvt);
+		List<IResource> ctrackeds = ctracked.get(metamodeluri);
+		if (ctrackeds != null)
+			for (IResource resqvt : ctrackeds)
+				reloadQVTConstraintAction(resqvt);
 
 		for (IResource resmodel : tracked.get(metamodeluri)) {
 			reloadModelAction(resmodel);
