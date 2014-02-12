@@ -3,41 +3,34 @@ package pt.uminho.haslab.echo.transform.kodkod;
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
 import kodkod.util.nodes.PrettyPrinter;
-import org.eclipse.emf.common.util.EList;
+
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
+
 import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.transform.ERelMetamodel;
 import pt.uminho.haslab.echo.transform.OCLTranslator;
 import pt.uminho.haslab.echo.transform.ast.IDecl;
 import pt.uminho.haslab.echo.transform.ast.IExpression;
+import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.*;
 
-
-
-
-class Ecore2Kodkod {
-
+class EKodkodMetamodel extends ERelMetamodel {
 
     //TODO verify facts that mention classes with children must be changed.
     //TODO Use MDE and check if MDE uses sf hierarchy properly.
 
-	EPackage ePackage;
-	
 	/** maps classes into respective Kodkod relations */
 	private Map<String,Relation> mapClassRel;
 	/** maps structural features into respective Kodkod relations */
 	private Map<String,Relation> mapSfRel;
-	/** maps signature names into respective classes */
-	private Map<String,EClass> mapClassClass;
     /**maps the hierarchy */
     private Map<String,Set<String>> mapParents;
-
-
 
     /**facts about the meta-model*/
 	private Formula facts;
@@ -46,55 +39,19 @@ class Ecore2Kodkod {
         return facts;
     }
 
-	public Ecore2Kodkod(EPackage metaModel){
-		ePackage = metaModel;
+	public EKodkodMetamodel(EMetamodel metaModel) throws EchoError{
+		super(metaModel);
 		mapClassRel = new HashMap<>();
-		mapClassClass =  new HashMap<>();
 		mapSfRel = new HashMap<>();
         mapParents = new HashMap<>();
 		facts = Formula.TRUE;
 	}
 	
-	public void translate() throws EchoError {
-		List<EClass> classList = new LinkedList<EClass>();
-		List<EEnum> enumList = new ArrayList<EEnum>();
-		
-		for(EClassifier e: ePackage.getEClassifiers()) {
-			if (e instanceof EClass)
-				classList.add((EClass)e);
-			else if (e instanceof EEnum)
-				enumList.add((EEnum) e);
-			else if (e instanceof EDataType)
-                throw new ErrorUnsupported(ErrorUnsupported.ECORE,
-                        "'EDataTypes' are not supported.", "",
-                        EchoRunner.Task.TRANSLATE_METAMODEL);
-		}
-		
-		
-		processEnums(enumList);
-		
-		for (EClass c : classList)
-			processClass(c);
-		for (EClass c : classList)
-			processAttributes(c.getEAttributes());
-		for (EClass c : classList)
-			processReferences(c.getEReferences());
-		for (EClass c : classList)
-			processAnnotations(c.getEAnnotations());
-		for (EClass c : classList)
-			processOperations(c.getEOperations());
-		
-		
-	}
-	
-	
-	
-	private void processOperations(EList<EOperation> eOperations) {
+	protected void processOperations(List<EOperation> eOperations) {
 		// TODO Auto-generated method stub
-		
 	}
 
-	private void processAnnotations(EList<EAnnotation> eAnnotations) throws EchoError {
+	protected void processAnnotations(List<EAnnotation> eAnnotations) throws EchoError {
         OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
         for (EAnnotation annotation : eAnnotations) {
         
@@ -149,10 +106,10 @@ class Ecore2Kodkod {
 		
 	}
 
-	private void processReferences(EList<EReference> eReferences) throws ErrorTransform {
+	protected void processReferences(List<EReference> eReferences) throws ErrorTransform {
 		for(EReference eReference : eReferences) {
 			String className = eReference.getEContainingClass().getName();
-			String refName = KodkodUtil.pckPrefix(ePackage,className+"->"+eReference.getName());
+			String refName = KodkodUtil.pckPrefix(metamodel.getEPackage(),className+"->"+eReference.getName());
 			Expression classRel = getDomain(className);
 			EReference eOpposite = eReference.getEOpposite();
 			
@@ -168,8 +125,7 @@ class Ecore2Kodkod {
 					&& getRelation(eOpposite) != null &&
 					EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
-				EClass cc = mapClassClass.get(eReference.getEReferenceType().getName());
-				Expression coDomain = getDomain(cc.getName());
+				Expression coDomain = getDomain(eReference.getEReferenceType().getName());
 				Relation refRel = Relation.binary(refName);
 				
 				facts = facts.and(refRel.in(classRel.product(coDomain)));
@@ -226,7 +182,7 @@ class Ecore2Kodkod {
 		
 	}
 
-	private void processAttributes(EList<EAttribute> eAttributes) throws ErrorUnsupported{
+	protected void processAttributes(List<EAttribute> eAttributes) throws EchoError {
 
 		
 		Relation attribute;
@@ -234,7 +190,7 @@ class Ecore2Kodkod {
 		for(EAttribute attr : eAttributes) {
 			String className = attr.getEContainingClass().getName();
 			Expression domain = getDomain(className);
-			String attrName = KodkodUtil.pckPrefix(ePackage,className+"->"+attr.getName());
+			String attrName = KodkodUtil.pckPrefix(metamodel.getEPackage(),className+"->"+attr.getName());
 			if(attr.getEType().getName().equals("EBoolean")) {					
 				attribute  = Relation.unary(attrName);
 				facts = facts.and(attribute.in(domain));
@@ -263,21 +219,18 @@ class Ecore2Kodkod {
 	 * @param ec the EClass to translate
 	 * @throws ErrorTransform
 	 */
-	private void processClass(EClass ec) throws ErrorTransform {
+	protected void processClass(EClass ec) throws ErrorTransform {
 		Relation eCRel;
-		if (mapClassClass.get(ec.getName()) != null) return;
+		if (mapClassRel.get(ec.getName()) != null) return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
-
-
-
 
         if(!superTypes.isEmpty()) {
             EClass pEC = superTypes.get(0);
             String parentName = pEC.getName();
 
-            if(mapClassClass.get(parentName) == null)
-                    processClass(superTypes.get(0));
+            if(mapClassRel.get(parentName) == null)
+            	processClass(superTypes.get(0));
 
             Set<String> sons = mapParents.get(parentName);
 
@@ -291,14 +244,11 @@ class Ecore2Kodkod {
 
 
         if(!ec.isAbstract()){
-            String relName = KodkodUtil.pckPrefix(ePackage,ec.getName());
+            String relName = KodkodUtil.pckPrefix(metamodel.getEPackage(),ec.getName());
             eCRel = Relation.unary(relName);
             mapClassRel.put(ec.getName(), eCRel);
-
-
         }
         //TODO: What if ec is abstract
-        mapClassClass.put(ec.getName(), ec);
     }
 
 
@@ -316,7 +266,7 @@ class Ecore2Kodkod {
         return result;
     }
 
-	private void processEnums(List<EEnum> enumList) {
+    protected void processEnums(List<EEnum> enumList) {
 		// TODO Enums   -> save and then bind?
 		
 	}
@@ -348,40 +298,14 @@ class Ecore2Kodkod {
 	Relation getRelation(EStructuralFeature f) {
 		return mapSfRel.get(f.getEContainingClass().getName()+"::"+f.getName());
 	}
-	
-	/**
-	 * Returns the {@link EClass} matching the class  name
-	 * @param name the class name
-	 * @return the matching class
-	 */
-	EClass getEClass(String name) {
-		return mapClassClass.get(name);
-	}
-	
+
 	EClassifier getEClass(Relation classRelation) {
 		//TODO: not sure of equals.
 		for (String cla : mapClassRel.keySet())
-			if (mapClassRel.get(cla).equals(classRelation)) return ePackage.getEClassifier(cla);
+			if (mapClassRel.get(cla).equals(classRelation)) return metamodel.getEPackage().getEClassifier(cla);
 		return null;
 	}
-	
-	List<EClass> getRootClass() {
-		Map<Integer,EClass> classes = new HashMap<Integer,EClass>();
-		for (EClassifier obj : ePackage.getEClassifiers())
-			if (obj instanceof EClass) classes.put(obj.getClassifierID(),(EClass) obj);
-		Map<Integer,EClass> candidates = new HashMap<Integer,EClass>(classes);
-			
-		for (EClass obj : classes.values()) {
-			for (EReference ref : obj.getEReferences())
-				if (ref.isContainment()) 
-					candidates.remove(ref.getEReferenceType().getClassifierID());
-			List<EClass> sups = obj.getESuperTypes();
-			if (sups != null && sups.size() != 0)
-				if (!candidates.keySet().contains(sups.get(0).getClassifierID()))
-					candidates.remove(obj.getClassifierID());				
-		}			
-		//System.out.println("Tops: "+candidates);
-		return new ArrayList<EClass>(candidates.values());
-	}
+
+
 	
 }

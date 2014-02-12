@@ -2,28 +2,29 @@ package pt.uminho.haslab.echo.transform.alloy;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.transform.ERelMetamodel;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 import java.util.Map.Entry;
 
-class EAlloyMetamodel {
-
-	/** the package being translated */
-	final EMetamodel metamodel;
+class EAlloyMetamodel extends ERelMetamodel {
 	
 	/** the Alloy signature representing this meta-model */
 	final PrimSig sig_metamodel;
@@ -70,7 +71,7 @@ class EAlloyMetamodel {
 	 * @throws EchoError
 	 */
 	EAlloyMetamodel(EMetamodel metamodel) throws EchoError {
-
+		super(metamodel);
 		try {
 			//if (EchoOptionsSetup.getInstance().isOperationBased())
 			sig_metamodel = new PrimSig(metamodel.ID,AlloyEchoTranslator.STATE);
@@ -78,7 +79,6 @@ class EAlloyMetamodel {
 				//s = new PrimSig(URIUtil.resolveURI(metamodel.eResource()),STATE,Attr.ABSTRACT);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 		
-		this.metamodel = metamodel;
 		try {
 			model_var = sig_metamodel.oneOf("s_");
 		} catch (Err a) {
@@ -107,11 +107,6 @@ class EAlloyMetamodel {
  	 * @return the matching Alloy signature
 	 */
 	PrimSig getSigFromEClassifier(EClassifier c) {
-//		EchoReporter.getInstance().debug(c.getName());
-//		EchoReporter.getInstance().debug(metamodel.getEPackage()+"");
-//		EchoReporter.getInstance().debug(metamodel.getEPackage().eResource()+"");
-//		EchoReporter.getInstance().debug(AlloyUtil.classifierKey(metamodel, c));
-//		EchoReporter.getInstance().debug(classifier2sig.keySet()+"");
 		PrimSig s = classifier2sig.get(AlloyUtil.classifierKey(metamodel, c));
 		if (s == null)
 			EchoReporter.getInstance().warning("Looking for non-existing classifier: "+c, Task.TRANSLATE_METAMODEL);
@@ -267,47 +262,15 @@ class EAlloyMetamodel {
 		return f;
 	}
 
-	/**
-	 * Translates the information from the this.epackage (classes, attributes, references, annotations, operations, eenums)
-	 * @throws EchoError
-	 */
+
 	public void translate() throws EchoError {
-		EchoReporter.getInstance().start(Task.TRANSLATE_METAMODEL,
-				sig_metamodel.label);
-		List<EClass> classList = new LinkedList<EClass>();
-		List<EEnum> enumList = new ArrayList<EEnum>();
-
-		for (EClassifier e : metamodel.getEPackage().getEClassifiers()) {
-			if (e instanceof EClass)
-				classList.add((EClass) e);
-			else if (e instanceof EEnum)
-				enumList.add((EEnum) e);
-			else if (e instanceof EDataType)
-				throw new ErrorUnsupported(ErrorUnsupported.ECORE,
-						"'EDataTypes' are not supported.", "",
-						Task.TRANSLATE_METAMODEL);
-		}
-
-		processEnums(enumList);
-
-		for (EClass c : classList)
-			processClass(c);
-		for (EClass c : classList)
-			processAttributes(c.getEAttributes());
-		for (EClass c : classList)
-			processReferences(c.getEReferences());
-		for (EClass c : classList)
-			processAnnotations(c.getEAnnotations());
-		for (EClass c : classList)
-			processOperations(c.getEOperations());
-
+		super.translate();
+		
 		for (PrimSig s : sig2statefield.keySet())
 			processHeritage(s);
 
 		createOrder();
-		EchoReporter.getInstance().result(Task.TRANSLATE_METAMODEL, "", true);
 	}
-
 
 
     /**
@@ -318,7 +281,7 @@ class EAlloyMetamodel {
 	 * @param ec the EClass to translate
 	 * @throws EchoError
 	 */
-	private void processClass(EClass ec) throws EchoError {
+	protected void processClass(EClass ec) throws EchoError {
 		PrimSig ecsig, parent = null;
 		Field statefield;
 		if (classifier2sig.get(AlloyUtil.classifierKey(metamodel, ec)) != null)
@@ -362,7 +325,7 @@ class EAlloyMetamodel {
 	 * @throws ErrorUnsupported the attribute type is not supported
 	 * @throws ErrorAlloy
 	 */
-	private void processAttributes(List<EAttribute> attributes)
+	protected void processAttributes(List<EAttribute> attributes)
 			throws EchoError {
 		Field field = null;
 		for (EAttribute attr : attributes) {
@@ -431,7 +394,7 @@ class EAlloyMetamodel {
 	 * @param references the list of references to translate
 	 * @throws EchoError
 	 */
-	private void processReferences(List<EReference> references)
+	protected void processReferences(List<EReference> references)
 			throws EchoError {
 		for (EReference reference : references) {
 			PrimSig classsig = classifier2sig.get(AlloyUtil.classifierKey(
@@ -571,7 +534,7 @@ class EAlloyMetamodel {
 	 * @throws ErrorUnsupported the OCL formulas contains unsupported operators
 	 * @throws ErrorParser the OCL parser failed
 	 */
-	private void processAnnotations(List<EAnnotation> annotations)
+	protected void processAnnotations(List<EAnnotation> annotations)
 			throws EchoError {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		for (EAnnotation annotation : annotations) {
@@ -645,7 +608,7 @@ class EAlloyMetamodel {
 	 * @throws ErrorUnsupported the OCL formulas contains unsupported operators
 	 * @throws ErrorParser the OCL parser failed
 	 */
-	private void processOperations(List<EOperation> eoperations)
+	protected void processOperations(List<EOperation> eoperations)
 			throws EchoError {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		for (EOperation operation : eoperations) {
@@ -736,7 +699,7 @@ class EAlloyMetamodel {
 	 * @param enums the enums to translate
 	 * @throws ErrorAlloy
 	 */
-	private void processEnums(List<EEnum> enums) throws ErrorAlloy {
+	protected void processEnums(List<EEnum> enums) throws ErrorAlloy {
 		PrimSig enumSig = null;
 		for (EEnum enu : enums) {
 			try {
@@ -941,30 +904,7 @@ class EAlloyMetamodel {
 		return elem_creation_count;
 	}
 	
-	/** calculates all possible root classes for this meta-model
-	 * root classes are those classes not contained in any container reference
-	 * @return the list of root classes
-	 */
-	List<EClass> getRootClass() {
-		Map<Integer, EClass> classes = new HashMap<Integer, EClass>();
-		for (EClassifier obj : metamodel.getEPackage().getEClassifiers())
-			if (obj instanceof EClass)
-				classes.put(obj.getClassifierID(), (EClass) obj);
-		Map<Integer, EClass> candidates = new HashMap<Integer, EClass>(classes);
-
-		for (EClass obj : classes.values()) {
-			for (EReference ref : obj.getEReferences())
-				if (ref.isContainment())
-					candidates
-							.remove(ref.getEReferenceType().getClassifierID());
-			List<EClass> sups = obj.getESuperTypes();
-			if (sups != null && sups.size() != 0)
-				if (!candidates.keySet()
-						.contains(sups.get(0).getClassifierID()))
-					candidates.remove(obj.getClassifierID());
-		}
-		return new ArrayList<EClass>(candidates.values());
-	}
+	
 	
 }
 

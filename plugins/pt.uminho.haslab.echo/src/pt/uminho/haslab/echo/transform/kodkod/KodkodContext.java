@@ -1,9 +1,12 @@
 package pt.uminho.haslab.echo.transform.kodkod;
 
 import kodkod.ast.Expression;
+
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.transform.IContext;
@@ -75,8 +78,8 @@ class KodkodContext implements IContext{
 
             KodkodEchoTranslator translator = KodkodEchoTranslator.getInstance();
             EMetamodel metaModel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
-            Ecore2Kodkod e2k = translator.getMetaModel(metaModel.ID);
-            range = e2k.getRelation(e2k.getEClass(type));
+            EKodkodMetamodel e2k = translator.getMetaModel(metaModel.ID);
+            range = e2k.getRelation((EClass) e2k.metamodel.getEPackage().getEClassifier(type));
         }
         return (new KodkodExpression(range)).oneOf(x.getName());
     }
@@ -98,20 +101,20 @@ class KodkodContext implements IContext{
 
     @Override
     public IExpression getFieldExpression(String metaModelID, String className, String fieldName) {
-        Ecore2Kodkod e2k = KodkodEchoTranslator.getInstance().getMetaModel(metaModelID);
+        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetaModel(metaModelID);
 
         return new KodkodExpression(
-                e2k.getRelation(e2k.getEClass(className).getEStructuralFeature(fieldName))
+                e2k.getRelation(((EClass) e2k.metamodel.getEPackage().getEClassifier(className)).getEStructuralFeature(fieldName))
         );
     }
 
     @Override
     public IExpression getClassExpression(String metaModelID, String className) {
 
-        Ecore2Kodkod e2k = KodkodEchoTranslator.getInstance().getMetaModel(metaModelID);
+        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetaModel(metaModelID);
 
         return new KodkodExpression(
-                e2k.getRelation(e2k.getEClass(className))
+                e2k.getRelation((EClass) e2k.metamodel.getEPackage().getEClassifier(className))
         );
     }
 }

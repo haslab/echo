@@ -52,6 +52,5 @@ public abstract class EchoTranslator {
 
     public abstract void writeInstance(EchoSolution solution, String modelUri) throws EchoError;
 
-
     public abstract IIntExpression makeNumber(int n);
 }

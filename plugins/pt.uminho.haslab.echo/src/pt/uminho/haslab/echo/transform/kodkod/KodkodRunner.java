@@ -36,7 +36,7 @@ public class KodkodRunner implements EngineRunner{
             solver.options().setSolver(SATFactory.DefaultSAT4J);
             solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
-            Ecore2Kodkod e2k = x2k.getMetaTranslator();
+            EKodkodMetamodel e2k = x2k.getMetaTranslator();
 
             System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
 
@@ -53,7 +53,7 @@ public class KodkodRunner implements EngineRunner{
         solver.options().setSolver(SATFactory.PMaxSAT4J);
         solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
-        Ecore2Kodkod e2k = x2k.getMetaTranslator();
+        EKodkodMetamodel e2k = x2k.getMetaTranslator();
 
         System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
 

@@ -29,7 +29,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
     }
 
     /** maps meta-models Uris into translators*/
-    private Map<String,Ecore2Kodkod> metaModels = new HashMap<>();
+    private Map<String,EKodkodMetamodel> metaModels = new HashMap<>();
     /** maps models Uris into translators*/
     private Map<String,XMI2Kodkod> models = new HashMap<>();
     /** maps models Uris into meta-models Uris*/
@@ -38,8 +38,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
     @Override
     public void translateMetaModel(EMetamodel metaModel) throws EchoError {
 
-
-        Ecore2Kodkod e2k = new Ecore2Kodkod(metaModel.getEPackage());
+        EKodkodMetamodel e2k = new EKodkodMetamodel(metaModel);
         metaModels.put(metaModel.ID, e2k);
         try {
             e2k.translate();
@@ -62,7 +61,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
     public void translateModel(EModel model) throws EchoError {
     	String modelID = model.ID;
         String metaModelID = model.getMetamodel().ID;
-        Ecore2Kodkod e2k = metaModels.get(metaModelID);
+        EKodkodMetamodel e2k = metaModels.get(metaModelID);
         XMI2Kodkod x2k = new XMI2Kodkod(model.getRootEElement().getEObject(),e2k);
         models.put(modelID,x2k);
         model2metaModel.put(modelID, metaModelID);
@@ -134,7 +133,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
         return new KodkodIntExpression(IntConstant.constant(n));
     }
 
-    Ecore2Kodkod getMetaModel(String id){
+    EKodkodMetamodel getMetaModel(String id){
         return metaModels.get(id);
     }
 

@@ -13,11 +13,11 @@ class XMI2Kodkod {
 	
 	private EObject eObj;
 
-    public Ecore2Kodkod getMetaTranslator() {
+    public EKodkodMetamodel getMetaTranslator() {
         return translator;
     }
 
-    private Ecore2Kodkod translator;
+    private EKodkodMetamodel translator;
 
     public Map<Relation, Set<Object>> getBounds() {
         return bounds;
@@ -43,7 +43,7 @@ class XMI2Kodkod {
 
     private Set<String> strings;
 	
-	XMI2Kodkod(EObject obj,Ecore2Kodkod t) throws EchoError {
+	XMI2Kodkod(EObject obj,EKodkodMetamodel t) throws EchoError {
 		eObj =obj;
 		translator = t;
         bounds = new HashMap<>();
