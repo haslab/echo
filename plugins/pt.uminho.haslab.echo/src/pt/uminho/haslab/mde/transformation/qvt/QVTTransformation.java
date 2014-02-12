@@ -1,18 +1,17 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An implementation of a model transformation in QVT-R
@@ -68,7 +67,7 @@ public class QVTTransformation extends ETransformation {
 	}
 
 	public void update(RelationalTransformation trans) throws ErrorParser {
-		this.transformation = (RelationalTransformation) transformation;
+		this.transformation =  trans;
 
 		for (TypedModel mdl : transformation.getModelParameter())
 			models.add(new QVTModel(mdl));

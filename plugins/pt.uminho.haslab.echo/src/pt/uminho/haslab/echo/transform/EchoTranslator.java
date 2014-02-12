@@ -2,6 +2,8 @@ package pt.uminho.haslab.echo.transform;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.echo.transform.ast.IFormula;
+import pt.uminho.haslab.echo.transform.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -44,9 +46,12 @@ public abstract class EchoTranslator {
     
     public abstract IFormula getTrueFormula();
 
+    public abstract IFormula getFalseFormula();
+
     public abstract void writeAllInstances(EchoSolution solution, String metaModelUri, String modelUri) throws EchoError;
 
     public abstract void writeInstance(EchoSolution solution, String modelUri) throws EchoError;
 
 
+    public abstract IIntExpression makeNumber(int n);
 }

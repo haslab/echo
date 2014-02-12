@@ -1,56 +1,29 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
-import org.eclipse.ocl.examples.pivot.IfExp;
-import org.eclipse.ocl.examples.pivot.IteratorExp;
-import org.eclipse.ocl.examples.pivot.OCLExpression;
-import org.eclipse.ocl.examples.pivot.OperationCallExp;
-import org.eclipse.ocl.examples.pivot.Property;
-import org.eclipse.ocl.examples.pivot.PropertyCallExp;
-import org.eclipse.ocl.examples.pivot.TypeExp;
-import org.eclipse.ocl.examples.pivot.UnlimitedNaturalLiteralExp;
-import org.eclipse.ocl.examples.pivot.VariableDeclaration;
-import org.eclipse.ocl.examples.pivot.VariableExp;
+import org.eclipse.ocl.examples.pivot.*;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.ConditionTranslator;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.qvt.QVTRelation;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
-import edu.mit.csail.sdg.alloy4compiler.ast.Func;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class OCL2Alloy implements ConditionTranslator{
 
@@ -146,7 +119,7 @@ public class OCL2Alloy implements ConditionTranslator{
 	
 	Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
 
-		Func func = null;
+		Func func;
 		func = parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.dependency);
 		if (func == null) {
 			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
@@ -249,7 +222,7 @@ public class OCL2Alloy implements ConditionTranslator{
 			res = src.join(res.closure());	
 		}
 		else throw new ErrorUnsupported("OCL iterator not supported: "+expr.getReferredIteration()+".");
-		varstates.remove(d.get());
+		varstates.remove(d.get().label);
 		
 		return res;
 	}
@@ -480,11 +453,11 @@ public class OCL2Alloy implements ConditionTranslator{
 					Expr bdy = oclExprToAlloy(it.getBody());
 					Decl dd = bdy.oneOf("2_");
 					res = res.comprehensionOver(d,dd);
-				} catch (Err e) {varstates.remove(d.get()); throw new ErrorAlloy(e.getMessage());}
+				} catch (Err e) {varstates.remove(d.get().label); throw new ErrorAlloy(e.getMessage());}
 				Expr v1 = oclExprToAlloy(a1);
 				Expr v2 = oclExprToAlloy(a2);
 				res = v2.in(v1.join(res.reflexiveClosure()));
-				varstates.remove(d.get());
+				varstates.remove(d.get().label);
 			}
 				
 			return res;
@@ -497,7 +470,7 @@ public class OCL2Alloy implements ConditionTranslator{
 
 		
 		@Override
-		public Object translateExpressions(List<Object> lex) throws EchoError{
+		public Expr translateExpressions(List<Object> lex) throws EchoError{
 			
 			Expr expr = Sig.NONE.no();
 			

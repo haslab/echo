@@ -1,43 +1,21 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import static com.google.common.primitives.Ints.max;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.eclipse.emf.ecore.EClass;
-
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.EngineRunner;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import edu.mit.csail.sdg.alloy4.A4Reporter;
-import edu.mit.csail.sdg.alloy4.ConstList;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4.ErrorWarning;
-import edu.mit.csail.sdg.alloy4.WorkerEngine;
-import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Command;
-import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
-import edu.mit.csail.sdg.alloy4compiler.ast.Func;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+import org.eclipse.emf.ecore.EClass;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static com.google.common.primitives.Ints.max;
 
 /**
  * @author nmm
@@ -224,7 +202,6 @@ public class AlloyRunner implements EngineRunner{
 	 * Generates a model conforming to a give metamodel
 	 * @param metamodelID the ID of the new model's metamodel
 	 * @param scope additional scopes for the new model
-	 * @param the URI of the model to be created
 	 * @return if the model was successfully repaired
 	 * @throws ErrorAlloy
 	 * @throws ErrorUnsupported
@@ -281,7 +258,7 @@ public class AlloyRunner implements EngineRunner{
 	/** 
 	 * Runs a inter-model consistency checking command
 	 * @param transformationID the ID of the transformation to be applied
-	 * @param modelID the IDs of the instances to be checked
+	 * @param modelIDs the IDs of the instances to be checked
 	 * TODO: Should receive an EContraint rather than a ETransformation + EModels
 	 * @throws ErrorAlloy 
 	 */
@@ -414,7 +391,7 @@ public class AlloyRunner implements EngineRunner{
 	 * @throws ErrorAlloy
 	 */
 	@Override
-	public boolean generateQvt(String qvtID, List<String> modelIDs,
+	public boolean generateQvt(String transformationID, List<String> modelIDs,
 			String targetURI, String metamodelID) throws ErrorAlloy,
 			ErrorUnsupported {
 		Map<Entry<String, String>, Integer> scope = new HashMap<Entry<String, String>, Integer>();
@@ -457,7 +434,7 @@ public class AlloyRunner implements EngineRunner{
 			}
 		}
 		Func func = AlloyEchoTranslator.getInstance()
-				.getQVTTransformation(qvtID).getTransformationConstraint();
+				.getQVTTransformation(transformationID).getTransformationConstraint();
 		finalfact = finalfact
 				.and(func.call(sigs.toArray(new Expr[sigs.size()])));
 
@@ -536,7 +513,7 @@ public class AlloyRunner implements EngineRunner{
 	/**
 	 * Adds all sigs relevant to a model to <code>this.allsigs</code>
 	 * 
-	 * @param modeluri
+	 * @param modelID
 	 *            the ID of the model
 	 * @return the signature representing the model
 	 * @throws ErrorAlloy

@@ -13,7 +13,19 @@ class XMI2Kodkod {
 	
 	private EObject eObj;
 
+    public Ecore2Kodkod getMetaTranslator() {
+        return translator;
+    }
+
     private Ecore2Kodkod translator;
+
+    public Map<Relation, Set<Object>> getBounds() {
+        return bounds;
+    }
+
+    public Set<Object> getUniverse() {
+        return universe;
+    }
 
     /**
      * map of the objects in every class relation
@@ -22,11 +34,21 @@ class XMI2Kodkod {
      * ->Pair  EObject->Type.
      * */
     private Map<Relation,Set<Object>> bounds;
+
+    private Set<Object> universe;
+
+    public Set<String> getStrings() {
+        return strings;
+    }
+
+    private Set<String> strings;
 	
 	XMI2Kodkod(EObject obj,Ecore2Kodkod t) throws EchoError {
 		eObj =obj;
 		translator = t;
         bounds = new HashMap<>();
+        universe = new HashSet<>();
+        strings = new HashSet<>();
         initBounds();
         makeAtomsList(eObj);
 
@@ -41,18 +63,19 @@ class XMI2Kodkod {
 
     private void makeAtomsList(EObject it) throws EchoError {
         //TODO
-        EClass cc = translator.getEClass(it.eClass().getName());
-        Relation classRel = translator.getRelation(cc);
+        Relation classRel = translator.getRelation(it.eClass());
 
+       
+        
         //adding obj to corresponding class relation.
         Set<Object> auxSet = bounds.get(classRel);
         auxSet.add(it);
+        universe.add(it);
         //bounds.put(classRel,auxSet);
 
 
         //iterate trough every child
-        for(EStructuralFeature sf : cc.getEAllStructuralFeatures()){
-
+        for(EStructuralFeature sf : it.eClass().getEAllStructuralFeatures()){
             Object value = it.eGet(sf);
             Relation relation = translator.getRelation(sf);
             Set<Object> set = bounds.get(relation);
@@ -61,38 +84,40 @@ class XMI2Kodkod {
             if(sf instanceof EAttribute)
                 processAttribute(value, set, it);
 
-            else if (sf instanceof EReference)
+            else if (sf instanceof EReference){
 
                 if (value instanceof EList<?>) {
                     if (!((EList<?>) value).isEmpty()) {
                         EReference op = ((EReference) sf).getEOpposite();
-                        if (op != null && translator.getRelation(op) == null) {}
+                        if (op != null && translator.getRelation(op) != null) {}
                         else {
                             processReference((EList<?>) value, set, it);
                         }
                     }
                 } else if (value instanceof EObject) {
                     EReference op = ((EReference) sf).getEOpposite();
-                    if (op != null && translator.getRelation(op) == null) {}
+                    if (op != null && translator.getRelation(op) != null) {}
                     else {
                         processReference((EObject) value, set, it);
                     }
                 }
-
-            else throw new ErrorUnsupported("Structural feature not supported: " + sf);
+            }
+            else 
+            	throw new ErrorUnsupported("Structural feature not supported: " + sf.getClass());
         }
 	}
 
-    private void processReference(EObject value, Set<Object> set, EObject it) {
-                   set.add(new Pair<>(it,value));
-
+    private void processReference(EObject value, Set<Object> set, EObject it) throws EchoError {
+        set.add(new Pair<>(it,value));
+        if(!universe.contains(value))
+            makeAtomsList(value);
     }
 
     private void processReference(EList<?> value, Set<Object> set, EObject it) throws EchoError{
-        for(Object obj : value)
+    	for(Object obj : value)
         {
             if(obj instanceof EObject)
-                set.add(new Pair<>(it,obj));
+                processReference((EObject) obj,set,it);
             else
                 throw new ErrorUnsupported(ErrorUnsupported.ECORE,
                 "EReference type not supported: "
@@ -103,7 +128,6 @@ class XMI2Kodkod {
 
 
     private void processAttribute(Object obj, Set<Object> set, EObject it) throws EchoError {
-        //TODO : check integer stuff, and add throw when type unsupported
         if(obj instanceof Boolean)
             set.add(it);
         else
@@ -115,16 +139,26 @@ class XMI2Kodkod {
                 if ((Integer) obj >= max || (Integer) obj < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+obj+".");
 
                 pair = new Pair<>(it,obj.toString());
+                set.add(pair);
 
 
-            }else if(obj instanceof String || obj instanceof EEnumLiteral )
+            }else if(obj instanceof String ){
                 pair = new Pair<>(it,obj);
+                obj = "str" + obj;       //Putting a prefix to strings, to make creation of new strings easier
+                universe.add(obj);
+                set.add(pair);
+                strings.add((String) obj);
+            }else if(obj instanceof EEnumLiteral){
+                pair = new Pair<>(it,obj);
+                universe.add(obj);
+                set.add(pair);
+            }
             else
                 throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,
                         "Primitive type not supported: "
                                 + obj.getClass().getName(), "",
                         EchoRunner.Task.TRANSLATE_MODEL);
-            set.add(pair);
+            
         }
     }
 

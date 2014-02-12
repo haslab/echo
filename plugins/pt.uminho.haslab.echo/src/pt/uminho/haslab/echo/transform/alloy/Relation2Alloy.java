@@ -1,14 +1,8 @@
 package pt.uminho.haslab.echo.transform.alloy;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
@@ -19,13 +13,10 @@ import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.Func;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class Relation2Alloy {
 
@@ -181,11 +172,11 @@ public class Relation2Alloy {
 			if (postCondition != null) {
 				postCondition.initTranslation(parent_translator, var2varmodel(),
 						modelparam2var, null);
-				postexpr =(Expr) postCondition.translate();
+				postexpr =postCondition.translate();
 			}
 
 			targetCondition.initTranslation(parent_translator,var2varmodel(),modelparam2var,null);
-			Expr targetexpr =(Expr) targetCondition.translate();
+			Expr targetexpr =targetCondition.translate();
 			targetexpr = targetexpr.and(postexpr);
 
 			if (targetvar2alloydecl.size() == 1)
@@ -200,7 +191,7 @@ public class Relation2Alloy {
 			for (EModelDomain dom : sourcedomains) {
 				ECondition sourceCondition = dom.getCondition();
 				sourceCondition.initTranslation(parent_translator,var2varmodel(),modelparam2var,null);
-				sourceexpr = sourceexpr.and((Expr) sourceCondition.translate());
+				sourceexpr = sourceexpr.and(sourceCondition.translate());
 			}	
 			fact = (sourceexpr.implies(targetexpr));
 
@@ -224,7 +215,7 @@ public class Relation2Alloy {
 			if (preCondition != null) {
 				preCondition.initTranslation(parent_translator, var2varmodel(),
 						modelparam2var, null);
-				whenexpr = (Expr) preCondition.translate();
+				whenexpr = preCondition.translate();
 
 				fact = (whenexpr.implies(fact));
 				for (Decl d : whenvar2alloydecl.values())

@@ -1,13 +1,8 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import org.eclipse.emf.ecore.EObject;
-
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
@@ -16,7 +11,12 @@ import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
 import pt.uminho.haslab.mde.emf.OCLUtil;
 import pt.uminho.haslab.mde.model.ECondition;
 import pt.uminho.haslab.mde.model.EVariable;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ATLCondition implements ECondition {
 	private List<Object> exps = new ArrayList<Object>();
@@ -43,7 +43,7 @@ public class ATLCondition implements ECondition {
 
 	}
 	
-	public Object translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
+	public Expr translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 
 		
 		return trad.translateExpressions(exps);

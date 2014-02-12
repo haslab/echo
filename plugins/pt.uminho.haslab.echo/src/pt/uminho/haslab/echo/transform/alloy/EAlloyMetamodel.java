@@ -2,19 +2,16 @@ package pt.uminho.haslab.echo.transform.alloy;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
-
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.model.EMetamodel;
@@ -68,9 +65,8 @@ class EAlloyMetamodel {
 	
 	
 	/**
-	 * Creates a translator from meta-models (represented by an EPackage) to Alloy artifacts
-	 * @param pck the package to translate
-	 * @param statesig the state signature representing the meta-model
+	 * Creates a translator from meta-models (represented by an EMetamodel) to Alloy artifacts
+     * @param metamodel the metamodel to translate
 	 * @throws EchoError
 	 */
 	EAlloyMetamodel(EMetamodel metamodel) throws EchoError {

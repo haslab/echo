@@ -1,21 +1,20 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-
 import org.eclipse.ocl.examples.pivot.OCLExpression;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy;
 import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
 import pt.uminho.haslab.mde.emf.OCLUtil;
 import pt.uminho.haslab.mde.model.ECondition;
 import pt.uminho.haslab.mde.model.EVariable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class QVTCondition implements ECondition {
 	private List<Object> exps = new ArrayList<Object>();
@@ -41,7 +40,7 @@ public class QVTCondition implements ECondition {
 
     }
   	
-	public Object translate() throws EchoError {
+	public Expr translate() throws EchoError {
 		return trad.translateExpressions(exps);
 	}
 	

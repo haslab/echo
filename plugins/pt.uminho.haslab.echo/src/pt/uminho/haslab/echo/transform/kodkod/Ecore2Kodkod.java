@@ -2,11 +2,18 @@ package pt.uminho.haslab.echo.transform.kodkod;
 
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
+import kodkod.util.nodes.PrettyPrinter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
+import org.eclipse.ocl.examples.pivot.OCL;
+import org.eclipse.ocl.examples.pivot.ParserException;
+import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
+import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.transform.OCLTranslator;
+import pt.uminho.haslab.echo.transform.ast.IDecl;
+import pt.uminho.haslab.echo.transform.ast.IExpression;
 
 import java.util.*;
 
@@ -16,7 +23,8 @@ import java.util.*;
 class Ecore2Kodkod {
 
 
-    //TODO facts that mention classes with children must be changed.
+    //TODO verify facts that mention classes with children must be changed.
+    //TODO Use MDE and check if MDE uses sf hierarchy properly.
 
 	EPackage ePackage;
 	
@@ -25,22 +33,30 @@ class Ecore2Kodkod {
 	/** maps structural features into respective Kodkod relations */
 	private Map<String,Relation> mapSfRel;
 	/** maps signature names into respective classes */
-	private Map<String,EClass> mapClassClass;	
-	/**facts about the meta-model*/
+	private Map<String,EClass> mapClassClass;
+    /**maps the hierarchy */
+    private Map<String,Set<String>> mapParents;
+
+
+
+    /**facts about the meta-model*/
 	private Formula facts;
-	
+
+    public Formula getFacts() {
+        return facts;
+    }
+
 	public Ecore2Kodkod(EPackage metaModel){
 		ePackage = metaModel;
-		mapClassRel = new HashMap<String,Relation>();
-		mapClassClass =  new HashMap<String,EClass>();
-		mapSfRel = new HashMap<String,Relation>(); 
+		mapClassRel = new HashMap<>();
+		mapClassClass =  new HashMap<>();
+		mapSfRel = new HashMap<>();
+        mapParents = new HashMap<>();
 		facts = Formula.TRUE;
-		
 	}
 	
-	public void translate() throws ErrorTransform, ErrorUnsupported{
+	public void translate() throws EchoError {
 		List<EClass> classList = new LinkedList<EClass>();
-		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
 		
 		for(EClassifier e: ePackage.getEClassifiers()) {
@@ -49,7 +65,9 @@ class Ecore2Kodkod {
 			else if (e instanceof EEnum)
 				enumList.add((EEnum) e);
 			else if (e instanceof EDataType)
-				dataList.add((EDataType) e);
+                throw new ErrorUnsupported(ErrorUnsupported.ECORE,
+                        "'EDataTypes' are not supported.", "",
+                        EchoRunner.Task.TRANSLATE_METAMODEL);
 		}
 		
 		
@@ -76,8 +94,58 @@ class Ecore2Kodkod {
 		
 	}
 
-	private void processAnnotations(EList<EAnnotation> eAnnotations) {
-		// TODO Auto-generated method stub
+	private void processAnnotations(EList<EAnnotation> eAnnotations) throws EchoError {
+        OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
+        for (EAnnotation annotation : eAnnotations) {
+        
+            OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
+
+            KodkodContext context = new KodkodContext();
+
+            IExpression cl = new KodkodExpression(getRelation((EClass)annotation.eContainer()));
+            IDecl self= cl.oneOf("self");
+            context.addVar(self.name(),self.expression());
+
+            OCLTranslator converter = new OCLTranslator(context);
+
+            if (annotation.getSource() != null) {
+                if (annotation.getSource().equals(
+                        "http://www.eclipse.org/emf/2002/Ecore/OCL")
+                        || annotation.getSource().equals("Echo/Gen"))
+                    try {
+                        for (String sExpr : annotation.getDetails().values()) {
+                            ExpressionInOCL invariant = helper
+                                    .createInvariant(sExpr);
+                            KodkodFormula oclExpr = (KodkodFormula) converter.translateFormula(
+                                    invariant.getBodyExpression());
+
+                            System.out.println(PrettyPrinter.print(oclExpr.formula, 2));
+                            System.out.println(invariant.getBodyExpression());
+
+                            Formula oclKodkod = oclExpr.formula.forAll(((KodkodDecl)self).decl);
+
+                            //TODO kodkod optimizations?
+                            /*AlloyOptimizations opt = new AlloyOptimizations();
+                            if (EchoOptionsSetup.getInstance().isOptimize()) {
+                                oclalloy = opt.trading(oclalloy);
+                                oclalloy = opt.onePoint(oclalloy);
+                            }   */
+                            if (annotation
+                                    .getSource()
+                                    .equals("http://www.eclipse.org/emf/2002/Ecore/OCL"))
+                                facts = facts.and(oclKodkod);
+                            /*TODO : generate
+                            else
+                                constraint_generate = constraint_generate
+                                        .and(oclalloy);*/
+                        }
+                    } catch (ParserException e) {
+                        throw new ErrorParser(ErrorParser.OCL,
+                                "Failed to parse OCL annotation.",
+                                e.getMessage(), EchoRunner.Task.TRANSLATE_METAMODEL);
+                    }
+            }
+        }
 		
 	}
 
@@ -85,7 +153,7 @@ class Ecore2Kodkod {
 		for(EReference eReference : eReferences) {
 			String className = eReference.getEContainingClass().getName();
 			String refName = KodkodUtil.pckPrefix(ePackage,className+"->"+eReference.getName());
-			Relation classRel = mapClassRel.get(className);
+			Expression classRel = getDomain(className);
 			EReference eOpposite = eReference.getEOpposite();
 			
 			if((eOpposite != null &&
@@ -101,10 +169,10 @@ class Ecore2Kodkod {
 					EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
 				EClass cc = mapClassClass.get(eReference.getEReferenceType().getName());
-				Relation trgRel = mapClassRel.get(cc.getName());
+				Expression coDomain = getDomain(cc.getName());
 				Relation refRel = Relation.binary(refName);
 				
-				facts = facts.and(refRel.in(classRel.product(trgRel)));
+				facts = facts.and(refRel.in(classRel.product(coDomain)));
 				mapSfRel.put(eReference.getEContainingClass().getName()+"::"+eReference.getName(),refRel);
 				
 				if(eOpposite!= null){
@@ -114,7 +182,7 @@ class Ecore2Kodkod {
 				}
 				
 				
-				//TODO: check how relevant this bitwidth is in kodkod
+
 				Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
 				Integer max = (int) (Math.pow(2, bitwidth) / 2);
 				if (eReference.getLowerBound() >= max || eReference.getLowerBound() < -max) throw new ErrorTransform("Bitwidth not enough to represent: "+eReference.getLowerBound()+".");
@@ -148,9 +216,9 @@ class Ecore2Kodkod {
 				}
 				
 				if(eReference.isContainment()){
-					d = x.declare(Multiplicity.ONE, trgRel);
+					d = x.declare(Multiplicity.ONE, coDomain);
 					facts = facts.and(
-							refRel.join(d.expression()).one().forAll(d));
+							refRel.join(x).one().forAll(d));
 				}
 				
 			}
@@ -165,18 +233,20 @@ class Ecore2Kodkod {
 		
 		for(EAttribute attr : eAttributes) {
 			String className = attr.getEContainingClass().getName();
-			Relation classRel = mapClassRel.get(className);
+			Expression domain = getDomain(className);
 			String attrName = KodkodUtil.pckPrefix(ePackage,className+"->"+attr.getName());
 			if(attr.getEType().getName().equals("EBoolean")) {					
 				attribute  = Relation.unary(attrName);
-				facts = facts.and(attribute.in(classRel));
+				facts = facts.and(attribute.in(domain));
+                mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EString")) {
 				attribute = Relation.binary(attrName);
-				facts = facts.and(attribute.function(classRel, KodkodUtil.stringRel));				
+				facts = facts.and(attribute.function(domain, KodkodUtil.stringRel));
+                mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EInt")) {
 				attribute = Relation.binary(attrName);
-                //TODO check if i can really use that Expression.INTS...
-				facts = facts.and(attribute.function(classRel, Expression.INTS));
+				facts = facts.and(attribute.function(domain, Expression.INTS));
+                mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} 
 			else if (attr.getEType() instanceof EEnum) {
 				//TODO
@@ -194,29 +264,57 @@ class Ecore2Kodkod {
 	 * @throws ErrorTransform
 	 */
 	private void processClass(EClass ec) throws ErrorTransform {
-		Relation eCRel,parent = null;
-		if (mapClassRel.get(ec.getName()) != null) return;
+		Relation eCRel;
+		if (mapClassClass.get(ec.getName()) != null) return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if(superTypes.size() > 1) throw new ErrorTransform("Multiple inheritance not allowed: "+ec.getName()+".");
-		if(!superTypes.isEmpty()) {
-			parent = mapClassRel.get(superTypes.get(0).getName());
-			if(parent == null) {
-				processClass(superTypes.get(0));
-				parent = mapClassRel.get(superTypes.get(0).getName());
-			}
+
+
+
+
+        if(!superTypes.isEmpty()) {
+            EClass pEC = superTypes.get(0);
+            String parentName = pEC.getName();
+
+            if(mapClassClass.get(parentName) == null)
+                    processClass(superTypes.get(0));
+
+            Set<String> sons = mapParents.get(parentName);
+
+            if(sons == null){
+                sons = new HashSet<>();
+                mapParents.put(parentName,sons);
+            }
+
+            sons.add(ec.getName());
 		}
-		String relName = KodkodUtil.pckPrefix(ePackage,ec.getName());
-		/*
-		 * TODO:Think(and implement)  Abstract.
-		 * facts and instance stuff.
-		 * fact -> child1+child2+...+childN = abstractParent
-		 * */
-		eCRel = Relation.unary(relName);
-		
-		
-		mapClassRel.put(ec.getName(), eCRel);
-		mapClassClass.put(ec.getName(), ec);	
-	}
+
+
+        if(!ec.isAbstract()){
+            String relName = KodkodUtil.pckPrefix(ePackage,ec.getName());
+            eCRel = Relation.unary(relName);
+            mapClassRel.put(ec.getName(), eCRel);
+
+
+        }
+        //TODO: What if ec is abstract
+        mapClassClass.put(ec.getName(), ec);
+    }
+
+
+    Expression getDomain(String className){
+        Expression result = mapClassRel.get(className);
+        if(result == null)
+            result = Expression.NONE;
+        Set<String> sons = mapParents.get(className);        
+        if(sons!=null){
+        	for(String son : sons)
+        		System.out.println(son);
+            for(String son : sons)
+        		result = result.union(getDomain(son));
+        }
+        return result;
+    }
 
 	private void processEnums(List<EEnum> enumList) {
 		// TODO Enums   -> save and then bind?

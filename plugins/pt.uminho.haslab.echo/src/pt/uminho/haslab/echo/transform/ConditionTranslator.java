@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.transform;
 
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import pt.uminho.haslab.echo.EchoError;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface ConditionTranslator {
 	
 	
-	public Object translateExpressions(List<Object> lex) throws  EchoError;
+	public Expr translateExpressions(List<Object> lex) throws  EchoError;
 
 
 }
