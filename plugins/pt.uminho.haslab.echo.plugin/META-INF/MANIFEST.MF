@@ -14,5 +14,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide,
  org.eclipse.core.resources,
  org.eclipse.qvtd.pivot.qvtrelation;bundle-version="0.11",
- pt.uminho.haslab.echo;bundle-version="0.3.0"
+ pt.uminho.haslab.echo;bundle-version="0.3.1"
 

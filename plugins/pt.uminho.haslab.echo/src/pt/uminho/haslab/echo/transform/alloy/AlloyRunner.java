@@ -488,7 +488,7 @@ public class AlloyRunner implements EngineRunner{
 	 */
 	private void increment() throws ErrorAlloy {
 		Expr runfact = finalfact;
-		if (edelta == null) {
+		if (edelta.isSame(ExprConstant.makeNUMBER(0))) {
 			scopes = AlloyUtil.incrementStringScopes(scopes);
 			overall++;
 		} else {
@@ -577,6 +577,10 @@ public class AlloyRunner implements EngineRunner{
 				@Override
 				public void writeXML(String filename) {
 					try {
+						EchoReporter.getInstance().debug("ASol: "+sol.toString());
+						EchoReporter.getInstance().debug("KSol: "+sol.debugExtractKInstance());
+						EchoReporter.getInstance().debug("KInp: "+sol.debugExtractKInput());
+						EchoReporter.getInstance().debug("ACom: "+sol.getOriginalCommand());
 						sol.writeXML(filename);
 					} catch (Err e) {
 						// TODO Auto-generated catch block

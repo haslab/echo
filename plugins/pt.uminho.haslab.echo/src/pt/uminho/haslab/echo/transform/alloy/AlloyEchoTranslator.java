@@ -260,9 +260,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		for (String ID : IDs) {
 			EAlloyModel x2a = modelalloys.get(ID);
 			EAlloyMetamodel e2a = x2a.metamodel;
-			
-			for (PrimSig sig : e2a.getAllSigs()) {
-				//System.out.println("SigMap: "+x2a.getSigMap());
+			EchoReporter.getInstance().debug("*** Creating scopes for "+e2a.getAllSigs());
+			for (PrimSig sig : e2a.getCAllSigs()) {
 				int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
 				if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
 				else scopesmap.put(sig, scopesmap.get(sig) + count);

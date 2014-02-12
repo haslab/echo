@@ -111,6 +111,9 @@ public class GraphView extends ViewPart {
 
 		try {
 			if (sol != null && sol.satisfiable()) {
+				File file = new File("argh.xml");
+				file.createNewFile();
+				sol.writeXML("argh.xml");
 				sol.writeXML(".dummy.xml");
 				viz.loadXML(".dummy.xml", true);
 				runner.generateTheme(viz.getVizState());

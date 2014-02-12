@@ -228,6 +228,13 @@ class EAlloyMetamodel {
 		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(sig_order);
 		return aux;
 	}
+	
+	List<PrimSig> getCAllSigs() {
+		List<PrimSig> aux = new ArrayList<PrimSig>(classifier2sig.values());
+		//aux.addAll(literal2sig.values());
+		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(sig_order);
+		return aux;
+	}
 
 	/**
 	 * Returns the {@link Func} that tests well-formedness
@@ -541,7 +548,7 @@ class EAlloyMetamodel {
 							.oneOf("trg_");
 					fact = ((field.join(model_var.get())).join(d.get())).one()
 							.forAll(d);
-					//constraint_conforms = constraint_conforms.and(fact);
+					constraint_conforms = constraint_conforms.and(fact);
 				}
 
 				Expr parState = sig2statefield.get(classsig);
