@@ -23,7 +23,7 @@ import java.util.*;
 class Ecore2Kodkod {
 
 
-    //TODO facts that mention classes with children must be changed.
+    //TODO verify facts that mention classes with children must be changed.
     //TODO Use MDE and check if MDE uses sf hierarchy properly.
 
 	EPackage ePackage;
@@ -48,16 +48,15 @@ class Ecore2Kodkod {
 
 	public Ecore2Kodkod(EPackage metaModel){
 		ePackage = metaModel;
-		mapClassRel = new HashMap<String,Relation>();
-		mapClassClass =  new HashMap<String,EClass>();
-		mapSfRel = new HashMap<String,Relation>();
+		mapClassRel = new HashMap<>();
+		mapClassClass =  new HashMap<>();
+		mapSfRel = new HashMap<>();
         mapParents = new HashMap<>();
 		facts = Formula.TRUE;
 	}
 	
 	public void translate() throws EchoError {
 		List<EClass> classList = new LinkedList<EClass>();
-		List<EDataType> dataList = new ArrayList<EDataType>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
 		
 		for(EClassifier e: ePackage.getEClassifiers()) {
@@ -66,7 +65,9 @@ class Ecore2Kodkod {
 			else if (e instanceof EEnum)
 				enumList.add((EEnum) e);
 			else if (e instanceof EDataType)
-				dataList.add((EDataType) e);
+                throw new ErrorUnsupported(ErrorUnsupported.ECORE,
+                        "'EDataTypes' are not supported.", "",
+                        EchoRunner.Task.TRANSLATE_METAMODEL);
 		}
 		
 		

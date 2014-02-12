@@ -142,12 +142,16 @@ class XMI2Kodkod {
                 set.add(pair);
 
 
-            }else if(obj instanceof String || obj instanceof EEnumLiteral ){
+            }else if(obj instanceof String ){
+                pair = new Pair<>(it,obj);
+                obj = "str" + obj;       //Putting a prefix to strings, to make creation of new strings easier
+                universe.add(obj);
+                set.add(pair);
+                strings.add((String) obj);
+            }else if(obj instanceof EEnumLiteral){
                 pair = new Pair<>(it,obj);
                 universe.add(obj);
                 set.add(pair);
-                if(obj instanceof String)
-                    strings.add((String) obj);
             }
             else
                 throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,

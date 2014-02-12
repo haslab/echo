@@ -40,16 +40,26 @@ public class KodkodRunner implements EngineRunner{
 
             System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
 
-            sol = solver.solve(e2k.getFacts(), new Binder(x2k).getBounds());
+            sol = solver.solve(e2k.getFacts(), new SATBinder(x2k).getBounds());
         }
 
     }
 
     @Override
-    public boolean repair(String targetUri) throws ErrorInternalEngine {
+    public boolean repair(String modelID) throws ErrorInternalEngine {
+        XMI2Kodkod x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
+        final Solver solver = new Solver();
 
+        solver.options().setSolver(SATFactory.PMaxSAT4J);
+        solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
-        return false;
+        Ecore2Kodkod e2k = x2k.getMetaTranslator();
+
+        System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
+
+        sol = solver.solve(e2k.getFacts(), new TargetBinder(x2k).getBounds());
+   
+        return sol.instance() != null;
     }
 
     @Override
