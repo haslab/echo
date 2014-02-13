@@ -1,7 +1,7 @@
 package pt.uminho.haslab.echo;
 
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import edu.mit.csail.sdg.alloy4.Err;
 
 /**

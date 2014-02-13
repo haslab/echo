@@ -1,9 +1,9 @@
 package pt.uminho.haslab.echo;
 
 import edu.mit.csail.sdg.alloy4viz.VizState;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.TransformFactory;
-import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
+import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.TransformFactory;
+import pt.uminho.haslab.echo.engine.alloy.GraphPainter;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;

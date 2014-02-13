@@ -48,12 +48,12 @@ public class EQVTTransformation extends ETransformation {
 		if (models == null) models = new ArrayList<EModelParameter>();
 		
 		for (TypedModel mdl : transformation.getModelParameter())
-			models.add(new QVTModel(mdl));
+			models.add(new EQVTModel(mdl));
 		
 		if (relations == null) relations = new ArrayList<ERelation>();
 
 		for (Rule rule : transformation.getRule())
-			relations.add(new QVTRelation(rule));
+			relations.add(new EQVTRelation(rule));
 	}
 
 	@Override

@@ -17,7 +17,7 @@ import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
- * An implementation of a model transformation in QVT-R
+ * An implementation of a model transformation in ATL
  * 
  * TODO: Very incomplete
  * 
@@ -52,13 +52,13 @@ public class EATLTransformation extends ETransformation {
 		EStructuralFeature outmdls = module.eClass().getEStructuralFeature("outModels");
 		EList<EObject> objs = (EList<EObject>) module.eGet(elements);
 		for (EObject x : objs)
-			relations.add(new ATLRelation(x));
+			relations.add(new EATLRelation(x));
 		objs = (EList<EObject>) module.eGet(inmdls);
 		for (EObject x : objs)
-			models.add(new ATLModel(x,this));
+			models.add(new EATLModel(x,this));
 		objs = (EList<EObject>) module.eGet(outmdls);
 		for (EObject x : objs)
-			models.add(new ATLModel(x,this));
+			models.add(new EATLModel(x,this));
 	}
 
 	public EATLTransformation(EObject loadATL) throws ErrorUnsupported, ErrorParser {

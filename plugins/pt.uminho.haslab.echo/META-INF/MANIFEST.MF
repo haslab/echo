@@ -34,7 +34,7 @@ Export-Package: edu.mit.csail.sdg.alloy4compiler.translator;
    pt.uminho.haslab.echo.transform,
    edu.mit.csail.sdg.alloy4viz,
    org.eclipse.qvtd.pivot.qvtrelation",
- pt.uminho.haslab.echo.transform,
+ pt.uminho.haslab.echo.engine,
  pt.uminho.haslab.mde,
  pt.uminho.haslab.mde.model,
  pt.uminho.haslab.mde.transformation,

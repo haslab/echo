@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.transform.alloy.EAlloyRelation;
+import pt.uminho.haslab.echo.engine.alloy.EAlloyRelation;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 
