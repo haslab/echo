@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.transform.EEngineRelation;
@@ -87,12 +88,14 @@ class EAlloyTransformation extends EEngineTransformation {
 
 		
 		Expr fact = Sig.NONE.no();
-		for (Func f : toprelationcall_funcs.values())
+		for (Func f : toprelationcall_funcs.values()) {
 			fact = fact.and(f.call(vars));
-
-		for (Func f : subrelationcall_defs.values())
+		}
+		
+		for (Func f : subrelationcall_defs.values()) {
 			fact = fact.and(f.call(vars));
-
+		}
+		
 		try {
 			func = new Func(null, transformation.getName(), decls,
 					null, fact);
@@ -106,10 +109,10 @@ class EAlloyTransformation extends EEngineTransformation {
 	
 	/** {@inheritDoc} */
 	@Override
-	protected AlloyFormula getTransformationConstraint(List<String> modelIDs) {
-		List<PrimSig> sigs = new ArrayList<PrimSig>();
-		for (String modelID : modelIDs)
-			sigs.add(AlloyEchoTranslator.getInstance().getModel(modelID).model_sig);
+	protected AlloyFormula getTransformationConstraint(List<IExpression> vars) {
+		List<Expr> sigs = new ArrayList<Expr>();
+		for (IExpression v : vars)
+			sigs.add(((AlloyExpression) v).EXPR);
 		return new AlloyFormula(func.call(sigs.toArray(new Expr[sigs.size()])));
 	}
 
@@ -186,7 +189,6 @@ class EAlloyTransformation extends EEngineTransformation {
 	/** {@inheritDoc} */
 	@Override
 	public AlloyFormula callRelation(ERelation n, EDependency dep, List<IExpression> aux) {
-		
 		if (subrelationcall_funcs == null) return null;
 		Func f = subrelationcall_funcs.get(EchoHelper.relationFieldName(n,dep.target));
 		if (f == null) return null;

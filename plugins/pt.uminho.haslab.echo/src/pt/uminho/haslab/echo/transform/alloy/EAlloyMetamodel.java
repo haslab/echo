@@ -581,7 +581,6 @@ class EAlloyMetamodel extends EEngineMetamodel {
 								oclalloy = opt.trading(oclalloy);
 								oclalloy = opt.onePoint(oclalloy);
 							}
-							EchoReporter.getInstance().debug("OCL: "+oclalloy);
 							if (annotation
 									.getSource()
 									.equals("http://www.eclipse.org/emf/2002/Ecore/OCL"))

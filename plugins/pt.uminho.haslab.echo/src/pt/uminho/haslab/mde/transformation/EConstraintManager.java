@@ -74,7 +74,6 @@ public class EConstraintManager {
 	 */
 	public List<EConstraint> getConstraintsModel(String modelID) {
 		List<EConstraint> res = model2constraints.get(modelID);
-		//EchoReporter.getInstance().debug(modelID + " at "+model2constraints.keySet()+ " so "+res);
 		return res == null? new ArrayList<EConstraint>() : res;
 	}
 

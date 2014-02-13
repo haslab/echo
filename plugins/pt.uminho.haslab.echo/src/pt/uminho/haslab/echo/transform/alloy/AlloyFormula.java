@@ -103,4 +103,9 @@ class AlloyFormula implements IFormula {
 			throw ErrorInternalEngine.thrownew("", "", e, Task.TRANSLATE_OCL);
 		}
     }
+    
+    public String toString() {
+    	return formula.toString();
+    }
 }
+

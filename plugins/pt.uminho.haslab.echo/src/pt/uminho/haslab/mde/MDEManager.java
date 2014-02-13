@@ -67,9 +67,13 @@ public class MDEManager {
 		if (model == null || forceReload) {
 			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, modelURI);
 			EObject eobj = EMFParser.loadModel(modelURI);
-			model = new EModel(eobj);
+			if (model == null) {
+				model = new EModel(eobj);
+				models.put(modelURI, model);				
+			} else {
+				model.update(eobj);
+			}
 			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, modelURI, true);
-			models.put(modelURI, model);
 		}
 		id2uri.put(model.ID, modelURI);
 		return model;
@@ -121,9 +125,13 @@ public class MDEManager {
 		if (metamodel == null || forceReload) {
 			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, metamodelURI);
 			EPackage epackage = EMFParser.loadMetaModel(metamodelURI);
-			metamodel = new EMetamodel(epackage);
+			if (metamodel == null) {
+				metamodel = new EMetamodel(epackage);
+				metamodels.put(metamodelURI, metamodel);				
+			} else {
+				metamodel.update(epackage);
+			}
 			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, metamodelURI, true);
-			metamodels.put(metamodelURI, metamodel);
 		}
 		id2uri.put(metamodel.ID, metamodelURI);
 		return metamodel;
@@ -178,9 +186,13 @@ public class MDEManager {
 		if (qvt == null || forceReload) {
 			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, qvtURI);
 			RelationalTransformation trans = EMFParser.loadQVT(qvtURI);
-			qvt = new EQVTTransformation(trans);
+			if (qvt == null) {
+				qvt = new EQVTTransformation(trans);
+				qvtTransformations.put(qvtURI, qvt);				
+			} else {
+				qvt.update(trans);
+			}
 			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, qvtURI, true);
-			qvtTransformations.put(qvtURI, qvt);
 		}
 		id2uri.put(qvt.ID,qvtURI);
 		return qvt;
@@ -232,9 +244,13 @@ public class MDEManager {
 		if (atl == null || forceReload) {
 			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, atlURI);
 			EObject eobj = EMFParser.loadATL(atlURI);
-			atl = new EATLTransformation(eobj);
+			if (atl == null) {
+				atl = new EATLTransformation(eobj);
+				atlTransformations.put(atlURI, atl);				
+			} else {
+				atl.update(eobj);
+			}
 			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, atlURI, true);
-			atlTransformations.put(atlURI, atl);
 		}
 		//id2uri.put(atl.ID,atlURI);
 		return atl;

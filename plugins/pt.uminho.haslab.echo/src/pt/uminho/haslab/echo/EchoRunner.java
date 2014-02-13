@@ -106,7 +106,6 @@ public class EchoRunner {
 	public List<EConstraint> getConstraintsModel(String modelID) {
 		List<EConstraint> constraints = EConstraintManager.getInstance().getConstraintsModel(modelID);
 		if (constraints == null) constraints = new ArrayList<EConstraint>();
-		//EchoReporter.getInstance().debug(modelID + " so " +constraints);
 		return constraints;
 	}
 

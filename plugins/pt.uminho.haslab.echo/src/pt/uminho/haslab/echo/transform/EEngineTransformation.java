@@ -60,7 +60,7 @@ public abstract class EEngineTransformation {
 	 * Function parameters are the model variables
 	 * @return this.fact
 	 */	
-	protected abstract IFormula getTransformationConstraint(List<String> modelIDs);
+	protected abstract IFormula getTransformationConstraint(List<IExpression> vars);
 
 	/** 
 	 * Adds a new sub-relation definition

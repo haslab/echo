@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EClass;
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.transform.EchoHelper;
+import pt.uminho.haslab.echo.transform.ast.IExpression;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
@@ -131,7 +132,6 @@ public class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
 					.getModel(modelID).getModelConstraint());
 		}
-		EchoReporter.getInstance().debug("Show constraint: "+finalfact);
 		try {
 			cmd = new Command(true, overall, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
@@ -270,10 +270,10 @@ public class AlloyRunner implements EngineRunner {
 			throws ErrorAlloy {
 		EAlloyTransformation trans = AlloyEchoTranslator.getInstance()
 				.getQVTTransformation(transformationID);
-		List<PrimSig> sigs = new ArrayList<PrimSig>();
+		List<IExpression> sigs = new ArrayList<IExpression>();
 		for (String modelID : modelIDs) {
 			PrimSig state = addInstanceSigs(modelID);
-			sigs.add(state);
+			sigs.add(new AlloyExpression(state));
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
 			EAlloyMetamodel metamodel = model.metamodel;
@@ -281,7 +281,8 @@ public class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(metamodel.getConforms().call(
 					model.model_sig));
 		}
-		finalfact = finalfact.and(trans.getTransformationConstraint(modelIDs).formula);
+		finalfact = finalfact.and(trans.getTransformationConstraint(sigs).formula);
+		EchoReporter.getInstance().debug("Final fact: "+finalfact);
 
 		try {
 			cmd = new Command(true, 0, intscope, -1, finalfact);
@@ -320,7 +321,7 @@ public class AlloyRunner implements EngineRunner {
 			}
 			finalfact = Sig.NONE.no();
 			PrimSig original;
-			List<PrimSig> sigs = new ArrayList<PrimSig>();
+			List<IExpression> sigs = new ArrayList<IExpression>();
 			for (String modeluri : modelIDs) {
 				PrimSig state = addInstanceSigs(modeluri);
 				EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
@@ -333,7 +334,7 @@ public class AlloyRunner implements EngineRunner {
 								original.parent, Attr.ONE);
 						targetstates.put(modeluri, target);
 						allsigs.add(target);
-						sigs.add(target);
+						sigs.add(new AlloyExpression(target));
 						finalfact = finalfact.and(model.metamodel.getConforms()
 								.call(target));
 					} catch (Err e) {
@@ -361,14 +362,15 @@ public class AlloyRunner implements EngineRunner {
 						edelta = Sig.NONE.no();
 					}
 				} else {
-					sigs.add(state);
+					sigs.add(new AlloyExpression(state));
 				}
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
 						.getModel(modeluri).getModelConstraint());
 			}
 			AlloyFormula expr = AlloyEchoTranslator.getInstance()
 					.getQVTTransformation(transformationID)
-					.getTransformationConstraint(modelIDs);
+					.getTransformationConstraint(sigs);
+			//bug here! getTransformationConstraint will not get target state sig
 			finalfact = finalfact.and(expr.formula);
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
@@ -412,21 +414,21 @@ public class AlloyRunner implements EngineRunner {
 		allsigs.addAll(metamodel.getAllSigs());
 		scopes = AlloyEchoTranslator.getInstance().getScopes();
 
-		List<PrimSig> sigs = new ArrayList<PrimSig>();
+		List<IExpression> sigs = new ArrayList<IExpression>();
 
 		for (String uri : modelIDs) {
 			if (!uri.equals(targetURI)) {
 				PrimSig state = addInstanceSigs(uri);
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
 						.getModel(uri).getModelConstraint());
-				sigs.add(state);
+				sigs.add(new AlloyExpression(state));
 			} else {
 				PrimSig state = metamodel.sig_metamodel;
 				try {
 					PrimSig target = new PrimSig(AlloyUtil.targetName(state),
 							state, Attr.ONE);
 					targetstates.put(uri, target);
-					sigs.add(target);
+					sigs.add(new AlloyExpression(target));
 					allsigs.add(target);
 					finalfact = finalfact.and(metamodel.getGenerate().call(
 							target));
@@ -436,7 +438,7 @@ public class AlloyRunner implements EngineRunner {
 			}
 		}
 		AlloyFormula expr = AlloyEchoTranslator.getInstance()
-				.getQVTTransformation(transformationID).getTransformationConstraint(modelIDs);
+				.getQVTTransformation(transformationID).getTransformationConstraint(sigs);
 		finalfact = finalfact.and(expr.formula);
 
 		try {

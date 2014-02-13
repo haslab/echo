@@ -444,7 +444,6 @@ public class ResourceManager {
 		if (v != null) v.clearGraph();
 		EModel model = parser.getModel(res.getFullPath().toString(), false);
 		for (EConstraint c : runner.getConstraintsModel(model.ID)) {
-			//EchoReporter.getInstance().debug("found a contraint: "+c);
 			List<String> modelIDs = new ArrayList<String>();
 			for (EModel m : c.getModels())
 				modelIDs.add(m.ID);

@@ -144,7 +144,7 @@ public abstract class EEngineRelation {
 		ECondition targetCondition = targetdomain.getCondition();
 
 		if (postCondition != null)
-			postexpr = translateCondition(targetCondition);
+			postexpr = translateCondition(postCondition);
 
 		IFormula targetexpr = translateCondition(targetCondition);
 	
