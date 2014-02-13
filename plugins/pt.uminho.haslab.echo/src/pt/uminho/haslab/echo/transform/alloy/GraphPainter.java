@@ -70,7 +70,7 @@ public class GraphPainter {
 				}
 				else if (!EchoHelper.isElement(label)){
 					String metamodelID = EchoHelper.getMetamodelIDfromLabel(label);
-					EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(metamodelID,false);
+					EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(metamodelID);
 					if (metamodel != null) {
 						String classname = EchoHelper.getClassifierName(label);
 						

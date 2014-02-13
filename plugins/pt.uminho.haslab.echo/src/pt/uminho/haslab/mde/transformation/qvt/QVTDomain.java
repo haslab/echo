@@ -3,21 +3,22 @@ package pt.uminho.haslab.mde.transformation.qvt;
 import org.eclipse.qvtd.pivot.qvtrelation.DomainPattern;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationDomain;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
-import pt.uminho.haslab.echo.ErrorParser;
+
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 
 public class QVTDomain extends EModelDomain {
-	private final RelationDomain domain;
-	private final ERelation relation;
+	private RelationDomain domain;
+	private ERelation relation;
 
-	public QVTDomain(ERelation rel, org.eclipse.qvtd.pivot.qvtbase.Domain dom) throws ErrorParser {
+	public QVTDomain(ERelation rel, org.eclipse.qvtd.pivot.qvtbase.Domain dom) throws ErrorUnsupported {
 		this.relation = rel;
 		if (dom instanceof RelationDomain)
 			this.domain = (RelationDomain) dom;
-		else throw new ErrorParser("Domain not a relation");
+		else throw new ErrorUnsupported("Domain not a relation");
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class QVTDomain extends EModelDomain {
 	@Override
 	public QVTCondition getCondition() {
 		DomainPattern pattern = domain.getPattern();
-		ObjectTemplateExp temp = (ObjectTemplateExp) pattern.getTemplateExpression(); 		
+		ObjectTemplateExp temp = (ObjectTemplateExp) pattern.getTemplateExpression();
 		QVTCondition res = new QVTCondition();
 		res.addCondition(temp);
 		return res;

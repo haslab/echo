@@ -131,7 +131,7 @@ public class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
 					.getModel(modelID).getModelConstraint());
 		}
-
+		EchoReporter.getInstance().debug("Show constraint: "+finalfact);
 		try {
 			cmd = new Command(true, overall, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,

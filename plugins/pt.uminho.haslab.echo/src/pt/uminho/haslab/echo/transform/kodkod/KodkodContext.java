@@ -68,8 +68,8 @@ class KodkodContext implements IContext{
         else {
             String metamodeluri = null;
             if (t instanceof Type) {
-                EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path());
-                EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path().replace("resource/", ""));
+            	//EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path());
+                //EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path().replace("resource/", ""));
                 metamodeluri = EcoreUtil.getURI(((Type) t).getPackage()).path().replace(".oclas", "").replace("resource/", "");
             } else{
                 System.out.println("Nao deveria entrar aqui.");
@@ -79,7 +79,7 @@ class KodkodContext implements IContext{
             KodkodEchoTranslator translator = KodkodEchoTranslator.getInstance();
             EMetamodel metaModel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
             EKodkodMetamodel e2k = translator.getMetamodel(metaModel.ID);
-            range = e2k.getRelation((EClass) e2k.metamodel.getEPackage().getEClassifier(type));
+            range = e2k.getRelation((EClass) e2k.metamodel.getEObject().getEClassifier(type));
         }
         return (new KodkodExpression(range)).oneOf(x.getName());
     }
@@ -104,7 +104,7 @@ class KodkodContext implements IContext{
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
 
         return new KodkodExpression(
-                e2k.getRelation(((EClass) e2k.metamodel.getEPackage().getEClassifier(className)).getEStructuralFeature(fieldName))
+                e2k.getRelation(((EClass) e2k.metamodel.getEObject().getEClassifier(className)).getEStructuralFeature(fieldName))
         );
     }
 
@@ -114,7 +114,7 @@ class KodkodContext implements IContext{
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
 
         return new KodkodExpression(
-                e2k.getRelation((EClass) e2k.metamodel.getEPackage().getEClassifier(className))
+                e2k.getRelation((EClass) e2k.metamodel.getEObject().getEClassifier(className))
         );
     }
 }

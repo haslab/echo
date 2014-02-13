@@ -109,7 +109,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 	protected void processReferences(List<EReference> eReferences) throws ErrorTransform {
 		for(EReference eReference : eReferences) {
 			String className = eReference.getEContainingClass().getName();
-			String refName = KodkodUtil.pckPrefix(metamodel.getEPackage(),className+"->"+eReference.getName());
+			String refName = KodkodUtil.pckPrefix(metamodel.getEObject(),className+"->"+eReference.getName());
 			Expression classRel = getDomain(className);
 			EReference eOpposite = eReference.getEOpposite();
 			
@@ -189,7 +189,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 		for(EAttribute attr : eAttributes) {
 			String className = attr.getEContainingClass().getName();
 			Expression domain = getDomain(className);
-			String attrName = KodkodUtil.pckPrefix(metamodel.getEPackage(),className+"->"+attr.getName());
+			String attrName = KodkodUtil.pckPrefix(metamodel.getEObject(),className+"->"+attr.getName());
 			if(attr.getEType().getName().equals("EBoolean")) {					
 				attribute  = Relation.unary(attrName);
 				facts = facts.and(attribute.in(domain));
@@ -242,7 +242,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 
 
         if(!ec.isAbstract()){
-            String relName = KodkodUtil.pckPrefix(metamodel.getEPackage(),ec.getName());
+            String relName = KodkodUtil.pckPrefix(metamodel.getEObject(),ec.getName());
             eCRel = Relation.unary(relName);
             mapClassRel.put(ec.getName(), eCRel);
         }
@@ -300,7 +300,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 	EClassifier getEClass(Relation classRelation) {
 		//TODO: not sure of equals.
 		for (String cla : mapClassRel.keySet())
-			if (mapClassRel.get(cla).equals(classRelation)) return metamodel.getEPackage().getEClassifier(cla);
+			if (mapClassRel.get(cla).equals(classRelation)) return metamodel.getEObject().getEClassifier(cla);
 		return null;
 	}
 

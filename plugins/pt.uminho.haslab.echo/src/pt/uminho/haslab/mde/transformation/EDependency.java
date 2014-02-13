@@ -19,17 +19,17 @@ public class EDependency {
 	private List<EModelDomain> sources;
 	/** the target model domain (all domains must belong to the same relation) */
 	public final EModelDomain target;
-	
+
 	/**
 	 * Creates a new dependency between source and target models
 	 * Owning relation should be the same for all
 	 * @param target
 	 * @param sources
-	 * @throws ErrorParser 
+	 * @throws ErrorParser
 	 */
 	public EDependency(EModelDomain target, List<EModelDomain> sources, EConstraint constraint) throws ErrorParser {
-		//if (!constraint.transformation.getRelations().contains(target.getRelation())) 
-		//	throw new ErrorParser(ErrorParser.CONSTRAINT,"Error creating dependency.","Constraint relation does not mais model domains.", Task.TRANSLATE_TRANSFORMATION); 
+		//if (!constraint.transformation.getRelations().contains(target.getRelation()))
+		//	throw new ErrorParser(ErrorParser.CONSTRAINT,"Error creating dependency.","Constraint relation does not mais model domains.", Task.TRANSLATE_TRANSFORMATION);
 		this.constraint = constraint;
 		this.target = target;
 		this.sources = sources;
@@ -38,7 +38,8 @@ public class EDependency {
 	public List<EModelDomain> getSources() {
 		return sources;
 	}
-	
+
+	@Override
 	public String toString() {
 		return sources.toString() + " -> " + target.toString();
 	}

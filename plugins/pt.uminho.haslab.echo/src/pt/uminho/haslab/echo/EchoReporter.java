@@ -26,7 +26,7 @@ public class EchoReporter {
 		instance = i;
 	}
 	
-	public void debug (String msg) {
+	public void debug(String msg) {
 		if (EchoOptionsSetup.getInstance().isVerbose())
 			System.out.println(msg);
 	}
@@ -44,8 +44,8 @@ public class EchoReporter {
 				else System.out.println("No more instances (" + time + "ms).");
 				break;
 			case PROCESS_RESOURCES :
-				if (result) System.out.println("Resources loaded ("+ time + "ms).");
-				else System.out.println("Failed to load resources (" + time + "ms).");
+				if (result) System.out.println("Resource "+string+" loaded ("+ time + "ms).");
+				else System.out.println("Failed to load "+string+" (" + time + "ms).");
 				break;
 			case CONFORMS_TASK :
 				if (result) System.out.println("Models conform to the meta-models (" + time + "ms).");

@@ -106,8 +106,6 @@ public abstract class EEngineRelation {
 		this.transformation_translator = transformation_translator;
 		this.parent_translator = top ? this : parent_translator;
 
-
-
 		initVariableLists();
 
 		IExpression field = null;

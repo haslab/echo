@@ -155,24 +155,15 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return qvtalloys.containsKey(transformationID);
 	}
 		
-
-	
-   
     
-    
-    
-    
-    
-    //TODO
     @Override
-    public IFormula getTrueFormula() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public AlloyFormula getTrueFormula() {
+        return new AlloyFormula(Sig.NONE.no());
     }
 
-    //TODO
     @Override
-    public IFormula getFalseFormula() {
-        return null;
+    public AlloyFormula getFalseFormula() {
+        return new AlloyFormula(Sig.NONE.some());
     }
 
     @Override
@@ -202,14 +193,14 @@ public class AlloyEchoTranslator extends EchoTranslator {
 			if (cla.getKey().equals("") && cla.getValue().equals("String"))
 				sc.put(PrimSig.STRING, scopesmap.get(cla));
 			else {
-				EchoReporter.getInstance().debug("got here2");
+				//EchoReporter.getInstance().debug("got here2");
 				EAlloyMetamodel e2a = metamodelalloys.get(cla.getKey());
-				EClassifier eclass = e2a.metamodel.getEPackage().getEClassifier(cla.getValue());
+				EClassifier eclass = e2a.metamodel.getEObject().getEClassifier(cla.getValue());
 				PrimSig sig = e2a.getSigFromEClassifier(eclass);
 				sc.put(sig, scopesmap.get(cla));
 			}
 		}
-		EchoReporter.getInstance().debug("got here3");
+		//EchoReporter.getInstance().debug("got here3");
 		scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
@@ -223,7 +214,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	
 			scopesincrement = new HashMap<Sig.PrimSig, Integer>();
 			for (String cl : e2a.getCreationCount().keySet()) {
-				EClassifier eclass = e2a.metamodel.getEPackage().getEClassifier(cl);
+				EClassifier eclass = e2a.metamodel.getEObject().getEClassifier(cl);
 				PrimSig sig = e2a.getSigFromEClassifier(eclass);
 				scopesincrement.put(sig,e2a.getCreationCount().get(cl));
 			}
@@ -404,14 +395,14 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	public EStructuralFeature getESFeatureFromName(String pck, String cla, String fie) {
 		EAlloyMetamodel e2a = metamodelalloys.get(pck);
 		if (e2a == null) return null;
-		EClass eclass = (EClass) e2a.metamodel.getEPackage().getEClassifier(cla);
+		EClass eclass = (EClass) e2a.metamodel.getEObject().getEClassifier(cla);
 		return eclass.getEStructuralFeature(fie);
 	}
 
 	public EClassifier getEClassifierFromName(String metamodelID, String cla) {
 		EAlloyMetamodel e2a = metamodelalloys.get(metamodelID);
 		if (e2a == null) return null;
-		return e2a.metamodel.getEPackage().getEClassifier(cla);
+		return e2a.metamodel.getEObject().getEClassifier(cla);
 	}
 
 	/**

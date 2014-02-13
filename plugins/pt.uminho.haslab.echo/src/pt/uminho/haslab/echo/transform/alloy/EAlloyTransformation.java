@@ -32,14 +32,14 @@ class EAlloyTransformation extends EEngineTransformation {
 	private Func func;
 	
 	/** the Alloy functions defining sub-relation consistency */
-	private Map<String,Func> subrelationcall_defs = new HashMap<String,Func>();
+	private Map<String,Func> subrelationcall_defs;
 
 	/** the Alloy functions defining sub-relation calls */
-	private Map<String,Func> subrelationcall_funcs = new HashMap<String,Func>();
+	private Map<String,Func> subrelationcall_funcs;
 	
 	/** the Alloy functions defining top-relation calls */
-	private Map<String,Func> toprelationcall_funcs = new HashMap<String,Func>();
-
+	private Map<String,Func> toprelationcall_funcs;
+	
 	/** {@inheritDoc} */
 	EAlloyTransformation(ETransformation transformation,
 			Map<String, List<EDependency>> dependencies) throws EchoError {
@@ -76,6 +76,7 @@ class EAlloyTransformation extends EEngineTransformation {
 	@Override
 	protected void generateConstraints(List<IDecl> model_params_decls,
 			List<IExpression> model_params_vars) throws ErrorAlloy {
+		
 		List<Decl> decls = new ArrayList<Decl>();
 		for (IDecl d : model_params_decls)
 			decls.add(((AlloyDecl) d).decl);
@@ -116,6 +117,8 @@ class EAlloyTransformation extends EEngineTransformation {
 	@Override
 	protected void addSubRelationDef(EEngineRelation eAlloyRelation,
 			List<IDecl> model_params_decls, IFormula e) throws ErrorAlloy {
+		if (subrelationcall_defs == null) subrelationcall_defs = new HashMap<String,Func>();
+
 		Func f;
 		List<Decl> decls = new ArrayList<Decl>();
 		for (IDecl d : model_params_decls)
@@ -137,6 +140,9 @@ class EAlloyTransformation extends EEngineTransformation {
 	@Override
 	public void addSubRelationCall(EEngineRelation eAlloyRelation,
 			List<IDecl> model_params_decls, IExpression exp) throws ErrorAlloy {
+		
+		if (subrelationcall_funcs == null) subrelationcall_funcs = new HashMap<String,Func>();
+		
 		List<Decl> decls = new ArrayList<Decl>();
 		Field field = (Field) ((AlloyExpression) exp).EXPR;
 		for (IDecl d : model_params_decls)
@@ -158,6 +164,9 @@ class EAlloyTransformation extends EEngineTransformation {
 	@Override
 	protected void addTopRelationCall(EEngineRelation arelation,
 			List<IDecl> model_params_decls, IFormula fact) throws ErrorAlloy {
+		
+		if (toprelationcall_funcs == null) toprelationcall_funcs = new HashMap<String,Func>();
+		
 		List<Decl> decls = new ArrayList<Decl>();
 		for (IDecl d : model_params_decls)
 			decls.add(((AlloyDecl) d).decl);
@@ -177,8 +186,10 @@ class EAlloyTransformation extends EEngineTransformation {
 	/** {@inheritDoc} */
 	@Override
 	public AlloyFormula callRelation(ERelation n, EDependency dep, List<IExpression> aux) {
+		
+		if (subrelationcall_funcs == null) return null;
 		Func f = subrelationcall_funcs.get(EchoHelper.relationFieldName(n,dep.target));
-		if (func == null) return null;
+		if (f == null) return null;
 		Expr[] vars = new Expr[aux.size()];
 		for (int i = 0; i<aux.size(); i++)
 			vars[i] = ((AlloyExpression) aux.get(i)).EXPR;

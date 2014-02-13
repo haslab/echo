@@ -195,7 +195,7 @@ public class EchoInterQuickFix extends	WorkbenchMarkerResolution {
 				suc = EchoPlugin.getInstance().getRunner().enforce(transformationID,modelIDs,targetIDs);
 				List<String> targetURIs = new ArrayList<String>();
 				for (String targetID : targetIDs)
-					targetURIs.add(MDEManager.getInstance().getModelID(targetID, false).getURI());
+					targetURIs.add(MDEManager.getInstance().getModelID(targetID).getURI());
 				if (suc) {
 					EchoPlugin.getInstance().getGraphView().setTargetPath(targetURIs,false,null);
 					EchoPlugin.getInstance().getGraphView().drawGraph();

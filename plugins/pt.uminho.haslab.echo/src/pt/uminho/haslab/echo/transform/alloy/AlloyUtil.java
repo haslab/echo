@@ -25,7 +25,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
-import pt.uminho.haslab.mde.transformation.atl.ATLTransformation;
+import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
@@ -356,7 +356,7 @@ public class AlloyUtil {
 					} else {
 						EObject aux = (EObject) t.eGet(t.eClass()
 								.getEStructuralFeature("model"));
-						metamodeluri = ATLTransformation.metamodeluris.get(aux
+						metamodeluri = EATLTransformation.metamodeluris.get(aux
 								.eGet(aux.eClass()
 										.getEStructuralFeature("name")));
 					}

@@ -106,7 +106,7 @@ public class EchoRunner {
 	public List<EConstraint> getConstraintsModel(String modelID) {
 		List<EConstraint> constraints = EConstraintManager.getInstance().getConstraintsModel(modelID);
 		if (constraints == null) constraints = new ArrayList<EConstraint>();
-		EchoReporter.getInstance().debug(modelID + " so " +constraints);
+		//EchoReporter.getInstance().debug(modelID + " so " +constraints);
 		return constraints;
 	}
 
@@ -400,7 +400,7 @@ public class EchoRunner {
 		TRANSLATE_MODEL("translatemodel"), 
 		TRANSLATE_OCL("translateocl"), 
 		TRANSLATE_TRANSFORMATION("translatetransformation"), 
-		ALLOY_RUN("alloyrun");
+		ALLOY_RUN("alloyrun"), DRAW("draw");
 
 		private Task(String label) { this.label = label; }
 

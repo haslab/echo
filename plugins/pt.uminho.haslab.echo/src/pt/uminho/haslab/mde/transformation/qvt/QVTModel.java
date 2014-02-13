@@ -16,7 +16,7 @@ public class QVTModel extends EModelParameter {
 	private static Map<TypedModel,QVTModel> list = new HashMap<TypedModel,QVTModel>();
 	private TypedModel mdl;
 	private EMetamodel metamodel;
-	
+
 	public QVTModel(TypedModel mdl2) {
 		mdl = mdl2;
 		String metamodelURI = EcoreUtil.getURI(mdl.getUsedPackage().get(0).getEPackage()).path().replace("/resource", "");
@@ -29,17 +29,19 @@ public class QVTModel extends EModelParameter {
 		list.put(mdl2,this);
 	}
 
+	@Override
 	public EMetamodel getMetamodel() {
 		return metamodel;
 	}
-	
+
+	@Override
 	public String getName() {
 		return mdl.getName();
 	}
 
 	public static QVTModel get(TypedModel typedModel) {
 		return list.get(typedModel);
-		
+
 	}
 
 }

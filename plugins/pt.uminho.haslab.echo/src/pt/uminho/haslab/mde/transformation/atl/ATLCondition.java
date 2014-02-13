@@ -1,22 +1,23 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import org.eclipse.emf.ecore.EObject;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
-import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy2;
-import pt.uminho.haslab.echo.transform.alloy.EAlloyRelation;
-import pt.uminho.haslab.mde.emf.OCLUtil;
-import pt.uminho.haslab.mde.model.ECondition;
-import pt.uminho.haslab.mde.model.EVariable;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.eclipse.emf.ecore.EObject;
+
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.transform.alloy.EAlloyRelation;
+import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy2;
+import pt.uminho.haslab.mde.emf.OCLUtil;
+import pt.uminho.haslab.mde.model.ECondition;
+import pt.uminho.haslab.mde.model.EVariable;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 
 public class ATLCondition implements ECondition {
 	private List<Object> exps = new ArrayList<Object>();
@@ -33,22 +34,26 @@ public class ATLCondition implements ECondition {
 		return null;
 	}
 
+	@Override
 	public void initTranslation(EAlloyRelation q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
 		trad = new OCL2Alloy2(q2a,vardecls,argsvars,prevars);
 
 	}
-	
+
+	@Override
 	public void initTranslation(Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
 		trad = new OCL2Alloy2(vardecls,argsvars,prevars);
 
 	}
-	
+
+	@Override
 	public Expr translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
 
-		
+
 		return trad.translateExpressions(exps);
 	}
-	
+
+	@Override
 	public Map<EVariable,String> getVariables(String metamodel) throws ErrorUnsupported, ErrorTransform {
 		Map<EVariable,String> res = new HashMap<EVariable,String>();
 		for (Object predicate : exps) {

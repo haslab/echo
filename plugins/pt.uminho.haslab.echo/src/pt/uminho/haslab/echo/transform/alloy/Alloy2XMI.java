@@ -88,7 +88,7 @@ class Alloy2XMI {
 		for(EStructuralFeature sf: ec.getEAllStructuralFeatures())
 		{	
 			field = metamodel.getFieldFromSFeature(sf);
-			EchoReporter.getInstance().debug(ex+", "+field+", "+state);
+			//EchoReporter.getInstance().debug(ex+", "+field+", "+state);
 			if(sf instanceof EAttribute) {
 
 				att = (EAttribute) sf;

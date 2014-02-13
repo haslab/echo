@@ -33,16 +33,14 @@ public class EAlloyRelation extends EEngineRelation {
 	}
 
 	/** maps variable names to the owning model */
-	private Map<String,String> var2model = new LinkedHashMap<String,String>();
+	private Map<String,String> var2model;
 
-
-	
 	/** the model parameters variables of the current transformation */
-	private Map<String,ExprHasName> modelparam2var = new LinkedHashMap<String,ExprHasName>();
-	
+	private Map<String,ExprHasName> modelparam2var;
+
 	/** maps variable names to their Alloy representation 
 	 * contains all variables, including model parameters */
-	private Map<String,ExprHasName> var2var = new LinkedHashMap<String,ExprHasName>();
+	private Map<String,ExprHasName> var2var;
 
 	
 
@@ -56,6 +54,9 @@ public class EAlloyRelation extends EEngineRelation {
 	}
 	
 	protected AlloyDecl createDecl(String metamodelID) throws ErrorAlloy {
+		if (modelparam2var == null) modelparam2var = new LinkedHashMap<String,ExprHasName>();
+		if (var2model == null) var2model = new LinkedHashMap<String,String>();
+		if (var2var == null) var2var = new LinkedHashMap<String,ExprHasName>();
 		Decl d;
 		try {
 			d = AlloyEchoTranslator.getInstance()

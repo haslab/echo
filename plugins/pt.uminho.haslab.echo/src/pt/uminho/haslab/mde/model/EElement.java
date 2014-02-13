@@ -1,12 +1,22 @@
 package pt.uminho.haslab.mde.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import java.util.*;
-
+/**
+ * Echo representation of a model element.
+ * 
+ * @author nmm
+ * @version 0.4 13/02/2014
+ */
 public class EElement extends EValue {
 	private Map<EStructuralFeature,EProperty> properties = new HashMap<EStructuralFeature,EProperty>();
 	private List<EElement> children = new ArrayList<EElement>();
@@ -26,14 +36,14 @@ public class EElement extends EValue {
 			properties.put(reference,prop);
 		}
 		prop.addValue(value);
-		
+
 		if (reference.isContainment()) {
 			children.add(value);
 			value.addParent(this);
 		}
-		
-	}	
-	
+
+	}
+
 	public void addValue(EStructuralFeature feature, Boolean value) {
 		EBoolean bool = new EBoolean(value);
 		EProperty prop = properties.get(feature);
@@ -42,9 +52,9 @@ public class EElement extends EValue {
 			properties.put(feature,prop);
 		}
 		prop.addValue(bool);
-	}	
-	
-	
+	}
+
+
 	public void addValue(EStructuralFeature feature, String value) {
 		EString string = new EString(value);
 		EProperty prop = properties.get(feature);
@@ -53,8 +63,8 @@ public class EElement extends EValue {
 			properties.put(feature,prop);
 		}
 		prop.addValue(string);
-	}	
-	
+	}
+
 	public void addValue(EStructuralFeature feature, Integer value) {
 		EInteger integer = new EInteger(value);
 		EProperty prop = properties.get(feature);
@@ -63,8 +73,8 @@ public class EElement extends EValue {
 			properties.put(feature,prop);
 		}
 		prop.addValue(integer);
-	}	
-	
+	}
+
 	public void addValue(EStructuralFeature feature, org.eclipse.emf.ecore.EEnumLiteral value) {
 		EEnumLiteral literal = new EEnumLiteral(value);
 		EProperty prop = properties.get(feature);
@@ -74,11 +84,12 @@ public class EElement extends EValue {
 		}
 		prop.addValue(literal);
 	}
-	
+
 	private void addParent(EElement ref) {
 		parent = ref;
-	}	
-	
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder(type.getName());
 		s.append("[");
@@ -87,7 +98,7 @@ public class EElement extends EValue {
 			s.append(";");
 		}
 		s.append("] : ");
-		
+
 		for (EElement e : children) {
 			s.append(e.toString());
 			s.append(";");
@@ -108,5 +119,5 @@ public class EElement extends EValue {
 	public EObject getEObject() {
 		return eobject;
 	}
-	
+
 }

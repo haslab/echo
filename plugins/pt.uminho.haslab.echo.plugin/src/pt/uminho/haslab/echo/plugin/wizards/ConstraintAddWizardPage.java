@@ -29,7 +29,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
-import pt.uminho.haslab.mde.transformation.qvt.QVTTransformation;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
 
 public class ConstraintAddWizardPage extends WizardPage {
 
@@ -94,7 +94,7 @@ public class ConstraintAddWizardPage extends WizardPage {
 	
 	private void buildTexts() {
 
-		QVTTransformation qvt = null;
+		EQVTTransformation qvt = null;
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		KeyListener kl = new KeyListenerHelper();
 

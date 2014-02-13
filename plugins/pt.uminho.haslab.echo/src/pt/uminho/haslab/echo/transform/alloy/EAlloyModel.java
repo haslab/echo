@@ -152,6 +152,7 @@ class EAlloyModel {
 		Expr siblings = field2elements.get(statefield).plus(elementsig);
 		field2elements.put(statefield, siblings);
 
+		EchoReporter.getInstance().debug("Translate element: "+classsig+" : "+classsig.parent);
 		PrimSig supersig = classsig.parent;
 		while (supersig != Sig.UNIV && supersig != null) {
 			Field superstatefield = metamodel.getStateFieldFromSig(supersig);
@@ -206,7 +207,7 @@ class EAlloyModel {
 				siblings = field2elements.get(field);
 			}
 			siblings = siblings.plus(elementsig.product(ref));
-			EchoReporter.getInstance().debug(field+" : "+siblings+" : "+value);
+			//EchoReporter.getInstance().debug(field+" : "+siblings+" : "+value);
 		} else if (value instanceof EBoolean) {
 			if (((EBoolean) value).getValue())
 				siblings = siblings.plus(elementsig);
@@ -232,7 +233,7 @@ class EAlloyModel {
 							+ value.getClass().getName(), "",
 					Task.TRANSLATE_MODEL);
 		field2elements.put(field, siblings);
-		EchoReporter.getInstance().debug(field2elements.keySet()+"");
+		//EchoReporter.getInstance().debug(field2elements.keySet()+"");
 	}
 	
 	private void makeFactExpr() {

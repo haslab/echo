@@ -1,71 +1,72 @@
 package pt.uminho.haslab.mde.model;
 
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.*;
-import org.eclipse.emf.ecore.EEnumLiteral;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.mde.MDEManager;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnumLiteral;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.mde.MDEManager;
+
 /**
  * The Echo representation of a model instance (an XMI object).
+ * It is basically a pointer to a root element
  * 
  * @author nmm
+ * @version 0.4 13/02/2014
  */
-public class EModel {
+public class EModel extends EArtifact {
 
 	/** the root element */
 	private EElement root;
-	/** the model URI (may change) */
-	private String modelURI;
-	/** the model unique identifier (may not change) */
-	public final String ID;
+
 	/** the model's meta-model */
 	private EMetamodel metamodel;
 
 	/**
-	 * Creates a model instance from a XMI EObject 
-	 * An EModel is simply a pointer to a root EElement
+	 * Creates a model instance from a XMI EObject
+	 * An EModel is basically a pointer to a root EElement
 	 * 
-	 * @param eobject
-	 *            the XMI input object
+	 * @param name the model name
+	 * @param eobject the XMI input object
+	 * @throws ErrorParser
 	 * @throws EchoError
 	 */
-	public EModel(EObject eobject) throws EchoError {
-		modelURI = EcoreUtil.getURI(eobject).path();
-		root = new XMI2EModel(eobject).eelement;
-		String metamodelURI = eobject.eClass().getEPackage().eResource().getURI()
-				.path();
-		metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
-		ID = root.type.getName() + this.hashCode();
+	public EModel(EObject eobject) throws ErrorUnsupported, ErrorParser {
+		super(eobject.eClass().getName(),eobject);
 	}
 
-	/**
-	 * Updates the content of the model
-	 * 
-	 * @param eobject
-	 *            the new XMI instance
-	 * @throws EchoError
-	 */
-	public void update(EObject eobject) throws EchoError {
+	/** {@inheritDoc} */
+	@Override
+	protected void process(EObject eobject) throws ErrorUnsupported, ErrorParser {
 		root = new XMI2EModel(eobject).eelement;
-		modelURI = EcoreUtil.getURI(eobject).path();
-		String metamodelURI = eobject.eClass().getEPackage().eResource().getURI()
-				.path();
+		String metamodelURI = eobject.eClass().getEPackage().eResource().getURI().path();
 		metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
 	}
-	
+
+	/** {@inheritDoc} */
+	@Override
+	public EObject getEObject() {
+		return root.getEObject();
+	}
+
+
+
 	/**
 	 * Returns the model's metamodel
+	 * 
 	 * @return the metamodel
 	 */
 	public EMetamodel getMetamodel() {
@@ -79,20 +80,6 @@ public class EModel {
 	 */
 	public EElement getRootEElement() {
 		return root;
-	}
-
-	/**
-	 * Returns the model's URI
-	 * 
-	 * @return the model's URI
-	 */
-	public String getURI() {
-		return modelURI;
-	}
-
-	@Override
-	public String toString() {
-		return root.toString();
 	}
 
 	/**
@@ -115,16 +102,16 @@ public class EModel {
 		Map<EObject, EElement> object2element = new HashMap<EObject, EElement>();
 
 		/**
-		 * Creates a new XMI to EModel translator 
-		 * Assumes that <code>obj</code> is the root of the model and recursively 
+		 * Creates a new XMI to EModel translator
+		 * Assumes that <code>obj</code> is the root of the model and recursively
 		 * processes contained objects
 		 * Unconnected objects are ignored
 		 * 
 		 * @param obj
 		 *            the root XMI object
-		 * @throws EchoError
+		 * @throws ErrorUnsupported
 		 */
-		XMI2EModel(EObject obj) throws EchoError {
+		XMI2EModel(EObject obj) throws ErrorUnsupported {
 			EchoReporter.getInstance().start(Task.TRANSLATE_MODEL,
 					obj.toString());
 			eobject = obj;
@@ -171,21 +158,21 @@ public class EModel {
 		}
 
 		/**
-		 * Translates a particular EObject to an EElement 
-		 * Will recursively create objects contained in references if not 
+		 * Translates a particular EObject to an EElement
+		 * Will recursively create objects contained in references if not
 		 * already translated
 		 * 
 		 * @param eobj
 		 *            the object to be translated
 		 * @return the EElement representing the object
-		 * @throws EchoError
+		 * @throws ErrorUnsupported
 		 */
-		private EElement translateEObject(EObject eobj) throws EchoError {
+		private EElement translateEObject(EObject eobj) throws ErrorUnsupported {
 			EElement eelement = new EElement(eobj);
 
 			if (eclass2elements.get(eelement.type.getName()) == null)
 				eclass2elements
-						.put(eelement.type.getName(), new ArrayList<EElement>());
+				.put(eelement.type.getName(), new ArrayList<EElement>());
 			eclass2elements.get(eelement.type.getName()).add(eelement);
 
 			for (EClass superclass : eelement.type.getEAllSuperTypes()) {
@@ -215,7 +202,7 @@ public class EModel {
 						throw new ErrorUnsupported(ErrorUnsupported.ECORE,
 								"EReference type not supported: "
 										+ value.getClass().getName(), "",
-								Task.TRANSLATE_MODEL);
+										Task.TRANSLATE_MODEL);
 				} else if (sf instanceof EAttribute)
 					processAttribute(value, eelement, (EAttribute) sf);
 			}
@@ -233,10 +220,10 @@ public class EModel {
 		 * @param ref
 		 *            the reference
 		 * @return the representing sig
-		 * @throws EchoError
+		 * @throws ErrorUnsupported
 		 */
 		private EElement processReference(EObject obj, EElement eelement,
-				EReference ref) throws EchoError {
+				EReference ref) throws ErrorUnsupported {
 			EElement value = object2element.get(obj);
 
 			if (value == null)
@@ -249,7 +236,7 @@ public class EModel {
 
 		/**
 		 * Calculates the list of EElements representing the value of an n-ary
-		 * reference 
+		 * reference
 		 * Calls <code>processReference(EObject)</code> to process each value
 		 * 
 		 * @param values
@@ -259,10 +246,10 @@ public class EModel {
 		 * @param ref
 		 *            the reference
 		 * @return the EElement values
-		 * @throws EchoError
+		 * @throws ErrorUnsupported
 		 */
 		private List<EElement> processReference(EList<?> values,
-				EElement eelement, EReference ref) throws EchoError {
+				EElement eelement, EReference ref) throws ErrorUnsupported {
 			List<EElement> res = new ArrayList<EElement>();
 			EElement value;
 
@@ -274,7 +261,7 @@ public class EModel {
 					throw new ErrorUnsupported(ErrorUnsupported.ECORE,
 							"EReference type not supported: "
 									+ o.getClass().getName(), "",
-							Task.TRANSLATE_MODEL);
+									Task.TRANSLATE_MODEL);
 
 			return res;
 		}
@@ -288,10 +275,10 @@ public class EModel {
 		 *            the parent EElement
 		 * @param att
 		 *            the reference
-		 * @throws EchoError
+		 * @throws ErrorUnsupported
 		 */
 		private void processAttribute(Object value, EElement eelement,
-				EAttribute att) throws EchoError {
+				EAttribute att) throws ErrorUnsupported {
 			if (value instanceof Boolean)
 				eelement.addValue(att, (Boolean) value);
 			else if (value instanceof EEnumLiteral)
@@ -304,10 +291,14 @@ public class EModel {
 				throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,
 						"Primitive type not supported: "
 								+ value.getClass().getName(), "",
-						Task.TRANSLATE_MODEL);
-
+								Task.TRANSLATE_MODEL);
 		}
 
+	}
+
+	@Override
+	public String toString() {
+		return root.toString();
 	}
 
 }

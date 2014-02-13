@@ -98,7 +98,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 */
 	EClassifier getEClassifierFromSig(PrimSig s) {
 		for (String cla : classifier2sig.keySet())
-			if (classifier2sig.get(cla).isSame(s)) return metamodel.getEPackage().getEClassifier(EchoHelper.getClassifierName(cla));
+			if (classifier2sig.get(cla).isSame(s)) return metamodel.getEObject().getEClassifier(EchoHelper.getClassifierName(cla));
 		return null;
 	}
 
@@ -166,7 +166,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 		
 		String refname = EchoHelper.getFeatureName(f.label);
 		String classname = EchoHelper.getClassifierName(f.sig.label);
-		EClass cla = (EClass) metamodel.getEPackage().getEClassifier(classname);
+		EClass cla = (EClass) metamodel.getEObject().getEClassifier(classname);
 		EStructuralFeature fe = cla.getEStructuralFeature(refname);
 		if (fe == null)
 			EchoReporter.getInstance().warning("Looking for non-existing feature: "+f+".",Task.TRANSLATE_METAMODEL);
@@ -204,7 +204,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	List<PrimSig> getEnumSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>();
 		for (String cname : classifier2sig.keySet())
-			if (metamodel.getEPackage().getEClassifier(EchoHelper.getClassifierName(cname)) instanceof EEnum) 
+			if (metamodel.getEObject().getEClassifier(EchoHelper.getClassifierName(cname)) instanceof EEnum) 
 				aux.add(classifier2sig.get(cname));
 		aux.addAll(literal2sig.values());
 		return aux;
@@ -236,7 +236,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	Func getConforms() throws ErrorAlloy {
 		Func f;
 		try {
-			f = new Func(null, metamodel.getEPackage().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
+			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 					"Failed to create conforming function.", e,
@@ -254,7 +254,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	Func getGenerate() throws ErrorAlloy {
 		Func f;
 		try {
-			f = new Func(null, metamodel.getEPackage().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
+			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 					"Failed to create generation function.", e,
@@ -288,6 +288,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 		if (classifier2sig.get(EchoHelper.classifierKey(metamodel, ec)) != null)
 			return;
 		List<EClass> superTypes = ec.getESuperTypes();
+		EchoReporter.getInstance().debug("Class "+ec+" with "+superTypes);
 		if (superTypes.size() > 1)
 			throw new ErrorUnsupported(ErrorUnsupported.MULTIPLE_INHERITANCE,
 					"Multiple inheritance not allowed: " + ec.getName() + ".",
@@ -297,6 +298,8 @@ class EAlloyMetamodel extends EEngineMetamodel {
 					superTypes.get(0)));
 			if (parent == null)
 				processClass(superTypes.get(0));
+			parent = classifier2sig.get(EchoHelper.classifierKey(metamodel,
+					superTypes.get(0)));
 		}
 		String signame = EchoHelper.classifierKey(metamodel, ec);
 		try {
@@ -578,6 +581,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 								oclalloy = opt.trading(oclalloy);
 								oclalloy = opt.onePoint(oclalloy);
 							}
+							EchoReporter.getInstance().debug("OCL: "+oclalloy);
 							if (annotation
 									.getSource()
 									.equals("http://www.eclipse.org/emf/2002/Ecore/OCL"))

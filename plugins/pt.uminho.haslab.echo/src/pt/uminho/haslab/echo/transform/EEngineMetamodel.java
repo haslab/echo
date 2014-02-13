@@ -40,7 +40,7 @@ public abstract class EEngineMetamodel {
 		List<EClass> classList = new LinkedList<EClass>();
 		List<EEnum> enumList = new ArrayList<EEnum>();
 
-		for (EClassifier e : metamodel.getEPackage().getEClassifiers()) {
+		for (EClassifier e : metamodel.getEObject().getEClassifiers()) {
 			if (e instanceof EClass)
 				classList.add((EClass) e);
 			else if (e instanceof EEnum)
@@ -81,7 +81,7 @@ public abstract class EEngineMetamodel {
 	 */
 	public List<EClass> getRootClass() {
 		Map<Integer, EClass> classes = new HashMap<Integer, EClass>();
-		for (EClassifier obj : metamodel.getEPackage().getEClassifiers())
+		for (EClassifier obj : metamodel.getEObject().getEClassifiers())
 			if (obj instanceof EClass)
 				classes.put(obj.getClassifierID(), (EClass) obj);
 		Map<Integer, EClass> candidates = new HashMap<Integer, EClass>(classes);

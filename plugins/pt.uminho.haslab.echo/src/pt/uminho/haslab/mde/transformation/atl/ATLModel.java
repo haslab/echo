@@ -12,9 +12,9 @@ public class ATLModel extends EModelParameter {
 
 	private static Map<EObject,ATLModel> list = new HashMap<EObject,ATLModel>();
 	private EObject mdl;
-	private ATLTransformation module;
-	
-	public ATLModel(EObject mdl2,ATLTransformation module) {
+	private EATLTransformation module;
+
+	public ATLModel(EObject mdl2,EATLTransformation module) {
 		this.module = module;
 		mdl = mdl2.eCrossReferences().get(0);
 		list.put(mdl,this);
@@ -22,9 +22,10 @@ public class ATLModel extends EModelParameter {
 	}
 
 	public String getMetamodelURI() {
-		return ATLTransformation.metamodeluris.get(getName());
+		return EATLTransformation.metamodeluris.get(getName());
 	}
-	
+
+	@Override
 	public String getName() {
 		return (String) mdl.eGet(mdl.eClass().getEStructuralFeature("name"));
 	}
@@ -38,5 +39,5 @@ public class ATLModel extends EModelParameter {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

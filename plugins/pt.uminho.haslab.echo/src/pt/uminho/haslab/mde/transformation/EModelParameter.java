@@ -8,10 +8,11 @@ import pt.uminho.haslab.mde.model.EMetamodel;
  * @author nmm
  */
 public abstract class EModelParameter {
-	
+
 	/** the parameter name */
 	abstract public String getName();
-	
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof EModelParameter)) return false;
 		EModelParameter in = (EModelParameter) obj;
@@ -19,5 +20,5 @@ public abstract class EModelParameter {
 	}
 
 	abstract public EMetamodel getMetamodel();
-	
+
 }
