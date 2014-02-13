@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.transform.ast;
 
+import pt.uminho.haslab.echo.ErrorInternalEngine;
+
 /**
  * Created with IntelliJ IDEA.
  * User: tmg
@@ -31,7 +33,7 @@ public interface IExpression extends INode{
     IFormula lone();
 
 
-    IDecl oneOf(String name);
+    IDecl oneOf(String name) throws ErrorInternalEngine;
 
     IIntExpression cardinality();
 }

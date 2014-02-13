@@ -1,5 +1,7 @@
 package pt.uminho.haslab.echo.transform.ast;
 
+import pt.uminho.haslab.echo.ErrorInternalEngine;
+
 
 
 /**
@@ -21,12 +23,10 @@ public interface IFormula extends INode{
 
     IExpression thenElse(IExpression thenExpr, IExpression elseExpr);
 
-    IExpression comprehension(IDecl firstDecl, IDecl... extraDecls);
+    IExpression comprehension(IDecl firstDecl, IDecl... extraDecls) throws ErrorInternalEngine;
 
 
-
-    IFormula forAll(IDecl decl);
-    IFormula forSome(IDecl decl);
-
-    IFormula forOne(IDecl d);
+    IFormula forAll(IDecl decl, IDecl... moreDecls) throws ErrorInternalEngine;
+    IFormula forSome(IDecl decl, IDecl... moreDecls) throws ErrorInternalEngine;
+    IFormula forOne(IDecl d) throws ErrorInternalEngine;
 }

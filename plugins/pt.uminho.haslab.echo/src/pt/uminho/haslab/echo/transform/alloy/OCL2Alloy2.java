@@ -26,12 +26,12 @@ public class OCL2Alloy2 implements ConditionTranslator{
 	private Map<String,Entry<ExprHasName,String>> varstates;
 	private Map<String,ExprHasName> posvars;
 	private Map<String,ExprHasName> prevars;
-	private Relation2Alloy parentq;
+	private EAlloyRelation parentq;
 	private boolean isPre = false;
 
 	private Map<String,Integer> news = new HashMap<String,Integer>();
 	
-	public OCL2Alloy2(Relation2Alloy q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+	public OCL2Alloy2(EAlloyRelation q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
 		this (vardecls,argsvars,prevars);
 		this.parentq = q2a;
 	}

@@ -24,7 +24,7 @@ import static com.google.common.primitives.Ints.max;
  * @author nmm
  *
  */
-public class AlloyRunner implements EngineRunner{
+public class AlloyRunner implements EngineRunner {
 	
 /** the Alloy solution */
 	private A4Solution sol;
@@ -281,8 +281,8 @@ public class AlloyRunner implements EngineRunner{
 			finalfact = finalfact.and(metamodel.getConforms().call(
 					model.model_sig));
 		}
-		finalfact = finalfact.and(trans.getTransformationConstraint().call(
-				sigs.toArray(new Expr[sigs.size()])));
+		finalfact = finalfact.and(trans.getTransformationConstraint(modelIDs).formula);
+
 		try {
 			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
@@ -319,9 +319,6 @@ public class AlloyRunner implements EngineRunner{
 				throw new ErrorAlloy(e1.getMessage());
 			}
 			finalfact = Sig.NONE.no();
-			Func func = AlloyEchoTranslator.getInstance()
-					.getQVTTransformation(transformationID)
-					.getTransformationConstraint();
 			PrimSig original;
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
 			for (String modeluri : modelIDs) {
@@ -369,8 +366,10 @@ public class AlloyRunner implements EngineRunner{
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
 						.getModel(modeluri).getModelConstraint());
 			}
-			finalfact = finalfact.and(func.call(sigs.toArray(new Expr[sigs
-					.size()])));
+			AlloyFormula expr = AlloyEchoTranslator.getInstance()
+					.getQVTTransformation(transformationID)
+					.getTransformationConstraint(modelIDs);
+			finalfact = finalfact.and(expr.formula);
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
@@ -436,10 +435,9 @@ public class AlloyRunner implements EngineRunner{
 				}
 			}
 		}
-		Func func = AlloyEchoTranslator.getInstance()
-				.getQVTTransformation(transformationID).getTransformationConstraint();
-		finalfact = finalfact
-				.and(func.call(sigs.toArray(new Expr[sigs.size()])));
+		AlloyFormula expr = AlloyEchoTranslator.getInstance()
+				.getQVTTransformation(transformationID).getTransformationConstraint(modelIDs);
+		finalfact = finalfact.and(expr.formula);
 
 		try {
 			Command cmd = new Command(true, overall, intscope, -1, finalfact);
@@ -557,10 +555,6 @@ public class AlloyRunner implements EngineRunner{
 				@Override
 				public void writeXML(String filename) {
 					try {
-						EchoReporter.getInstance().debug("ASol: "+sol.toString());
-						EchoReporter.getInstance().debug("KSol: "+sol.debugExtractKInstance());
-						EchoReporter.getInstance().debug("KInp: "+sol.debugExtractKInput());
-						EchoReporter.getInstance().debug("ACom: "+sol.getOriginalCommand());
 						sol.writeXML(filename);
 					} catch (Err e) {
 						// TODO Auto-generated catch block

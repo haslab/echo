@@ -4,6 +4,7 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
@@ -13,9 +14,12 @@ import org.eclipse.ocl.examples.pivot.*;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.transform.ConditionTranslator;
+import pt.uminho.haslab.echo.transform.ast.IExpression;
+import pt.uminho.haslab.echo.transform.ast.IFormula;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -30,12 +34,12 @@ public class OCL2Alloy implements ConditionTranslator{
 	private Map<String,Entry<ExprHasName,String>> varstates;
 	private Map<String,ExprHasName> posvars;
 	private Map<String,ExprHasName> prevars;
-	private Relation2Alloy parentq;
+	private EAlloyRelation parentq;
 	private boolean isPre = false;
 
 	private Map<String,Integer> news = new HashMap<String,Integer>();
 	
-	public OCL2Alloy(Relation2Alloy q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+	public OCL2Alloy(EAlloyRelation q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
 		this (vardecls,argsvars,prevars);
 		this.parentq = q2a;
 	}
@@ -119,17 +123,16 @@ public class OCL2Alloy implements ConditionTranslator{
 	
 	Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
 
-		Func func;
-		func = parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.dependency);
-		if (func == null) {
-			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
-			new Relation2Alloy (parentq,rel);
-			func = parentq.transformation_translator.callRelation(rel,parentq.dependency);
-		}
-		List<ExprHasName> aux = new ArrayList<ExprHasName>();
+		List<IExpression> aux = new ArrayList<IExpression>();
 		for (Entry<String, ExprHasName> x : (isPre?prevars:posvars).entrySet())
-			aux.add(x.getValue());
-		Expr res = func.call(aux.toArray(new ExprHasName[aux.size()]));
+			aux.add(new AlloyExpression(x.getValue()));
+
+		AlloyFormula res = (AlloyFormula) parentq.transformation_translator.callRelation(new QVTRelation(expr.getReferredRelation()), parentq.dependency,aux);
+		if (res == null) {
+			QVTRelation rel = new QVTRelation(expr.getReferredRelation());
+			new EAlloyRelation (parentq,rel);
+			res = (AlloyFormula) parentq.transformation_translator.callRelation(rel,parentq.dependency,aux);
+		}
 		
 		List<OCLExpression> vars = expr.getArgument();
 		List<Expr> avars = new ArrayList<Expr>();
@@ -140,11 +143,12 @@ public class OCL2Alloy implements ConditionTranslator{
 		
 		Expr insig = avars.get(avars.size()-1);
 		avars.remove(insig);
+		Expr form = res.formula;
 		for (Expr avar : avars)
-		  res = avar.join(res);
-		res = insig.in(res);
+			form = avar.join(form);
+		form = insig.in(form);
 		
-		return res;
+		return form;
 	}
 
 	Expr oclExprToAlloy (IfExp expr) throws EchoError {

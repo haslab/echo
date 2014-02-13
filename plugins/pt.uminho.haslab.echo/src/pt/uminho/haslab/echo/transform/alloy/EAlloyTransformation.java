@@ -6,9 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.transform.EEngineRelation;
+import pt.uminho.haslab.echo.transform.EEngineTransformation;
 import pt.uminho.haslab.echo.transform.EchoHelper;
+import pt.uminho.haslab.echo.transform.ast.IDecl;
+import pt.uminho.haslab.echo.transform.ast.IExpression;
+import pt.uminho.haslab.echo.transform.ast.IFormula;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
@@ -16,18 +21,15 @@ import pt.uminho.haslab.mde.transformation.ETransformation;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-class EAlloyTransformation {
+class EAlloyTransformation extends EEngineTransformation {
 
 	/** the Alloy expression rising from this QVT Transformation*/
 	private Func func;
-	
-	/** the transformation being translated */
-	public final ETransformation transformation;
 	
 	/** the Alloy functions defining sub-relation consistency */
 	private Map<String,Func> subrelationcall_defs = new HashMap<String,Func>();
@@ -37,22 +39,23 @@ class EAlloyTransformation {
 	
 	/** the Alloy functions defining top-relation calls */
 	private Map<String,Func> toprelationcall_funcs = new HashMap<String,Func>();
-	
-	/** 
-	 * Constructs a new QVT Transformation to Alloy translator.
-	 * A {@code QVTRelation2Alloy} is called for every top QVT Relation and direction.
-	 * @param transformation the QVT Transformation being translated
-	 * @throws EchoError
-	 */
-	EAlloyTransformation (ETransformation transformation, Map<String,List<EDependency>> dependencies) throws EchoError {
-		EchoReporter.getInstance().debug(""+dependencies);
-		
-		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION, transformation.getName());
-		Expr fact = Sig.NONE.no();
-		this.transformation = transformation;
-		List<Decl> model_params_decls = new ArrayList<Decl>();
-		List<ExprHasName> model_params_vars = new ArrayList<ExprHasName>();
 
+	/** {@inheritDoc} */
+	EAlloyTransformation(ETransformation transformation,
+			Map<String, List<EDependency>> dependencies) throws EchoError {
+		super(transformation, dependencies);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected void createRelation(EDependency dep, ERelation rel) throws EchoError {
+		new EAlloyRelation(this,dep,rel);
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	protected void createParams(List<IDecl> model_params_decls,
+			List<IExpression> model_params_vars) throws ErrorAlloy {
 		for (EModelParameter mdl : transformation.getModels()) {
 			Decl d;
 			String metamodelID = mdl.getMetamodel().ID;
@@ -60,85 +63,127 @@ class EAlloyTransformation {
 				d = AlloyEchoTranslator.getInstance().getMetamodel(metamodelID).sig_metamodel.oneOf(mdl.getName());
 			} catch (Err a) { 
 				throw new ErrorAlloy(
-						ErrorAlloy.FAIL_CREATE_VAR,
+						ErrorInternalEngine.FAIL_CREATE_VAR,
 						"Failed to create transformation model variable: "+mdl.getName(),
 						a,Task.TRANSLATE_TRANSFORMATION); 
 			}
-			model_params_decls.add(d);
-			model_params_vars.add(d.get());
-		}
+			model_params_decls.add(new AlloyDecl(d));
+			model_params_vars.add(new AlloyExpression(d.get()));
+		}		
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	protected void generateConstraints(List<IDecl> model_params_decls,
+			List<IExpression> model_params_vars) throws ErrorAlloy {
+		List<Decl> decls = new ArrayList<Decl>();
+		for (IDecl d : model_params_decls)
+			decls.add(((AlloyDecl) d).decl);
 
-		for (ERelation rel : transformation.getRelations())
-			if (rel.isTop()) {
-				for (EDependency dep : dependencies.get(rel.getName()))
-					new Relation2Alloy(this,dep,rel);
-			}
+		Expr[] vars = new Expr[model_params_vars.size()];
+		for (int i = 0; i<model_params_vars.size(); i++)
+			vars[i] = ((AlloyExpression) model_params_vars.get(i)).EXPR;
+
 		
+		Expr fact = Sig.NONE.no();
 		for (Func f : toprelationcall_funcs.values())
-			fact = fact.and(f.call(model_params_vars.toArray(new ExprVar[model_params_vars.size()])));
+			fact = fact.and(f.call(vars));
 
 		for (Func f : subrelationcall_defs.values())
-			fact = fact.and(f.call(model_params_vars.toArray(new ExprVar[model_params_vars.size()])));
+			fact = fact.and(f.call(vars));
 
 		try {
-			func = new Func(null, transformation.getName(), model_params_decls, null, fact);		
-		} catch (Err a) { 
-			throw new ErrorAlloy(
-					ErrorAlloy.FAIL_CREATE_FUNC,
-					"Failed to create transformation function: "+transformation.getName(),
-					a,Task.TRANSLATE_TRANSFORMATION); 
+			func = new Func(null, transformation.getName(), decls,
+					null, fact);
+		} catch (Err a) {
+			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
+					"Failed to create transformation function: "
+							+ transformation.getName(), a,
+					Task.TRANSLATE_TRANSFORMATION);
 		}
-		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, "", true);
-
 	}
 	
-	/**
-	 * Returns the Alloy function corresponding to this QVT Transformation
-	 * Function parameters are the model variables
-	 * @return this.fact
-	 */	
-	Func getTransformationConstraint() {
-		return func;
+	/** {@inheritDoc} */
+	@Override
+	protected AlloyFormula getTransformationConstraint(List<String> modelIDs) {
+		List<PrimSig> sigs = new ArrayList<PrimSig>();
+		for (String modelID : modelIDs)
+			sigs.add(AlloyEchoTranslator.getInstance().getModel(modelID).model_sig);
+		return new AlloyFormula(func.call(sigs.toArray(new Expr[sigs.size()])));
 	}
 
-	/** 
-	 * Adds a new sub-relation definition
-	 * Function parameters are the model variables
-	 * called by containing relations
-	 * @param f the function definition
-	 */
-	void addSubRelationDef(Func f) {
-		subrelationcall_defs.put(f.label, f);
+	/** {@inheritDoc} */
+	@Override
+	protected void addSubRelationDef(EEngineRelation eAlloyRelation,
+			List<IDecl> model_params_decls, IFormula e) throws ErrorAlloy {
+		Func f;
+		List<Decl> decls = new ArrayList<Decl>();
+		for (IDecl d : model_params_decls)
+			decls.add(((AlloyDecl) d).decl);
+		try {
+			f = new Func(null, EchoHelper.relationFieldName(
+					eAlloyRelation.relation, eAlloyRelation.dependency.target)
+					+ "def", decls, null, ((AlloyFormula) e).formula);
+			subrelationcall_defs.put(f.label, f);
+		} catch (Err a) {
+			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
+					"Failed to create sub relation field constraint: "
+							+ eAlloyRelation.relation.getName(), a,
+					Task.TRANSLATE_TRANSFORMATION);
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void addSubRelationCall(EEngineRelation eAlloyRelation,
+			List<IDecl> model_params_decls, IExpression exp) throws ErrorAlloy {
+		List<Decl> decls = new ArrayList<Decl>();
+		Field field = (Field) ((AlloyExpression) exp).EXPR;
+		for (IDecl d : model_params_decls)
+			decls.add(((AlloyDecl) d).decl);
+		try {
+			Func x = new Func(null, EchoHelper.relationFieldName(
+					eAlloyRelation.relation, eAlloyRelation.dependency.target),
+					decls, field.type().toExpr(), field);
+			subrelationcall_funcs.put(x.label, x);
+		} catch (Err a) {
+			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
+					"Failed to create sub relation constraint function: "
+							+ eAlloyRelation.relation.getName(), a,
+					Task.TRANSLATE_TRANSFORMATION);
+		}
 	}
 	
-	/** 
-	 * Adds a new sub-relation call function
-	 * Function parameters are the model variables and the domain variables
-	 * called by containing relations
-	 * @param x the function definition
-	 */
-	void addSubRelationCall(Func x) {
-		subrelationcall_funcs.put(x.label, x);
+	/** {@inheritDoc} */
+	@Override
+	protected void addTopRelationCall(EEngineRelation arelation,
+			List<IDecl> model_params_decls, IFormula fact) throws ErrorAlloy {
+		List<Decl> decls = new ArrayList<Decl>();
+		for (IDecl d : model_params_decls)
+			decls.add(((AlloyDecl) d).decl);
+		try {
+			Func x = new Func(null, EchoHelper.relationPredName(
+					arelation.relation, arelation.dependency.target),
+					decls, null, ((AlloyFormula) fact).formula);
+			toprelationcall_funcs.put(x.label, x);
+		} catch (Err a) {
+			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
+					"Failed to create top relation constraint function: "
+							+ arelation.relation.getName(), a,
+					Task.TRANSLATE_TRANSFORMATION);
+		}
 	}
-	
-	/** 
-	 * Adds a new top-relation call function
-	 * Function parameters are the model variables
-	 * called by containing relations
-	 * @param x the function definition
-	 */
-	void addTopRelationCall(Func x) {
-		toprelationcall_funcs.put(x.label, x);
-	}
-	
-	/** 
-	 * Returns the function call of a sub-relation
-	 * @param n the relation being called
-	 * @param dep
-	 * @return the respective Alloy function
-	 */
-	Func callRelation(ERelation n, EDependency dep) {
-		return subrelationcall_funcs.get(EchoHelper.relationFieldName(n,dep.target));
+
+	/** {@inheritDoc} */
+	@Override
+	public AlloyFormula callRelation(ERelation n, EDependency dep, List<IExpression> aux) {
+		Func f = subrelationcall_funcs.get(EchoHelper.relationFieldName(n,dep.target));
+		if (func == null) return null;
+		Expr[] vars = new Expr[aux.size()];
+		for (int i = 0; i<aux.size(); i++)
+			vars[i] = ((AlloyExpression) aux.get(i)).EXPR;
+		Expr exp = f.call(vars);
+		return new AlloyFormula(exp);
 	}
 
 }

@@ -5,7 +5,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy;
-import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
+import pt.uminho.haslab.echo.transform.alloy.EAlloyRelation;
 import pt.uminho.haslab.mde.emf.OCLUtil;
 import pt.uminho.haslab.mde.model.ECondition;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -31,7 +31,7 @@ public class QVTCondition implements ECondition {
 		return null;
 	}
 
-    public void initTranslation(Relation2Alloy q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+    public void initTranslation(EAlloyRelation q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
         trad = new OCL2Alloy(q2a,vardecls,argsvars,prevars);
     }
     

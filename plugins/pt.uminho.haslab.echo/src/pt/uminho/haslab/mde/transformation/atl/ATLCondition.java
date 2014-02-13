@@ -7,7 +7,7 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.transform.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.transform.alloy.OCL2Alloy2;
-import pt.uminho.haslab.echo.transform.alloy.Relation2Alloy;
+import pt.uminho.haslab.echo.transform.alloy.EAlloyRelation;
 import pt.uminho.haslab.mde.emf.OCLUtil;
 import pt.uminho.haslab.mde.model.ECondition;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -33,7 +33,7 @@ public class ATLCondition implements ECondition {
 		return null;
 	}
 
-	public void initTranslation(Relation2Alloy q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
+	public void initTranslation(EAlloyRelation q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
 		trad = new OCL2Alloy2(q2a,vardecls,argsvars,prevars);
 
 	}

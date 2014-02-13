@@ -352,8 +352,6 @@ public class AlloyUtil {
 				else {
 					String metamodeluri = null;
 					if (t instanceof Type) {
-						EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path());
-						EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path().replace("resource/", ""));
 						metamodeluri = EcoreUtil.getURI(((Type) t).getPackage()).path().replace(".oclas", "").replace("resource/", "");
 					} else {
 						EObject aux = (EObject) t.eGet(t.eClass()
