@@ -15,48 +15,60 @@ import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
 
 /**
- * An implementation of a transformation relation in QVT-R 
+ * An embedding of an EMF QVT-R relation in Echo.
  *
  * @author nmm
- * @version 0.4 13/02/2014
+ * @version 0.4 14/02/2014
  */
 public class EQVTRelation implements ERelation {
+	
+	/** the processed EMF relation */
 	private org.eclipse.qvtd.pivot.qvtrelation.Relation relation;
+	/** the model domains of the relation */
 	private List<EModelDomain> domains = new ArrayList<EModelDomain>();
 
-
+	/**
+	 * Processes an EMF QVT-R relation.
+	 * @param rule the original EMF relation
+	 * @throws ErrorUnsupported
+	 */
 	public EQVTRelation(Rule rule) throws ErrorUnsupported {
 		if (rule instanceof org.eclipse.qvtd.pivot.qvtrelation.Relation)
 			this.relation = (org.eclipse.qvtd.pivot.qvtrelation.Relation) rule;
 		else throw new ErrorUnsupported("Rule not a relation");
 		for (org.eclipse.qvtd.pivot.qvtbase.Domain dom : relation.getDomain())
-			domains.add(new EQVTDomain(this,dom));
+			domains.add(new EQVTModelDomain(this,dom));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isTop(){
 		return relation.isIsTopLevel();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public EQVTTransformation getTransformation() throws ErrorUnsupported, ErrorParser {
 		String URI = EcoreUtil.getURI(relation.getTransformation()).path();
 		return MDEManager.getInstance().getQVTTransformation(URI, false);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return relation.getName();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<EModelDomain> getDomains() {
 		return domains;
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public EQVTCondition getPost() {
-		EQVTCondition oclwhere = new EQVTCondition();
+	public EQVTPredicate getPost() {
+		EQVTPredicate oclwhere = new EQVTPredicate();
 		Pattern pattern = relation.getWhere();
 		if(pattern == null) return null;
 		for (Predicate predicate : pattern.getPredicate())
@@ -64,9 +76,10 @@ public class EQVTRelation implements ERelation {
 		return oclwhere;
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public EQVTCondition getPre() {
-		EQVTCondition oclWhen = new EQVTCondition();
+	public EQVTPredicate getPre() {
+		EQVTPredicate oclWhen = new EQVTPredicate();
 		Pattern pattern = relation.getWhen();
 		if(pattern == null) return null;
 		for (Predicate predicate : pattern.getPredicate())
@@ -74,6 +87,7 @@ public class EQVTRelation implements ERelation {
 		return oclWhen;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return getName();

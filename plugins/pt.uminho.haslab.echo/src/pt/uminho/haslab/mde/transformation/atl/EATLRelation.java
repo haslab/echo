@@ -12,7 +12,7 @@ import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
- * An implementation of a transformation relation in ATL
+ * An embedding of an EMF ATL relation in Echo.
  * 
  * TODO: Very incomplete
  * 
@@ -31,9 +31,9 @@ public class EATLRelation implements ERelation {
 		EStructuralFeature inmdls = relation.eClass().getEStructuralFeature("inPattern");
 		EStructuralFeature outmdls = relation.eClass().getESuperTypes().get(0).getEStructuralFeature("outPattern");
 		EObject obj = (EObject) relation.eGet(inmdls);
-		domains.add(new EATLDomain(obj));
+		domains.add(new EATLModelDomain(obj));
 		obj = (EObject) relation.eGet(outmdls);
-		domains.add(new EATLDomain(obj));
+		domains.add(new EATLModelDomain(obj));
 	}
 
 	@Override
@@ -61,12 +61,12 @@ public class EATLRelation implements ERelation {
 	}
 
 	@Override
-	public EATLCondition getPost() {
+	public EATLPredicate getPost() {
 		return null;
 	}
 
 	@Override
-	public EATLCondition getPre() {
+	public EATLPredicate getPre() {
 		return null;
 	}
 

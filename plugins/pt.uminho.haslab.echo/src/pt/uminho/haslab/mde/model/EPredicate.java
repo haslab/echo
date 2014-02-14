@@ -15,7 +15,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
  * @author nmm
  * @version 0.4 13/02/2014
  */
-public interface ECondition {
+public interface EPredicate {
 
 	public void addCondition(Object expr);
 	public List<Object> getConditions();

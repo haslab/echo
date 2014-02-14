@@ -49,7 +49,7 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void createRelation(EDependency dep, ERelation rel) throws EchoError {
+	protected void createRelation(ERelation rel, EDependency dep) throws EchoError {
 		new EAlloyRelation(this,dep,rel);
 	}
 	
@@ -57,7 +57,7 @@ class EAlloyTransformation extends EEngineTransformation {
 	@Override
 	protected void createParams(List<IDecl> model_params_decls,
 			List<IExpression> model_params_vars) throws ErrorAlloy {
-		for (EModelParameter mdl : transformation.getModels()) {
+		for (EModelParameter mdl : transformation.getModelParams()) {
 			Decl d;
 			String metamodelID = mdl.getMetamodel().ID;
 			try {

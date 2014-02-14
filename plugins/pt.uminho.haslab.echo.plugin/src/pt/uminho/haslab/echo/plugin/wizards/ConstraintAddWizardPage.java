@@ -109,7 +109,7 @@ public class ConstraintAddWizardPage extends WizardPage {
 			e.printStackTrace();
 		}
 		params = new ArrayList<String>();
-		for (EModelParameter mdl : qvt.getModels()) {
+		for (EModelParameter mdl : qvt.getModelParams()) {
 			params.add(mdl.getName());
 			Label label = new Label(container, SWT.NULL);
 			label.setText(mdl.getName() + " model:");

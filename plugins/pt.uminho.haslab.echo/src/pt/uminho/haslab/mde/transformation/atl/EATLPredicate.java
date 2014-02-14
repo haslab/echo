@@ -13,21 +13,21 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.alloy.EAlloyRelation;
 import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.alloy.OCL2Alloy2;
-import pt.uminho.haslab.mde.emf.OCLUtil;
-import pt.uminho.haslab.mde.model.ECondition;
+import pt.uminho.haslab.mde.OCLUtil;
+import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 
 /**
- * An implementation of a condition in ATL
+ * An embedding of a predicate of an EMF ATL transformations in Echo.
  * 
  * TODO: Very incomplete
  * 
  * @author nmm
  * @version 0.4 13/02/2014
  */
-public class EATLCondition implements ECondition {
+public class EATLPredicate implements EPredicate {
 	private List<Object> exps = new ArrayList<Object>();
 	private OCL2Alloy2 trad;
 

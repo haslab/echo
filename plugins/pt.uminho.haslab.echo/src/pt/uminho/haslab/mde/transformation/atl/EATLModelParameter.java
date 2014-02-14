@@ -9,20 +9,20 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 
 /**
- * An implementation of a model pattern in ATL
+ * An embedding of an EMF ATL model parameter in Echo.
  * 
  * TODO: Very incomplete
  * 
  * @author nmm
  * @version 0.4 13/02/2014
  */
-public class EATLModel extends EModelParameter {
+public class EATLModelParameter extends EModelParameter {
 
-	private static Map<EObject,EATLModel> list = new HashMap<EObject,EATLModel>();
+	private static Map<EObject,EATLModelParameter> list = new HashMap<EObject,EATLModelParameter>();
 	private EObject mdl;
 	private EATLTransformation module;
 
-	public EATLModel(EObject mdl2,EATLTransformation module) {
+	public EATLModelParameter(EObject mdl2,EATLTransformation module) {
 		this.module = module;
 		mdl = mdl2.eCrossReferences().get(0);
 		list.put(mdl,this);
@@ -38,7 +38,7 @@ public class EATLModel extends EModelParameter {
 		return (String) mdl.eGet(mdl.eClass().getEStructuralFeature("name"));
 	}
 
-	public static EATLModel get(EObject typedModel) {
+	public static EATLModelParameter get(EObject typedModel) {
 		return list.get(typedModel);
 	}
 

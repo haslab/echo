@@ -5,8 +5,10 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
+import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 
 public class EchoHelper {
@@ -16,7 +18,12 @@ public class EchoHelper {
 
 
 	public static String relationFieldName (ERelation rel, EModelDomain dir) {
-		return rel.getName() +"@"+dir.getModel().getName()+"@";
+		try {
+			EModelParameter model = dir.getModel();
+			return rel.getName() +"@"+model.getName()+"@";
+		} catch (EchoError e) {
+			return "Err";
+		}
 	}
 
 
@@ -97,7 +104,12 @@ public class EchoHelper {
 	}
 
 	public static String relationPredName (ERelation rel, EModelDomain dir) {
-		return rel.getName() +"_"+dir.getModel().getName();
+		try {
+			EModelParameter model = dir.getModel();
+			return rel.getName() +"_"+model.getName();
+		} catch (EchoError e) {
+			return "Err";
+		}		
 	}
 
 }

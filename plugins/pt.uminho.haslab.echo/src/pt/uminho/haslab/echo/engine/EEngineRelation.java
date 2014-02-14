@@ -14,7 +14,7 @@ import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.mde.model.ECondition;
+import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
@@ -140,8 +140,8 @@ public abstract class EEngineRelation {
 
 		IDecl[] arraydecl;
 
-		ECondition postCondition = relation.getPost();
-		ECondition targetCondition = targetdomain.getCondition();
+		EPredicate postCondition = relation.getPost();
+		EPredicate targetCondition = targetdomain.getCondition();
 
 		if (postCondition != null)
 			postexpr = translateCondition(postCondition);
@@ -160,7 +160,7 @@ public abstract class EEngineRelation {
 		}
 
 		for (EModelDomain dom : sourcedomains) {
-			ECondition sourceCondition = dom.getCondition();
+			EPredicate sourceCondition = dom.getCondition();
 			IFormula temp = translateCondition(sourceCondition);
 			sourceexpr = sourceexpr.and(temp);
 		}	
@@ -176,7 +176,7 @@ public abstract class EEngineRelation {
 					Arrays.copyOfRange(arraydecl, 1, arraydecl.length));
 		}
 
-		ECondition preCondition = relation.getPre();
+		EPredicate preCondition = relation.getPre();
 		if (preCondition != null) {
 			whenexpr = translateCondition(preCondition);
 
@@ -188,7 +188,7 @@ public abstract class EEngineRelation {
 		return fact;
 	}	
 	
-	protected abstract IFormula translateCondition(ECondition targetCondition) throws EchoError;
+	protected abstract IFormula translateCondition(EPredicate targetCondition) throws EchoError;
 
 	/** 
 	 * Initializes the variable lists and generates the respective Alloy declarations.
@@ -196,7 +196,7 @@ public abstract class EEngineRelation {
 	 * @todo Support fom <code>CollectionTemplateExp</code>
 	 */
 	private void initVariableLists() throws EchoError {
-		for (EModelParameter mdl : relation.getTransformation().getModels()) {
+		for (EModelParameter mdl : relation.getTransformation().getModelParams()) {
 			String metamodelID = mdl.getMetamodel().ID;
 			IDecl d = createDecl(metamodelID);
 			model_params_decls.add(d);
@@ -212,12 +212,12 @@ public abstract class EEngineRelation {
 			else sourcedomains.add(dom);
 		}
 		
-		ECondition preCondition = relation.getPre();
+		EPredicate preCondition = relation.getPre();
 		if (preCondition != null)
 			whenvar2model = preCondition.getVariables(null);
 
 		for (EModelDomain dom : sourcedomains) {
-			ECondition cond = dom.getCondition();
+			EPredicate cond = dom.getCondition();
 			sourcevar2model.putAll(cond.getVariables(dom.getModel().getName()));
 		}
 
@@ -226,10 +226,10 @@ public abstract class EEngineRelation {
 			sourcevar2model.remove(x);
 		}
 		
-		ECondition temp = targetdomain.getCondition();
+		EPredicate temp = targetdomain.getCondition();
 		targetvar2model = temp.getVariables(targetdomain.getModel().getName());
 		
-		ECondition postCondition = relation.getPost();
+		EPredicate postCondition = relation.getPost();
 		if (postCondition != null)
 			for (EVariable x : postCondition.getVariables(null).keySet())
 				if (targetvar2model.get(x) == null) targetvar2model.put(x,null);

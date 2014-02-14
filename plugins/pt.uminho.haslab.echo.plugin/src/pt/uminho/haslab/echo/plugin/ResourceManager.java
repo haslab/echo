@@ -299,8 +299,8 @@ public class ResourceManager {
 		
 		EQVTTransformation qvt = parser.getQVTTransformation(qvtURI, false);
 		
-		for (int i=0;i<qvt.getModels().size();i++) {
-			if (!qvt.getModels().get(i).getMetamodel().equals(models.get(i).getMetamodel()))
+		for (int i=0;i<qvt.getModelParams().size();i++) {
+			if (!qvt.getModelParams().get(i).getMetamodel().equals(models.get(i).getMetamodel()))
 				throw new ErrorAPI("Model does not type-check.");
 		}
 		
@@ -480,7 +480,7 @@ public class ResourceManager {
 		
 		EQVTTransformation trans = parser.getQVTTransformation(resqvt.getFullPath().toString(), false);
 
-		String metamodelURI = trans.getModels().get(newp).getMetamodel().getURI();
+		String metamodelURI = trans.getModelParams().get(newp).getMetamodel().getURI();
 		EMetamodel metamodel = parser.getMetamodel(metamodelURI, false);
 		if (!runner.hasMetaModel(metamodel.ID))
 			runner.addMetaModel(metamodel);

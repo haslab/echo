@@ -11,7 +11,7 @@ import pt.uminho.haslab.echo.engine.EEngineRelation;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.mde.model.ECondition;
+import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
@@ -128,7 +128,7 @@ public class EAlloyRelation extends EEngineRelation {
 	  	return ivars;
 	}
 	
-	protected AlloyFormula translateCondition(ECondition targetCondition) throws EchoError {
+	protected AlloyFormula translateCondition(EPredicate targetCondition) throws EchoError {
 		targetCondition.initTranslation((EAlloyRelation) parent_translator,var2varmodel(),modelparam2var,null);
 		return new AlloyFormula(targetCondition.translate());
 	}

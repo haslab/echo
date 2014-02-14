@@ -1,7 +1,9 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
@@ -10,25 +12,26 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.mde.transformation.EModelParameter;
-import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
- * An implementation of a model transformation in QVT-R
+ * An embedding of an EMF QVT-R model transformation in Echo.
  *
  * @author nmm
- * @version 0.4 13/02/2014
+ * @version 0.4 14/02/2014
  */
 public class EQVTTransformation extends ETransformation {
 
-	private List<EModelParameter> models;
-	private List<ERelation> relations;
+	/** the processed EMF transformation */
 	private RelationalTransformation transformation;
+	/** the model parameters of this transformation */
+	private Map<String,EQVTModelParameter> modelParams;
+	/** the containing relations of this transformation */
+	private List<EQVTRelation> relations;
 
 	/**
-	 * processes a QVT-R transformation
-	 * @param transformation the original transformation
+	 * Processes an EMF QVT-R transformation.
+	 * @param transformation the original EMF transformation
 	 * @throws ErrorParser
 	 * @throws ErrorUnsupported
 	 */
@@ -36,39 +39,50 @@ public class EQVTTransformation extends ETransformation {
 		super(transformation.getName(),transformation);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public RelationalTransformation getEObject() {
 		return transformation;
 	}
-
+	
+	/** {@inheritDoc} */
 	@Override
 	protected void process(EObject artifact) throws ErrorUnsupported {
 		this.transformation = (RelationalTransformation) artifact;
 
-		if (models == null) models = new ArrayList<EModelParameter>();
+		// required because it may be called from the parent constructor
+		if (modelParams == null) modelParams = new HashMap<String,EQVTModelParameter>();
+		if (relations == null) relations = new ArrayList<EQVTRelation>();
 		
 		for (TypedModel mdl : transformation.getModelParameter())
-			models.add(new EQVTModel(mdl));
+			modelParams.put(mdl.getName(),new EQVTModelParameter(mdl));
 		
-		if (relations == null) relations = new ArrayList<ERelation>();
-
 		for (Rule rule : transformation.getRule())
 			relations.add(new EQVTRelation(rule));
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public List<EModelParameter> getModels() {
-		return models;
+	public List<EQVTModelParameter> getModelParams() {
+		return new ArrayList<EQVTModelParameter>(modelParams.values());
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public List<ERelation> getRelations() {
+	public List<EQVTRelation> getRelations() {
 		return relations;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return transformation.getName();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public EQVTModelParameter getModelParameter(String paramName) {
+		return modelParams.get(paramName);
 	}
 
 }

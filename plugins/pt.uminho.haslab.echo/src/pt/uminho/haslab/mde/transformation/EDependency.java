@@ -6,10 +6,11 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 /**
- * Denotes the dependencies between the domain models of a relation is a particular constraint instantiation
- * Consists of a target model domain depending on a set of target model domains ([sources] -> target)
- * @author nmm
+ * Denotes a dependency between the domain models of a relation is a particular constraint instantiation.
+ * Consists of a target model domain depending on a set of target model domains ([sources] -> target).
  *
+ * @author nmm
+ * @version 0.4 14/02/2014
  */
 public class EDependency {
 
@@ -21,8 +22,8 @@ public class EDependency {
 	public final EModelDomain target;
 
 	/**
-	 * Creates a new dependency between source and target models
-	 * Owning relation should be the same for all
+	 * Creates a new dependency between source and target models.
+	 * Owning relation should be the same for all.
 	 * @param target
 	 * @param sources
 	 * @throws ErrorParser
@@ -35,6 +36,10 @@ public class EDependency {
 		this.sources = sources;
 	}
 
+	/** 
+	 * Returns the source domains of the dependency.
+	 * @return the source domains
+	 */
 	public List<EModelDomain> getSources() {
 		return sources;
 	}

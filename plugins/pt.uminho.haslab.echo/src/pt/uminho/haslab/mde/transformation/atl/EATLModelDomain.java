@@ -11,17 +11,17 @@ import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 
 /**
- * An implementation of a model domain in ATL
+ * An embedding of an EMF ATL model domain in Echo.
  * 
  * TODO: Very incomplete
  * 
  * @author nmm
  * @version 0.4 13/02/2014
  */
-public class EATLDomain extends EModelDomain {
+public class EATLModelDomain extends EModelDomain {
 	private EObject domain;
 
-	public EATLDomain(EObject dom) throws ErrorParser {
+	public EATLModelDomain(EObject dom) throws ErrorParser {
 		if (dom.eClass().getName().equals("InPattern") || dom.eClass().getName().equals("OutPattern") )
 			this.domain = dom;
 		else throw new ErrorParser("Bad atl");
@@ -35,7 +35,7 @@ public class EATLDomain extends EModelDomain {
 		EObject var = objs.get(0);
 		for (EObject x : var.eContents())
 			if (x.eClass().getName().equals("OclModelElement")) {
-				return EATLModel.get(x.eCrossReferences().get(0));
+				return EATLModelParameter.get(x.eCrossReferences().get(0));
 			}
 		return null;
 	}
@@ -49,8 +49,8 @@ public class EATLDomain extends EModelDomain {
 	}
 
 	@Override
-	public EATLCondition getCondition() {
-		EATLCondition x = new EATLCondition();
+	public EATLPredicate getCondition() {
+		EATLPredicate x = new EATLPredicate();
 		if (domain.eClass().getName().equals("InPattern")) {
 			EObject filter = (EObject) domain.eGet(domain.eClass().getEStructuralFeature("filter"));
 			x.addCondition(filter);

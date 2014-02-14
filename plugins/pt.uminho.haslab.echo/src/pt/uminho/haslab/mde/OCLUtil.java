@@ -1,4 +1,4 @@
-package pt.uminho.haslab.mde.emf;
+package pt.uminho.haslab.mde;
 
 import java.util.ArrayList;
 import java.util.HashMap;

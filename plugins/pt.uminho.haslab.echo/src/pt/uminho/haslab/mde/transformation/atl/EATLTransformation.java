@@ -17,7 +17,7 @@ import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
- * An implementation of a model transformation in ATL
+ * An embedding of an EMF ATL model transformation in Echo.
  * 
  * TODO: Very incomplete
  * 
@@ -55,10 +55,10 @@ public class EATLTransformation extends ETransformation {
 			relations.add(new EATLRelation(x));
 		objs = (EList<EObject>) module.eGet(inmdls);
 		for (EObject x : objs)
-			models.add(new EATLModel(x,this));
+			models.add(new EATLModelParameter(x,this));
 		objs = (EList<EObject>) module.eGet(outmdls);
 		for (EObject x : objs)
-			models.add(new EATLModel(x,this));
+			models.add(new EATLModelParameter(x,this));
 	}
 
 	public EATLTransformation(EObject loadATL) throws ErrorUnsupported, ErrorParser {
@@ -80,7 +80,7 @@ public class EATLTransformation extends ETransformation {
 
 
 	@Override
-	public List<EModelParameter> getModels() {
+	public List<EModelParameter> getModelParams() {
 		return models;
 	}
 
@@ -93,6 +93,12 @@ public class EATLTransformation extends ETransformation {
 	public String getName() {
 		EStructuralFeature name = transformation.eClass().getEStructuralFeature("name");
 		return (String) transformation.eGet(name);
+	}
+
+	@Override
+	public EModelParameter getModelParameter(String paramName) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

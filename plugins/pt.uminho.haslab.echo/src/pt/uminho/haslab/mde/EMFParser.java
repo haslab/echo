@@ -1,4 +1,4 @@
-package pt.uminho.haslab.mde.emf;
+package pt.uminho.haslab.mde;
 
 import java.io.IOException;
 import java.util.HashMap;

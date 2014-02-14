@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.mde.model.EModel;
 
 /**
- * Manages the current set of inter-model constraints
- * A constraint consists of a set of models related by a transformation
+ * Manages the current set of inter-model constraints.
+ * A constraint consists of a set of models related by a transformation.
+ * 
  * @author nmm
+ * @version 0.4 14/02/2014
  */
 public class EConstraintManager {
 
@@ -20,7 +21,6 @@ public class EConstraintManager {
 	public static EConstraintManager getInstance() {
 		return instance;
 	}
-
 
 	/** maps transformations to related existing inter-model constraints */
 	private Map<String,List<EConstraint>> trans2constraints = new HashMap<String, List<EConstraint>>();

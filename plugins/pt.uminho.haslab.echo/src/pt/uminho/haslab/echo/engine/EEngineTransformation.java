@@ -16,39 +16,56 @@ import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
-
+/**
+ * An embedding of a model transformation in an abstract Echo engine.
+ *
+ * @author nmm
+ * @version 0.4 14/02/2014
+ */
 public abstract class EEngineTransformation {
 
 	/** the transformation being translated */
 	public final ETransformation transformation;
+	
 	/** 
-	 * Constructs a new QVT Transformation to Alloy translator.
-	 * A {@code QVTRelation2Alloy} is called for every top QVT Relation and direction.
-	 * @param transformation the QVT Transformation being translated
+	 * Embeds a model Transformation in an Echo engine.
+	 * A {@code EEngineRelation} is created for every top relation and dependency.
+	 * @param transformation the model transformation being translated
+	 * @param dependencies the dependencies set for each relation
 	 * @throws EchoError
 	 */
 	protected EEngineTransformation (ETransformation transformation, Map<String,List<EDependency>> dependencies) throws EchoError {
 		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION, transformation.getName());
 		this.transformation = transformation;
-		List<IDecl> model_params_decls = new ArrayList<IDecl>();
-		List<IExpression> model_params_vars = new ArrayList<IExpression>();
+		List<IDecl> modelParamDecls = new ArrayList<IDecl>();
+		List<IExpression> modelParamVars = new ArrayList<IExpression>();
 
-		createParams(model_params_decls,model_params_vars);
-		
+		createParams(modelParamDecls,modelParamVars);	
 
 		for (ERelation rel : transformation.getRelations())
 			if (rel.isTop()) {
 				for (EDependency dep : dependencies.get(rel.getName()))
-					createRelation(dep,rel);
+					createRelation(rel,dep);
 			}
 		
-		generateConstraints(model_params_decls,model_params_vars);
-		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, "", true);
-
+		generateConstraints(modelParamDecls,modelParamVars);
+		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, transformation.getName(), true);
 	}
 	
-	protected abstract void createRelation(EDependency dep, ERelation rel) throws EchoError;
+	/**
+	 * Embeds a transformation relation in an Echo engine.
+	 * @param rel the relation to translate
+	 * @param dep the dependency (direction) being translated
+	 * @throws EchoError
+	 */
+	protected abstract void createRelation(ERelation rel, EDependency dep) throws EchoError;
 
+	/**
+	 * Creates the transoformation model parameters.
+	 * @param model_params_decls
+	 * @param model_params_vars
+	 * @throws ErrorInternalEngine
+	 */
 	protected abstract void createParams(List<IDecl> model_params_decls,
 			List<IExpression> model_params_vars) throws ErrorInternalEngine;
 

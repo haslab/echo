@@ -9,24 +9,38 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.model.EArtifact;
 
 /**
- * A transformation between model parameters.
+ * An embedding of an EMF transformation between model parameters in Echo.
  * Consists of a set of ERelations.
- * Should be extended by concrete transformations (QVT-R, ATL)
+ * Should be extended by concrete EMF transformations (QVT-R, ATL)
  *
  * @author nmm
- * @version 0.4 13/02/2014
+ * @version 0.4 14/02/2014
  */
 public abstract class ETransformation extends EArtifact {
 
-	/** the model parameters (the transformation arguments) */
-	public abstract List<EModelParameter> getModels();
+	/** returns the transformation model parameters (the transformation arguments) */
+	public abstract List<? extends EModelParameter> getModelParams();
 
-	/** the comprising relations */
-	public abstract List<ERelation> getRelations();
+	/** returns comprising relations */
+	public abstract List<? extends ERelation> getRelations();
 
-	/** the transformation name */
+	/** returns transformation name */
 	public abstract String getName();
-
+	
+	/** 
+	 * Returns a concrete model parameter.
+	 * @param paramName the naming of the model parameter to return
+	 * @return the matching model parameter
+	 */
+	public abstract EModelParameter getModelParameter(String paramName);
+  
+	/**
+	 * Processes an EMF transformation itno Echo.
+	 * @param ID the ID of the new transformation
+	 * @param artifact the EMF artifact containing the transformation
+	 * @throws ErrorUnsupported
+	 * @throws ErrorParser
+	 */
 	protected ETransformation(String ID, EObject artifact) throws ErrorUnsupported, ErrorParser {
 		super(ID, artifact);
 	}

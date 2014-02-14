@@ -11,20 +11,25 @@ import org.eclipse.ocl.examples.pivot.OCLExpression;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.engine.alloy.EAlloyRelation;
 import pt.uminho.haslab.echo.engine.alloy.OCL2Alloy;
-import pt.uminho.haslab.mde.emf.OCLUtil;
-import pt.uminho.haslab.mde.model.ECondition;
+import pt.uminho.haslab.mde.OCLUtil;
+import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 
 /**
- * An implementation of a condition in QVT-R
+ * An embedding of a predicate of an EMF QVT-R transformations in Echo.
  *
  * @author nmm
- * @version 0.4 13/02/2014
+ * @version 0.4 14/02/2014
  */
-public class EQVTCondition implements ECondition {
+public class EQVTPredicate implements EPredicate {
+	
+	/** the original EMF predicates */
 	private List<Object> exps = new ArrayList<Object>();
+	
+	/** the OCL translator 
+	 * TODO: replace Alloy by engine */
 	private OCL2Alloy trad;
 
 	@Override
@@ -34,8 +39,7 @@ public class EQVTCondition implements ECondition {
 
 	@Override
 	public List<Object> getConditions() {
-		// TODO Auto-generated method stub
-		return null;
+		return exps;
 	}
 
 	@Override
@@ -61,8 +65,5 @@ public class EQVTCondition implements ECondition {
 			res.putAll(OCLUtil.variablesOCLExpression((OCLExpression)predicate,metamodel));
 		}
 		return res;
-
 	}
-
-
 }

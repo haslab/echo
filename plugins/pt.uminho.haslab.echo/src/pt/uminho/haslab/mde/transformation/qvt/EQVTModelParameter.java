@@ -1,8 +1,5 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 
@@ -12,27 +9,31 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 
 /**
- * An implementation of a model parameter in QVT-R
+ * An embedding of an EMF QVT-R model parameter in Echo.
  *
  * @author nmm
- * @version 0.4 13/02/2014
+ * @version 0.4 14/02/2014
  */
-public class EQVTModel extends EModelParameter {
+public class EQVTModelParameter extends EModelParameter {
 
-	private static Map<TypedModel,EQVTModel> list = new HashMap<TypedModel,EQVTModel>();
-	private TypedModel mdl;
+	/** the processed EMF model parameter */
+	private TypedModel modelParam;
+	/** the type (metamodel) of the model parameter */
 	private EMetamodel metamodel;
 
-	public EQVTModel(TypedModel mdl2) {
-		mdl = mdl2;
-		String metamodelURI = EcoreUtil.getURI(mdl.getUsedPackage().get(0).getEPackage()).path().replace("/resource", "");
+	/**
+	 * Processes an EMF model parameter.
+	 * @param modelParam the original EMF model parameter
+	 */
+	public EQVTModelParameter(TypedModel modelParam) {
+		this.modelParam = modelParam;
+		String metamodelURI = EcoreUtil.getURI(modelParam.getUsedPackage().get(0).getEPackage()).path().replace("/resource", "");
 		try {
 			metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
 		} catch (EchoError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		list.put(mdl2,this);
 	}
 
 	@Override
@@ -42,12 +43,7 @@ public class EQVTModel extends EModelParameter {
 
 	@Override
 	public String getName() {
-		return mdl.getName();
-	}
-
-	public static EQVTModel get(TypedModel typedModel) {
-		return list.get(typedModel);
-
+		return modelParam.getName();
 	}
 
 }
