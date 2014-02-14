@@ -2,7 +2,7 @@ package pt.uminho.haslab.echo.engine.alloy;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.ast.*;
@@ -52,7 +52,6 @@ class AlloyExpression implements IExpression{
     public IExpression union(IExpression e) {
         return new AlloyExpression(EXPR.plus(((AlloyExpression)e).EXPR));
     }
-
 
     @Override
     public IFormula in(IExpression e) {

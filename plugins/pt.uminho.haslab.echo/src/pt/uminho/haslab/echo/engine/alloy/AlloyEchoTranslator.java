@@ -23,9 +23,6 @@ import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
-import pt.uminho.haslab.echo.engine.ast.IExpression;
-import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EElement;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
@@ -179,10 +176,9 @@ public class AlloyEchoTranslator extends EchoTranslator {
         writeInstance(((AlloyTuple) solution.getContents()).getSolution(), modelID, statesig);
     }
 
-    //TODO
     @Override
-    public IIntExpression makeNumber(int n) {
-        return null;
+    public AlloyIntExpression makeNumber(int n) {
+    	return new AlloyIntExpression(ExprConstant.makeNUMBER(n));
     }
 
 
@@ -194,14 +190,12 @@ public class AlloyEchoTranslator extends EchoTranslator {
 			if (cla.getKey().equals("") && cla.getValue().equals("String"))
 				sc.put(PrimSig.STRING, scopesmap.get(cla));
 			else {
-				//EchoReporter.getInstance().debug("got here2");
 				EAlloyMetamodel e2a = metamodelalloys.get(cla.getKey());
 				EClassifier eclass = e2a.metamodel.getEObject().getEClassifier(cla.getValue());
 				PrimSig sig = e2a.getSigFromEClassifier(eclass);
 				sc.put(sig, scopesmap.get(cla));
 			}
 		}
-		//EchoReporter.getInstance().debug("got here3");
 		scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
@@ -313,8 +307,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 
 		Resource resource = resourceSet.createResource(URI.createURI(targetURI));
 		resource.getContents().add(a2x.getModel());
-		EchoReporter.getInstance().debug("Should write "+a2x);
-
+		
 		/*
 		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce 
 		* xsi:schemaLocation attribute in the document

@@ -240,6 +240,8 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 */
 	Func getConforms() throws ErrorAlloy {
 		Func f;
+		EchoReporter.getInstance().debug("m "+constraint_conforms);
+
 		try {
 			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
 		} catch (Err e) {
@@ -293,7 +295,6 @@ class EAlloyMetamodel extends EEngineMetamodel {
 		if (classifier2sig.get(EchoHelper.classifierKey(metamodel, ec)) != null)
 			return;
 		List<EClass> superTypes = ec.getESuperTypes();
-		EchoReporter.getInstance().debug("Class "+ec+" with "+superTypes);
 		if (superTypes.size() > 1)
 			throw new ErrorUnsupported(ErrorUnsupported.MULTIPLE_INHERITANCE,
 					"Multiple inheritance not allowed: " + ec.getName() + ".",
@@ -561,10 +562,8 @@ class EAlloyMetamodel extends EEngineMetamodel {
 						"Failed to create annotation variable.", a,
 						Task.TRANSLATE_METAMODEL);
 			}
-			context.addVar(self.get().label, new AlloyExpression(self.get()),
-					sig_metamodel.label);
-			context.addVar(model_var.get().label,
-					new AlloyExpression(model_var.get()));
+			context.addVar(new AlloyDecl(self),sig_metamodel.label);
+			context.addVar(new AlloyDecl(model_var));
 			context.addModelParam(false, sig_metamodel.label,
 					new AlloyExpression(model_var.get()));
 
@@ -588,8 +587,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 							if (annotation
 									.getSource()
 									.equals("http://www.eclipse.org/emf/2002/Ecore/OCL"))
-								constraint_conforms = constraint_conforms
-										.and(oclalloy);
+								constraint_conforms = constraint_conforms.and(oclalloy);
 							else
 								constraint_generate = constraint_generate
 										.and(oclalloy);
@@ -631,18 +629,18 @@ class EAlloyMetamodel extends EEngineMetamodel {
 				pre = sig_metamodel.oneOf("pre_");
 				pos = sig_metamodel.oneOf("pos_");
 				decls.add(self);
-				context.addVar(self.get().label, new AlloyExpression(self.get()),sig_metamodel.label);
+				context.addVar(new AlloyDecl(self),sig_metamodel.label);
 				for (EParameter p : operation.getEParameters()) {
 					PrimSig type = AlloyEchoTranslator.getInstance()
 							.getClassifierFromSig(p.getEType());
 					Decl d = type.oneOf(p.getName());
 					decls.add(d);
-					context.addVar(d.get().label, new AlloyExpression(d.get()),sig_metamodel.label);
+					context.addVar(new AlloyDecl(d),sig_metamodel.label);
 				}
 				decls.add(pre);
 				decls.add(pos);
-				context.addVar(pre.get().label, new AlloyExpression(pre.get()),sig_metamodel.label);
-				context.addVar(pos.get().label, new AlloyExpression(pos.get()),sig_metamodel.label);
+				context.addVar(new AlloyDecl(pre),sig_metamodel.label);
+				context.addVar(new AlloyDecl(pos),sig_metamodel.label);
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
 						"Failed to create operation variable.", a,
@@ -663,7 +661,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 									.createPostcondition(sExpr);
 							IFormula form = converter.translateFormula(invariant.getBodyExpression());
 							oclalloy = oclalloy.and(((AlloyFormula) form).formula);
-							EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
+							//EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
 						} catch (ParserException e) {
 							throw new ErrorParser(ErrorParser.OCL,
 									"Failed to parse OCL operation.",

@@ -17,11 +17,9 @@ public interface IContext {
 
     IExpression getVar(String name);
 
-    void addVar(String name, IExpression var);
+    void addVar(IDecl decl);
 
-
-    //TODO check if needed
-    void addVar(String name, IExpression var, String modelState);
+    void addVar(IDecl decl, String modelState);
 
     void remove(String name);
 

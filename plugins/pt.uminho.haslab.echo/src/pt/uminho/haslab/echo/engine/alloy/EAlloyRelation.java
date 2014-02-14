@@ -17,9 +17,8 @@ import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EAlloyRelation extends EEngineRelation {
 	
@@ -57,8 +56,9 @@ public class EAlloyRelation extends EEngineRelation {
 					Task.TRANSLATE_TRANSFORMATION);
 		}
 		context.addModelParam(false, model.getName(), new AlloyExpression(d.get()));
-		context.addVar(d.get().label, new AlloyExpression(d.get()));
-		return new AlloyDecl(d);
+		AlloyDecl id = new AlloyDecl(d);
+		context.addVar(id);
+		return id;
 
 	}
 
@@ -95,8 +95,9 @@ public class EAlloyRelation extends EEngineRelation {
 		Map<String, Decl> vars = AlloyUtil.variableListToExpr(set.keySet(),context,false);
 		Map<String, IDecl> ivars = new HashMap<String,IDecl>();
 	  	for (String s : vars.keySet()) {
-			if (notTop) context.addVar(s, new AlloyExpression(vars.get(s).get()));
-			ivars.put(s, new AlloyDecl(vars.get(s)));
+	  		IDecl d = new AlloyDecl(vars.get(s));
+			if (notTop) context.addVar(d);
+			ivars.put(s, d);
 	  	}	  	
 	  	return ivars;
 	}

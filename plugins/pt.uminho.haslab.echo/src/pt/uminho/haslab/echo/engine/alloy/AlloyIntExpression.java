@@ -8,11 +8,12 @@ import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 /**
  * Created by tmg on 2/10/14.
  */
-class AlloyIntExpression implements IIntExpression{
+class AlloyIntExpression extends AlloyExpression implements IIntExpression {
 
     public final Expr expr;
 
     public AlloyIntExpression(Expr expr) {
+    	super (expr);
         this.expr = expr;
     }
 

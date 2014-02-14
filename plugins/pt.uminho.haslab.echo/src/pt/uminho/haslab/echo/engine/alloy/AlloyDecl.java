@@ -18,7 +18,7 @@ class AlloyDecl implements IDecl{
 
     @Override
     public IExpression expression() {
-        return new AlloyExpression(decl.expr);
+        return new AlloyExpression(decl.get());
     }
 
     @Override

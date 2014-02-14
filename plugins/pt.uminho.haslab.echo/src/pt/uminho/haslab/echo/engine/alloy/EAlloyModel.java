@@ -152,7 +152,7 @@ class EAlloyModel {
 		Expr siblings = field2elements.get(statefield).plus(elementsig);
 		field2elements.put(statefield, siblings);
 
-		EchoReporter.getInstance().debug("Translate element: "+classsig+" : "+classsig.parent);
+		//EchoReporter.getInstance().debug("Translate element: "+classsig+" : "+classsig.parent);
 		PrimSig supersig = classsig.parent;
 		while (supersig != Sig.UNIV && supersig != null) {
 			Field superstatefield = metamodel.getStateFieldFromSig(supersig);
