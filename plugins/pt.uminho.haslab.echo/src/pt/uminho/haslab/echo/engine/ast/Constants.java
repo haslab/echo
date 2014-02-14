@@ -9,6 +9,10 @@ public class Constants {
     public static IFormula TRUE(){
         return EchoTranslator.getInstance().getTrueFormula();
     }
+    
+    public static IExpression EMPTY() {
+        return EchoTranslator.getInstance().getEmptyExpression();	
+    }
 
 
     public static IFormula FALSE(){

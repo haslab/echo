@@ -12,8 +12,8 @@ import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import pt.uminho.haslab.echo.*;
-import pt.uminho.haslab.echo.engine.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
+import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.mde.model.EMetamodel;

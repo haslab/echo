@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Decls;
 import kodkod.ast.Formula;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -80,4 +81,5 @@ class KodkodFormula implements IFormula {
 
         return comprehension(d).one();
     }
+
 }

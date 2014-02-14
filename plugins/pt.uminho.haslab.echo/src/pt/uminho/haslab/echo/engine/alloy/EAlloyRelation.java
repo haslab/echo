@@ -7,13 +7,14 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.engine.EEngineRelation;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
+import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -21,42 +22,29 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class EAlloyRelation extends EEngineRelation {
-
+	
 	public EAlloyRelation(EEngineRelation parent_translator, ERelation relation)
 			throws EchoError {
-		super(parent_translator, relation);
+		super(relation, parent_translator);
 	}
 
 	public EAlloyRelation(EAlloyTransformation eAlloyTransformation,
 			EDependency dep, ERelation rel) throws EchoError {
-		super(eAlloyTransformation, dep, rel);
+		super(rel, dep, eAlloyTransformation);
 	}
 
-	/** maps variable names to the owning model */
-	private Map<String,String> var2model;
-
-	/** the model parameters variables of the current transformation */
-	private Map<String,ExprHasName> modelparam2var;
-
-	/** maps variable names to their Alloy representation 
-	 * contains all variables, including model parameters */
-	private Map<String,ExprHasName> var2var;
-
-	
-
-	protected AlloyFormula optimize(IFormula fact) throws ErrorUnsupported {
-		Expr afact = ((AlloyFormula)fact).formula;
+	protected AlloyFormula simplify(IFormula formula) throws ErrorUnsupported {
+		Expr afact = ((AlloyFormula)formula).formula;
 		AlloyOptimizations opt = new AlloyOptimizations();
 		afact = opt.trading(afact);
 		afact = opt.onePoint(afact);
-		EchoReporter.getInstance().debug("Post-opt: "+fact);
+		EchoReporter.getInstance().debug("Post-opt: "+formula);
 		return new AlloyFormula(afact);
 	}
 	
-	protected AlloyDecl createDecl(String metamodelID) throws ErrorAlloy {
-		if (modelparam2var == null) modelparam2var = new LinkedHashMap<String,ExprHasName>();
-		if (var2model == null) var2model = new LinkedHashMap<String,String>();
-		if (var2var == null) var2var = new LinkedHashMap<String,ExprHasName>();
+	protected AlloyDecl createDecl(EModelParameter model) throws ErrorAlloy {
+		String metamodelID = model.getMetamodel().ID;
+
 		Decl d;
 		try {
 			d = AlloyEchoTranslator.getInstance()
@@ -68,14 +56,13 @@ public class EAlloyRelation extends EEngineRelation {
 							+ metamodelID, a,
 					Task.TRANSLATE_TRANSFORMATION);
 		}
-		modelparam2var.put(metamodelID, d.get());
-		var2model.put(d.get().label, null);
-		var2var.put(d.get().label, d.get());
+		context.addModelParam(false, model.getName(), new AlloyExpression(d.get()));
+		context.addVar(d.get().label, new AlloyExpression(d.get()));
 		return new AlloyDecl(d);
 
 	}
 
-	protected AlloyExpression createField(IDecl fst) throws ErrorAlloy {
+	protected AlloyExpression createNonTopRel(IDecl fst) throws ErrorAlloy {
 		Field field = null;
 
 		try {
@@ -99,37 +86,23 @@ public class EAlloyRelation extends EEngineRelation {
 		return new AlloyExpression(field);
 	}
 
-	
-	/**
-	 * Maps variable names to their Alloy representation and containing model
-	 * Merges <code>var2var</code> with <code>var2model</code>
-	 * @return the mapping
-	 */
-	private Map<String,Entry<ExprHasName,String>> var2varmodel() {
-		Map<String,Entry<ExprHasName,String>> aux = new LinkedHashMap<String,Entry<ExprHasName,String>>();
-		for (String s : var2model.keySet()) {
-			aux.put(s, new SimpleEntry<ExprHasName,String>(var2var.get(s),var2model.get(s)));
-		}
-		return aux;
-	}
-
 	@Override
-	protected Map<String, IDecl> createVarDecls(Map<EVariable,String> set, boolean b) throws EchoError {
-	    if (b)
+	protected Map<String, IDecl> createVarDecls(Map<EVariable,String> set, boolean notTop) throws EchoError {
+	    if (notTop)
 	    	for (EVariable s : set.keySet())
-	    		var2model.put(s.getName(),set.get(s));
+	    		context.setVarModel(s.getName(),set.get(s));
 		
-		Map<String, Decl> vars = AlloyUtil.variableListToExpr(set.keySet(),var2varmodel(),modelparam2var);
+		Map<String, Decl> vars = AlloyUtil.variableListToExpr(set.keySet(),context,false);
 		Map<String, IDecl> ivars = new HashMap<String,IDecl>();
 	  	for (String s : vars.keySet()) {
-			if (b) var2var.put(s, vars.get(s).get());
+			if (notTop) context.addVar(s, new AlloyExpression(vars.get(s).get()));
 			ivars.put(s, new AlloyDecl(vars.get(s)));
 	  	}	  	
 	  	return ivars;
 	}
 	
 	protected AlloyFormula translateCondition(EPredicate targetCondition) throws EchoError {
-		targetCondition.initTranslation((EAlloyRelation) parent_translator,var2varmodel(),modelparam2var,null);
+		targetCondition.initTranslation((EAlloyRelation) parent_translator,context);
 		return new AlloyFormula(targetCondition.translate());
 	}
 

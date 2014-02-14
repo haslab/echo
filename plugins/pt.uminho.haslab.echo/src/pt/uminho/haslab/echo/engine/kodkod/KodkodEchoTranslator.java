@@ -4,8 +4,9 @@ import kodkod.ast.Formula;
 import kodkod.ast.IntConstant;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.engine.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EMetamodel;
@@ -138,6 +139,13 @@ public class KodkodEchoTranslator extends EchoTranslator {
 	public EKodkodMetamodel getMetamodel(String id){
         return metaModels.get(id);
     }
+
+
+	@Override
+	public IExpression getEmptyExpression() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 
 

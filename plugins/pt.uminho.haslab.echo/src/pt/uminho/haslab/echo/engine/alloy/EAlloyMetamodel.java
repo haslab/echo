@@ -1,5 +1,12 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -17,13 +24,11 @@ import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.engine.EEngineMetamodel;
+import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EMetamodel;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
-import java.util.Map.Entry;
 
 class EAlloyMetamodel extends EEngineMetamodel {
 	
@@ -543,8 +548,9 @@ class EAlloyMetamodel extends EEngineMetamodel {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		for (EAnnotation annotation : annotations) {
 			Decl self = null;
-	OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
-			Map<String, Entry<ExprHasName, String>> sd = new HashMap<String, Entry<ExprHasName, String>>();
+			OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
+			AlloyContext context = new AlloyContext();
+
 			PrimSig classsig = classifier2sig.get(EchoHelper.classifierKey(
 					metamodel, (EClassifier) annotation.eContainer()));
 			Field statefield = sig2statefield.get(classsig);
@@ -555,16 +561,14 @@ class EAlloyMetamodel extends EEngineMetamodel {
 						"Failed to create annotation variable.", a,
 						Task.TRANSLATE_METAMODEL);
 			}
-			sd.put(self.get().label,
-					new SimpleEntry<ExprHasName, String>(self.get(),
-							sig_metamodel.label));
-			sd.put(model_var.get().label, new SimpleEntry<ExprHasName, String>(
-					model_var.get(), null));
+			context.addVar(self.get().label, new AlloyExpression(self.get()),
+					sig_metamodel.label);
+			context.addVar(model_var.get().label,
+					new AlloyExpression(model_var.get()));
+			context.addModelParam(false, sig_metamodel.label,
+					new AlloyExpression(model_var.get()));
 
-			Map<String, ExprHasName> statevars = new HashMap<String, ExprHasName>();
-			statevars.put(sig_metamodel.label, model_var.get());
-
-			OCL2Alloy converter = new OCL2Alloy(sd, statevars, null);
+			OCLTranslator converter = new OCLTranslator(context);
 
 			if (annotation.getSource() != null) {
 				if (annotation.getSource().equals(
@@ -574,8 +578,8 @@ class EAlloyMetamodel extends EEngineMetamodel {
 						for (String sExpr : annotation.getDetails().values()) {
 							ExpressionInOCL invariant = helper
 									.createInvariant(sExpr);
-							Expr oclalloy = converter.oclExprToAlloy(
-									invariant.getBodyExpression()).forAll(self);
+							IFormula form = converter.translateFormula(invariant.getBodyExpression());
+							Expr oclalloy = ((AlloyFormula) form).formula.forAll(self);
 							AlloyOptimizations opt = new AlloyOptimizations();
 							if (EchoOptionsSetup.getInstance().isOptimize()) {
 								oclalloy = opt.trading(oclalloy);
@@ -619,7 +623,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 			PrimSig classsig = classifier2sig.get(EchoHelper.classifierKey(
 					metamodel, operation.getEContainingClass()));
 			List<Decl> decls = new ArrayList<Decl>();
-			Map<String, Entry<ExprHasName, String>> sd = new HashMap<String, Entry<ExprHasName, String>>();
+			AlloyContext context = new AlloyContext();
 
 			Decl pre, pos, self = null;
 			try {
@@ -627,34 +631,28 @@ class EAlloyMetamodel extends EEngineMetamodel {
 				pre = sig_metamodel.oneOf("pre_");
 				pos = sig_metamodel.oneOf("pos_");
 				decls.add(self);
-				sd.put(self.get().label, new SimpleEntry<ExprHasName, String>(
-						self.get(), sig_metamodel.label));
+				context.addVar(self.get().label, new AlloyExpression(self.get()),sig_metamodel.label);
 				for (EParameter p : operation.getEParameters()) {
 					PrimSig type = AlloyEchoTranslator.getInstance()
 							.getClassifierFromSig(p.getEType());
 					Decl d = type.oneOf(p.getName());
 					decls.add(d);
-					sd.put(d.get().label, new SimpleEntry<ExprHasName, String>(
-							d.get(), sig_metamodel.label));
+					context.addVar(d.get().label, new AlloyExpression(d.get()),sig_metamodel.label);
 				}
 				decls.add(pre);
 				decls.add(pos);
-				sd.put(pre.get().label, new SimpleEntry<ExprHasName, String>(
-						pre.get(), sig_metamodel.label));
-				sd.put(pos.get().label, new SimpleEntry<ExprHasName, String>(
-						pos.get(), sig_metamodel.label));
+				context.addVar(pre.get().label, new AlloyExpression(pre.get()),sig_metamodel.label);
+				context.addVar(pos.get().label, new AlloyExpression(pos.get()),sig_metamodel.label);
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
 						"Failed to create operation variable.", a,
 						Task.TRANSLATE_METAMODEL);
 			}
 			OCLHelper helper = ocl.createOCLHelper(operation);
-			Map<String, ExprHasName> prestatevars = new HashMap<String, ExprHasName>();
-			Map<String, ExprHasName> posstatevars = new HashMap<String, ExprHasName>();
-			prestatevars.put(sig_metamodel.label, pre.get());
-			posstatevars.put(sig_metamodel.label, pos.get());
-
-			OCL2Alloy converter = new OCL2Alloy(sd, posstatevars, prestatevars);
+			context.addModelParam(false, sig_metamodel.label, new AlloyExpression(pos.get()));
+			context.addModelParam(true, sig_metamodel.label, new AlloyExpression(pre.get()));
+			
+			OCLTranslator converter = new OCLTranslator(context);
 			for (EAnnotation ea : operation.getEAnnotations())
 				if (ea.getSource().equals(
 						"http://www.eclipse.org/emf/2002/Ecore/OCL")) {
@@ -663,9 +661,9 @@ class EAlloyMetamodel extends EEngineMetamodel {
 						try {
 							ExpressionInOCL invariant = helper
 									.createPostcondition(sExpr);
-							oclalloy = oclalloy.and(converter
-									.oclExprToAlloy(invariant
-											.getBodyExpression()));
+							IFormula form = converter.translateFormula(invariant.getBodyExpression());
+							oclalloy = oclalloy.and(((AlloyFormula) form).formula);
+							EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
 						} catch (ParserException e) {
 							throw new ErrorParser(ErrorParser.OCL,
 									"Failed to parse OCL operation.",

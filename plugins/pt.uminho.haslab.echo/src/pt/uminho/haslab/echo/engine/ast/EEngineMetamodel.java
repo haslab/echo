@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine;
+package pt.uminho.haslab.echo.engine.ast;
 
 import java.util.ArrayList;
 import java.util.HashMap;

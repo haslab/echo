@@ -23,6 +23,7 @@ import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EElement;
@@ -463,6 +464,11 @@ public class AlloyEchoTranslator extends EchoTranslator {
         	return false;
        }
     }
+
+	@Override
+	public AlloyExpression getEmptyExpression() {
+		return new AlloyExpression(Sig.NONE);
+	}
 
 
 }

@@ -13,5 +13,7 @@
   <tables name="Employer">
     <columns
         name="name"/>
+    <columns
+        name="a"/>
   </tables>
 </rdbms:Scheme>

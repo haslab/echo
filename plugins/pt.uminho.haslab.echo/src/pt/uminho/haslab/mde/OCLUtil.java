@@ -28,7 +28,7 @@ public class OCLUtil {
 
 
 	// retrieves the list of variable occurrences of an OCL expression (very incomplete)
-	public static Map<EVariable,String> variablesOCLExpression (final OCLExpression exp, final String mdl) throws ErrorUnsupported, ErrorTransform {
+	public static Map<EVariable,String> variablesOCLExpression (OCLExpression exp, String mdl) throws ErrorUnsupported, ErrorTransform {
 		final Map<EVariable,String> vars = new HashMap<EVariable,String>();
 		if (exp == null) return vars;
 		if (exp instanceof VariableExp) {

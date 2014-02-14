@@ -9,8 +9,10 @@ import java.util.Map.Entry;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.engine.OCLTranslator;
+import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.alloy.EAlloyRelation;
-import pt.uminho.haslab.echo.engine.alloy.OCL2Alloy;
+import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.mde.OCLUtil;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -30,7 +32,7 @@ public class EQVTPredicate implements EPredicate {
 	
 	/** the OCL translator 
 	 * TODO: replace Alloy by engine */
-	private OCL2Alloy trad;
+	private OCLTranslator trad;
 
 	@Override
 	public void addCondition(Object expr) {
@@ -43,19 +45,19 @@ public class EQVTPredicate implements EPredicate {
 	}
 
 	@Override
-	public void initTranslation(EAlloyRelation q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
-		trad = new OCL2Alloy(q2a,vardecls,argsvars,prevars);
+	public void initTranslation(EEngineRelation q2a, IContext context) {
+		trad = new OCLTranslator(q2a,context);
 	}
 
 	@Override
-	public void initTranslation(Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
-		trad = new OCL2Alloy(vardecls,argsvars,prevars);
+	public void initTranslation(IContext context) {
+		trad = new OCLTranslator(context);
 
 	}
 
 	@Override
 	public Expr translate() throws EchoError {
-		return trad.translateExpressions(exps);
+		return trad.translate(exps);
 	}
 
 	@Override

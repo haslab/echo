@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine;
+package pt.uminho.haslab.echo.engine.ast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,6 @@ import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
-import pt.uminho.haslab.echo.engine.ast.IDecl;
-import pt.uminho.haslab.echo.engine.ast.IExpression;
-import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;

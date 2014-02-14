@@ -370,7 +370,6 @@ public class AlloyRunner implements EngineRunner {
 			AlloyFormula expr = AlloyEchoTranslator.getInstance()
 					.getQVTTransformation(transformationID)
 					.getTransformationConstraint(sigs);
-			//bug here! getTransformationConstraint will not get target state sig
 			finalfact = finalfact.and(expr.formula);
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())

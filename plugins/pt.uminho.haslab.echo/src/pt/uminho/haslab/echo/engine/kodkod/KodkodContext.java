@@ -19,6 +19,7 @@ import pt.uminho.haslab.mde.model.EVariable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -117,4 +118,28 @@ class KodkodContext implements IContext{
                 e2k.getRelation((EClass) e2k.metamodel.getEObject().getEClassifier(className))
         );
     }
+
+	@Override
+	public String getVarModel(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<String> getVars() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setCurrentModel(String object) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCurrentPre(boolean pre) {
+		// TODO Auto-generated method stub
+		
+	}
 }

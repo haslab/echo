@@ -2,6 +2,8 @@ package pt.uminho.haslab.echo.engine;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EMetamodel;
@@ -55,4 +57,6 @@ public abstract class EchoTranslator {
     public abstract IIntExpression makeNumber(int n);
 
 	public abstract EEngineMetamodel getMetamodel(String metamodelID);
+
+    public abstract IExpression getEmptyExpression();
 }

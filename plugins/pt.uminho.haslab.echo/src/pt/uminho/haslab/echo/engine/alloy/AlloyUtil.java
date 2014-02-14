@@ -20,6 +20,7 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -321,23 +322,23 @@ public class AlloyUtil {
 	 * Converts a list of variable declarations to their representation in Alloy
 	 * If the variable has the owning model defined in <code>variable_models</code>, uses the appropriate model sig in the range
 	 * Otherwise uses the respective metamodel sig
-	 * @param variable_decls the variables to convert
+	 * @param vars the variables to convert
 	 * @param variable_models maps variables to their owning model
 	 * @param modelparam2var the Alloy variables representing each model parameter
 	 * @return the mapping between variable names and their Alloy declaration
 	 * @throws EchoError
 	 */
 	public static Map<String, Decl> variableListToExpr(
-			Collection<EVariable> variable_decls,
-			Map<String, Entry<ExprHasName, String>> variable_models,
-			Map<String, ExprHasName> modelparam2var) throws EchoError {
+			Collection<EVariable> vars,
+			AlloyContext context,
+			boolean isPre) throws EchoError {
 		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
 		Map<String, Decl> alloy_variable_decls = new LinkedHashMap<String, Decl>();
 
-		for (EVariable variable_decl : variable_decls) {
+		for (EVariable var : vars) {
 			try {
 				Expr range = Sig.NONE;
-				EObject t = variable_decl.getType();
+				EObject t = var.getType();
 				String type = null;
 				if (t instanceof Type)
 					type = ((Type) t).getName();
@@ -361,11 +362,11 @@ public class AlloyUtil {
 										.getEStructuralFeature("name")));
 					}
 					Expr state = null;
-					if (variable_models.get(variable_decl.getName()) != null
-							&& modelparam2var != null)
-						state = modelparam2var.get(variable_models
-								.get(variable_decl.getName()).getValue());
-
+					if (context.getVar(var.getName()) != null) {
+						String aux = context.getVarModel(var.getName());
+						state = ((AlloyExpression) context.getModelParam(isPre,aux)).EXPR;
+					}
+					
 					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
 					if (state == null) {
 						state = translator.getMetamodel(metamodel.ID).sig_metamodel;
@@ -378,7 +379,7 @@ public class AlloyUtil {
 					range = statefield.join(state);
 
 				}
-				alloy_variable_decls.put(variable_decl.getName(), range.oneOf(variable_decl.getName()));
+				alloy_variable_decls.put(var.getName(), range.oneOf(var.getName()));
 
 			} catch (Err a) {
 				throw new ErrorAlloy(a.getMessage());
