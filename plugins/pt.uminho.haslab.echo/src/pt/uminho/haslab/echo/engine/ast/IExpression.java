@@ -36,4 +36,5 @@ public interface IExpression extends INode{
     IDecl oneOf(String name) throws ErrorInternalEngine;
 
     IIntExpression cardinality();
+	boolean hasVar(IExpression var);
 }

@@ -6,26 +6,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
-import pt.uminho.haslab.mde.transformation.EModelDomain;
-import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -330,8 +322,7 @@ public class AlloyUtil {
 	 */
 	public static Map<String, Decl> variableListToExpr(
 			Collection<EVariable> vars,
-			AlloyContext context,
-			boolean isPre) throws EchoError {
+			AlloyContext context) throws EchoError {
 		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
 		Map<String, Decl> alloy_variable_decls = new LinkedHashMap<String, Decl>();
 
@@ -364,7 +355,7 @@ public class AlloyUtil {
 					Expr state = null;
 					if (context.getVar(var.getName()) != null) {
 						String aux = context.getVarModel(var.getName());
-						state = ((AlloyExpression) context.getModelParam(isPre,aux)).EXPR;
+						state = ((AlloyExpression) context.getModelParam(aux)).EXPR;
 					}
 					
 					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);

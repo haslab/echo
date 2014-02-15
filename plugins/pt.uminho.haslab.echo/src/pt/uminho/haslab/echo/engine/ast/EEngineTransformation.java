@@ -8,6 +8,7 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
@@ -125,6 +126,6 @@ public abstract class EEngineTransformation {
 	 * @param aux 
 	 * @return the respective Alloy function
 	 */
-	public abstract IFormula callRelation(ERelation n, EDependency dep, List<IExpression> aux);
+	public abstract IFormula callRelation(ERelation n, IContext context, List<IExpression> params);
 
 }

@@ -1,8 +1,8 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
-import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import java.util.HashMap;
+import java.util.Map;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
@@ -11,14 +11,16 @@ import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
-
-import java.util.HashMap;
-import java.util.Map;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class EAlloyRelation extends EEngineRelation {
 	
@@ -92,7 +94,7 @@ public class EAlloyRelation extends EEngineRelation {
 	    	for (EVariable s : set.keySet())
 	    		context.setVarModel(s.getName(),set.get(s));
 		
-		Map<String, Decl> vars = AlloyUtil.variableListToExpr(set.keySet(),context,false);
+		Map<String, Decl> vars = AlloyUtil.variableListToExpr(set.keySet(),context);
 		Map<String, IDecl> ivars = new HashMap<String,IDecl>();
 	  	for (String s : vars.keySet()) {
 	  		IDecl d = new AlloyDecl(vars.get(s));
@@ -101,10 +103,11 @@ public class EAlloyRelation extends EEngineRelation {
 	  	}	  	
 	  	return ivars;
 	}
-	
-	protected AlloyFormula translateCondition(EPredicate targetCondition) throws EchoError {
-		targetCondition.initTranslation((EAlloyRelation) parent_translator,context);
-		return new AlloyFormula(targetCondition.translate());
+
+	@Override
+	public void newRelation(EQVTRelation rel) throws EchoError {
+		new EAlloyRelation(this, rel);
 	}
+	
 
 }

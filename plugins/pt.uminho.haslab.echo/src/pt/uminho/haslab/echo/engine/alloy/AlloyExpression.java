@@ -2,7 +2,7 @@ package pt.uminho.haslab.echo.engine.alloy;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import pt.uminho.haslab.echo.EchoReporter;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.ast.*;
@@ -96,4 +96,11 @@ class AlloyExpression implements IExpression{
     public IIntExpression cardinality() {
         return new AlloyIntExpression(EXPR.cardinality());
     }
+
+	@Override
+	public boolean hasVar(IExpression var) {
+		Expr evar = ((AlloyExpression) var).EXPR;
+		if (!(evar instanceof ExprVar)) return false;
+		return EXPR.hasVar((ExprVar) evar);
+	}
 }

@@ -16,7 +16,9 @@ import pt.uminho.haslab.echo.engine.ast.INode;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +38,7 @@ import org.eclipse.ocl.examples.pivot.UnlimitedNaturalLiteralExp;
 import org.eclipse.ocl.examples.pivot.Variable;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 import org.eclipse.ocl.examples.pivot.VariableExp;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
@@ -62,8 +65,8 @@ public class OCLTranslator {
 			return translateFormula((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp)
 			return translateExpression((VariableExp) expr);
-		// else if (expr instanceof RelationCallExp) return
-		// translate((RelationCallExp) expr);
+		 else if (expr instanceof RelationCallExp) 
+			 return translate((RelationCallExp) expr);
 		else if (expr instanceof IteratorExp)
 			return translate((IteratorExp) expr);
 		else if (expr instanceof OperationCallExp)
@@ -280,18 +283,16 @@ public class OCLTranslator {
 		IDecl d = context.getDecl(x);
 
 		IExpression src = translateExpression(expr.getSource());
-		context.addVar(d);
 
-		// TODO: confirmar irrelevancia sem opera????es ou QVT
-		/*
-		 * for (String s : varstates.keySet()) { ExprVar var = (ExprVar)
-		 * varstates.get(s).getKey(); if (src.hasVar(var) &&
-		 * varstates.get(s).getValue() != null) varstates.put(d.get().label, new
-		 * AbstractMap
-		 * .SimpleEntry<ExprHasName,String>(d.get(),varstates.get(s).getValue
-		 * ())); }
-		 */
-
+		// tries to determine owning model of the iterator variable
+		for (String s : context.getVars()) {
+			IExpression var = context.getVar(s);
+			if (src.hasVar(var) && context.getVarModel(s) != null)
+				context.addVar(d, context.getVarModel(s));
+			else
+				context.addVar(d);
+		}
+		 
 		INode body = translate(expr.getBody());
 
 		IFormula aux;
@@ -451,43 +452,37 @@ public class OCLTranslator {
 		return res;
 	}
 
-	// Expr oclExprToAlloy (RelationCallExp expr) throws EchoError {
-	//
-	// List<IExpression> aux = new
-	// ArrayList<IExpression>(context.getModelParams(isPre));
-	//
-	// AlloyFormula res = (AlloyFormula)
-	// parentq.transformation_translator.callRelation(new
-	// EQVTRelation(expr.getReferredRelation()), parentq.dependency,aux);
-	// if (res == null) {
-	// EQVTRelation rel = new EQVTRelation(expr.getReferredRelation());
-	// new EAlloyRelation (parentq,rel);
-	// res = (AlloyFormula)
-	// parentq.transformation_translator.callRelation(rel,parentq.dependency,aux);
-	// }
-	//
-	// List<OCLExpression> vars = expr.getArgument();
-	// List<Expr> avars = new ArrayList<Expr>();
-	// for (OCLExpression var : vars){
-	// Expr avar = oclExprToAlloy(var);
-	// avars.add(avar);
-	// }
-	//
-	// Expr insig = avars.get(avars.size()-1);
-	// avars.remove(insig);
-	// Expr form = res.formula;
-	// for (Expr avar : avars)
-	// form = avar.join(form);
-	// form = insig.in(form);
-	//
-	// return form;
-	// }
+	IFormula translateFormula(RelationCallExp expr) throws EchoError {
+
+		EQVTRelation rel = new EQVTRelation(expr.getReferredRelation());
+		
+		// translates variable parameters
+		List<IExpression> params = new ArrayList<IExpression>();
+		for (OCLExpression arg : expr.getArgument()) {
+			IExpression param = translateExpression(arg);
+			params.add(param);
+		}
+
+		// tries to call referred relation
+		IFormula res = context.getCurrentRel().transformation_translator
+				.callRelation(rel,context,params);
+
+		// if it doesn't exist, process it
+		if (res == null) {
+			context.getCurrentRel().newRelation(rel);
+			res = context.getCurrentRel().transformation_translator
+					.callRelation(rel, context, params);
+		}
+		
+		return res;
+
+	}
 
 	public Map<String, Integer> getOCLAreNews() {
 		return news;
 	}
 
-	public IFormula translateExpressions(List<Object> lex) throws EchoError {
+	public IFormula translateExpressions(List<? extends EObject> lex) throws EchoError {
 
 		IFormula expr = Constants.TRUE();
 
@@ -544,11 +539,7 @@ public class OCLTranslator {
 			for (VariableDeclaration xx : it.getIterator())
 				aux.add(EVariable.getVariable(xx));
 
-			// Decl d = AlloyUtil.variableListToExpr(aux, varstates,
-			// isPre?prevars:posvars).get(it.getIterator().get(0).getName());
-
 			IDecl d = context.getDecl(aux, it.getIterator().get(0).getName());
-
 			context.addVar(d);
 			IExpression bdy = translateExpression(it.getBody());
 			IDecl dd = bdy.oneOf("2_");
@@ -573,12 +564,12 @@ public class OCLTranslator {
 				metamodeluri, false);
 		IExpression exp;
 
-		exp = context.getFieldExpression(metamodel.ID, prop.getOwningType()
+		exp = context.getPropExpression(metamodel.ID, prop.getOwningType()
 				.getName(), prop.getName());
 
 		if (exp == null && prop.getOpposite() != null
 				&& EchoOptionsSetup.getInstance().isOptimize())
-			exp = context.getFieldExpression(metamodel.ID,
+			exp = context.getPropExpression(metamodel.ID,
 					prop.getOpposite().getName(), prop.getName()).transpose();
 
 		if (exp == null)

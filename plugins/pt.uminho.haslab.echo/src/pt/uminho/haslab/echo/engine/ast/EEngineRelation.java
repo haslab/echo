@@ -18,6 +18,7 @@ import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
 /**
  * An embedding of a model transformation relation in an abstract Echo engine.
@@ -118,6 +119,7 @@ public abstract class EEngineRelation {
 		this.transformation_translator = transformation;
 		this.parent_translator = top ? this : parentRelation;
 		this.context = new AlloyContext();
+		this.context.setCurrentRel(parentRelation);
 		
 		initVariableLists();
 
@@ -278,8 +280,9 @@ public abstract class EEngineRelation {
 	 * @return the engine embedding
 	 * @throws EchoError
 	 */
-	protected abstract IFormula translateCondition(EPredicate predicate) throws EchoError;
-
+	private IFormula translateCondition(EPredicate pred) throws EchoError {
+		return pred.translate(context);
+	}
 	/**
 	 * Creates an engine declaration
 	 * @param mdl the metamodel ID of the model parameter
@@ -366,5 +369,6 @@ public abstract class EEngineRelation {
 	 * @throws ErrorUnsupported
 	 */
 	abstract protected IFormula simplify(IFormula formula) throws ErrorUnsupported;
-	
+
+	public abstract void newRelation(EQVTRelation rel) throws EchoError;
 }

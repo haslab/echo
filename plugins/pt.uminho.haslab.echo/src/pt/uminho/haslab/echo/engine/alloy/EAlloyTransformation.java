@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
@@ -25,7 +25,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
-import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 class EAlloyTransformation extends EEngineTransformation {
 
@@ -188,15 +187,26 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyFormula callRelation(ERelation n, EDependency dep, List<IExpression> aux) {
+	public AlloyFormula callRelation(ERelation n, IContext context, List<IExpression> params) {
 		if (subrelationcall_funcs == null) return null;
-		Func f = subrelationcall_funcs.get(EchoHelper.relationFieldName(n,dep.target));
+		Func f = subrelationcall_funcs.get(EchoHelper.relationFieldName(n,context.getCurrentRel().dependency.target));
 		if (f == null) return null;
-		Expr[] vars = new Expr[aux.size()];
-		for (int i = 0; i<aux.size(); i++)
-			vars[i] = ((AlloyExpression) aux.get(i)).EXPR;
+
+		// applies the model parameters to the relation function
+		Expr[] vars = new Expr[context.getModelParams().size()];
+		for (int i = 0; i<context.getModelParams().size(); i++)
+			vars[i] = ((AlloyExpression) context.getModelParams().get(i)).EXPR;
 		Expr exp = f.call(vars);
-		return new AlloyFormula(exp);
+		IExpression expp = new AlloyExpression(exp);
+		
+		// applies the parameters to the relation function
+		IExpression insig = params.get(params.size() - 1);
+		params.remove(insig);
+		for (IExpression param : params)
+			expp = param.join(expp);
+		IFormula form = insig.in(expp);
+		
+		return (AlloyFormula) form;
 	}
 
 }

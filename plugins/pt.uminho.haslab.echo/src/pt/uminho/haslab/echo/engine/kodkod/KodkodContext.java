@@ -23,9 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by tmg on 2/5/14.
- */
-class KodkodContext implements IContext{
+ * Auxiliary context for the translation to Kodkod.
+ * Mainly used for variable declaration management.
+ * Variables are uniquely identified by name.
+ *
+ * @author tmg
+ * @version 0.4 14/02/2014
+ */class KodkodContext implements IContext{
 
     private Map<String, IExpression> map = new HashMap<>();
 
@@ -101,7 +105,7 @@ class KodkodContext implements IContext{
     }
 
     @Override
-    public IExpression getFieldExpression(String metaModelID, String className, String fieldName) {
+    public IExpression getPropExpression(String metaModelID, String className, String fieldName) {
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
 
         return new KodkodExpression(
@@ -139,6 +143,18 @@ class KodkodContext implements IContext{
 
 	@Override
 	public void setCurrentPre(boolean pre) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addVar(IDecl decl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addVar(IDecl decl, String modelState) {
 		// TODO Auto-generated method stub
 		
 	}
