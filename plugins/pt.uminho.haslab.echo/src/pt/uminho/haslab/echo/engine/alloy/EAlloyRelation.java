@@ -6,6 +6,7 @@ import java.util.Map;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
@@ -34,6 +35,8 @@ public class EAlloyRelation extends EEngineRelation {
 		super(rel, dep, eAlloyTransformation);
 	}
 
+	/** {@inheritDoc} */
+	@Override
 	protected AlloyFormula simplify(IFormula formula) throws ErrorUnsupported {
 		Expr afact = ((AlloyFormula)formula).formula;
 		AlloyOptimizations opt = new AlloyOptimizations();
@@ -43,6 +46,8 @@ public class EAlloyRelation extends EEngineRelation {
 		return new AlloyFormula(afact);
 	}
 	
+	/** {@inheritDoc} */
+	@Override
 	protected AlloyDecl createDecl(EModelParameter model) throws ErrorAlloy {
 		String metamodelID = model.getMetamodel().ID;
 
@@ -52,7 +57,7 @@ public class EAlloyRelation extends EEngineRelation {
 					.getMetamodel(metamodelID).sig_metamodel
 					.oneOf(model.getName());
 		} catch (Err a) {
-			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
+			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_VAR,
 					"Failed to create transformation model variable: "
 							+ metamodelID, a,
 					Task.TRANSLATE_TRANSFORMATION);
@@ -65,6 +70,8 @@ public class EAlloyRelation extends EEngineRelation {
 
 	}
 
+	/** {@inheritDoc} */
+	@Override
 	protected AlloyExpression createNonTopRel(IDecl fst) throws ErrorAlloy {
 		Field field = null;
 
@@ -81,7 +88,7 @@ public class EAlloyRelation extends EEngineRelation {
 				/* type.setOf() */Sig.UNIV.setOf());
 			}
 		} catch (Err a) {
-			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FIELD,
+			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FIELD,
 					"Failed to create relation field representation: "
 							+ relation.getName(), a,
 					Task.TRANSLATE_TRANSFORMATION);
@@ -89,6 +96,7 @@ public class EAlloyRelation extends EEngineRelation {
 		return new AlloyExpression(field);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected Map<String, IDecl> createVarDecls(Map<EVariable,String> set, boolean notTop) throws EchoError {
 	    if (notTop)

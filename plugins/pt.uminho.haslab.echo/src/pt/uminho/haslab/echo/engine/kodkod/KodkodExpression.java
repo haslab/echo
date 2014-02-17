@@ -27,7 +27,7 @@ class KodkodExpression implements IExpression{
 
     @Override
     public IExpression transpose() {
-        return new KodkodExpression(EXPR.closure());
+        return new KodkodExpression(EXPR.transpose());
     }
 
     @Override
@@ -93,4 +93,10 @@ class KodkodExpression implements IExpression{
     public IIntExpression cardinality() {
         return Constants.makeNumber(EXPR.arity());
     }
+
+	@Override
+	public boolean hasVar(IExpression var) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

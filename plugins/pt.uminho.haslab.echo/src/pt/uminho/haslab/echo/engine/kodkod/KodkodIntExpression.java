@@ -8,11 +8,12 @@ import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 /**
  * Created by tmg on 2/10/14.
  */
-class KodkodIntExpression implements IIntExpression{
+class KodkodIntExpression extends KodkodExpression implements IIntExpression {
 
     public final IntExpression expr;
 
     public KodkodIntExpression(IntExpression expr) {
+    	super(expr.toExpression());
         this.expr = expr;
     }
 

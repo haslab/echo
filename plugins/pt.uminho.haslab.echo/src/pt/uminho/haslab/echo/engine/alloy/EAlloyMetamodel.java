@@ -661,7 +661,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 									.createPostcondition(sExpr);
 							IFormula form = converter.translateFormula(invariant.getBodyExpression());
 							oclalloy = oclalloy.and(((AlloyFormula) form).formula);
-							//EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
+							EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
 						} catch (ParserException e) {
 							throw new ErrorParser(ErrorParser.OCL,
 									"Failed to parse OCL operation.",
