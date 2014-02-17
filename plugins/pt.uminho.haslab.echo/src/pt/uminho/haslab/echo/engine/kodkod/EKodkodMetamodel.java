@@ -61,7 +61,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 
             IExpression cl = new KodkodExpression(getRelation((EClass)annotation.eContainer()));
             IDecl self= cl.oneOf("self");
-            context.addVar(self.name(),self.expression());
+            context.addVar(self);
 
             OCLTranslator converter = new OCLTranslator(context);
 

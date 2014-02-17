@@ -1,16 +1,13 @@
 package pt.uminho.haslab.echo.engine;
 
+import java.util.List;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.engine.alloy.EAlloyRelation;
-import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.mde.model.EVariable;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Auxiliary context for the translation to engine.

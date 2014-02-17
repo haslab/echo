@@ -354,8 +354,8 @@ public class AlloyUtil {
 					}
 					Expr state = null;
 					if (context.getVar(var.getName()) != null) {
-						String aux = context.getVarModel(var.getName());
-						state = ((AlloyExpression) context.getModelParam(aux)).EXPR;
+						String varModel = context.getVarModel(var.getName());
+						state = ((AlloyExpression) context.getModelExpression(varModel)).EXPR;
 					}
 					
 					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);

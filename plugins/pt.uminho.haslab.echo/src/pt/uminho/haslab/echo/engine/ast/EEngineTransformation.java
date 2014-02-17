@@ -8,9 +8,7 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.ITContext;
-import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -36,10 +34,8 @@ public abstract class EEngineTransformation {
 	protected EEngineTransformation (ETransformation transformation, Map<String,List<EDependency>> dependencies) throws EchoError {
 		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION, transformation.getName());
 		this.transformation = transformation;
-		List<IDecl> modelParamDecls = new ArrayList<IDecl>();
-		List<IExpression> modelParamVars = new ArrayList<IExpression>();
 
-		createParams(modelParamDecls,modelParamVars);	
+		manageModelParams();	
 
 		for (ERelation rel : transformation.getRelations())
 			if (rel.isTop()) {
@@ -47,7 +43,7 @@ public abstract class EEngineTransformation {
 					createRelation(rel,dep);
 			}
 		
-		generateConstraints(modelParamDecls,modelParamVars);
+		generateConstraints();
 		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, transformation.getName(), true);
 	}
 	
@@ -65,11 +61,9 @@ public abstract class EEngineTransformation {
 	 * @param model_params_vars
 	 * @throws ErrorInternalEngine
 	 */
-	protected abstract void createParams(List<IDecl> model_params_decls,
-			List<IExpression> model_params_vars) throws ErrorInternalEngine;
+	protected abstract void manageModelParams() throws ErrorInternalEngine;
 
-	protected abstract void generateConstraints(List<IDecl> model_params_decls,
-			List<IExpression> model_params_vars) throws ErrorInternalEngine;
+	protected abstract void generateConstraints() throws ErrorInternalEngine;
 	
 	/**
 	 * Returns the Alloy function corresponding to this QVT Transformation
@@ -78,55 +72,42 @@ public abstract class EEngineTransformation {
 	 */	
 	protected abstract IFormula getTransformationConstraint(List<IExpression> vars);
 
-	/** 
-	 * Adds a new sub-relation definition
-	 * Function parameters are the model variables
-	 * called by containing relations
-	 * @param e 
-	 * @param model_params_decls 
-	 * @param field 
-	 * @param f the function definition
-	 * @throws ErrorAlloy 
+	/**
+ 	 * Defines a sub-relation call relation previously inserted by <code>addSubRelationCall</code>.
+	 * Called by containing relations. 
+	 * @param rel the relation of which the predicate will be created
+	 * @param modelParams the parameters of the predicate
+	 * @param def the definition of the relation
+	 * @throws ErrorInternalEngine
 	 */
-	protected abstract void addSubRelationDef(EEngineRelation eAlloyRelation,
-			List<IDecl> model_params_decls, IFormula e) throws ErrorInternalEngine;
+	protected abstract void defineSubRelationCall(EEngineRelation rel, IFormula def) throws ErrorInternalEngine;
 
-	/** 
-	 * Adds a new sub-relation call function
-	 * Function parameters are the model variables and the domain variables
-	 * called by containing relations
-	 * @param field 
-	 * @param expr 
-	 * @param model_params_decls 
-	 * @param eAlloyRelation 
-	 * @param x the function definition
-	 * @throws ErrorAlloy 
+	/**
+ 	 * Adds a new an expression denoting a sub-relation call.
+	 * Called by containing relations. 
+	 * @param rel the relation of which the predicate will be created
+	 * @param modelParams the parameters of the predicate
+	 * @param relation the expression (relation or field) that will denote the call
+	 * @throws ErrorInternalEngine
 	 */
-	public abstract void addSubRelationCall(EEngineRelation eAlloyRelation,
-			List<IDecl> model_params_decls, IExpression exp) throws ErrorInternalEngine;
+	public abstract void addSubRelationCall(EEngineRelation rel, IExpression relation) throws ErrorInternalEngine;
 	
-	
-	
-	/** 
-	 * Adds a new top-relation call function
-	 * Function parameters are the model variables
-	 * called by containing relations
-	 * @param fact 
-	 * @param model_params_decls 
-	 * @param arelation 
-	 * @param x the function definition
-	 * @throws ErrorAlloy 
+	/**
+ 	 * Adds a new top-relation predicate.
+	 * Called by containing relations. 
+	 * @param rel the relation of which the predicate will be created
+	 * @param modelParams the parameters of the predicate
+	 * @throws ErrorInternalEngine
 	 */
-	protected abstract void addTopRelationCall(EEngineRelation arelation,
-			List<IDecl> model_params_decls, IFormula fact) throws ErrorInternalEngine;
+	protected abstract void addTopRelationCall(EEngineRelation rel) throws ErrorInternalEngine;
 
-	/** 
-	 * Returns the function call of a sub-relation
-	 * @param n the relation being called
-	 * @param dep
-	 * @param aux 
-	 * @return the respective Alloy function
+	/**
+	 * Returns the expression resulting from calling a relation with specific parameters.
+	 * @param rel the relation being called
+	 * @param context the context of the transformation
+	 * @param params the parameters of the relation
+	 * @return the expression resulting from calling <code>rel</rel> over <code>params</code>
 	 */
-	public abstract IFormula callRelation(ERelation n, ITContext context, List<IExpression> params);
+	public abstract IFormula callRelation(ERelation rel, ITContext context, List<IExpression> params);
 
 }

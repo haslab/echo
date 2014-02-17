@@ -8,8 +8,8 @@ import java.util.Map;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.alloy.AlloyContext;
@@ -17,7 +17,6 @@ import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
-import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
@@ -40,18 +39,15 @@ public abstract class EEngineRelation {
 	public final EDependency dependency;
 
 	/** the parent embedded transformation */
-	public final EEngineTransformation transformation_translator;
+	public final EEngineTransformation transformation;
 
 	/** whether the relation is being called at top level or not
 	 * this is NOT the same as being a top relation */
 	public final boolean top;
 	
 	/** the parent (calling) relation, null if top */
-	public final EEngineRelation parent_translator;
+	public final EEngineRelation callerRelation;
 	
-	/** the transformation model parameters declarations */
-	private List<IDecl> modelParamsDecls = new ArrayList<IDecl>();
-
 	/** the engine declarations of the root variables
 	 * null if top call */
 	private Map<String, IDecl> rootVar2engineDecl = new HashMap<String,IDecl>();
@@ -77,6 +73,7 @@ public abstract class EEngineRelation {
 	 * if non-top relation, does not contain root variables*/
 	private Map<String,IDecl> targetVar2engineDecl = new HashMap<String,IDecl>();
 
+	public final IFormula constraint;
 	
 	/** 
 	 * Embeds a non-top relation into the engine representation.
@@ -85,7 +82,7 @@ public abstract class EEngineRelation {
 	 * @throws EchoError
 	 */
 	public EEngineRelation (ERelation relation, EEngineRelation parentRelation) throws EchoError {
-		this (relation, false, parentRelation.dependency, parentRelation,parentRelation.transformation_translator);
+		this (relation, false, parentRelation.dependency, parentRelation,parentRelation.transformation);
 	}
 
 	/**
@@ -117,23 +114,25 @@ public abstract class EEngineRelation {
 		this.relation = relation;
 		this.dependency = dependency;
 		this.top = top;
-		this.transformation_translator = transformation;
-		this.parent_translator = top ? this : parentRelation;
+		this.transformation = transformation;
+		this.callerRelation = top ? this : parentRelation;
 		this.context = new AlloyContext();
-		this.context.setCurrentRel(parent_translator);
+		this.context.setCurrentRel(callerRelation);
 		
 		initVariableLists();
 		
-		IExpression field = null;
+		IExpression sub = null;
 		// must be created before calculating the constraint, as it may be recursively called
-		if (!top) field = addRelationField();
+		if (!top) sub = addRelationField();
 		
-		IFormula constraint = calculateConstraint();
+		IFormula temp = calculateConstraint();
 		if (EchoOptionsSetup.getInstance().isOptimize())
-			constraint = simplify(constraint);
+			constraint = simplify(temp);
+		else 
+			constraint = temp;
 		
-		if (top) addRelationConstraint(constraint);
-		else addRelationDef(constraint, field);
+		if (top) addRelationConstraint();
+		else addRelationDef(sub);
 		
 	}
 
@@ -141,14 +140,10 @@ public abstract class EEngineRelation {
 	 * Initializes the variable lists and generates the respective engine declarations.
 	 * TODO: assumes single target.
 	 * @throws EchoError
-	 * @todo Support fom <code>CollectionTemplateExp</code>
+	 * @todo Support for <code>CollectionTemplateExp</code>
 	 */
 	private void initVariableLists() throws EchoError {
-		// creates declarations (variables) for the relation model parameters
-		for (EModelParameter mdl : relation.getTransformation().getModelParams()) {
-			IDecl d = createDecl(mdl);
-			modelParamsDecls.add(d);
-		}
+		manageModelParams();
 		
 		// retrieve the variables occurring in the predicates and assign them owning domains (if possible)
 		Map<EVariable,String> preVar2model = new HashMap<EVariable,String>();
@@ -230,7 +225,6 @@ public abstract class EEngineRelation {
 
 		// exists targetVars : targetPred & postPred
 		EPredicate postPred = relation.getPost();
-//		EchoReporter.getInstance().debug("current "+context.getCurrentRel());
 		if (postPred != null)
 			postFormula = translateCondition(postPred);
 
@@ -286,80 +280,70 @@ public abstract class EEngineRelation {
 		return pred.translate(context);
 	}
 	/**
-	 * Creates an engine declaration
-	 * @param mdl the metamodel ID of the model parameter
-	 * @return the model parameter declaration
+	 * Initializes anything related with the relation model parameters, if needed.
 	 * @throws ErrorInternalEngine
+	 * @throws ErrorParser 
+	 * @throws ErrorUnsupported 
 	 */
-	protected abstract IDecl createDecl(EModelParameter mdl) throws ErrorInternalEngine;
+	protected abstract void manageModelParams() throws ErrorInternalEngine, ErrorUnsupported, ErrorParser;
 
 	/**
-	 * 
-	 * @param sourcevar2model
-	 * @param b
-	 * @return
+	 * Creates engine variable declarations from a set of EMF variables with an associated model.
+	 * @param var2model the variables to translate associated with a model
+	 * @param root if the variables should be added to the transformation context
+	 * @return the new declarations
 	 * @throws EchoError
 	 */
-	protected abstract Map<String, IDecl> createVarDecls(Map<EVariable, String> sourcevar2model, boolean b) throws EchoError;
-
-	/**
-	 * Creates the relation representing a non-top relation call.
-	 * @param fst
-	 * @return the relation representing the non-top call
-	 * @throws ErrorInternalEngine
-	 */
-	protected abstract IExpression createNonTopRel(IDecl fst) throws ErrorInternalEngine;
+	protected abstract Map<String, IDecl> createVarDecls(Map<EVariable, String> var2model, boolean addContext) throws EchoError;
 
 	/** 
-	 * Generates the relation field over the model sigs for called relations
+	 * Generates the relation field over the type of root variables.
 	 * Must be run before the relation constraint is created (otherwise recursive calls will fail)
-	 * @return the field for this relation
+	 * @param rootExps the root variable declarations
+	 * @return the field for this relation's sub-calls
 	 * @throws EchoError
-	 * @todo Support for n models
+	 * TODO: Support for n models
 	 */
-	private IExpression addNonTopRel() throws EchoError {
-		IExpression field = null;
-		IDecl fst = rootVar2engineDecl.get(relation.getDomains().get(0)
-				.getRootVariable().getName());
-		/*Decl snd = rootVar2engineDecl.get(relation.getDomains().get(1)
-				.getVariable().getName());*/
-		
-		field = createNonTopRel(fst);
-		
-		return field;
-	}
+	protected abstract IExpression addNonTopRel(List<IDecl> rootVars) throws EchoError;
 
 	/**
-	 * Adds to the parent transformation the constraint defining the non-top call
+	 * Adds to the parent transformation the constraint defining the non-top call.
 	 * @param fact the constraint defining this relation
 	 * @param field the field representing this sub relation
 	 * @throws EchoError
+	 * TODO: Support for n models
 	 */
-	private void addRelationDef(IFormula fact, IExpression field) throws EchoError {
+	private void addRelationDef(IExpression field) throws EchoError {
+		if (relation.getDomains().size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
 		IDecl fst = rootVar2engineDecl.get(relation.getDomains().get(0).getRootVariable().getName());
 		IDecl snd = rootVar2engineDecl.get(relation.getDomains().get(1).getRootVariable().getName());
-		IFormula e = field.eq(fact.comprehension(fst,snd));
-		transformation_translator.addSubRelationDef(this,modelParamsDecls,e);
+		IFormula e = field.eq(constraint.comprehension(fst,snd));
+		transformation.defineSubRelationCall(this,e);
 	}
 	
-	
 	/** 
-	 * Adds to the parent transformation the constraint representing this top call
+	 * Adds to the parent transformation the constraint representing this top call.
 	 * @param fact the constraint defining this relation
 	 * @throws EchoError
 	 */
-	private void addRelationConstraint(IFormula fact) throws EchoError {
-		transformation_translator.addTopRelationCall(this, modelParamsDecls, fact);
+	private void addRelationConstraint() throws EchoError {
+		transformation.addTopRelationCall(this);
 	}
 	
 	
 	/** 
-	 * Adds to the parent transformation the field representing this non-top call
+	 * Adds to the parent transformation the field representing this non-top call.
+	 * @param rootExps 
 	 * @throws EchoError
 	 */
 	private IExpression addRelationField() throws EchoError {
-		IExpression field = addNonTopRel();
-		transformation_translator.addSubRelationCall(this, modelParamsDecls, field);
+		if (relation.getDomains().size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
+		List<IDecl> rootVars = new ArrayList<IDecl>();
+		rootVar2engineDecl.get(relation.getDomains().get(0).getRootVariable().getName());
+		for (EModelDomain d : relation.getDomains())
+			rootVars.add(rootVar2engineDecl.get(d.getRootVariable().getName()));
+		IExpression field = addNonTopRel(rootVars);
+		transformation.addSubRelationCall(this, field);
 		return field;
 	}
 

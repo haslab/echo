@@ -5,7 +5,7 @@ package pt.uminho.haslab.echo.engine.ast;
  */
 public interface IDecl {
 
-    IExpression expression();
+    IExpression variable();
     String name();
 
 }

@@ -564,7 +564,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 			}
 			context.addVar(new AlloyDecl(self),sig_metamodel.label);
 			context.addVar(new AlloyDecl(model_var));
-			context.addModelParam(false, sig_metamodel.label,
+			context.addMetamodelExpression(false, sig_metamodel.label,
 					new AlloyExpression(model_var.get()));
 
 			OCLTranslator converter = new OCLTranslator(context);
@@ -647,8 +647,8 @@ class EAlloyMetamodel extends EEngineMetamodel {
 						Task.TRANSLATE_METAMODEL);
 			}
 			OCLHelper helper = ocl.createOCLHelper(operation);
-			context.addModelParam(false, sig_metamodel.label, new AlloyExpression(pos.get()));
-			context.addModelParam(true, sig_metamodel.label, new AlloyExpression(pre.get()));
+			context.addMetamodelExpression(false, sig_metamodel.label, new AlloyExpression(pos.get()));
+			context.addMetamodelExpression(true, sig_metamodel.label, new AlloyExpression(pre.get()));
 			
 			OCLTranslator converter = new OCLTranslator(context);
 			for (EAnnotation ea : operation.getEAnnotations())

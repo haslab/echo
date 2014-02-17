@@ -28,12 +28,12 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 /**
- * Auxiliary context for the translation to Alloy.
+ * Auxiliary context for the translation of artifacts to Alloy.
  * Mainly used for variable declaration management.
  * Variables are uniquely identified by name.
  *
  * @author nmm
- * @version 0.4 14/02/2014
+ * @version 0.4 17/02/2014
  */
 public class AlloyContext implements ITContext {
 
@@ -58,14 +58,14 @@ public class AlloyContext implements ITContext {
 	/** {@inheritDoc} */
 	@Override
 	public void addVar(IDecl decl) {
-//		EchoReporter.getInstance().debug("AddVar: "+((AlloyDecl) decl).decl.get().label + " and "+ ((AlloyDecl) decl).decl.get());
-		varExp.put(((AlloyDecl) decl).decl.get().label, (AlloyExpression) decl.expression());
+//		EchoReporter.getInstance().debug("AddVar: "+(decl.name() + " and "+ ((AlloyDecl) decl).decl.get());
+		varExp.put(decl.name(), (AlloyExpression) decl.variable());
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void addVar(IDecl decl, String extra) {
-		varModel.put(((AlloyDecl) decl).decl.get().label,extra);
+		varModel.put(decl.name(),extra);
 		addVar(decl);
 	}
 
@@ -88,15 +88,15 @@ public class AlloyContext implements ITContext {
 	/** {@inheritDoc} */
 	@Override
 	public AlloyExpression getPropExpression(String metaModelID, String className, String fieldName) {
-		EchoReporter.getInstance().debug("** getPropExpression: "+metaModelID+ ", " + className + ", "+fieldName + " with "+currentModel+ " so "+getModelParam(currentModel));
+		EchoReporter.getInstance().debug("** getPropExpression: "+metaModelID+ ", " + className + ", "+fieldName + " with "+currentModel+ " so "+getModelExpression(currentModel));
 
 		EAlloyMetamodel ameta = AlloyEchoTranslator.getInstance().getMetamodel(metaModelID);
         Expr statesig = null;
         if (currentModel != null)
-			statesig = getModelParam(currentModel).EXPR;
+			statesig = getModelExpression(currentModel).EXPR;
 		
 		if (statesig == null)
-			statesig = getModelParam(metaModelID).EXPR;		
+			statesig = getModelExpression(metaModelID).EXPR;		
 
 		EClass eclass = ((EClass) ameta.metamodel.getEObject().getEClassifier(className));
 		EStructuralFeature feature = eclass.getEStructuralFeature(fieldName);
@@ -116,9 +116,8 @@ public class AlloyContext implements ITContext {
 		
 		AlloyExpression state = (AlloyExpression) Constants.EMPTY();
 		
-		
-		if (currentModel != null) state = getModelParam(currentModel);
-		else state = getModelParam(metaModelID);
+		if (currentModel != null) state = getModelExpression(currentModel);
+		else state = getModelExpression(metaModelID);
 
 //		EchoReporter.getInstance().debug("** SDebug result: "+metaModelID+" and "+ className +" did "+field.join(state.EXPR));
 		return (AlloyExpression) (new AlloyExpression(field)).join(state);
@@ -155,7 +154,7 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyExpression getModelParam(String name) {
+	public AlloyExpression getModelExpression(String name) {
 //		EchoReporter.getInstance().debug("Var: "+name + " at "+ currentPre);
 //		EchoReporter.getInstance().debug("But: "+modelPre.keySet() + " and "+ modelPos.keySet());	
 		AlloyExpression e = currentPre?modelPreT.get(name):modelPosT.get(name);
@@ -165,19 +164,19 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyExpression addModelParam(boolean pre, String name, IExpression var) {
+	public AlloyExpression addMetamodelExpression(boolean pre, String name, IExpression var) {
 		return pre?modelPre.put(name,(AlloyExpression) var):modelPos.put(name,(AlloyExpression) var);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyExpression addModelParamX(boolean pre, String name, IExpression var) {
+	public AlloyExpression addParamExpression(boolean pre, String name, IExpression var) {
 		return pre?modelPreT.put(name,(AlloyExpression) var):modelPosT.put(name,(AlloyExpression) var);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public List<IExpression> getModelParams() {
+	public List<IExpression> getModelExpressions() {
 		Collection<AlloyExpression> res = currentPre?modelPreT.values():modelPosT.values();
 		if (res == null) res = currentPre?modelPre.values():modelPos.values();
 		return new ArrayList<IExpression>(res);
@@ -187,7 +186,8 @@ public class AlloyContext implements ITContext {
 		currentRel = (EAlloyRelation) parentRelation;
 	}
 	
-	public EAlloyRelation getCurrentRel() {
+	@Override
+	public EAlloyRelation getCallerRel() {
 		return currentRel;
 	}
 

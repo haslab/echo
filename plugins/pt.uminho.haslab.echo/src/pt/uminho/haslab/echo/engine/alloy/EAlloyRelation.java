@@ -1,16 +1,20 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
@@ -25,9 +29,12 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 public class EAlloyRelation extends EEngineRelation {
 	
-	public EAlloyRelation(EEngineRelation parent_translator, ERelation relation)
+	/** the transformation model parameters declarations */
+	private List<AlloyDecl> modelParamsDecls = new ArrayList<AlloyDecl>();
+
+	public EAlloyRelation(EEngineRelation parentTranslator, ERelation relation)
 			throws EchoError {
-		super(relation, parent_translator);
+		super(relation, parentTranslator);
 	}
 
 	public EAlloyRelation(EAlloyTransformation eAlloyTransformation,
@@ -48,36 +55,41 @@ public class EAlloyRelation extends EEngineRelation {
 	
 	/** {@inheritDoc} */
 	@Override
-	protected AlloyDecl createDecl(EModelParameter model) throws ErrorAlloy {
-		String metamodelID = model.getMetamodel().ID;
+	protected void manageModelParams() throws ErrorAlloy, ErrorUnsupported, ErrorParser {
+		// creates declarations (variables) for the relation model parameters
+		for (EModelParameter mdl : relation.getTransformation()
+				.getModelParams()) {
+			String metamodelID = mdl.getMetamodel().ID;
 
-		Decl d;
-		try {
-			d = AlloyEchoTranslator.getInstance()
-					.getMetamodel(metamodelID).sig_metamodel
-					.oneOf(model.getName());
-		} catch (Err a) {
-			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_VAR,
-					"Failed to create transformation model variable: "
-							+ metamodelID, a,
-					Task.TRANSLATE_TRANSFORMATION);
+			Decl d;
+			try {
+				d = AlloyEchoTranslator.getInstance().getMetamodel(metamodelID).sig_metamodel
+						.oneOf(mdl.getName());
+			} catch (Err a) {
+				throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_VAR,
+						"Failed to create transformation model variable: "
+								+ metamodelID, a, Task.TRANSLATE_TRANSFORMATION);
+			}
+			context.addParamExpression(false, mdl.getName(),
+					new AlloyExpression(d.get()));
+			context.addMetamodelExpression(false, metamodelID,
+					new AlloyExpression(d.get()));
+			AlloyDecl id = new AlloyDecl(d);
+			context.addVar(id, mdl.getName());
+
+			modelParamsDecls.add(id);
 		}
-		context.addModelParamX(false, model.getName(), new AlloyExpression(d.get()));
-		context.addModelParam(false, metamodelID, new AlloyExpression(d.get()));
-		AlloyDecl id = new AlloyDecl(d);
-		context.addVar(id,model.getName());
-		return id;
-
 	}
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc}  */
 	@Override
-	protected AlloyExpression createNonTopRel(IDecl fst) throws ErrorAlloy {
+	protected AlloyExpression addNonTopRel(List<IDecl> rootVars) throws ErrorAlloy, ErrorUnsupported {
+		if (rootVars.size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
+				
 		Field field = null;
-
 		try {
-			Sig s = (Sig) ((AlloyDecl) fst).decl.expr.type().toExpr();
-			for (Field f : s.getFields()) {
+			Sig s = (Sig) ((AlloyDecl) rootVars.get(0)).decl.expr.type().toExpr();
+						for (Field f : s.getFields()) {
 				if (f.label.equals(EchoHelper.relationFieldName(relation,
 						dependency.target)))
 					field = f;
@@ -117,6 +129,9 @@ public class EAlloyRelation extends EEngineRelation {
 	public void newRelation(EQVTRelation rel) throws EchoError {
 		new EAlloyRelation(this, rel);
 	}
-	
+
+	public List<AlloyDecl> getModelParams() {
+		return modelParamsDecls;
+	}
 
 }

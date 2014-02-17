@@ -2,7 +2,6 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Decls;
 import kodkod.ast.Formula;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -54,25 +53,27 @@ class KodkodFormula implements IFormula {
     public IExpression comprehension(IDecl firstDecl, IDecl... extraDecls) {
         Decls ds = ((KodkodDecl) firstDecl).decl;
         for(IDecl d : extraDecls)
-
             ds = ds.and(((KodkodDecl) d).decl);
-
 
         return new KodkodExpression(formula.comprehension(ds));
     }
 
     @Override
-    public IFormula forAll(IDecl decl) {
-        return new KodkodFormula(
-                formula.forAll(((KodkodDecl) decl).decl)
-        );
+    public IFormula forAll(IDecl decl, IDecl... extraDecls) {
+        Decls ds = ((KodkodDecl) decl).decl;
+        for(IDecl d : extraDecls)
+            ds = ds.and(((KodkodDecl) d).decl);
+
+        return new KodkodFormula(formula.forAll(ds));
     }
 
     @Override
-    public IFormula forSome(IDecl decl) {
-        return new KodkodFormula(
-                formula.forSome(((KodkodDecl) decl).decl)
-        );
+    public IFormula forSome(IDecl decl, IDecl... extraDecls) {
+        Decls ds = ((KodkodDecl) decl).decl;
+        for(IDecl d : extraDecls)
+            ds = ds.and(((KodkodDecl) d).decl);
+
+        return new KodkodFormula(formula.forSome(ds));
     }
 
 

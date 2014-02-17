@@ -8,53 +8,70 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.engine.IContext;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.engine.ITContext;
+import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Auxiliary context for the translation to Kodkod.
+ * Auxiliary context for the translation of artifacts to Kodkod.
  * Mainly used for variable declaration management.
  * Variables are uniquely identified by name.
  *
- * @author tmg
- * @version 0.4 14/02/2014
- */class KodkodContext implements IContext{
-
-    private Map<String, IExpression> map = new HashMap<>();
+ * @author tmg, nmm
+ * @version 0.4 17/02/2014
+ */
+class KodkodContext implements ITContext {
+	 
+	private Map<String,KodkodExpression> varExp = new HashMap<String,KodkodExpression>();
+	private Map<String,String> varModel = new HashMap<String,String>();
+	private Map<String,KodkodExpression> modelPre = new HashMap<String,KodkodExpression>();
+	private Map<String,KodkodExpression> modelPos = new HashMap<String,KodkodExpression>();
+	private Map<String,KodkodExpression> modelPreT = new HashMap<String,KodkodExpression>();
+	private Map<String,KodkodExpression> modelPosT = new HashMap<String,KodkodExpression>();
+	
+	private String currentModel;
+	private EKodkodRelation currentRel;
+	private boolean currentPre = false;
 
     public KodkodContext(){}
 
     @Override
     public IExpression getVar(String name) {
-        return map.get(name);
+        return varExp.get(name);
     }
 
-    @Override
-    public void addVar(String name, IExpression var) {
-           map.put(name,var);
-    }
+	/** {@inheritDoc} */
+	@Override
+	public void addVar(IDecl decl) {
+		varExp.put(decl.name(), (KodkodExpression) decl.variable());
+	}
 
-    @Override
-    public void addVar(String name, IExpression var, String extra) {
-              //TODO
-    }
+	/** {@inheritDoc} */
+	@Override
+	public void addVar(IDecl decl, String extra) {
+		varModel.put(((KodkodDecl) decl).decl.variable().name(),extra);
+		addVar(decl);
+	}
 
+	/** {@inheritDoc} */
     @Override
     public void remove(String name) {
-          map.remove(name);
-    }
+    	varExp.remove(name);
+		varModel.remove(name);
+	}
 
+	/** {@inheritDoc} */
     @Override
     public IDecl getDecl(EVariable x) throws EchoError {
         Expression range;
@@ -90,20 +107,6 @@ import java.util.Map;
     }
 
     @Override
-    public IDecl getDecl(Collection<EVariable> x, String name) throws EchoError {
-        IDecl aux=null;
-        boolean found = false;
-        Iterator<EVariable> it  = x.iterator();
-        while(it.hasNext() && !found)
-        {
-           aux = getDecl(it.next());
-           if(aux.name().equals(name))
-               found=true;
-        }
-        return found?aux:null;
-    }
-
-    @Override
     public IExpression getPropExpression(String metaModelID, String className, String fieldName) {
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
 
@@ -122,39 +125,74 @@ import java.util.Map;
         );
     }
 
+    /** {@inheritDoc} */
+	@Override
+	public void setCurrentModel(String name) {
+		currentModel = name;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void setCurrentPre(boolean isPre) {
+		currentPre = isPre;
+	}
+
+	public void setVarModel(String name, String model) throws ErrorParser {
+		varModel.put(name,model);
+	}
+
+
+	/** {@inheritDoc} */
+	@Override
+	public KodkodExpression getModelExpression(String name) {
+		KodkodExpression e = currentPre?modelPreT.get(name):modelPosT.get(name);
+		if (e == null) e = currentPre?modelPre.get(name):modelPos.get(name);
+		return e;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public KodkodExpression addMetamodelExpression(boolean pre, String name, IExpression var) {
+		return pre?modelPre.put(name,(KodkodExpression) var):modelPos.put(name,(KodkodExpression) var);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public KodkodExpression addParamExpression(boolean pre, String name, IExpression var) {
+		return pre?modelPreT.put(name,(KodkodExpression) var):modelPosT.put(name,(KodkodExpression) var);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public List<IExpression> getModelExpressions() {
+		Collection<KodkodExpression> res = currentPre?modelPreT.values():modelPosT.values();
+		if (res == null) res = currentPre?modelPre.values():modelPos.values();
+		return new ArrayList<IExpression>(res);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void setCurrentRel(EEngineRelation parentRelation) {
+		currentRel = (EKodkodRelation) parentRelation;
+	}
+	
+	/** {@inheritDoc} */
 	@Override
 	public String getVarModel(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return varModel.get(name);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<String> getVars() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<String>(varExp.keySet());
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public void setCurrentModel(String object) {
-		// TODO Auto-generated method stub
-		
+	public EEngineRelation getCallerRel() {
+		return currentRel;
 	}
 
-	@Override
-	public void setCurrentPre(boolean pre) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void addVar(IDecl decl) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addVar(IDecl decl, String modelState) {
-		// TODO Auto-generated method stub
-		
-	}
 }

@@ -17,7 +17,7 @@ class KodkodDecl implements IDecl{
 
 
     @Override
-    public IExpression expression() {
+    public IExpression variable() {
         return new KodkodExpression(decl.variable());
     }
 

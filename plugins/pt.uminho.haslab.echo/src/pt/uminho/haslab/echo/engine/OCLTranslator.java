@@ -297,27 +297,27 @@ public class OCLTranslator {
 
 		if (expr.getReferredIteration().getName().equals("forAll")) {
 			aux = (IFormula) body;
-			aux = ((d.expression().in(src)).implies(aux));
+			aux = ((d.variable().in(src)).implies(aux));
 			res = aux.forAll(d);
 		} else if (expr.getReferredIteration().getName().equals("exists")) {
 			aux = (IFormula) body;
-			aux = ((d.expression().in(src)).and(aux));
+			aux = ((d.variable().in(src)).and(aux));
 			res = aux.forSome(d);
 		} else if (expr.getReferredIteration().getName().equals("one")) {
 			aux = (IFormula) body;
-			aux = ((d.expression().in(src)).and(aux));
+			aux = ((d.variable().in(src)).and(aux));
 			res = aux.forOne(d);
 		} else if (expr.getReferredIteration().getName().equals("collect")) {
-			aux = d.expression().in(src);
+			aux = d.variable().in(src);
 			res = src.join(aux.comprehension(d,
 					((IExpression) body).oneOf("2_")));
 		} else if (expr.getReferredIteration().getName().equals("select")) {
 			aux = (IFormula) body;
-			aux = ((d.expression().in(src)).and(aux));
+			aux = ((d.variable().in(src)).and(aux));
 			res = aux.comprehension(d);
 		} else if (expr.getReferredIteration().getName().equals("reject")) {
 			aux = (IFormula) body;
-			aux = ((d.expression().in(src)).and(aux.not()));
+			aux = ((d.variable().in(src)).and(aux.not()));
 			res = aux.comprehension(d);
 		} else if (expr.getReferredIteration().getName().equals("closure")) {
 			IDecl dd = ((IExpression) body).oneOf("2_");
@@ -461,13 +461,13 @@ public class OCLTranslator {
 		}
 
 		// tries to call referred relation
-		IFormula res = ((ITContext) context).getCurrentRel().transformation_translator
+		IFormula res = ((ITContext) context).getCallerRel().transformation
 				.callRelation(rel,((ITContext) context),params);
 
 		// if it doesn't exist, process it
 		if (res == null) {
-			((ITContext) context).getCurrentRel().newRelation(rel);
-			res = ((ITContext) context).getCurrentRel().transformation_translator
+			((ITContext) context).getCallerRel().newRelation(rel);
+			res = ((ITContext) context).getCallerRel().transformation
 					.callRelation(rel, ((ITContext) context), params);
 		}
 				
