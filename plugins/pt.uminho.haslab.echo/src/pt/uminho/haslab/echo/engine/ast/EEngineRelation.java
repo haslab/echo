@@ -318,7 +318,7 @@ public abstract class EEngineRelation {
 		IDecl fst = rootVar2engineDecl.get(relation.getDomains().get(0).getRootVariable().getName());
 		IDecl snd = rootVar2engineDecl.get(relation.getDomains().get(1).getRootVariable().getName());
 		IFormula e = field.eq(constraint.comprehension(fst,snd));
-		transformation.defineSubRelationCall(this,e);
+		transformation.defineSubRelationField(this,e);
 	}
 	
 	/** 
@@ -327,7 +327,7 @@ public abstract class EEngineRelation {
 	 * @throws EchoError
 	 */
 	private void addRelationConstraint() throws EchoError {
-		transformation.addTopRelationCall(this);
+		transformation.addTopRelationConstraint(this);
 	}
 	
 	
@@ -343,7 +343,7 @@ public abstract class EEngineRelation {
 		for (EModelDomain d : relation.getDomains())
 			rootVars.add(rootVar2engineDecl.get(d.getRootVariable().getName()));
 		IExpression field = addNonTopRel(rootVars);
-		transformation.addSubRelationCall(this, field);
+		transformation.addSubRelationField(this, field);
 		return field;
 	}
 

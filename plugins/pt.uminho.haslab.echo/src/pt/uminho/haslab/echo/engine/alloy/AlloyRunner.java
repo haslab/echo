@@ -281,7 +281,7 @@ public class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(metamodel.getConforms().call(
 					model.model_sig));
 		}
-		finalfact = finalfact.and(trans.getTransformationConstraint(sigs).formula);
+		finalfact = finalfact.and(trans.getConstraint(sigs).formula);
 		EchoReporter.getInstance().debug("Final fact: "+finalfact);
 
 		try {
@@ -369,7 +369,7 @@ public class AlloyRunner implements EngineRunner {
 			}
 			AlloyFormula expr = AlloyEchoTranslator.getInstance()
 					.getQVTTransformation(transformationID)
-					.getTransformationConstraint(sigs);
+					.getConstraint(sigs);
 			finalfact = finalfact.and(expr.formula);
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
@@ -437,7 +437,7 @@ public class AlloyRunner implements EngineRunner {
 			}
 		}
 		AlloyFormula expr = AlloyEchoTranslator.getInstance()
-				.getQVTTransformation(transformationID).getTransformationConstraint(sigs);
+				.getQVTTransformation(transformationID).getConstraint(sigs);
 		finalfact = finalfact.and(expr.formula);
 
 		try {

@@ -1,6 +1,5 @@
 package pt.uminho.haslab.echo.engine.ast;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,7 @@ import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
  * An embedding of a model transformation in an abstract Echo engine.
- *
+ * 
  * @author nmm
  * @version 0.4 14/02/2014
  */
@@ -23,91 +22,122 @@ public abstract class EEngineTransformation {
 
 	/** the transformation being translated */
 	public final ETransformation transformation;
-	
-	/** 
-	 * Embeds a model Transformation in an Echo engine.
-	 * A {@code EEngineRelation} is created for every top relation and dependency.
-	 * @param transformation the model transformation being translated
-	 * @param dependencies the dependencies set for each relation
+
+	/**
+	 * Embeds a model Transformation in an Echo engine. A
+	 * {@code EEngineRelation} is created for every top relation and dependency.
+	 * 
+	 * @param transformation
+	 *            the model transformation being translated
+	 * @param dependencies
+	 *            the dependencies set for each relation
 	 * @throws EchoError
 	 */
-	protected EEngineTransformation (ETransformation transformation, Map<String,List<EDependency>> dependencies) throws EchoError {
-		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION, transformation.getName());
+	protected EEngineTransformation(ETransformation transformation,
+			Map<String, List<EDependency>> dependencies) throws EchoError {
+		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION,
+				transformation.getName());
 		this.transformation = transformation;
 
-		manageModelParams();	
+		initModelParams();
 
+		// translates each top relation
 		for (ERelation rel : transformation.getRelations())
-			if (rel.isTop()) {
+			if (rel.isTop())
 				for (EDependency dep : dependencies.get(rel.getName()))
-					createRelation(rel,dep);
-			}
-		
-		generateConstraints();
-		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION, transformation.getName(), true);
+					createRelation(rel, dep);
+
+		processConstraint();
+		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION,
+				transformation.getName(), true);
 	}
-	
+
 	/**
 	 * Embeds a transformation relation in an Echo engine.
-	 * @param rel the relation to translate
-	 * @param dep the dependency (direction) being translated
+	 * 
+	 * @param rel
+	 *            the relation to translate
+	 * @param dep
+	 *            the dependency (direction) being translated
 	 * @throws EchoError
 	 */
-	protected abstract void createRelation(ERelation rel, EDependency dep) throws EchoError;
+	protected abstract void createRelation(ERelation rel, EDependency dep)
+			throws EchoError;
 
 	/**
-	 * Creates the transoformation model parameters.
-	 * @param model_params_decls
-	 * @param model_params_vars
+	 * Initializes anything related with model parameters.
+	 * 
 	 * @throws ErrorInternalEngine
 	 */
-	protected abstract void manageModelParams() throws ErrorInternalEngine;
-
-	protected abstract void generateConstraints() throws ErrorInternalEngine;
-	
-	/**
-	 * Returns the Alloy function corresponding to this QVT Transformation
-	 * Function parameters are the model variables
-	 * @return this.fact
-	 */	
-	protected abstract IFormula getTransformationConstraint(List<IExpression> vars);
+	protected abstract void initModelParams() throws ErrorInternalEngine;
 
 	/**
- 	 * Defines a sub-relation call relation previously inserted by <code>addSubRelationCall</code>.
-	 * Called by containing relations. 
-	 * @param rel the relation of which the predicate will be created
-	 * @param modelParams the parameters of the predicate
-	 * @param def the definition of the relation
+	 * Processes the transformation constraint.
+	 * 
 	 * @throws ErrorInternalEngine
 	 */
-	protected abstract void defineSubRelationCall(EEngineRelation rel, IFormula def) throws ErrorInternalEngine;
+	protected abstract void processConstraint() throws ErrorInternalEngine;
 
 	/**
- 	 * Adds a new an expression denoting a sub-relation call.
-	 * Called by containing relations. 
-	 * @param rel the relation of which the predicate will be created
-	 * @param modelParams the parameters of the predicate
-	 * @param relation the expression (relation or field) that will denote the call
-	 * @throws ErrorInternalEngine
+	 * Calculates the transformation constraint for specific models. Function
+	 * parameters are the model variables.
+	 * 
+	 * @param vars
+	 *            the model variables
+	 * @return the constraint over the variables
 	 */
-	public abstract void addSubRelationCall(EEngineRelation rel, IExpression relation) throws ErrorInternalEngine;
-	
-	/**
- 	 * Adds a new top-relation predicate.
-	 * Called by containing relations. 
-	 * @param rel the relation of which the predicate will be created
-	 * @param modelParams the parameters of the predicate
-	 * @throws ErrorInternalEngine
-	 */
-	protected abstract void addTopRelationCall(EEngineRelation rel) throws ErrorInternalEngine;
+	protected abstract IFormula getConstraint(List<IExpression> vars);
 
 	/**
-	 * Returns the expression resulting from calling a relation with specific parameters.
-	 * @param rel the relation being called
-	 * @param context the context of the transformation
-	 * @param params the parameters of the relation
-	 * @return the expression resulting from calling <code>rel</rel> over <code>params</code>
+	 * Defines a sub-relation call relation previously inserted by
+	 * <code>addSubRelationCall</code>. Called by containing relations.
+	 * 
+	 * @param rel
+	 *            the relation being defined
+	 * @param def
+	 *            defines the sub-relation field
+	 * @throws ErrorInternalEngine
 	 */
-	public abstract IFormula callRelation(ERelation rel, ITContext context, List<IExpression> params);
+	protected abstract void defineSubRelationField(EEngineRelation rel,
+			IFormula def) throws ErrorInternalEngine;
+
+	/**
+	 * Adds a new expression denoting a sub-relation call. Called by containing
+	 * relations.
+	 * 
+	 * @param rel
+	 *            the relation of which the predicate will be created
+	 * @param field
+	 *            the expression that denotes the call
+	 * @throws ErrorInternalEngine
+	 */
+	public abstract void addSubRelationField(EEngineRelation rel,
+			IExpression field) throws ErrorInternalEngine;
+
+	/**
+	 * Adds a new top-relation constraint. Called by containing relations.
+	 * 
+	 * @param rel
+	 *            the relation whose constraint is being created
+	 * @throws ErrorInternalEngine
+	 */
+	protected abstract void addTopRelationConstraint(EEngineRelation rel)
+			throws ErrorInternalEngine;
+
+	/**
+	 * Returns the expression resulting from calling a relation with specific
+	 * parameters.
+	 * 
+	 * @param rel
+	 *            the relation being called
+	 * @param context
+	 *            the context of the transformation
+	 * @param params
+	 *            the parameters of the relation
+	 * @return the expression resulting from calling
+	 *         <code>rel</rel> over <code>params</code>
+	 */
+	public abstract IFormula callRelation(ERelation rel, ITContext context,
+			List<IExpression> params);
 
 }
