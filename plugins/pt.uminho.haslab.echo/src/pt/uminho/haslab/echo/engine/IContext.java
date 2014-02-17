@@ -69,9 +69,6 @@ public interface IContext {
      */
     IDecl getDecl(EVariable var) throws EchoError;
 
-    //TODO: necessary?
-    IDecl getDecl(Collection<EVariable> x, String name) throws EchoError;
-
     /**
      * Returns the expression representing a property call.
      * Should take into consideration the current pre-state and current model.
@@ -106,11 +103,5 @@ public interface IContext {
      * @param object
      */
 	void setCurrentPre(boolean pre);
-	
-	public IExpression getModelParam(String name);
-
-	public List<IExpression> getModelParams();
-
-	public EEngineRelation getCurrentRel();
 	
 }

@@ -20,7 +20,6 @@ import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,6 @@ import org.eclipse.ocl.examples.pivot.PropertyCallExp;
 import org.eclipse.ocl.examples.pivot.TypeExp;
 import org.eclipse.ocl.examples.pivot.UnlimitedNaturalLiteralExp;
 import org.eclipse.ocl.examples.pivot.Variable;
-import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 import org.eclipse.ocl.examples.pivot.VariableExp;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
@@ -66,7 +64,7 @@ public class OCLTranslator {
 		else if (expr instanceof VariableExp)
 			return translateExpression((VariableExp) expr);
 		 else if (expr instanceof RelationCallExp) 
-			 return translate((RelationCallExp) expr);
+			 return translateFormula((RelationCallExp) expr);
 		else if (expr instanceof IteratorExp)
 			return translate((IteratorExp) expr);
 		else if (expr instanceof OperationCallExp)
@@ -120,7 +118,6 @@ public class OCLTranslator {
 
 		else if (expr instanceof PropertyCallExp) {
 			INode n = translate((PropertyCallExp) expr);
-			
 			if (n instanceof IExpression)
 				return (IExpression) n;
 		}
@@ -184,7 +181,7 @@ public class OCLTranslator {
 
 	private IFormula translateFormula(ObjectTemplateExp temp) throws EchoError {
 		IFormula result = Constants.TRUE();
-
+		
 		for (PropertyTemplateItem part : temp.getPart()) {
 			// calculates OCL expression
 			OCLExpression value = part.getValue();
@@ -201,18 +198,15 @@ public class OCLTranslator {
 						+ temp.getBindsTo());
 
 			context.setCurrentModel(context.getVarModel(varName));
+			EchoReporter.getInstance().debug("Template "+varName+" so model "+context.getVarModel(varName));
 			IExpression localField = propertyToField(prop);
 			if (part.isIsOpposite())
 				localField = localField.transpose();
 			context.setCurrentModel(null);
 
 			// merges the whole thing
-			IFormula item;
-			if (ocl.equals(Constants.TRUE()))
-				item = var.in(localField);
-			else if (ocl.equals(Constants.FALSE()))
-				item = var.in(localField).not();
-			else if (value instanceof ObjectTemplateExp) {
+			IFormula item = Constants.TRUE();
+			if (value instanceof ObjectTemplateExp) {
 				varName = ((ObjectTemplateExp) value).getBindsTo().getName();
 				IExpression var1 = context.getVar(varName);
 				if (var1 == null)
@@ -221,7 +215,13 @@ public class OCLTranslator {
 
 				item = var1.in(var.join(localField));
 				item = item.and((IFormula) ocl);
-			} else {
+			} 
+			else if (ocl.equals(Constants.TRUE()))
+				item = var.in(localField);
+			else if (ocl.equals(Constants.FALSE()))
+				item = var.in(localField).not();
+ 
+			else {
 				item = ((IExpression) ocl).in(var.join(localField));
 			}
 			result = result.and(item);
@@ -237,13 +237,11 @@ public class OCLTranslator {
 	}
 
 	private IExpression translateExpression(IfExp expr) throws EchoError {
-		IExpression res = null;
-
 		IFormula eif = translateFormula(expr.getCondition());
 		IExpression thenExpr = translateExpression(expr.getThenExpression());
 		IExpression elseExpr = translateExpression(expr.getElseExpression());
 
-		res = eif.thenElse(thenExpr, elseExpr);
+		IExpression res = eif.thenElse(thenExpr, elseExpr);
 		return res;
 	}
 
@@ -276,7 +274,7 @@ public class OCLTranslator {
 
 		List<Variable> varIterator = expr.getIterator();
 		if (varIterator.size() != 1)
-			throw new ErrorTransform("Invalid variables on closure: "
+			throw new ErrorUnsupported("Invalid variables on closure: "
 					+ varIterator);
 		EVariable x = EVariable.getVariable(varIterator.get(0));
 
@@ -453,7 +451,6 @@ public class OCLTranslator {
 	}
 
 	IFormula translateFormula(RelationCallExp expr) throws EchoError {
-
 		EQVTRelation rel = new EQVTRelation(expr.getReferredRelation());
 		
 		// translates variable parameters
@@ -464,16 +461,16 @@ public class OCLTranslator {
 		}
 
 		// tries to call referred relation
-		IFormula res = context.getCurrentRel().transformation_translator
-				.callRelation(rel,context,params);
+		IFormula res = ((ITContext) context).getCurrentRel().transformation_translator
+				.callRelation(rel,((ITContext) context),params);
 
 		// if it doesn't exist, process it
 		if (res == null) {
-			context.getCurrentRel().newRelation(rel);
-			res = context.getCurrentRel().transformation_translator
-					.callRelation(rel, context, params);
+			((ITContext) context).getCurrentRel().newRelation(rel);
+			res = ((ITContext) context).getCurrentRel().transformation_translator
+					.callRelation(rel, ((ITContext) context), params);
 		}
-		
+				
 		return res;
 
 	}
@@ -535,12 +532,11 @@ public class OCLTranslator {
 				.getReferredVariable().equals(b2.getReferredVariable()))
 				|| (a2.getReferredVariable().equals(b2.getReferredVariable()) && a1
 						.getReferredVariable().equals(b1.getReferredVariable()))) {
-			HashSet<EVariable> aux = new HashSet<EVariable>();
-			for (VariableDeclaration xx : it.getIterator())
-				aux.add(EVariable.getVariable(xx));
 
-			IDecl d = context.getDecl(aux, it.getIterator().get(0).getName());
-			context.addVar(d);
+			if (it.getIterator().size() > 1)
+				throw new ErrorUnsupported("Unsupported number of variables.");
+			
+			IDecl d = context.getDecl(EVariable.getVariable(it.getIterator().get(0)));
 			IExpression bdy = translateExpression(it.getBody());
 			IDecl dd = bdy.oneOf("2_");
 			exp = Constants.TRUE().comprehension(d, dd);
@@ -570,7 +566,8 @@ public class OCLTranslator {
 		if (exp == null && prop.getOpposite() != null
 				&& EchoOptionsSetup.getInstance().isOptimize())
 			exp = context.getPropExpression(metamodel.ID,
-					prop.getOpposite().getName(), prop.getName()).transpose();
+					prop.getOpposite().getOwningType().getName(),
+					prop.getOpposite().getName()).transpose();
 
 		if (exp == null)
 			throw new Error("Field not found: " + metamodeluri + ", "

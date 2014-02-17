@@ -240,7 +240,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 */
 	Func getConforms() throws ErrorAlloy {
 		Func f;
-		EchoReporter.getInstance().debug("m "+constraint_conforms);
+//		EchoReporter.getInstance().debug("m "+constraint_conforms);
 
 		try {
 			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);

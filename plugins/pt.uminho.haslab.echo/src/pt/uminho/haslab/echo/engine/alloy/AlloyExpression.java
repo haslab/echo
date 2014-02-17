@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.engine.alloy;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.ast.*;
@@ -30,7 +31,7 @@ class AlloyExpression implements IExpression{
 
     @Override
     public IExpression transpose() {
-        return new AlloyExpression(EXPR.closure());
+        return new AlloyExpression(EXPR.transpose());
     }
 
     @Override
@@ -102,5 +103,17 @@ class AlloyExpression implements IExpression{
 		Expr evar = ((AlloyExpression) var).EXPR;
 		if (!(evar instanceof ExprVar)) return false;
 		return EXPR.hasVar((ExprVar) evar);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof AlloyExpression)) return false;
+		AlloyExpression a = (AlloyExpression) o;
+		return this.EXPR.isSame(a.EXPR);				
+	}
+	
+	@Override
+	public String toString() {
+		return EXPR.toString();
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
@@ -119,21 +120,21 @@ public abstract class EEngineRelation {
 		this.transformation_translator = transformation;
 		this.parent_translator = top ? this : parentRelation;
 		this.context = new AlloyContext();
-		this.context.setCurrentRel(parentRelation);
+		this.context.setCurrentRel(parent_translator);
 		
 		initVariableLists();
-
+		
 		IExpression field = null;
 		// must be created before calculating the constraint, as it may be recursively called
 		if (!top) field = addRelationField();
-
+		
 		IFormula constraint = calculateConstraint();
 		if (EchoOptionsSetup.getInstance().isOptimize())
 			constraint = simplify(constraint);
 		
 		if (top) addRelationConstraint(constraint);
 		else addRelationDef(constraint, field);
-
+		
 	}
 
 	/** 
@@ -229,6 +230,7 @@ public abstract class EEngineRelation {
 
 		// exists targetVars : targetPred & postPred
 		EPredicate postPred = relation.getPost();
+//		EchoReporter.getInstance().debug("current "+context.getCurrentRel());
 		if (postPred != null)
 			postFormula = translateCondition(postPred);
 
@@ -270,7 +272,7 @@ public abstract class EEngineRelation {
 			for (IDecl d : whenVar2engineDecl.values())
 				formula = formula.forAll(d);
 		}
-		
+
 		return formula;
 	}	
 	

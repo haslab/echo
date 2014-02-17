@@ -104,8 +104,17 @@ class AlloyFormula implements IFormula {
 		}
     }
     
-    public String toString() {
-    	return formula.toString();
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof AlloyFormula)) return false;
+		AlloyFormula a = (AlloyFormula) o;
+		return this.formula.isSame(a.formula);				
+	}
+	
+	@Override
+	public String toString() {
+		return formula.toString();
+	}
+	
 }
 

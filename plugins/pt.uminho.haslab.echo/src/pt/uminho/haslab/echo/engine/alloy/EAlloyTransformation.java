@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.IContext;
+import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
@@ -32,13 +34,13 @@ class EAlloyTransformation extends EEngineTransformation {
 	private Func func;
 	
 	/** the Alloy functions defining sub-relation consistency */
-	private Map<String,Func> subrelationcall_defs;
+	private Map<String,Func> subRelationCallDefs;
 
 	/** the Alloy functions defining sub-relation calls */
-	private Map<String,Func> subrelationcall_funcs;
+	private Map<String,Func> subRelationCallFuncs;
 	
 	/** the Alloy functions defining top-relation calls */
-	private Map<String,Func> toprelationcall_funcs;
+	private Map<String,Func> topRelationCallFuncs;
 	
 	/** {@inheritDoc} */
 	EAlloyTransformation(ETransformation transformation,
@@ -85,13 +87,12 @@ class EAlloyTransformation extends EEngineTransformation {
 		for (int i = 0; i<model_params_vars.size(); i++)
 			vars[i] = ((AlloyExpression) model_params_vars.get(i)).EXPR;
 
-		
 		Expr fact = Sig.NONE.no();
-		for (Func f : toprelationcall_funcs.values()) {
+		for (Func f : topRelationCallFuncs.values()) {
 			fact = fact.and(f.call(vars));
 		}
 		
-		for (Func f : subrelationcall_defs.values()) {
+		for (Func f : subRelationCallDefs.values()) {
 			fact = fact.and(f.call(vars));
 		}
 		
@@ -119,7 +120,7 @@ class EAlloyTransformation extends EEngineTransformation {
 	@Override
 	protected void addSubRelationDef(EEngineRelation eAlloyRelation,
 			List<IDecl> model_params_decls, IFormula e) throws ErrorAlloy {
-		if (subrelationcall_defs == null) subrelationcall_defs = new HashMap<String,Func>();
+		if (subRelationCallDefs == null) subRelationCallDefs = new HashMap<String,Func>();
 
 		Func f;
 		List<Decl> decls = new ArrayList<Decl>();
@@ -129,7 +130,7 @@ class EAlloyTransformation extends EEngineTransformation {
 			f = new Func(null, EchoHelper.relationFieldName(
 					eAlloyRelation.relation, eAlloyRelation.dependency.target)
 					+ "def", decls, null, ((AlloyFormula) e).formula);
-			subrelationcall_defs.put(f.label, f);
+			subRelationCallDefs.put(f.label, f);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
 					"Failed to create sub relation field constraint: "
@@ -143,7 +144,7 @@ class EAlloyTransformation extends EEngineTransformation {
 	public void addSubRelationCall(EEngineRelation eAlloyRelation,
 			List<IDecl> model_params_decls, IExpression exp) throws ErrorAlloy {
 		
-		if (subrelationcall_funcs == null) subrelationcall_funcs = new HashMap<String,Func>();
+		if (subRelationCallFuncs == null) subRelationCallFuncs = new HashMap<String,Func>();
 		
 		List<Decl> decls = new ArrayList<Decl>();
 		Field field = (Field) ((AlloyExpression) exp).EXPR;
@@ -153,7 +154,7 @@ class EAlloyTransformation extends EEngineTransformation {
 			Func x = new Func(null, EchoHelper.relationFieldName(
 					eAlloyRelation.relation, eAlloyRelation.dependency.target),
 					decls, field.type().toExpr(), field);
-			subrelationcall_funcs.put(x.label, x);
+			subRelationCallFuncs.put(x.label, x);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
 					"Failed to create sub relation constraint function: "
@@ -167,7 +168,7 @@ class EAlloyTransformation extends EEngineTransformation {
 	protected void addTopRelationCall(EEngineRelation arelation,
 			List<IDecl> model_params_decls, IFormula fact) throws ErrorAlloy {
 		
-		if (toprelationcall_funcs == null) toprelationcall_funcs = new HashMap<String,Func>();
+		if (topRelationCallFuncs == null) topRelationCallFuncs = new HashMap<String,Func>();
 		
 		List<Decl> decls = new ArrayList<Decl>();
 		for (IDecl d : model_params_decls)
@@ -176,7 +177,7 @@ class EAlloyTransformation extends EEngineTransformation {
 			Func x = new Func(null, EchoHelper.relationPredName(
 					arelation.relation, arelation.dependency.target),
 					decls, null, ((AlloyFormula) fact).formula);
-			toprelationcall_funcs.put(x.label, x);
+			topRelationCallFuncs.put(x.label, x);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
 					"Failed to create top relation constraint function: "
@@ -187,9 +188,9 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyFormula callRelation(ERelation n, IContext context, List<IExpression> params) {
-		if (subrelationcall_funcs == null) return null;
-		Func f = subrelationcall_funcs.get(EchoHelper.relationFieldName(n,context.getCurrentRel().dependency.target));
+	public AlloyFormula callRelation(ERelation n, ITContext context, List<IExpression> params) {
+		if (subRelationCallFuncs == null) return null;
+		Func f = subRelationCallFuncs.get(EchoHelper.relationFieldName(n,context.getCurrentRel().dependency.target));
 		if (f == null) return null;
 
 		// applies the model parameters to the relation function

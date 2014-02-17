@@ -50,16 +50,17 @@ public class EAlloyRelation extends EEngineRelation {
 		try {
 			d = AlloyEchoTranslator.getInstance()
 					.getMetamodel(metamodelID).sig_metamodel
-					.oneOf(metamodelID);
+					.oneOf(model.getName());
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
 					"Failed to create transformation model variable: "
 							+ metamodelID, a,
 					Task.TRANSLATE_TRANSFORMATION);
 		}
-		context.addModelParam(false, model.getName(), new AlloyExpression(d.get()));
+		context.addModelParamX(false, model.getName(), new AlloyExpression(d.get()));
+		context.addModelParam(false, metamodelID, new AlloyExpression(d.get()));
 		AlloyDecl id = new AlloyDecl(d);
-		context.addVar(id);
+		context.addVar(id,model.getName());
 		return id;
 
 	}
