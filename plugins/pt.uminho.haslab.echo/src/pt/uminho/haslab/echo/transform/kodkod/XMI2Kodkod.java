@@ -143,8 +143,8 @@ class XMI2Kodkod {
 
 
             }else if(obj instanceof String ){
-                pair = new Pair<>(it,obj);
                 obj = "str" + obj;       //Putting a prefix to strings, to make creation of new strings easier
+                pair = new Pair<>(it,obj);
                 universe.add(obj);
                 set.add(pair);
                 strings.add((String) obj);

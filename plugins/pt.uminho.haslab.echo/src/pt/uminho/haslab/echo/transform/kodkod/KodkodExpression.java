@@ -2,12 +2,13 @@ package pt.uminho.haslab.echo.transform.kodkod;
 
 import kodkod.ast.Expression;
 import kodkod.ast.Variable;
+import pt.uminho.haslab.echo.EchoTypeError;
 import pt.uminho.haslab.echo.transform.ast.*;
 
 /**
  * Created by tmg on 2/4/14.
  */
-class KodkodExpression implements IExpression{
+class KodkodExpression implements IExpression, IEq{
 
     public final Expression EXPR;
 
@@ -91,6 +92,14 @@ class KodkodExpression implements IExpression{
 
     @Override
     public IIntExpression cardinality() {
-        return Constants.makeNumber(EXPR.arity());
+        return new KodkodIntExpression(EXPR.count());
+    }
+
+    @Override
+    public IFormula eq(IEq exp) throws EchoTypeError {
+        if(exp instanceof IExpression)
+            return eq((IExpression) exp);
+        else
+            throw new EchoTypeError("IExpression");
     }
 }

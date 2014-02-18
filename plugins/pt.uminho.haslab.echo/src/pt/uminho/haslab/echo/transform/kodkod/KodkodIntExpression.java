@@ -2,13 +2,15 @@ package pt.uminho.haslab.echo.transform.kodkod;
 
 
 import kodkod.ast.IntExpression;
+import pt.uminho.haslab.echo.EchoTypeError;
+import pt.uminho.haslab.echo.transform.ast.IEq;
 import pt.uminho.haslab.echo.transform.ast.IFormula;
 import pt.uminho.haslab.echo.transform.ast.IIntExpression;
 
 /**
  * Created by tmg on 2/10/14.
  */
-class KodkodIntExpression implements IIntExpression{
+class KodkodIntExpression implements IIntExpression, IEq{
 
     public final IntExpression expr;
 
@@ -70,5 +72,17 @@ class KodkodIntExpression implements IIntExpression{
                         ((KodkodIntExpression) iIntExpression).expr
                 )
         );
+    }
+
+    @Override
+    public IFormula eq(IEq exp) throws EchoTypeError {
+        if(exp instanceof IIntExpression)
+            return eq((IIntExpression) exp);
+        else
+            throw new EchoTypeError("IIntExpression");
+    }
+
+    private IFormula eq(IIntExpression exp) {
+        return new KodkodFormula(expr.eq(((KodkodIntExpression) exp).expr));
     }
 }

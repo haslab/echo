@@ -11,18 +11,9 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.qvtd.xtext.qvtrelation;bundle-version="0.11.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: src/,
- lib/alloy4.2.jar
-Export-Package: edu.mit.csail.sdg.alloy4compiler.translator;
-  uses:="new edu.mit.csail.sdg.alloy4compiler.translator,
-   kodkod.ast.visitor,
-   edu.mit.csail.sdg.alloy4compiler.ast,
-   kodkod.engine.config,
-   kodkod.engine.satlab,
-   edu.mit.csail.sdg.alloy4,
-   kodkod.engine,
-   kodkod.instance,
-   kodkod.ast",
- edu.mit.csail.sdg.alloy4viz;
+ lib/kodkod.jar,  
+ lib/alloy4.2.jar 
+Export-Package: edu.mit.csail.sdg.alloy4viz;
   uses:="new edu.mit.csail.sdg.alloy4viz,
    edu.mit.csail.sdg.alloy4,
    edu.mit.csail.sdg.alloy4graph,

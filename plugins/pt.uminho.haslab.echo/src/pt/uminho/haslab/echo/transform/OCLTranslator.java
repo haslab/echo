@@ -265,8 +265,8 @@ public class OCLTranslator{
             INode aux = translate(expr.getArgument().get(0));
             if (expr.getArgument().get(0).getType().getName().equals("Boolean"))
                 res = ((IFormula)src).iff((IFormula) aux);
-            else
-                res = ((IExpression)src).eq((IExpression) aux);
+            else  //TODO talk with nuno
+                res = ((IEq)src).eq((IEq) aux);
         }
         else if (expr.getReferredOperation().getName().equals("<>")){
             INode aux = translate(expr.getArgument().get(0));
