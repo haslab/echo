@@ -3,14 +3,12 @@ package pt.uminho.haslab.echo.transform.kodkod;
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
 import kodkod.util.nodes.PrettyPrinter;
-
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
-
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.transform.EEngineMetamodel;
 import pt.uminho.haslab.echo.transform.OCLTranslator;
@@ -20,7 +18,6 @@ import pt.uminho.haslab.echo.util.Pair;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.*;
-import java.util.concurrent.locks.ReadWriteLock;
 
 class EKodkodMetamodel extends EEngineMetamodel {
 
@@ -33,8 +30,10 @@ class EKodkodMetamodel extends EEngineMetamodel {
 	private Map<String,Relation> mapSfRel;
     /**maps the hierarchy */
     private Map<String,Set<String>> mapParents;
-    /**maps a structural feature relation into its type relatiosn*/
+    /**maps a eReference relation into its type relations*/
     private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType;
+    /**maps an attribute relation with int as a type, to  */
+    private Map<Relation, Set<Relation>> mapIntType;
 
 
     /**facts about the meta-model*/
@@ -229,11 +228,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 				attribute = Relation.binary(attrName);
 				facts = facts.and(attribute.function(domain, Expression.INTS));
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
-                //set.add(Expression.INTS);
-                mapRefType.put(attribute,
-                        new Pair<>(
-                                getRelDomain(className),
-                                set));
+
 			} 
 			else if (attr.getEType() instanceof EEnum) {
 				//TODO
