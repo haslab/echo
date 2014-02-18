@@ -12,6 +12,7 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.alloy.AlloyContext;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -30,7 +31,7 @@ import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
  */
 public abstract class EEngineRelation {
 	
-	public final AlloyContext context;
+	public final ITContext context;
 
 	/** the relation being transformed */
 	public final ERelation relation;

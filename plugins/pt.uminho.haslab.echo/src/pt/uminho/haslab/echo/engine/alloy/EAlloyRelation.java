@@ -14,7 +14,6 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
-import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
@@ -56,6 +55,9 @@ public class EAlloyRelation extends EEngineRelation {
 	/** {@inheritDoc} */
 	@Override
 	protected void manageModelParams() throws ErrorAlloy, ErrorUnsupported, ErrorParser {
+		// required because super class calls from constructor
+		if (modelParamsDecls == null) modelParamsDecls = new ArrayList<AlloyDecl>();
+
 		// creates declarations (variables) for the relation model parameters
 		for (EModelParameter mdl : relation.getTransformation()
 				.getModelParams()) {
@@ -115,7 +117,7 @@ public class EAlloyRelation extends EEngineRelation {
 	    	for (EVariable s : set.keySet())
 	    		context.setVarModel(s.getName(),set.get(s));
 		
-		Map<String, Decl> vars = AlloyUtil.variableListToExpr(set.keySet(),context);
+		Map<String, Decl> vars = AlloyUtil.variableListToExpr(set.keySet(),(AlloyContext) context);
 		Map<String, IDecl> ivars = new HashMap<String,IDecl>();
 	  	for (String s : vars.keySet()) {
 	  		IDecl d = new AlloyDecl(vars.get(s));

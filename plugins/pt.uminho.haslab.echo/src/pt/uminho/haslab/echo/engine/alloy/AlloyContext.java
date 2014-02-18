@@ -51,14 +51,12 @@ public class AlloyContext implements ITContext {
 	/** {@inheritDoc} */
 	@Override
 	public AlloyExpression getVar(String name) {
-//		EchoReporter.getInstance().debug("getVar: "+name+" at "+varExp.keySet());
 		return varExp.get(name);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void addVar(IDecl decl) {
-//		EchoReporter.getInstance().debug("AddVar: "+(decl.name() + " and "+ ((AlloyDecl) decl).decl.get());
 		varExp.put(decl.name(), (AlloyExpression) decl.variable());
 	}
 
@@ -148,6 +146,8 @@ public class AlloyContext implements ITContext {
 		currentPre = isPre;
 	}
 
+	/** {@inheritDoc} */
+	@Override
 	public void setVarModel(String name, String model) throws ErrorParser {
 		varModel.put(name,model);
 	}

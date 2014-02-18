@@ -12,6 +12,7 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.engine.ast.EEngineModel;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.model.EBoolean;
@@ -29,14 +30,17 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-class EAlloyModel {
+class EAlloyModel implements EEngineModel {
 		
 	/** the EObject model being translated */
 	final EModel emodel;
 	
 	/** the Alloy signature representing this model */
-	final PrimSig model_sig;
+	private final PrimSig model_sig;
 
+	private PrimSig trg_model_sig;
+	private boolean isTarget;
+	
 	/** the elements belonging to each Alloy field
 	 *  includes state fields, defining existing elements */
 	private Map<Field,Expr> field2elements = new HashMap<Field,Expr>();	
@@ -110,8 +114,8 @@ class EAlloyModel {
 	}
 
 	/** the Alloy constraint defining this model */
-	Expr getModelConstraint() {
-		return model_constraint;
+	public AlloyFormula getModelConstraint() {
+		return new AlloyFormula(model_constraint);
 	}
 	
 	/**
@@ -243,6 +247,33 @@ class EAlloyModel {
 				model_constraint = model_constraint.and(f.join(model_sig).equal(field2elements.get(f)));
 		}
 	}
+
+	@Override
+	public EAlloyMetamodel getMetamodel() {
+		return metamodel;
+	}
+
+	@Override
+	public EModel getModel() {
+		return emodel;
+	}
 	
+	public PrimSig setTarget() throws ErrorAlloy {
+		isTarget = true;
+		try {
+			trg_model_sig = new PrimSig(AlloyUtil.targetName(model_sig), metamodel.sig_metamodel, Attr.ONE);
+		} catch (Err e) {
+			throw new ErrorAlloy("", "Failed to create target sig.", e, Task.ALLOY_RUN);
+		}
+		return trg_model_sig;
+	}
+	
+	public PrimSig getModelSig() {
+		return isTarget?trg_model_sig:model_sig;
+	}
+
+	public void unsetTarget() {
+		isTarget = false;	
+	}
 	
 }

@@ -1,25 +1,43 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
-import edu.mit.csail.sdg.alloy4.*;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import static com.google.common.primitives.Ints.max;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.eclipse.emf.ecore.EClass;
+
+import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.echo.EngineRunner;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.engine.EchoHelper;
+import edu.mit.csail.sdg.alloy4.A4Reporter;
+import edu.mit.csail.sdg.alloy4.ConstList;
+import edu.mit.csail.sdg.alloy4.Err;
+import edu.mit.csail.sdg.alloy4.ErrorWarning;
+import edu.mit.csail.sdg.alloy4.WorkerEngine;
+import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
+import edu.mit.csail.sdg.alloy4compiler.ast.Command;
+import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
-
-import org.eclipse.emf.ecore.EClass;
-
-import pt.uminho.haslab.echo.*;
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.echo.engine.ast.IExpression;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
-import java.util.Map.Entry;
-
-import static com.google.common.primitives.Ints.max;
 
 /**
  * @author nmm
@@ -108,8 +126,8 @@ public class AlloyRunner implements EngineRunner {
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
 			finalfact = finalfact.and(model.metamodel.getConforms().call(
-					model.model_sig));
-			finalfact = finalfact.and(model.getModelConstraint());
+					model.getModelSig()));
+			finalfact = finalfact.and(model.getModelConstraint().formula);
 		}
 
 		try {
@@ -130,7 +148,7 @@ public class AlloyRunner implements EngineRunner {
 		for (String modelID : modelIDs) {
 			addInstanceSigs(modelID);
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-					.getModel(modelID).getModelConstraint());
+					.getModel(modelID).getModelConstraint().formula);
 		}
 		try {
 			cmd = new Command(true, overall, intscope, -1, finalfact);
@@ -186,7 +204,7 @@ public class AlloyRunner implements EngineRunner {
 				AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs);
 				finalfact = finalfact.and(model.metamodel.getConforms().call(
 						target));
-				finalfact = finalfact.and(model.getModelConstraint());
+				finalfact = finalfact.and(model.getModelConstraint().formula);
 			} catch (Err e) {
 				throw new ErrorAlloy(e.getMessage());
 			}
@@ -270,18 +288,16 @@ public class AlloyRunner implements EngineRunner {
 			throws ErrorAlloy {
 		EAlloyTransformation trans = AlloyEchoTranslator.getInstance()
 				.getQVTTransformation(transformationID);
-		List<IExpression> sigs = new ArrayList<IExpression>();
 		for (String modelID : modelIDs) {
-			PrimSig state = addInstanceSigs(modelID);
-			sigs.add(new AlloyExpression(state));
+			addInstanceSigs(modelID);
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
 			EAlloyMetamodel metamodel = model.metamodel;
-			finalfact = finalfact.and(model.getModelConstraint());
+			finalfact = finalfact.and(model.getModelConstraint().formula);
 			finalfact = finalfact.and(metamodel.getConforms().call(
-					model.model_sig));
+					model.getModelSig()));
 		}
-		finalfact = finalfact.and(trans.getConstraint(sigs).formula);
+		finalfact = finalfact.and(trans.getConstraint(modelIDs).formula);
 		EchoReporter.getInstance().debug("Final fact: "+finalfact);
 
 		try {
@@ -321,26 +337,18 @@ public class AlloyRunner implements EngineRunner {
 			}
 			finalfact = Sig.NONE.no();
 			PrimSig original;
-			List<IExpression> sigs = new ArrayList<IExpression>();
-			for (String modeluri : modelIDs) {
-				PrimSig state = addInstanceSigs(modeluri);
+			for (String modelID : modelIDs) {
+				PrimSig state = addInstanceSigs(modelID);
 				EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
-						modeluri);
-				if (targetIDs.contains(modeluri)) {
+						modelID);
+				if (targetIDs.contains(modelID)) {
 					original = state;
-					PrimSig target = null;
-					try {
-						target = new PrimSig(AlloyUtil.targetName(original),
-								original.parent, Attr.ONE);
-						targetstates.put(modeluri, target);
-						allsigs.add(target);
-						sigs.add(new AlloyExpression(target));
-						finalfact = finalfact.and(model.metamodel.getConforms()
-								.call(target));
-					} catch (Err e) {
-						throw new ErrorAlloy(e.getMessage());
-					}
-					if (!EchoOptionsSetup.getInstance().isOperationBased()) {
+					PrimSig target = AlloyEchoTranslator.getInstance().getModel(modelID).setTarget();
+					targetstates.put(modelID, target);
+					allsigs.add(target);
+					finalfact = finalfact.and(model.metamodel.getConforms()
+							.call(target));
+				if (!EchoOptionsSetup.getInstance().isOperationBased()) {
 						EAlloyMetamodel metamodel = model.metamodel;
 						try {
 							Collection<Sig> aux = new ArrayList<Sig>();
@@ -361,16 +369,16 @@ public class AlloyRunner implements EngineRunner {
 					} else {
 						edelta = Sig.NONE.no();
 					}
-				} else {
-					sigs.add(new AlloyExpression(state));
-				}
+				} else {}
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-						.getModel(modeluri).getModelConstraint());
+						.getModel(modelID).getModelConstraint().formula);
 			}
 			AlloyFormula expr = AlloyEchoTranslator.getInstance()
 					.getQVTTransformation(transformationID)
-					.getConstraint(sigs);
+					.getConstraint(modelIDs);
 			finalfact = finalfact.and(expr.formula);
+			for (String targetID : targetIDs)
+				AlloyEchoTranslator.getInstance().getModel(targetID).unsetTarget();
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
@@ -413,32 +421,26 @@ public class AlloyRunner implements EngineRunner {
 		allsigs.addAll(metamodel.getAllSigs());
 		scopes = AlloyEchoTranslator.getInstance().getScopes();
 
-		List<IExpression> sigs = new ArrayList<IExpression>();
-
 		for (String uri : modelIDs) {
 			if (!uri.equals(targetURI)) {
-				PrimSig state = addInstanceSigs(uri);
+				addInstanceSigs(uri);
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-						.getModel(uri).getModelConstraint());
-				sigs.add(new AlloyExpression(state));
+						.getModel(uri).getModelConstraint().formula);
 			} else {
-				PrimSig state = metamodel.sig_metamodel;
-				try {
-					PrimSig target = new PrimSig(AlloyUtil.targetName(state),
-							state, Attr.ONE);
-					targetstates.put(uri, target);
-					sigs.add(new AlloyExpression(target));
-					allsigs.add(target);
-					finalfact = finalfact.and(metamodel.getGenerate().call(
-							target));
-				} catch (Err e) {
-					throw new ErrorAlloy(e.getMessage());
-				}
+				PrimSig target = AlloyEchoTranslator.getInstance()
+						.getModel(uri).setTarget();
+				targetstates.put(uri, target);
+				allsigs.add(target);
+				finalfact = finalfact.and(metamodel.getGenerate().call(
+						target));
+				
 			}
 		}
 		AlloyFormula expr = AlloyEchoTranslator.getInstance()
-				.getQVTTransformation(transformationID).getConstraint(sigs);
+				.getQVTTransformation(transformationID).getConstraint(modelIDs);
 		finalfact = finalfact.and(expr.formula);
+		AlloyEchoTranslator.getInstance()
+				.getModel(targetURI).unsetTarget();
 
 		try {
 			Command cmd = new Command(true, overall, intscope, -1, finalfact);
@@ -523,7 +525,7 @@ public class AlloyRunner implements EngineRunner {
 	private PrimSig addInstanceSigs(String modelID) throws ErrorAlloy {
 		allsigs.addAll(AlloyEchoTranslator.getInstance().getModel(modelID)
 				.getAllSigs());
-		PrimSig state = AlloyEchoTranslator.getInstance().getModel(modelID).model_sig;
+		PrimSig state = AlloyEchoTranslator.getInstance().getModel(modelID).getModelSig();
 		allsigs.add(state);
 		allsigs.add(state.parent);
 		EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(modelID);

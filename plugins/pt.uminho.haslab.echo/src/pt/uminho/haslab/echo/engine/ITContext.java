@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.engine;
 
 import java.util.List;
 
+import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 
@@ -65,6 +66,14 @@ public interface ITContext extends IContext {
 	 * @return
 	 */
 	public IExpression addParamExpression(boolean pre, String paramName, IExpression var);
+
+	/**
+	 * Sets the owning model of a variable.
+	 * @param name the variable
+	 * @param model the owning model
+	 * @throws ErrorParser
+	 */
+	void setVarModel(String name, String model) throws ErrorParser;
 
 
 }

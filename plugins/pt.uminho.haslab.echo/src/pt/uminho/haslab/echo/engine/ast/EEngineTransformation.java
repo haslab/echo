@@ -86,7 +86,7 @@ public abstract class EEngineTransformation {
 	 *            the model variables
 	 * @return the constraint over the variables
 	 */
-	protected abstract IFormula getConstraint(List<IExpression> vars);
+	protected abstract IFormula getConstraint(List<String> modelIDs);
 
 	/**
 	 * Defines a sub-relation call relation previously inserted by

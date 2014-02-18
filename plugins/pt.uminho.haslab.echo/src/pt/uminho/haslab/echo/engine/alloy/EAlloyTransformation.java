@@ -9,6 +9,7 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
@@ -67,6 +68,8 @@ class EAlloyTransformation extends EEngineTransformation {
 	/** {@inheritDoc} */
 	@Override
 	protected void initModelParams() throws ErrorAlloy {
+		// required because super class calls from constructor
+		if (modelParamDecls == null) modelParamDecls = new ArrayList<Decl>();
 		// Creates model parameters variables to be used as constraint
 		// parameters
 		for (EModelParameter mdl : transformation.getModelParams()) {
@@ -115,10 +118,13 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	protected AlloyFormula getConstraint(List<IExpression> vars) {
+	protected AlloyFormula getConstraint(List<String> modelIDs) {
+		// calls constraint function with the model's state sig
 		List<Expr> sigs = new ArrayList<Expr>();
-		for (IExpression v : vars)
-			sigs.add(((AlloyExpression) v).EXPR);
+		for (String modelID : modelIDs) {
+			EAlloyModel mdl = (EAlloyModel) EchoTranslator.getInstance().getModel(modelID);
+			sigs.add(mdl.getModelSig());
+		}
 		return new AlloyFormula(func.call(sigs.toArray(new Expr[sigs.size()])));
 	}
 
