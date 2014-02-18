@@ -1,9 +1,9 @@
-package pt.uminho.haslab.echo.transform.kodkod;
+package pt.uminho.haslab.echo.engine.kodkod;
 
 
 import kodkod.ast.IntExpression;
-import pt.uminho.haslab.echo.transform.ast.IFormula;
-import pt.uminho.haslab.echo.transform.ast.IIntExpression;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 
 /**
  * Created by tmg on 2/10/14.

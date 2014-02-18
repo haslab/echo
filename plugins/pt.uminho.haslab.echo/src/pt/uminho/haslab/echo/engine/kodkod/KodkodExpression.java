@@ -1,13 +1,13 @@
-package pt.uminho.haslab.echo.transform.kodkod;
+package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Expression;
 import kodkod.ast.Variable;
-import pt.uminho.haslab.echo.transform.ast.*;
+import pt.uminho.haslab.echo.engine.ast.*;
 
 /**
  * Created by tmg on 2/4/14.
  */
-class KodkodExpression implements IExpression{
+class KodkodExpression implements IExpression {
 
     public final Expression EXPR;
 

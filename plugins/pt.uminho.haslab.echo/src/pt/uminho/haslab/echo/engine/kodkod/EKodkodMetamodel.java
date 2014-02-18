@@ -1,21 +1,20 @@
-package pt.uminho.haslab.echo.transform.kodkod;
+package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
 import kodkod.util.nodes.PrettyPrinter;
-
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
-
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
+import pt.uminho.haslab.echo.util.Pair;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.*;
