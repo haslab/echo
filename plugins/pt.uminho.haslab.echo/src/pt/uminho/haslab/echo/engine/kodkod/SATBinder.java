@@ -53,7 +53,6 @@ class SATBinder extends AbstractBinder implements Binder {
     @Override
     public Bounds getBounds()
    {
-    	System.out.println(bounds);
         return bounds;
    }
 

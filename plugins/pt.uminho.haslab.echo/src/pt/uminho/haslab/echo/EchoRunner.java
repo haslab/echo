@@ -19,7 +19,6 @@ import java.util.concurrent.*;
 
 public class EchoRunner {
 
-    //TODO: Finished Runner-> store the last finished runner, and use that one in write etc.
 	private EngineRunner runner = null;
     private TransformFactory transformFactory;
 	private ExecutorService executor = Executors.newFixedThreadPool(5);
@@ -41,8 +40,8 @@ public class EchoRunner {
 	 * @throws ErrorTransform
 	 * @throws ErrorParser
 	 */
-	public void addMetaModel(EMetamodel metamodel) throws EchoError {
-		EchoTranslator.getInstance().translateMetaModel(metamodel);
+	public void addMetaModel(EMetamodel metaModel) throws EchoError {
+		EchoTranslator.getInstance().translateMetaModel(metaModel);
 	}
 
 	/**
@@ -171,7 +170,7 @@ public class EchoRunner {
 
 	/**
 	 * Repairs a model not conforming to its meta-model
-	 * @param targeturi the URI of the model to repair
+	 * @param targetID the URI of the model to repair
 	 * @return true if the model was successfully repaired
 	 * @throws ErrorInternalEngine
 	 */
@@ -187,8 +186,7 @@ public class EchoRunner {
 	 * Generates a model conforming to the given meta-model
 	 * @param metamodelID the URI of the meta-model
 	 * @param scope the exact scopes of the model to generate
-	 * @param targetURI 
-	 * @return true if able to generate conforming model
+	 * @param targetURI the URI for the generated model
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorTransform 
 	 * @throws ErrorUnsupported 
@@ -225,7 +223,7 @@ public class EchoRunner {
 	/**
 	 * Checks if models are consistent according to a QVT-R transformation
 	 * @param qvtID the URI of the QVT-R transformation
-	 * @param modeluris the URIs of the models (should be in the order of the QVT-R transformation arguments)
+	 * @param modelIDs the URIs of the models (should be in the order of the QVT-R transformation arguments)
 	 * @return true if consistent
 	 * @throws ErrorInternalEngine
 	 */
@@ -359,8 +357,8 @@ public class EchoRunner {
 
 	/**
 	 * Writes a new instance from the current Alloy solution into XMI
-	 * @param metamodeluri the URI of the meta-model of the new model
-	 * @param modeluri the URI of the new model
+	 * @param metamodelID the URI of the meta-model of the new model
+	 * @param modelURI the URI of the new model
 	 * @throws ErrorTransform 
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorUnsupported 
@@ -376,8 +374,8 @@ public class EchoRunner {
 	 * @throws ErrorTransform 
 	 * @throws ErrorInternalEngine
 	 */
-	public void writeInstance (String modelURI) throws EchoError {
-		EModel model = MDEManager.getInstance().getModel(modelURI, false);
+	public void writeInstance (String modelID) throws EchoError {
+		EModel model = MDEManager.getInstance().getModel(modelID, false);
         //if(currentOperation!=null && !currentOperation.isAlive())
             EchoTranslator.getInstance().writeInstance(runner.getSolution(), model.ID);
 	}

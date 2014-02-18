@@ -7,7 +7,7 @@ import pt.uminho.haslab.echo.engine.ast.*;
 /**
  * Created by tmg on 2/4/14.
  */
-class KodkodExpression implements IExpression{
+class KodkodExpression implements IExpression {
 
     public final Expression EXPR;
 

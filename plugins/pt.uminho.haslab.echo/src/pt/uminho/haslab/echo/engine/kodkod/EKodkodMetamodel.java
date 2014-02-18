@@ -3,19 +3,18 @@ package pt.uminho.haslab.echo.engine.kodkod;
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
 import kodkod.util.nodes.PrettyPrinter;
-
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
-
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
+import pt.uminho.haslab.echo.util.Pair;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.*;
@@ -31,11 +30,22 @@ class EKodkodMetamodel extends EEngineMetamodel {
 	private Map<String,Relation> mapSfRel;
     /**maps the hierarchy */
     private Map<String,Set<String>> mapParents;
+    /**maps a eReference relation into its type relations*/
+    private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType;
+    /**maps an attribute relation with int as a type, to  */
+    private Map<Relation, Set<Relation>> mapIntType;
+
 
     /**facts about the meta-model*/
 	private Formula facts;
+    /**disjint relations*/
+    private Formula disjoint = null;
 
     public Formula getFacts() {
+        if(disjoint == null){
+            makeDisjointFact();
+            facts = facts.and(disjoint);
+        }
         return facts;
     }
 
@@ -125,10 +135,17 @@ class EKodkodMetamodel extends EEngineMetamodel {
 					&& getRelation(eOpposite) != null &&
 					EchoOptionsSetup.getInstance().isOptimize())) {}
 			else {
-				Expression coDomain = getDomain(eReference.getEReferenceType().getName());
+                String coDomainName = eReference.getEReferenceType().getName();
+				Expression coDomain = getDomain(coDomainName);
 				Relation refRel = Relation.binary(refName);
-				
-				facts = facts.and(refRel.in(classRel.product(coDomain)));
+
+
+                mapRefType.put(refRel,
+                        new Pair<>(
+                                getRelDomain(className),
+                                getRelDomain(coDomainName)));
+
+                facts = facts.and(refRel.in(classRel.product(coDomain)));
 				mapSfRel.put(eReference.getEContainingClass().getName()+"::"+eReference.getName(),refRel);
 				
 				if(eOpposite!= null){
@@ -264,6 +281,31 @@ class EKodkodMetamodel extends EEngineMetamodel {
         return result;
     }
 
+    Set<Relation> getRelDomain(String className){
+        Set<Relation> res = new HashSet<>();
+        Relation rel = mapClassRel.get(className);
+        if(rel!=null)
+            res.add(rel);
+        Set<String> sons = mapParents.get(className);
+        if(sons!=null){
+        	for(String s : sons)
+        		res.addAll(getRelDomain(s));
+        }
+
+
+        return res;
+    }
+
+    private Set<Relation> classNamesToRelation(Collection<String> names){
+        Set<Relation> res = new HashSet<>();
+
+        for(String s : names){
+            res.add(mapClassRel.get(s));
+        }
+
+        return res;
+    }
+
     protected void processEnums(List<EEnum> enumList) {
 		// TODO Enums   -> save and then bind?
 		
@@ -303,7 +345,17 @@ class EKodkodMetamodel extends EEngineMetamodel {
 			if (mapClassRel.get(cla).equals(classRelation)) return metamodel.getEObject().getEClassifier(cla);
 		return null;
 	}
+    Pair<Set<Relation>,Set<Relation>> getRefTypes(Relation sf){
+        return mapRefType.get(sf);
+    }
+
+    Expression getAttType(Relation at)
+    {
+               return null;
+    }
 
 
-	
+    private void makeDisjointFact() {
+        disjoint = Expression.intersection(getClassRelations()).no();
+    }
 }

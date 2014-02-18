@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.engine.kodkod;
 import kodkod.ast.Relation;
 import kodkod.instance.Bounds;
 import kodkod.instance.Tuple;
+import kodkod.instance.TupleSet;
 import kodkod.instance.Universe;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.util.Pair;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by tmg on 2/11/14.
+ * Created by tmg on 2/11/14
  */
 class TargetBinder extends AbstractBinder implements Binder{
 
@@ -42,7 +43,7 @@ class TargetBinder extends AbstractBinder implements Binder{
     }
 
     private void bindSfRelation(Relation rel, Set<Object> atoms) {
-        //TODO guardar mapas do tipo do sf.
+
 
         Set<Tuple> targets = new HashSet<>();
 
@@ -59,6 +60,30 @@ class TargetBinder extends AbstractBinder implements Binder{
             bounds.setTarget(rel,factory.setOf(targets));
         else
             bounds.setTarget(rel, factory.noneOf(rel.arity()));
+
+
+
+
+        if(rel.arity()==2){
+            Pair<Set<Relation>,Set<Relation>> type = x2k.getMetaTranslator().getRefTypes(rel);
+        	if(type!=null){
+                TupleSet leftTuples = factory.noneOf(1);
+        	    for (Relation relation : type.left)
+        		    leftTuples.addAll(bounds.upperBound(relation));
+
+        	    TupleSet rightTuples = factory.noneOf(1);
+        	    for(Relation relation :type.right)
+        		    rightTuples.addAll(bounds.upperBound(relation));
+
+        	    bounds.bound(rel,leftTuples.product(rightTuples));
+            }else{
+
+            }
+        }
+        else{
+        	
+        }
+
     }
 
     private void bindClassRelation(Relation rel, Set<Object> atoms) {
