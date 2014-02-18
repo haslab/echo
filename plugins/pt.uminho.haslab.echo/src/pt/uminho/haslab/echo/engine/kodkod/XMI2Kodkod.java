@@ -1,21 +1,22 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Relation;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
+
 import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
+import pt.uminho.haslab.echo.engine.ast.EEngineModel;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.echo.util.Pair;
+import pt.uminho.haslab.mde.model.EModel;
 
 import java.util.*;
 
-class XMI2Kodkod {
+class XMI2Kodkod implements EEngineModel {
 
-	
-	private EObject eObj;
-
-    public EKodkodMetamodel getMetaTranslator() {
-        return translator;
-    }
+	private EModel emodel;
 
     private EKodkodMetamodel translator;
 
@@ -43,14 +44,14 @@ class XMI2Kodkod {
 
     private Set<String> strings;
 	
-	XMI2Kodkod(EObject obj,EKodkodMetamodel t) throws EchoError {
-		eObj =obj;
+	XMI2Kodkod(EModel obj,EKodkodMetamodel t) throws EchoError {
+		emodel = obj;
 		translator = t;
         bounds = new HashMap<>();
         universe = new HashSet<>();
         strings = new HashSet<>();
         initBounds();
-        makeAtomsList(eObj);
+        makeAtomsList(emodel.getEObject());
 
 	}
 
@@ -161,5 +162,21 @@ class XMI2Kodkod {
             
         }
     }
+
+	@Override
+	public IFormula getModelConstraint() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EEngineMetamodel getMetamodel() {
+		return translator;
+	}
+
+	@Override
+	public EModel getModel() {
+		return emodel;
+	}
 
 }

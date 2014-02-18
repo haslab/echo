@@ -17,6 +17,7 @@ import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
+import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyRelation;
 
 import java.util.HashMap;
 import java.util.List;

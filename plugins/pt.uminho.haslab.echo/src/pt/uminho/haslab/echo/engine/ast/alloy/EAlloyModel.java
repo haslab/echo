@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.alloy;
+package pt.uminho.haslab.echo.engine.ast.alloy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +12,8 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.engine.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.ast.EEngineModel;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -30,10 +32,10 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-class EAlloyModel implements EEngineModel {
+public class EAlloyModel implements EEngineModel {
 		
 	/** the EObject model being translated */
-	final EModel emodel;
+	public final EModel emodel;
 	
 	/** the Alloy signature representing this model */
 	private final PrimSig model_sig;
@@ -54,7 +56,7 @@ class EAlloyModel implements EEngineModel {
 	/** the Alloy expression defining this model object */
 	private Expr model_constraint = null; 
 	
-	final EAlloyMetamodel metamodel;
+	public final EAlloyMetamodel metamodel;
 	
 	/**
 	 * Creates a new XMI to Alloy translator
@@ -66,7 +68,7 @@ class EAlloyModel implements EEngineModel {
 	 * @param stateSig
 	 * @throws EchoError
 	 */
-	EAlloyModel(EModel emodel, EAlloyMetamodel t) throws EchoError {
+	public EAlloyModel(EModel emodel, EAlloyMetamodel t) throws EchoError {
 		EchoReporter.getInstance().start(Task.TRANSLATE_MODEL, emodel.ID);
 		this.emodel = emodel;
 		metamodel = t;
@@ -87,7 +89,7 @@ class EAlloyModel implements EEngineModel {
 	 * @param o the EObject
 	 * @return the respective Sig
 	 */
-	PrimSig getSigFromEObject(EElement o) {
+	public PrimSig getSigFromEObject(EElement o) {
 		return object2sig.get(o);
 	}
 
@@ -95,7 +97,7 @@ class EAlloyModel implements EEngineModel {
 	 * Returns all signatures defined in this object
 	 * @return all signatures defined in the object
 	 */
-	List<PrimSig> getAllSigs() {
+	public List<PrimSig> getAllSigs() {
 		List<PrimSig> res = new ArrayList<PrimSig>();
 		for (List<PrimSig> sigs : classsig2sigs.values())
 			res.addAll(sigs);
@@ -107,7 +109,7 @@ class EAlloyModel implements EEngineModel {
 	 * @param sig the class signature
 	 * @return all signatures defined in the object
 	 */
-	List<PrimSig> getClassSigs(PrimSig sig) {
+	public List<PrimSig> getClassSigs(PrimSig sig) {
 		List<PrimSig> sigs = classsig2sigs.get(sig.label);
 		if (sigs == null) sigs = new ArrayList<PrimSig>();
 		return new ArrayList<PrimSig>(sigs);

@@ -15,6 +15,7 @@ import org.eclipse.ocl.examples.pivot.Type;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.ast.alloy.AlloyExpression;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;

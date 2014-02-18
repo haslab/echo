@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.alloy;
+package pt.uminho.haslab.echo.engine.ast.alloy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +12,11 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.alloy.AlloyContext;
+import pt.uminho.haslab.echo.engine.alloy.AlloyEchoTranslator;
+import pt.uminho.haslab.echo.engine.alloy.AlloyOptimizations;
+import pt.uminho.haslab.echo.engine.alloy.AlloyUtil;
+import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -57,7 +62,6 @@ public class EAlloyRelation extends EEngineRelation {
 	protected void manageModelParams() throws ErrorAlloy, ErrorUnsupported, ErrorParser {
 		// required because super class calls from constructor
 		if (modelParamsDecls == null) modelParamsDecls = new ArrayList<AlloyDecl>();
-
 		// creates declarations (variables) for the relation model parameters
 		for (EModelParameter mdl : relation.getTransformation()
 				.getModelParams()) {

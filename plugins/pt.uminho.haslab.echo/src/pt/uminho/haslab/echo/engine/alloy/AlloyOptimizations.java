@@ -12,8 +12,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 import java.util.Map.Entry;
 
-
-class AlloyOptimizations {
+public class AlloyOptimizations {
 
 	public AlloyOptimizations () {}
 	

@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.alloy;
+package pt.uminho.haslab.echo.engine.ast.alloy;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
@@ -13,7 +13,7 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
 /**
  * Created by nmm
  */
-class AlloyFormula implements IFormula {
+public class AlloyFormula implements IFormula {
 
     public final Expr formula;
     public AlloyFormula(Expr f){

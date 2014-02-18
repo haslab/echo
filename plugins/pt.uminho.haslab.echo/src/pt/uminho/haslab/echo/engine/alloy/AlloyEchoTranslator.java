@@ -23,6 +23,12 @@ import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.ast.alloy.AlloyExpression;
+import pt.uminho.haslab.echo.engine.ast.alloy.AlloyFormula;
+import pt.uminho.haslab.echo.engine.ast.alloy.AlloyIntExpression;
+import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyMetamodel;
+import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyModel;
+import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyTransformation;
 import pt.uminho.haslab.mde.model.EElement;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
@@ -65,7 +71,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	private Map<PrimSig,Integer> scopesincrement = new HashMap<PrimSig,Integer>();
 
 		/** the abstract top level state sig */
-    static final PrimSig STATE;
+    public static final PrimSig STATE;
     static{
     	PrimSig s = null;
     	try {s = new PrimSig(EchoHelper.STATESIGNAME,Attr.ABSTRACT);}
@@ -358,7 +364,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	}	
 
 
-	PrimSig getClassifierFromSig(EClassifier c) {
+	public PrimSig getClassifierFromSig(EClassifier c) {
 		if (c.getName().equals("EString")) return Sig.STRING;
 		else if (c.getName().equals("EBoolean")) return Sig.NONE;
 		else {

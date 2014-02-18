@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.alloy;
+package pt.uminho.haslab.echo.engine.ast.alloy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,14 +26,18 @@ import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.alloy.AlloyContext;
+import pt.uminho.haslab.echo.engine.alloy.AlloyEchoTranslator;
+import pt.uminho.haslab.echo.engine.alloy.AlloyOptimizations;
+import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
-class EAlloyMetamodel extends EEngineMetamodel {
+public class EAlloyMetamodel extends EEngineMetamodel {
 	
 	/** the Alloy signature representing this meta-model */
-	final PrimSig sig_metamodel;
+	public final PrimSig sig_metamodel;
 	
 	/** the model parameter of the conformity expression
 	 * constraint is defined over this variable */
@@ -76,7 +80,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
      * @param metamodel the metamodel to translate
 	 * @throws EchoError
 	 */
-	EAlloyMetamodel(EMetamodel metamodel) throws EchoError {
+	public EAlloyMetamodel(EMetamodel metamodel) throws EchoError {
 		super(metamodel);
 		try {
 			//if (EchoOptionsSetup.getInstance().isOperationBased())
@@ -101,7 +105,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @param s the Alloy signature
  	 * @return the matching class
 	 */
-	EClassifier getEClassifierFromSig(PrimSig s) {
+	public EClassifier getEClassifierFromSig(PrimSig s) {
 		for (String cla : classifier2sig.keySet())
 			if (classifier2sig.get(cla).isSame(s)) return metamodel.getEObject().getEClassifier(EchoHelper.getClassifierName(cla));
 		return null;
@@ -112,7 +116,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @param c the class
  	 * @return the matching Alloy signature
 	 */
-	PrimSig getSigFromEClassifier(EClassifier c) {
+	public PrimSig getSigFromEClassifier(EClassifier c) {
 		PrimSig s = classifier2sig.get(EchoHelper.classifierKey(metamodel, c));
 		if (s == null)
 			EchoReporter.getInstance().warning("Looking for non-existing classifier: "+c, Task.TRANSLATE_METAMODEL);
@@ -124,7 +128,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @param eclass the EClass
  	 * @return the state field
 	 */
-	Field getStateFieldFromClass(EClass eclass) {
+	public Field getStateFieldFromClass(EClass eclass) {
 		PrimSig sig = getSigFromEClassifier(eclass);
 		return sig2statefield.get(sig);
 	}	
@@ -151,7 +155,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @param f the desired feature
 	 * @return the matching Alloy field
 	 */
-	Field getFieldFromSFeature(EStructuralFeature f) {
+	public Field getFieldFromSFeature(EStructuralFeature f) {
 		if (f == null) 
 			EchoReporter.getInstance().warning("Looking for null feature.",Task.TRANSLATE_METAMODEL);
 		Field fi = feature2field.get(EchoHelper.featureKey(metamodel, f));
@@ -165,7 +169,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @param f the Alloy field
  	 * @return the matching feature
 	 */
-	EStructuralFeature getSFeatureFromField(Field f) {
+	public EStructuralFeature getSFeatureFromField(Field f) {
 		if (f == null) 
 			EchoReporter.getInstance().warning("Looking for null field.",Task.TRANSLATE_METAMODEL);
 		
@@ -198,7 +202,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * Returns the {@link EEnumLiteral} represented by an Alloy {@link PrimSig}
 	 * @return the matching enum literal
 	 */
-	EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
+	public EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
 		return literal2sig.inverse().get(s);
 	}
 	
@@ -206,7 +210,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * Returns enum {@link PrimSig} of this meta-model
 	 * @return the signatures
 	 */
-	List<PrimSig> getEnumSigs() {
+	public List<PrimSig> getEnumSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>();
 		for (String cname : classifier2sig.keySet())
 			if (metamodel.getEObject().getEClassifier(EchoHelper.getClassifierName(cname)) instanceof EEnum) 
@@ -219,14 +223,14 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * Returns all {@link PrimSig} of this meta-model
 	 * @return the signatures
 	 */
-	List<PrimSig> getAllSigs() {
+	public List<PrimSig> getAllSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>(classifier2sig.values());
 		aux.addAll(literal2sig.values());
 		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(sig_order);
 		return aux;
 	}
 	
-	List<PrimSig> getCAllSigs() {
+	public List<PrimSig> getCAllSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>(classifier2sig.values());
 		//aux.addAll(literal2sig.values());
 		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(sig_order);
@@ -238,7 +242,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @return the predicate
 	 * @throws ErrorAlloy 
 	 */
-	Func getConforms() throws ErrorAlloy {
+	public Func getConforms() throws ErrorAlloy {
 		Func f;
 //		EchoReporter.getInstance().debug("m "+constraint_conforms);
 
@@ -258,7 +262,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @return the predicate
 	 * @throws ErrorAlloy 
 	 */
-	Func getGenerate() throws ErrorAlloy {
+	public Func getGenerate() throws ErrorAlloy {
 		Func f;
 		try {
 			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
@@ -762,7 +766,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @return the delta function
 	 * @throws ErrorAlloy
 	 */
-	Func getDeltaSetFunc() throws ErrorAlloy {
+	public Func getDeltaSetFunc() throws ErrorAlloy {
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {
@@ -802,7 +806,7 @@ class EAlloyMetamodel extends EEngineMetamodel {
 	 * @return the delta expression
 	 * @throws ErrorAlloy
 	 */
-	Func getDeltaRelFunc() throws ErrorAlloy {
+	public Func getDeltaRelFunc() throws ErrorAlloy {
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {

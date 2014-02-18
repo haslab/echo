@@ -10,9 +10,9 @@ import org.eclipse.emf.ecore.EObject;
 
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.engine.alloy.EAlloyRelation;
 import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.alloy.OCL2Alloy2;
+import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyRelation;
 import pt.uminho.haslab.mde.OCLUtil;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;

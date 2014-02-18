@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.alloy;
+package pt.uminho.haslab.echo.engine.ast.alloy;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -11,11 +11,11 @@ import pt.uminho.haslab.echo.engine.ast.*;
 /**
  * Created by tmg on 2/4/14.
  */
-class AlloyExpression implements IExpression{
+public class AlloyExpression implements IExpression{
 
     public final Expr EXPR;
 
-    AlloyExpression(Expr expression){
+    public AlloyExpression(Expr expression){
         EXPR = expression;
     }
 

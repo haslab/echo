@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.alloy;
+package pt.uminho.haslab.echo.engine.ast.alloy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +11,8 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.ITContext;
+import pt.uminho.haslab.echo.engine.alloy.AlloyEchoTranslator;
+import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
@@ -32,7 +34,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
  * @author nmm
  * @version 0.4 17/02/2014
  */
-class EAlloyTransformation extends EEngineTransformation {
+public class EAlloyTransformation extends EEngineTransformation {
 
 	/** the Alloy function denoting the constraint of this Transformation */
 	private Func func;
@@ -53,7 +55,7 @@ class EAlloyTransformation extends EEngineTransformation {
 	private List<Decl> modelParamDecls = new ArrayList<Decl>();
 
 	/** {@inheritDoc} */
-	EAlloyTransformation(ETransformation transformation,
+	public EAlloyTransformation(ETransformation transformation,
 			Map<String, List<EDependency>> dependencies) throws EchoError {
 		super(transformation, dependencies);
 	}
@@ -118,7 +120,7 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	protected AlloyFormula getConstraint(List<String> modelIDs) {
+	public AlloyFormula getConstraint(List<String> modelIDs) {
 		// calls constraint function with the model's state sig
 		List<Expr> sigs = new ArrayList<Expr>();
 		for (String modelID : modelIDs) {
