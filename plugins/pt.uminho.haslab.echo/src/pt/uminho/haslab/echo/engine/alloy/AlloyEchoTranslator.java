@@ -191,7 +191,6 @@ public class AlloyEchoTranslator extends EchoTranslator {
     public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap) throws ErrorAlloy {
 		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
 		sc.put(Sig.STRING, overall);
-		EchoReporter.getInstance().debug(scopesmap+"");
 		for (Entry<String,String> cla : scopesmap.keySet()) {
 			if (cla.getKey().equals("") && cla.getValue().equals("String"))
 				sc.put(PrimSig.STRING, scopesmap.get(cla));
@@ -205,42 +204,29 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
-	public void createScopesFromOps(List<String> uris) throws ErrorAlloy {
+	public void createScopesFromOps(List<String> modelIDs) throws ErrorAlloy {
 		Map<PrimSig,Integer> scopesmap = new HashMap<PrimSig,Integer>();
 		Map<PrimSig,Integer> scopesexact = new HashMap<PrimSig, Integer>();
 		
-		for (String uri : uris) {
-			EAlloyModel x2a = modelalloys.get(uri);
-			EAlloyMetamodel e2a = x2a.metamodel;
+		for (String uri : modelIDs) {
+			EAlloyModel model = modelalloys.get(uri);
+			EAlloyMetamodel metamodel = model.metamodel;
 	
-			scopesincrement = new HashMap<Sig.PrimSig, Integer>();
-			for (String cl : e2a.getCreationCount().keySet()) {
-				EClassifier eclass = e2a.metamodel.getEObject().getEClassifier(cl);
-				PrimSig sig = e2a.getSigFromEClassifier(eclass);
-				scopesincrement.put(sig,e2a.getCreationCount().get(cl));
-			}
-			
-			for (PrimSig sig : scopesincrement.keySet()) {
-				int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
-				if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
-				else scopesmap.put(sig, scopesmap.get(sig) + count);
-				PrimSig up = sig.parent;
-				while (up != Sig.UNIV && up != null){
-					if (scopesmap.get(up) == null) scopesmap.put(up, count);
-					else scopesmap.put(up, scopesmap.get(up) + count);
-					up = up.parent;
-				}
+			scopesincrement = metamodel.getCreationCount();
+			for (PrimSig p : metamodel.getCreationCount().keySet()) {
+				scopesmap.put(p, model.getClassSigs(p).size());
 			}
 	
-			scopesincrement.put(e2a.sig_metamodel,1);
+			// also increments state sig
+			scopesincrement.put(metamodel.sig_metamodel,1);
 			//scopesincrement.put(PrimSig.STRING,1);
-			
-			Integer s = scopesexact.get(e2a.sig_metamodel);
-			s = (s==null)?1:s+1;
-			scopesexact.put(e2a.sig_metamodel,s);
-		}
 
+			scopesexact.put(metamodel.sig_metamodel,1);
+		}
 		scopes = AlloyUtil.createScope(scopesmap,scopesexact);
+
+		EchoReporter.getInstance().debug("Init scope: "+scopes);
+		EchoReporter.getInstance().debug("Increment: "+scopesincrement);
 	}	
 	
 	public void createScopesFromID(List<String> IDs) throws ErrorAlloy {

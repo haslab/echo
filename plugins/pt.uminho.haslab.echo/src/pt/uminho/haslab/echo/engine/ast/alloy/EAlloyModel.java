@@ -27,7 +27,9 @@ import pt.uminho.haslab.mde.model.EValue;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
@@ -50,7 +52,7 @@ public class EAlloyModel implements EEngineModel {
 	/** maps EObjects to the respective Alloy signature */
 	private Map<EElement,PrimSig> object2sig = new HashMap<EElement,PrimSig>();
 
-	/** maps class names to set os object signatures */
+	/** maps class names to set of object signatures */
 	private Map<String,List<PrimSig>> classsig2sigs = new HashMap<String,List<PrimSig>>();
 
 	/** the Alloy expression defining this model object */
@@ -170,9 +172,15 @@ public class EAlloyModel implements EEngineModel {
 		object2sig.put(eelement, elementsig);
 		if (classsig2sigs.get(classsig.label) == null)
 			classsig2sigs.put(classsig.label, new ArrayList<PrimSig>());
-
 		classsig2sigs.get(classsig.label).add(elementsig);
 
+		PrimSig up = classsig.parent;
+		while (!up.isSame(Sig.UNIV)) {
+			if (classsig2sigs.get(up.label) == null)
+				classsig2sigs.put(up.label, new ArrayList<PrimSig>());
+			classsig2sigs.get(up.label).add(elementsig);
+			up = up.parent;
+		}
 		
 		for (EProperty eprop : eelement.getProperties()) {
 			Field field = metamodel.getFieldFromSFeature(eprop.feature);

@@ -57,7 +57,7 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	
 	/** maps class names to the number of creations in operations
 	 * each increment represents an <code>oclIsNew()</code> occurrence*/
-	private Map<String,Integer> elem_creation_count = new HashMap<String,Integer>();
+	private Map<PrimSig, Integer> classCreationCount = new HashMap<PrimSig,Integer>();
 
 	/** maps classifier names into respective Alloy signatures */
 	private Map<String,PrimSig> classifier2sig = new HashMap<String,PrimSig>();
@@ -684,16 +684,31 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 				}
 
 			for (String cl : converter.getOCLAreNews().keySet()) {
-				Integer newi = elem_creation_count.get(cl);
-				if (newi == null)
-					elem_creation_count.put(cl,
-							converter.getOCLAreNews().get(cl));
-				else
-					elem_creation_count.put(cl, newi
-							+ converter.getOCLAreNews().get(cl));
+				updateCreation(cl,converter.getOCLAreNews().get(cl));
 			}
 
 		}
+	}
+	
+	private void updateCreation(String c, int n) {
+		EClass cl = (EClass) metamodel.getEObject().getEClassifier(c);
+
+		Integer newi = classCreationCount.get(c);
+		if (newi == null)
+			classCreationCount.put(getSigFromEClassifier(cl),n);
+		else
+			classCreationCount.put(getSigFromEClassifier(cl), newi +  n);
+		
+		cl.getEAllSuperTypes();
+
+		for (EClass s : cl.getEAllSuperTypes()) {
+			newi = classCreationCount.get(s.getName());
+			if (newi == null)
+				classCreationCount.put(getSigFromEClassifier(s),n);
+			else
+				classCreationCount.put(getSigFromEClassifier(s), newi +  n);
+		}
+
 	}
 
 	/**
@@ -904,8 +919,8 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 		sig_order = ord;
 	}
 	
-	public Map<String,Integer> getCreationCount() {
-		return elem_creation_count;
+	public Map<PrimSig,Integer> getCreationCount() {
+		return classCreationCount;
 	}
 	
 	

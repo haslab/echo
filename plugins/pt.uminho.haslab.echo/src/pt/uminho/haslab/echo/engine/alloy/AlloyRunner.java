@@ -345,14 +345,17 @@ public class AlloyRunner implements EngineRunner {
 				PrimSig state = addInstanceSigs(modelID);
 				EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 						modelID);
+				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
+						.getModel(modelID).getModelConstraint().formula);
 				if (targetIDs.contains(modelID)) {
 					original = state;
-					PrimSig target = AlloyEchoTranslator.getInstance().getModel(modelID).setTarget();
+					PrimSig target = AlloyEchoTranslator.getInstance()
+							.getModel(modelID).setTarget();
 					targetstates.put(modelID, target);
 					allsigs.add(target);
 					finalfact = finalfact.and(model.metamodel.getConforms()
 							.call(target));
-				if (!EchoOptionsSetup.getInstance().isOperationBased()) {
+					if (!EchoOptionsSetup.getInstance().isOperationBased()) {
 						EAlloyMetamodel metamodel = model.metamodel;
 						try {
 							Collection<Sig> aux = new ArrayList<Sig>();
@@ -373,16 +376,16 @@ public class AlloyRunner implements EngineRunner {
 					} else {
 						edelta = Sig.NONE.no();
 					}
-				} else {}
-				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-						.getModel(modelID).getModelConstraint().formula);
+				} else {
+				}
 			}
 			AlloyFormula expr = AlloyEchoTranslator.getInstance()
 					.getQVTTransformation(transformationID)
 					.getConstraint(modelIDs);
 			finalfact = finalfact.and(expr.formula);
 			for (String targetID : targetIDs)
-				AlloyEchoTranslator.getInstance().getModel(targetID).unsetTarget();
+				AlloyEchoTranslator.getInstance().getModel(targetID)
+						.unsetTarget();
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
