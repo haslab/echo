@@ -32,8 +32,8 @@ class EKodkodMetamodel extends EEngineMetamodel {
     private Map<String,Set<String>> mapParents;
     /**maps a eReference relation into its type relations*/
     private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType;
-    /**maps an attribute relation with int as a type, to  */
-    private Map<Relation, Set<Relation>> mapIntType;
+    /**maps an non string attribute relation*/
+    private Map<Relation, Set<Relation>> mapAttType;
 
 
     /**facts about the meta-model*/
@@ -54,6 +54,8 @@ class EKodkodMetamodel extends EEngineMetamodel {
 		mapClassRel = new HashMap<>();
 		mapSfRel = new HashMap<>();
         mapParents = new HashMap<>();
+        mapRefType = new HashMap<>();
+        mapAttType = new HashMap<>();
 		facts = Formula.TRUE;
 	}
 	
@@ -213,6 +215,14 @@ class EKodkodMetamodel extends EEngineMetamodel {
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EString")) {
 				attribute = Relation.binary(attrName);
+                Set<Relation> set = new HashSet<>();
+                set.add(KodkodUtil.stringRel);
+
+                mapRefType.put(attribute,
+                        new Pair<>(
+                                getRelDomain(className),
+                                set));
+
 				facts = facts.and(attribute.function(domain, KodkodUtil.stringRel));
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EInt")) {
@@ -349,9 +359,9 @@ class EKodkodMetamodel extends EEngineMetamodel {
         return mapRefType.get(sf);
     }
 
-    Expression getAttType(Relation at)
+    Set<Relation> getAttType(Relation at)
     {
-               return null;
+               return mapAttType.get(at);
     }
 
 

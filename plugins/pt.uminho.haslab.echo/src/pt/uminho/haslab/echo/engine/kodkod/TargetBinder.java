@@ -65,7 +65,7 @@ class TargetBinder extends AbstractBinder implements Binder{
 
 
         if(rel.arity()==2){
-            Pair<Set<Relation>,Set<Relation>> type = x2k.getMetaTranslator().getRefTypes(rel);
+            Pair<Set<Relation>,Set<Relation>> type = x2k.getMetamodel().getRefTypes(rel);
         	if(type!=null){
                 TupleSet leftTuples = factory.noneOf(1);
         	    for (Relation relation : type.left)
