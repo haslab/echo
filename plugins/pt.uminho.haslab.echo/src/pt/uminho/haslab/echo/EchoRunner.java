@@ -1,9 +1,9 @@
 package pt.uminho.haslab.echo;
 
 import edu.mit.csail.sdg.alloy4viz.VizState;
-import pt.uminho.haslab.echo.transform.EchoTranslator;
-import pt.uminho.haslab.echo.transform.TransformFactory;
-import pt.uminho.haslab.echo.transform.alloy.GraphPainter;
+import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.TransformFactory;
+import pt.uminho.haslab.echo.engine.alloy.GraphPainter;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
@@ -105,7 +105,6 @@ public class EchoRunner {
 	public List<EConstraint> getConstraintsModel(String modelID) {
 		List<EConstraint> constraints = EConstraintManager.getInstance().getConstraintsModel(modelID);
 		if (constraints == null) constraints = new ArrayList<EConstraint>();
-		EchoReporter.getInstance().debug(modelID + " so " +constraints);
 		return constraints;
 	}
 
@@ -398,7 +397,7 @@ public class EchoRunner {
 		TRANSLATE_MODEL("translatemodel"), 
 		TRANSLATE_OCL("translateocl"), 
 		TRANSLATE_TRANSFORMATION("translatetransformation"), 
-		ALLOY_RUN("alloyrun");
+		ALLOY_RUN("alloyrun"), DRAW("draw");
 
 		private Task(String label) { this.label = label; }
 

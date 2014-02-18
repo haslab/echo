@@ -2,8 +2,9 @@ package pt.uminho.haslab.mde.model;
 
 /**
  * Echo representation of a string value
+ * 
  * @author nmm
- *
+ * @version 0.4 13/02/2014
  */
 public class EString extends EPrimitive {
 	private String value;

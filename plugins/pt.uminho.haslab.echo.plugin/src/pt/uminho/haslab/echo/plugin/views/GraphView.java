@@ -12,7 +12,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
@@ -118,6 +120,8 @@ public class GraphView extends ViewPart {
 				viz.loadXML(".dummy.xml", true);
 				runner.generateTheme(viz.getVizState());
 				viz.doShowViz();
+			} else {
+				EchoReporter.getInstance().warning("Unsatisfiable solution.", Task.DRAW);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

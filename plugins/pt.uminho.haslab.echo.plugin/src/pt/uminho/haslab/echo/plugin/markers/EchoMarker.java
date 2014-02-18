@@ -95,7 +95,7 @@ public class EchoMarker {
 				EModel model = constraint.getModels().get(i);
 				IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(model.getURI());
  				if (res.findMarkers(INTRA_ERROR,false,0).length == 0) {
-					mark = createSingleInterMarker(i, constraint.getModels(), constraint.transformation.ID,constraint.transformation.getModels().get(0).getName());
+					mark = createSingleInterMarker(i, constraint.getModels(), constraint.transformation.ID,constraint.transformation.getModelParams().get(0).getName());
 					marks.add(mark);
 				}
 			}

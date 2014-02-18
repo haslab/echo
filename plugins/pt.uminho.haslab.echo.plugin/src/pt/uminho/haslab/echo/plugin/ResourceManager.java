@@ -25,7 +25,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 import pt.uminho.haslab.mde.transformation.ETransformation;
-import pt.uminho.haslab.mde.transformation.qvt.QVTTransformation;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
 
 /**
  * Manages the project resources being tracked by Echo
@@ -80,18 +80,13 @@ public class ResourceManager {
 		String modelURI = modelRes.getFullPath().toString();
 
 		EModel model = parser.getModel(modelURI, true);
-		reporter.debug("Model " + modelURI + " parsed.");
 		
 		EMetamodel metamodel = model.getMetamodel();
 		
 		if (!runner.hasMetaModel(metamodel.ID)) {
-			reporter.debug("Model's metamodel "+metamodel.ID+"still not tracked.");
-			reporter.debug("Metamodel " + metamodel.ID + " parsed.");
 			runner.addMetaModel(metamodel);
-			reporter.debug("Metamodel " + metamodel.ID + " processed.");
 		}
 		runner.addModel(model);
-		reporter.debug("Model " + modelURI + " processed.");
 		List<IResource> aux = tracked.get(metamodel.getURI());
 		if (aux == null)
 			aux = new ArrayList<IResource>();
@@ -123,7 +118,6 @@ public class ResourceManager {
 	private EModel reloadModelAction(IResource resmodel) throws EchoError {
 		String modelURI = resmodel.getFullPath().toString();
 		EModel model = parser.getModel(modelURI, true);
-		reporter.debug("Model " + modelURI + " re-parsed.");
 		runner.reloadModel(model);
 		reporter.debug("Model " + modelURI + " re-processed.");
 		return model;
@@ -303,17 +297,15 @@ public class ResourceManager {
 			ctracked.put(mm, l);
 		}
 		
-		QVTTransformation qvt = parser.getQVTTransformation(qvtURI, false);
-		reporter.debug("QVT-R "+qvtURI+" parsed.");
+		EQVTTransformation qvt = parser.getQVTTransformation(qvtURI, false);
 		
-		for (int i=0;i<qvt.getModels().size();i++) {
-			if (!qvt.getModels().get(i).getMetamodel().equals(models.get(i).getMetamodel()))
+		for (int i=0;i<qvt.getModelParams().size();i++) {
+			if (!qvt.getModelParams().get(i).getMetamodel().equals(models.get(i).getMetamodel()))
 				throw new ErrorAPI("Model does not type-check.");
 		}
 		
 		if (!runner.hasTransformation(qvt.ID)) {
 			runner.addTransformation(qvt);
-			reporter.debug("QVT-R "+qvt.ID+" processed.");
 		}
 		
 		return runner.addConstraint(qvt, models);
@@ -452,7 +444,6 @@ public class ResourceManager {
 		if (v != null) v.clearGraph();
 		EModel model = parser.getModel(res.getFullPath().toString(), false);
 		for (EConstraint c : runner.getConstraintsModel(model.ID)) {
-			EchoReporter.getInstance().debug("found a contraint: "+c);
 			List<String> modelIDs = new ArrayList<String>();
 			for (EModel m : c.getModels())
 				modelIDs.add(m.ID);
@@ -487,9 +478,9 @@ public class ResourceManager {
 		if (!isManagedModel(ressource))
 			addModelAction(ressource);
 		
-		QVTTransformation trans = parser.getQVTTransformation(resqvt.getFullPath().toString(), false);
+		EQVTTransformation trans = parser.getQVTTransformation(resqvt.getFullPath().toString(), false);
 
-		String metamodelURI = trans.getModels().get(newp).getMetamodel().getURI();
+		String metamodelURI = trans.getModelParams().get(newp).getMetamodel().getURI();
 		EMetamodel metamodel = parser.getMetamodel(metamodelURI, false);
 		if (!runner.hasMetaModel(metamodel.ID))
 			runner.addMetaModel(metamodel);

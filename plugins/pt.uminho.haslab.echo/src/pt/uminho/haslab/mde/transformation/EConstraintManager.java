@@ -5,23 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.mde.model.EModel;
 
 /**
- * Manages the current set of inter-model constraints
- * A constraint consists of a set of models related by a transformation
+ * Manages the current set of inter-model constraints.
+ * A constraint consists of a set of models related by a transformation.
+ * 
  * @author nmm
+ * @version 0.4 14/02/2014
  */
 public class EConstraintManager {
 
-	 private static EConstraintManager instance = new EConstraintManager();
+	private static EConstraintManager instance = new EConstraintManager();
 
-	    public static EConstraintManager getInstance() {
-	        return instance;
-	    }
+	public static EConstraintManager getInstance() {
+		return instance;
+	}
 
-	
 	/** maps transformations to related existing inter-model constraints */
 	private Map<String,List<EConstraint>> trans2constraints = new HashMap<String, List<EConstraint>>();
 	/** maps models to related existing inter-model constraints */
@@ -53,7 +53,6 @@ public class EConstraintManager {
 			cs.add(c);
 			model2constraints.put(model.ID, cs);
 		}
-		EchoReporter.getInstance().debug("cons: "+model2constraints);
 		return c;
 	}
 
@@ -65,7 +64,7 @@ public class EConstraintManager {
 		List<EConstraint> aux = new ArrayList<EConstraint>();
 		for (List<EConstraint> x : trans2constraints.values())
 			aux.addAll(x);
-		return aux;	
+		return aux;
 	}
 
 	/**
@@ -75,7 +74,6 @@ public class EConstraintManager {
 	 */
 	public List<EConstraint> getConstraintsModel(String modelID) {
 		List<EConstraint> res = model2constraints.get(modelID);
-		EchoReporter.getInstance().debug(modelID + " at "+model2constraints.keySet()+ " so "+res);
 		return res == null? new ArrayList<EConstraint>() : res;
 	}
 
@@ -130,7 +128,7 @@ public class EConstraintManager {
 	 */
 	public class EConstraint {
 		/** the related models */
-		private final List<EModel> models;
+		private List<EModel> models;
 		/** the relating transformation */
 		public final ETransformation transformation;
 
@@ -147,7 +145,7 @@ public class EConstraintManager {
 		public List<EModel> getModels() {
 			return models;
 		}
-		
+
 		@Override
 		public boolean equals(Object cons) {
 			if (!(cons instanceof EConstraint))
@@ -160,16 +158,16 @@ public class EConstraintManager {
 				same = same && this.models.get(i).equals(constraint.models.get(i));
 			return same;
 		}
-		
+
 		@Override
 		public String toString() {
 			StringBuilder s = new StringBuilder(transformation.getName());
 			s.append(": ");
 			s.append(models.get(0).toString());
 			for (int i = 1; i < models.size(); i ++) {
-	 			s.append(" <-> ");
-				s.append(models.get(i).toString()); 
-			}		
+				s.append(" <-> ");
+				s.append(models.get(i).toString());
+			}
 			return s.toString();
 		}
 
