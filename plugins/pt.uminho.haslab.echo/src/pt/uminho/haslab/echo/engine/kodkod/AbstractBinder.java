@@ -21,7 +21,7 @@ abstract class AbstractBinder implements Binder{
     protected Bounds bounds;
 
 
-    protected void makeStringBounds(XMI2Kodkod x2k) {
+    protected void makeStringBounds(EKodkodModel x2k) {
         Set<String> strings = x2k.getStrings();
         Set<Tuple> tuples = new HashSet<>();
         for(String s: strings)

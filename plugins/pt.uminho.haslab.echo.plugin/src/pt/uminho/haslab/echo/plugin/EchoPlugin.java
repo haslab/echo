@@ -59,7 +59,7 @@ public class EchoPlugin extends AbstractUIPlugin {
 	public EchoPlugin() {
 		super();
 		instance = this;
-        runner = new EchoRunner(TransformFactory.ALLOY);
+        runner = new EchoRunner(TransformFactory.KODKOD);
 		EchoOptionsSetup.init(new PlugInOptions());
 		EchoReporter.init(new EchoReporter());
 	}

@@ -30,13 +30,13 @@ public class KodkodRunner implements EngineRunner{
     public void conforms(List<String> modelIDs) throws ErrorInternalEngine {
         for (String modelID: modelIDs)
         {
-            XMI2Kodkod x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
+            EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
             final Solver solver = new Solver();
 
             solver.options().setSolver(SATFactory.DefaultSAT4J);
             solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
-            EKodkodMetamodel e2k = x2k.getMetaTranslator();
+            EKodkodMetamodel e2k = x2k.getMetamodel();
 
             System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
 
@@ -47,13 +47,13 @@ public class KodkodRunner implements EngineRunner{
 
     @Override
     public boolean repair(String modelID) throws ErrorInternalEngine {
-        XMI2Kodkod x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
+        EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
         final Solver solver = new Solver();
 
         solver.options().setSolver(SATFactory.PMaxSAT4J);
         solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
-        EKodkodMetamodel e2k = x2k.getMetaTranslator();
+        EKodkodMetamodel e2k = x2k.getMetamodel();
 
         System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
 

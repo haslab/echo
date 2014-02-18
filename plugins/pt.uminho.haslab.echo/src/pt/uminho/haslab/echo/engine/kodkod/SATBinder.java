@@ -18,7 +18,7 @@ class SATBinder extends AbstractBinder implements Binder {
 
 
 
-    SATBinder(XMI2Kodkod x2k)
+    SATBinder(EKodkodModel x2k)
     {
         Set<Object> uni = numberCollection();
         uni.addAll(x2k.getUniverse());

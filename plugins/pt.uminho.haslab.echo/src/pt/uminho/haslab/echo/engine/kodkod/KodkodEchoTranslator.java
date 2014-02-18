@@ -5,7 +5,6 @@ import kodkod.ast.IntConstant;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
-import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.echo.engine.ast.IIntExpression;
@@ -33,7 +32,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
     /** maps meta-models Uris into translators*/
     private Map<String,EKodkodMetamodel> metaModels = new HashMap<>();
     /** maps models Uris into translators*/
-    private Map<String,XMI2Kodkod> models = new HashMap<>();
+    private Map<String,EKodkodModel> models = new HashMap<>();
     /** maps models Uris into meta-models Uris*/
     private Map<String,String> model2metaModel = new HashMap<>();
 
@@ -55,7 +54,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    XMI2Kodkod getModel(String modelID){
+    public EKodkodModel getModel(String modelID){
         return models.get(modelID);
     }
 
@@ -64,7 +63,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
     	String modelID = model.ID;
         String metaModelID = model.getMetamodel().ID;
         EKodkodMetamodel e2k = metaModels.get(metaModelID);
-        XMI2Kodkod x2k = new XMI2Kodkod(model.getRootEElement().getEObject(),e2k);
+        EKodkodModel x2k = new EKodkodModel(model,e2k);
         models.put(modelID,x2k);
         model2metaModel.put(modelID, metaModelID);
     }

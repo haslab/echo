@@ -52,7 +52,8 @@ public class EAlloyModel implements EEngineModel {
 	/** maps EObjects to the respective Alloy signature */
 	private Map<EElement,PrimSig> object2sig = new HashMap<EElement,PrimSig>();
 
-	/** maps class names to set of object signatures */
+	/** maps class names to set of object signatures 
+	 * super-sigs should be mapped to elements of all children */
 	private Map<String,List<PrimSig>> classsig2sigs = new HashMap<String,List<PrimSig>>();
 
 	/** the Alloy expression defining this model object */

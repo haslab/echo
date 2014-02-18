@@ -17,9 +17,9 @@ import java.util.Set;
 class TargetBinder extends AbstractBinder implements Binder{
 
     private Set<String> extras;
-    private final XMI2Kodkod x2k;
+    private final EKodkodModel x2k;
 
-    TargetBinder(XMI2Kodkod x2k){
+    TargetBinder(EKodkodModel x2k){
         this.x2k = x2k;
         createExtras();
         Set<Object> uni = numberCollection();
@@ -33,12 +33,10 @@ class TargetBinder extends AbstractBinder implements Binder{
 
         Map<Relation,Set<Object>> map = x2k.getBounds();
 
-        for(Relation rel : x2k.getMetaTranslator().getClassRelations())
+        for(Relation rel : x2k.getMetamodel().getClassRelations())
             bindClassRelation(rel,map.get(rel));
 
-
-
-        for(Relation rel : x2k.getMetaTranslator().getSfRelations())
+        for(Relation rel : x2k.getMetamodel().getSfRelations())
             bindSfRelation(rel,map.get(rel));
 
     }

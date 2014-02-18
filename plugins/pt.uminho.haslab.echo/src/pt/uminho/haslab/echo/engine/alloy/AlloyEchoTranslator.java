@@ -204,69 +204,74 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
-	public void createScopesFromOps(List<String> modelIDs) throws ErrorAlloy {
-		Map<PrimSig,Integer> scopesmap = new HashMap<PrimSig,Integer>();
-		Map<PrimSig,Integer> scopesexact = new HashMap<PrimSig, Integer>();
-		
-		for (String uri : modelIDs) {
-			EAlloyModel model = modelalloys.get(uri);
+	/**
+	 * Initializes the scope of a set of models. 
+	 * If operation-based, retrieves the creation count from operations and 
+	 * considers only sigs involved in creations. 
+	 * Otherwise, consideres every element.
+	 * 
+	 * @param modelIDs
+	 *            the models' IDs
+	 * @throws ErrorAlloy
+	 */
+	public void createScopesFromID(List<String> modelIDs) throws ErrorAlloy {
+		Map<PrimSig, Integer> scopesmap = new HashMap<PrimSig, Integer>();
+		Map<PrimSig, Integer> scopesexact = new HashMap<PrimSig, Integer>();
+		for (String modelID : modelIDs) {
+			EAlloyModel model = modelalloys.get(modelID);
 			EAlloyMetamodel metamodel = model.metamodel;
-	
-			scopesincrement = metamodel.getCreationCount();
-			for (PrimSig p : metamodel.getCreationCount().keySet()) {
-				scopesmap.put(p, model.getClassSigs(p).size());
-			}
-	
-			// also increments state sig
-			scopesincrement.put(metamodel.sig_metamodel,1);
-			//scopesincrement.put(PrimSig.STRING,1);
 
-			scopesexact.put(metamodel.sig_metamodel,1);
-		}
-		scopes = AlloyUtil.createScope(scopesmap,scopesexact);
-
-		EchoReporter.getInstance().debug("Init scope: "+scopes);
-		EchoReporter.getInstance().debug("Increment: "+scopesincrement);
-	}	
-	
-	public void createScopesFromID(List<String> IDs) throws ErrorAlloy {
-		Map<PrimSig,Integer> scopesmap = new HashMap<PrimSig,Integer>();
-		Map<PrimSig,Integer> exact = new HashMap<PrimSig,Integer>();
-		for (String ID : IDs) {
-			EAlloyModel x2a = modelalloys.get(ID);
-			EAlloyMetamodel e2a = x2a.metamodel;
-			EchoReporter.getInstance().debug("*** Creating scopes for "+e2a.getAllSigs());
-			for (PrimSig sig : e2a.getCAllSigs()) {
-				int count = x2a.getClassSigs(sig)==null?0:x2a.getClassSigs(sig).size();
-				if (scopesmap.get(sig) == null) scopesmap.put(sig, count);
-				else scopesmap.put(sig, scopesmap.get(sig) + count);
-				PrimSig up = sig.parent;
-				while (up != Sig.UNIV && up != null){
-					if (scopesmap.get(up) == null) scopesmap.put(up, count);
-					else scopesmap.put(up, scopesmap.get(up) + count);
-					up = up.parent;
+			if (EchoOptionsSetup.getInstance().isOperationBased()) {
+				// gets creation count from operations
+				scopesincrement = metamodel.getCreationCount();
+				// gets initial scope for sigs with creations
+				for (PrimSig p : metamodel.getCreationCount().keySet())
+					scopesmap.put(p, model.getClassSigs(p).size());
+		
+				// also increments state sig
+				scopesincrement.put(metamodel.sig_metamodel,1);
+				scopesexact.put(metamodel.sig_metamodel,1);
+				// TODO: deal with strings
+				//scopesincrement.put(PrimSig.STRING,1);
+			} else {
+				// scope is the number of all elements
+				for (PrimSig sig : metamodel.getCAllSigs()) {
+					int count = model.getClassSigs(sig) == null ? 0 : model.getClassSigs(sig).size();
+					scopesmap.put(sig, count);
 				}
 			}
 		}
-		scopes = AlloyUtil.createScope(scopesmap,exact);
-		//System.out.println(this.scopes);
+		scopes = AlloyUtil.createScope(scopesmap, scopesexact);
+//		EchoReporter.getInstance().debug("Init scope: "+scopes);
+//		EchoReporter.getInstance().debug("Increment: "+scopesincrement);
 	}	
 	
-	ConstList<CommandScope> incrementScopes (List<CommandScope> scopes) throws ErrorSyntax  {
+	/**
+	 * Increments a collection of scopes.
+	 * If operation-based, increments only by the defined creation count 
+	 * (which should include inheritance).
+	 * Otherwise, increments everything by 1.
+	 * @param scopes the original scope
+	 * @return <code>scopes</code> incremented
+	 * @throws ErrorSyntax
+	 */
+	ConstList<CommandScope> incrementScopes(List<CommandScope> scopes)
+			throws ErrorSyntax {
 		List<CommandScope> list = new ArrayList<CommandScope>();
-		
-		//System.out.println("incs: "+scopesincrement);
-		System.out.println("scps: "+scopes);
-		if (!EchoOptionsSetup.getInstance().isOperationBased())
-			for (CommandScope scope : scopes) 
-				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+1));
-		else
-			for (CommandScope scope : scopes) {				
+		for (CommandScope scope : scopes)
+			if (EchoOptionsSetup.getInstance().isOperationBased()) {
+				// increments every scope by the defined increment
+				// should include inheritance
 				Integer i = scopesincrement.get(scope.sig);
-				if (i == null) i = 0;
-				list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope+i));
-				// need to manage inheritance
-			}		
+				if (i == null)
+					i = 0;
+				list.add(new CommandScope(scope.sig, scope.isExact,
+						scope.startingScope + i));
+			} else
+				// increments every scope by 1
+				list.add(new CommandScope(scope.sig, scope.isExact,
+						scope.startingScope + 1));
+
 		return ConstList.make(list);
 	}
 	

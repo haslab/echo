@@ -173,10 +173,7 @@ public class AlloyRunner implements EngineRunner {
 	public boolean repair(String modelID) throws ErrorAlloy {
 		List<String> modelIDs = new ArrayList<String>();
 		modelIDs.add(modelID);
-		if (EchoOptionsSetup.getInstance().isOperationBased())
-			AlloyEchoTranslator.getInstance().createScopesFromOps(modelIDs);
-		else
-			AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs);
+		AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs);
 		conforms(new ArrayList<String>(Arrays.asList(modelID)));
 		if (sol.satisfiable())
 			throw new ErrorAlloy("Instances already consistent.");
@@ -325,10 +322,7 @@ public class AlloyRunner implements EngineRunner {
 	@Override
 	public boolean enforce(String transformationID, List<String> modelIDs,
 			List<String> targetIDs) throws ErrorAlloy {
-		if (EchoOptionsSetup.getInstance().isOperationBased())
-			AlloyEchoTranslator.getInstance().createScopesFromOps(targetIDs);
-		else
-			AlloyEchoTranslator.getInstance().createScopesFromID(targetIDs);
+		AlloyEchoTranslator.getInstance().createScopesFromID(targetIDs);
 		check(transformationID, modelIDs);
 		if (sol.satisfiable())
 			throw new ErrorAlloy("Instances already consistent.");

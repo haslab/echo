@@ -14,7 +14,7 @@ import pt.uminho.haslab.mde.model.EModel;
 
 import java.util.*;
 
-class XMI2Kodkod implements EEngineModel {
+class EKodkodModel implements EEngineModel {
 
 	private EModel emodel;
 
@@ -44,7 +44,7 @@ class XMI2Kodkod implements EEngineModel {
 
     private Set<String> strings;
 	
-	XMI2Kodkod(EModel obj,EKodkodMetamodel t) throws EchoError {
+	EKodkodModel(EModel obj,EKodkodMetamodel t) throws EchoError {
 		emodel = obj;
 		translator = t;
         bounds = new HashMap<>();
@@ -170,7 +170,7 @@ class XMI2Kodkod implements EEngineModel {
 	}
 
 	@Override
-	public EEngineMetamodel getMetamodel() {
+	public EKodkodMetamodel getMetamodel() {
 		return translator;
 	}
 

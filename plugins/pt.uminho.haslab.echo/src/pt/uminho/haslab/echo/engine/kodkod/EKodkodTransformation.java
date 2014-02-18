@@ -74,7 +74,7 @@ public class EKodkodTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	protected KodkodFormula getConstraint(List<IExpression> vars) {
+	protected KodkodFormula getConstraint(List<String> modelIDs) {
 		return new KodkodFormula(form);
 	}
 
