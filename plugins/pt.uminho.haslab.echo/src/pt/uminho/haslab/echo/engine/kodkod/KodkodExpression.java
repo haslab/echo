@@ -16,82 +16,82 @@ class KodkodExpression implements IExpression {
     }
 
     @Override
-    public IExpression closure() {
+    public KodkodExpression closure() {
         return new KodkodExpression(EXPR.closure());
     }
 
     @Override
-    public IExpression reflexiveClosure() {
+    public KodkodExpression reflexiveClosure() {
         return new KodkodExpression(EXPR.reflexiveClosure());
     }
 
     @Override
-    public IExpression transpose() {
+    public KodkodExpression transpose() {
         return new KodkodExpression(EXPR.transpose());
     }
 
     @Override
-    public IExpression join(IExpression e) {
+    public KodkodExpression join(IExpression e) {
         return new KodkodExpression(EXPR.join(((KodkodExpression)e).EXPR));
     }
 
     @Override
-    public IExpression difference(IExpression e) {
+    public KodkodExpression difference(IExpression e) {
         return new KodkodExpression(EXPR.difference(((KodkodExpression)e).EXPR));
     }
 
     @Override
-    public IExpression intersection(IExpression e) {
+    public KodkodExpression intersection(IExpression e) {
         return new KodkodExpression(EXPR.intersection(((KodkodExpression)e).EXPR));
     }
 
     @Override
-    public IExpression union(IExpression e) {
+    public KodkodExpression union(IExpression e) {
         return new KodkodExpression(EXPR.union(((KodkodExpression)e).EXPR));
     }
 
 
     @Override
-    public IFormula in(IExpression e) {
+    public KodkodFormula in(IExpression e) {
         return new KodkodFormula(EXPR.in(((KodkodExpression)e).EXPR));
     }
 
     @Override
-    public IFormula eq(IExpression e) {
+    public KodkodFormula eq(IExpression e) {
         return new KodkodFormula(EXPR.eq(((KodkodExpression) e).EXPR));
     }
 
     @Override
-    public IFormula some() {
+    public KodkodFormula some() {
         return new KodkodFormula(EXPR.some());
     }
 
     @Override
-    public IFormula one() {
+    public KodkodFormula one() {
         return new KodkodFormula(EXPR.one());
     }
 
     @Override
-    public IFormula no() {
+    public KodkodFormula no() {
         return new KodkodFormula(EXPR.no());
     }
 
     @Override
-    public IFormula lone() {
+    public KodkodFormula lone() {
         return new KodkodFormula(EXPR.lone());
     }
 
 
     @Override
-    public IDecl oneOf(String name) {
+    public KodkodDecl oneOf(String name) {
         Variable v = Variable.unary(name);
 
         return new KodkodDecl(v.oneOf(EXPR));
     }
 
     @Override
-    public IIntExpression cardinality() {
-        return Constants.makeNumber(EXPR.arity());
+    public KodkodIntExpression cardinality() {
+        return (KodkodIntExpression) Constants.makeNumber(EXPR.arity());
     }
 
 	@Override

@@ -14,12 +14,10 @@ import java.util.Map;
  */
 class AlloyTuple {
 
-
     private A4Solution sol;
     private Map<String,Sig.PrimSig> state;
 
-    public AlloyTuple(A4Solution sol, Map<String,Sig.PrimSig> state)
-    {
+    AlloyTuple(A4Solution sol, Map<String,Sig.PrimSig> state) {
         this.sol =sol;
         this.state = state;
     }

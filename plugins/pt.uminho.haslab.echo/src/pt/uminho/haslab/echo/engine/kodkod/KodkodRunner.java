@@ -5,6 +5,7 @@ import kodkod.engine.Solver;
 import kodkod.engine.satlab.SATFactory;
 import kodkod.util.nodes.PrettyPrinter;
 import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.engine.ast.Constants;
 
 import java.util.List;
 import java.util.Map;
@@ -15,10 +16,9 @@ import java.util.Map;
  * Date: 10/24/13
  * Time: 12:39 PM
  */
-public class KodkodRunner implements EngineRunner{
+public class KodkodRunner implements EngineRunner {
 
     public KodkodRunner(){}   //TODO
-
 
     private Solution sol;
 
@@ -28,8 +28,7 @@ public class KodkodRunner implements EngineRunner{
     }
     @Override
     public void conforms(List<String> modelIDs) throws ErrorInternalEngine {
-        for (String modelID: modelIDs)
-        {
+        for (String modelID: modelIDs) {
             EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
             final Solver solver = new Solver();
 
@@ -38,9 +37,9 @@ public class KodkodRunner implements EngineRunner{
 
             EKodkodMetamodel e2k = x2k.getMetamodel();
 
-            System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
+            System.out.println(PrettyPrinter.print(e2k.getConforms(modelID).formula,2));
 
-            sol = solver.solve(e2k.getFacts(), new SATBinder(x2k).getBounds());
+            sol = solver.solve(e2k.getConforms(modelID).formula, new SATBinder(x2k).getBounds());
         }
 
     }
@@ -55,9 +54,9 @@ public class KodkodRunner implements EngineRunner{
 
         EKodkodMetamodel e2k = x2k.getMetamodel();
 
-        System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
+        System.out.println(PrettyPrinter.print(e2k.getConforms(modelID).formula,2));
 
-        sol = solver.solve(e2k.getFacts(), new TargetBinder(x2k).getBounds());
+        sol = solver.solve(e2k.getConforms(modelID).formula, new TargetBinder(x2k).getBounds());
    
         return sol.instance() != null;
     }
@@ -69,8 +68,21 @@ public class KodkodRunner implements EngineRunner{
     }
 
     @Override
-    public void check(String qvtUri, List<String> modelUris) throws ErrorInternalEngine {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void check(String transformationID, List<String> modelIDs) throws ErrorInternalEngine {
+		EKodkodTransformation trans = KodkodEchoTranslator.getInstance().getQVTTransformation(transformationID);
+		KodkodFormula finalfact = (KodkodFormula) Constants.TRUE();
+		EchoReporter.getInstance().debug("QVT fact: "+trans.getConstraint(modelIDs));
+		for (String modelID : modelIDs) {
+			// TODO: add atoms of each model
+			// TODO: create bounds for each model
+			EKodkodModel model = KodkodEchoTranslator.getInstance().getModel(
+					modelID);
+			EKodkodMetamodel metamodel = model.getMetamodel();
+			finalfact = finalfact.and(model.getModelConstraint());
+			finalfact = finalfact.and(metamodel.getConforms(modelID));
+		}
+		finalfact = finalfact.and(trans.getConstraint(modelIDs));
+		// TODO: run kodkod over finalfact
     }
 
     @Override

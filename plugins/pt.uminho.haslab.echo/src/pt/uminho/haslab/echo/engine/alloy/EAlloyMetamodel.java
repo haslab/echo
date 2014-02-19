@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.ast.alloy;
+package pt.uminho.haslab.echo.engine.alloy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,39 +24,36 @@ import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
 
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.echo.engine.alloy.AlloyContext;
-import pt.uminho.haslab.echo.engine.alloy.AlloyEchoTranslator;
-import pt.uminho.haslab.echo.engine.alloy.AlloyOptimizations;
-import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
-public class EAlloyMetamodel extends EEngineMetamodel {
+ class EAlloyMetamodel extends EEngineMetamodel {
 	
 	/** the Alloy signature representing this meta-model */
-	public final PrimSig sig_metamodel;
+	final PrimSig sig_metamodel;
 	
 	/** the model parameter of the conformity expression
-	 * constraint is defined over this variable */
+	* constraint is defined over this variable */
 	private final Decl model_var;
 	
 	/** the Alloy expression representing the conformity constraint
-	 * should be defined over <code>model_var</code> */
+	* should be defined over <code>model_var</code> */
 	private Expr constraint_conforms = Sig.NONE.no();
 	
 	/** the Alloy expression representing the generation constraint 
-	 * should be defined over <code>model_var</code> */
+	* should be defined over <code>model_var</code> */
 	private Expr constraint_generate = Sig.NONE.no();
 	
 	/** the Alloy signature representing the order over model elements
-	 * should have order fact attached */
+	* should have order fact attached */
 	private PrimSig sig_order;
 	
 	/** maps class names to the number of creations in operations
-	 * each increment represents an <code>oclIsNew()</code> occurrence*/
+	* each increment represents an <code>oclIsNew()</code> occurrence*/
 	private Map<PrimSig, Integer> classCreationCount = new HashMap<PrimSig,Integer>();
 
 	/** maps classifier names into respective Alloy signatures */
@@ -76,11 +73,11 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	
 	
 	/**
-	 * Creates a translator from meta-models (represented by an EMetamodel) to Alloy artifacts
+	* Creates a translator from meta-models (represented by an EMetamodel) to Alloy artifacts
      * @param metamodel the metamodel to translate
-	 * @throws EchoError
-	 */
-	public EAlloyMetamodel(EMetamodel metamodel) throws EchoError {
+	* @throws EchoError
+	*/
+	EAlloyMetamodel(EMetamodel metamodel) throws EchoError {
 		super(metamodel);
 		try {
 			//if (EchoOptionsSetup.getInstance().isOperationBased())
@@ -101,22 +98,22 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 
 	/** 
-	 * Returns the {@link EClass} matching an Alloy {@link PrimSig}
-	 * @param s the Alloy signature
- 	 * @return the matching class
-	 */
-	public EClassifier getEClassifierFromSig(PrimSig s) {
+	* Returns the {@link EClass} matching an Alloy {@link PrimSig}
+	* @param s the Alloy signature
+ 	* @return the matching class
+	*/
+	EClassifier getEClassifierFromSig(PrimSig s) {
 		for (String cla : classifier2sig.keySet())
 			if (classifier2sig.get(cla).isSame(s)) return metamodel.getEObject().getEClassifier(EchoHelper.getClassifierName(cla));
 		return null;
 	}
 
 	/** 
-	 * Returns the Alloy {@link PrimSig} matching a {@link EClass}
-	 * @param c the class
- 	 * @return the matching Alloy signature
-	 */
-	public PrimSig getSigFromEClassifier(EClassifier c) {
+	* Returns the Alloy {@link PrimSig} matching a {@link EClass}
+	* @param c the class
+ 	* @return the matching Alloy signature
+	*/
+	PrimSig getSigFromEClassifier(EClassifier c) {
 		PrimSig s = classifier2sig.get(EchoHelper.classifierKey(metamodel, c));
 		if (s == null)
 			EchoReporter.getInstance().warning("Looking for non-existing classifier: "+c, Task.TRANSLATE_METAMODEL);
@@ -124,38 +121,38 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}	
 	
 	/** 
-	 * Returns the state {@link Field} representing a {@link PrimSig}
-	 * @param eclass the EClass
- 	 * @return the state field
-	 */
-	public Field getStateFieldFromClass(EClass eclass) {
+	* Returns the state {@link Field} representing a {@link PrimSig}
+	* @param eclass the EClass
+ 	* @return the state field
+	*/
+	Field getStateFieldFromClass(EClass eclass) {
 		PrimSig sig = getSigFromEClassifier(eclass);
 		return sig2statefield.get(sig);
 	}	
 	
 	/** 
-	 * Returns the state {@link Field} representing a {@link PrimSig}
-	 * @param sig the signature
- 	 * @return the state field
-	 */
+	* Returns the state {@link Field} representing a {@link PrimSig}
+	* @param sig the signature
+ 	* @return the state field
+	*/
 	Field getStateFieldFromSig(PrimSig sig) {
 		return sig2statefield.get(sig);
 	}	
 	
 	/**
-	 * Returns all state fields of this meta-model
-	 * @return the state fields
-	 */
+	* Returns all state fields of this meta-model
+	* @return the state fields
+	*/
 	Collection<Field> getStateFields() {
 		return sig2statefield.values();
 	}
 	
 	/** 
-	 * Returns the Alloy {@link Field} matching a {@link EStructuralFeature}
-	 * @param f the desired feature
-	 * @return the matching Alloy field
-	 */
-	public Field getFieldFromSFeature(EStructuralFeature f) {
+	* Returns the Alloy {@link Field} matching a {@link EStructuralFeature}
+	* @param f the desired feature
+	* @return the matching Alloy field
+	*/
+	Field getFieldFromSFeature(EStructuralFeature f) {
 		if (f == null) 
 			EchoReporter.getInstance().warning("Looking for null feature.",Task.TRANSLATE_METAMODEL);
 		Field fi = feature2field.get(EchoHelper.featureKey(metamodel, f));
@@ -165,11 +162,11 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/** 
-	 * Returns the {@link EStructuralFeature} matching an Alloy {@link Field}
-	 * @param f the Alloy field
- 	 * @return the matching feature
-	 */
-	public EStructuralFeature getSFeatureFromField(Field f) {
+	* Returns the {@link EStructuralFeature} matching an Alloy {@link Field}
+	* @param f the Alloy field
+ 	* @return the matching feature
+	*/
+	EStructuralFeature getSFeatureFromField(Field f) {
 		if (f == null) 
 			EchoReporter.getInstance().warning("Looking for null field.",Task.TRANSLATE_METAMODEL);
 		
@@ -183,34 +180,34 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 		
 	/**
-	 * Returns all {@link EStructuralFeature} of this meta-model
-	 * @return the features
-	 */
+	* Returns all {@link EStructuralFeature} of this meta-model
+	* @return the features
+	*/
 	Collection<Field> getFields() {
 		return feature2field.values();
 	}
 
 	/**
-	 * Returns the Alloy {@link PrimSig} representing an {@link EEnumLiteral} 
-	 * @return the matching signature
-	 */
+	* Returns the Alloy {@link PrimSig} representing an {@link EEnumLiteral} 
+	* @return the matching signature
+	*/
 	PrimSig getSigFromEEnumLiteral(EEnumLiteral e) {
 		return literal2sig.get(e);
 	}
 	
 	/**
-	 * Returns the {@link EEnumLiteral} represented by an Alloy {@link PrimSig}
-	 * @return the matching enum literal
-	 */
-	public EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
+	* Returns the {@link EEnumLiteral} represented by an Alloy {@link PrimSig}
+	* @return the matching enum literal
+	*/
+	EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
 		return literal2sig.inverse().get(s);
 	}
 	
 	/**
-	 * Returns enum {@link PrimSig} of this meta-model
-	 * @return the signatures
-	 */
-	public List<PrimSig> getEnumSigs() {
+	* Returns enum {@link PrimSig} of this meta-model
+	* @return the signatures
+	*/
+	List<PrimSig> getEnumSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>();
 		for (String cname : classifier2sig.keySet())
 			if (metamodel.getEObject().getEClassifier(EchoHelper.getClassifierName(cname)) instanceof EEnum) 
@@ -220,17 +217,17 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 
 	/**
-	 * Returns all {@link PrimSig} of this meta-model
-	 * @return the signatures
-	 */
-	public List<PrimSig> getAllSigs() {
+	* Returns all {@link PrimSig} of this meta-model
+	* @return the signatures
+	*/
+	List<PrimSig> getAllSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>(classifier2sig.values());
 		aux.addAll(literal2sig.values());
 		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(sig_order);
 		return aux;
 	}
 	
-	public List<PrimSig> getCAllSigs() {
+	List<PrimSig> getCAllSigs() {
 		List<PrimSig> aux = new ArrayList<PrimSig>(classifier2sig.values());
 		//aux.addAll(literal2sig.values());
 		if (EchoOptionsSetup.getInstance().isOperationBased()) aux.add(sig_order);
@@ -238,14 +235,13 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 
 	/**
-	 * Returns the {@link Func} that tests well-formedness
-	 * @return the predicate
-	 * @throws ErrorAlloy 
-	 */
-	public Func getConforms() throws ErrorAlloy {
+	* Returns the {@link Func} that tests well-formedness
+	* @return the predicate
+	* @throws ErrorAlloy 
+	*/
+	protected AlloyFormula getConforms(String modelID) throws ErrorAlloy {
 		Func f;
-//		EchoReporter.getInstance().debug("m "+constraint_conforms);
-
+		EAlloyModel model = (EAlloyModel) EchoTranslator.getInstance().getModel(modelID);
 		try {
 			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
 		} catch (Err e) {
@@ -253,16 +249,17 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 					"Failed to create conforming function.", e,
 					Task.TRANSLATE_METAMODEL);
 		}		
-		return f;
+		return new AlloyFormula(f.call(
+				model.getModelSig()));
 	}
 
 	/**
-	 * Returns the {@link Func} that constraints the generation of models
-	 * consists of the conform constraints and the generation constraints
-	 * @return the predicate
-	 * @throws ErrorAlloy 
-	 */
-	public Func getGenerate() throws ErrorAlloy {
+	* Returns the {@link Func} that constraints the generation of models
+	* consists of the conform constraints and the generation constraints
+	* @return the predicate
+	* @throws ErrorAlloy 
+	*/
+	Func getGenerate() throws ErrorAlloy {
 		Func f;
 		try {
 			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
@@ -273,8 +270,7 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 		}
 		return f;
 	}
-
-
+	
 	public void translate() throws EchoError {
 		super.translate();
 		
@@ -286,13 +282,13 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 
 
     /**
-	 * Translates an {@link EClass}
-	 * New sigs: the signature representing the class
-	 * New fields: the state field of the signature
-	 * New facts: all elements must belong to the state field
-	 * @param ec the EClass to translate
-	 * @throws EchoError
-	 */
+	* Translates an {@link EClass}
+	* New sigs: the signature representing the class
+	* New fields: the state field of the signature
+	* New facts: all elements must belong to the state field
+	* @param ec the EClass to translate
+	* @throws EchoError
+	*/
 	protected void processClass(EClass ec) throws EchoError {
 		PrimSig ecsig, parent = null;
 		Field statefield;
@@ -330,15 +326,15 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/**
-	 * Translates a list of {@link EAttribute}
-	 * New fields: unary field if EBoolean
-	 * New fields: binary field if EInt or EString
-	 * New facts: multiplicity constraints for binary fields
-	 * New facts: if Attribute is set to ID creates uniqueness constraint
-	 * @param attributes the list of attributes to translate
-	 * @throws ErrorUnsupported the attribute type is not supported
-	 * @throws ErrorAlloy
-	 */
+	* Translates a list of {@link EAttribute}
+	* New fields: unary field if EBoolean
+	* New fields: binary field if EInt or EString
+	* New facts: multiplicity constraints for binary fields
+	* New facts: if Attribute is set to ID creates uniqueness constraint
+	* @param attributes the list of attributes to translate
+	* @throws ErrorUnsupported the attribute type is not supported
+	* @throws ErrorAlloy
+	*/
 	protected void processAttributes(List<EAttribute> attributes)
 			throws EchoError {
 		Field field = null;
@@ -398,16 +394,16 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/**
-	 * Translates a list of {@link EReference}
-	 * New fields: the field representing the reference
-	 * New facts: field is converse of opposite reference (if exists)
-	 * New facts: multiplicity constraints of new fields
-	 * New facts: new field only relates elements present in the same states
-	 * New facts: if reference is containment, no free elements outside field
-	 * Optimizations: if opposite reference is container, do not translate to Alloy
-	 * @param references the list of references to translate
-	 * @throws EchoError
-	 */
+	* Translates a list of {@link EReference}
+	* New fields: the field representing the reference
+	* New facts: field is converse of opposite reference (if exists)
+	* New facts: multiplicity constraints of new fields
+	* New facts: new field only relates elements present in the same states
+	* New facts: if reference is containment, no free elements outside field
+	* Optimizations: if opposite reference is container, do not translate to Alloy
+	* @param references the list of references to translate
+	* @throws EchoError
+	*/
 	protected void processReferences(List<EReference> references)
 			throws EchoError {
 		for (EReference reference : references) {
@@ -540,14 +536,14 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 
 	/**
-	 * Translates a list of {@link EAnnotation} representing OCL constraints
-	 * New facts: constraints representing the OCL constraints
-	 * @param annotations the list of annotations to translate
-	 * @throws ErrorTransform the OCL translation failed
-	 * @throws ErrorAlloy
-	 * @throws ErrorUnsupported the OCL formulas contains unsupported operators
-	 * @throws ErrorParser the OCL parser failed
-	 */
+	* Translates a list of {@link EAnnotation} representing OCL constraints
+	* New facts: constraints representing the OCL constraints
+	* @param annotations the list of annotations to translate
+	* @throws ErrorTransform the OCL translation failed
+	* @throws ErrorAlloy
+	* @throws ErrorUnsupported the OCL formulas contains unsupported operators
+	* @throws ErrorParser the OCL parser failed
+	*/
 	protected void processAnnotations(List<EAnnotation> annotations)
 			throws EchoError {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
@@ -610,14 +606,14 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/**
-	 * Translates a list of {@link EOperation} specified by OCL formulas
-	 * New function: the predicate representing the operation
-	 * @param eoperations the operations to translate
-	 * @throws ErrorTransform the OCL translation failed
-	 * @throws ErrorAlloy
-	 * @throws ErrorUnsupported the OCL formulas contains unsupported operators
-	 * @throws ErrorParser the OCL parser failed
-	 */
+	* Translates a list of {@link EOperation} specified by OCL formulas
+	* New function: the predicate representing the operation
+	* @param eoperations the operations to translate
+	* @throws ErrorTransform the OCL translation failed
+	* @throws ErrorAlloy
+	* @throws ErrorUnsupported the OCL formulas contains unsupported operators
+	* @throws ErrorParser the OCL parser failed
+	*/
 	protected void processOperations(List<EOperation> eoperations)
 			throws EchoError {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
@@ -712,12 +708,12 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 
 	/**
-	 * Translates a list of {@link EEnum} and the respective {@link EEnumLiteral}
-	 * New sigs: abstract sig representing the enum
-	 * New sigs: child singleton sigs representing the enum literals
-	 * @param enums the enums to translate
-	 * @throws ErrorAlloy
-	 */
+	* Translates a list of {@link EEnum} and the respective {@link EEnumLiteral}
+	* New sigs: abstract sig representing the enum
+	* New sigs: child singleton sigs representing the enum literals
+	* @param enums the enums to translate
+	* @throws ErrorAlloy
+	*/
 	protected void processEnums(List<EEnum> enums) throws ErrorAlloy {
 		PrimSig enumSig = null;
 		for (EEnum enu : enums) {
@@ -746,13 +742,13 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/**
-	 * Creates the Alloy facts managing local state fields regarding hierarchy
-	 * Annexed to <code>constraint_conforms</code>
-	 * If abstract, child1 + ... + childn = parent
-	 * If not, child1 + ... + childn in parent
-	 * @param s the parent signature beeing processed
-	 * @throws ErrorAlloy
-	 */
+	* Creates the Alloy facts managing local state fields regarding hierarchy
+	* Annexed to <code>constraint_conforms</code>
+	* If abstract, child1 + ... + childn = parent
+	* If not, child1 + ... + childn in parent
+	* @param s the parent signature beeing processed
+	* @throws ErrorAlloy
+	*/
 	private void processHeritage(PrimSig s) throws ErrorAlloy {
 		Expr childrenUnion = Sig.NONE;
 		try {
@@ -777,11 +773,11 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/**
-	 * Calculates the delta {@link Func} for model elements
-	 * @return the delta function
-	 * @throws ErrorAlloy
-	 */
-	public Func getDeltaSetFunc() throws ErrorAlloy {
+	* Calculates the delta {@link Func} for model elements
+	* @return the delta function
+	* @throws ErrorAlloy
+	*/
+	Func getDeltaSetFunc() throws ErrorAlloy {
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {
@@ -816,12 +812,12 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/**
-	 * Calculates the delta {@link Func} for model associations
-	 * Optimization: container opposites are not counted (made obsolete by optimization that removed opposites altogether)
-	 * @return the delta expression
-	 * @throws ErrorAlloy
-	 */
-	public Func getDeltaRelFunc() throws ErrorAlloy {
+	* Calculates the delta {@link Func} for model associations
+	* Optimization: container opposites are not counted (made obsolete by optimization that removed opposites altogether)
+	* @return the delta expression
+	* @throws ErrorAlloy
+	*/
+	Func getDeltaRelFunc() throws ErrorAlloy {
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {
@@ -860,9 +856,9 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 	}
 	
 	/** 
-	 * creates the total order over states defined by the defined operations
-	 * @throws ErrorAlloy
-	 */
+	* creates the total order over states defined by the defined operations
+	* @throws ErrorAlloy
+	*/
 	void createOrder() throws ErrorAlloy {
 		PrimSig ord;
 		Field next, first;
@@ -919,7 +915,7 @@ public class EAlloyMetamodel extends EEngineMetamodel {
 		sig_order = ord;
 	}
 	
-	public Map<PrimSig,Integer> getCreationCount() {
+	Map<PrimSig,Integer> getCreationCount() {
 		return classCreationCount;
 	}
 	

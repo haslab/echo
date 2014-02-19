@@ -10,8 +10,6 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
  */
 public interface IExpression extends INode{
 
-
-
     IExpression closure();
     IExpression reflexiveClosure();
     IExpression transpose();
@@ -25,13 +23,10 @@ public interface IExpression extends INode{
     IFormula in(IExpression e);
     IFormula eq(IExpression e);
 
-
-
     IFormula some();
     IFormula one();
     IFormula no();
     IFormula lone();
-
 
     IDecl oneOf(String name) throws ErrorInternalEngine;
 

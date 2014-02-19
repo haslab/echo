@@ -4,20 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EObject;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
+import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.alloy.OCL2Alloy2;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyRelation;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.OCLUtil;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 
 /**
  * An embedding of a predicate of an EMF ATL transformations in Echo.
@@ -28,36 +26,21 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
  * @version 0.4 13/02/2014
  */
 public class EATLPredicate implements EPredicate {
-	private List<Object> exps = new ArrayList<Object>();
+	private List<EObject> exps = new ArrayList<EObject>();
 	private OCL2Alloy2 trad;
 
 	@Override
-	public void addCondition(Object expr) {
+	public void addCondition(EObject expr) {
 		exps.add(expr);
 	}
 
 	@Override
-	public List<Object> getConditions() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<EObject> getConditions() {
+		return exps;
 	}
 
 	@Override
-	public void initTranslation(EAlloyRelation q2a, Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
-		trad = new OCL2Alloy2(q2a,vardecls,argsvars,prevars);
-
-	}
-
-	@Override
-	public void initTranslation(Map<String,Entry<ExprHasName,String>> vardecls, Map<String,ExprHasName> argsvars, Map<String,ExprHasName> prevars) {
-		trad = new OCL2Alloy2(vardecls,argsvars,prevars);
-
-	}
-
-	@Override
-	public Expr translate() throws ErrorTransform, ErrorAlloy, ErrorUnsupported {
-
-
+	public IFormula translate(IContext context) throws EchoError {
 		return trad.translateExpressions(exps);
 	}
 
@@ -70,5 +53,6 @@ public class EATLPredicate implements EPredicate {
 		return res;
 
 	}
+
 
 }

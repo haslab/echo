@@ -117,7 +117,7 @@ public abstract class EEngineRelation {
 		this.top = top;
 		this.transformation = transformation;
 		this.callerRelation = top ? this : parentRelation;
-		this.context = new AlloyContext();
+		this.context = EchoTranslator.getInstance().newContext();
 		this.context.setCurrentRel(callerRelation);
 		
 		initVariableLists();

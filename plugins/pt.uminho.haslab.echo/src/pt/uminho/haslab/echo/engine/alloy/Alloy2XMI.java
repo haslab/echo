@@ -1,6 +1,5 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
-
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
@@ -16,9 +15,7 @@ import org.eclipse.emf.ecore.*;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyMetamodel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

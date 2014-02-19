@@ -43,7 +43,6 @@ public class EQVTPredicate implements EPredicate {
 		return trad.translateExpressions(exps);
 	}
 
-
 	@Override
 	public Map<EVariable,String> getVariables(String metamodel) throws EchoError {
 		Map<EVariable,String> res = new HashMap<EVariable,String>();

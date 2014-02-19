@@ -22,10 +22,6 @@ import pt.uminho.haslab.echo.EchoSolution;
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.echo.engine.ast.alloy.AlloyFormula;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyMetamodel;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyModel;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyTransformation;
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
@@ -47,7 +43,7 @@ import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
  * @author nmm
  *
  */
-public class AlloyRunner implements EngineRunner {
+class AlloyRunner implements EngineRunner {
 	
 /** the Alloy solution */
 	private A4Solution sol;
@@ -79,7 +75,7 @@ public class AlloyRunner implements EngineRunner {
 	/** 
 	 * Constructs a new Alloy Runner that performs tests and generates instances
 	 */
-	public AlloyRunner() {
+	AlloyRunner() {
 
 		rep = new A4Reporter() {
 			@Override
@@ -129,8 +125,7 @@ public class AlloyRunner implements EngineRunner {
 			addInstanceSigs(modelID);
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
-			finalfact = finalfact.and(model.metamodel.getConforms().call(
-					model.getModelSig()));
+			finalfact = finalfact.and(model.metamodel.getConforms(modelID).formula);
 			finalfact = finalfact.and(model.getModelConstraint().formula);
 		}
 
@@ -190,25 +185,20 @@ public class AlloyRunner implements EngineRunner {
 			List<PrimSig> sigs = new ArrayList<PrimSig>();
 			PrimSig state = addInstanceSigs(modelID);
 			original = state;
-			try {
-				PrimSig target = new PrimSig(AlloyUtil.targetName(original),
-						original.parent, Attr.ONE);
-				targetstates.put(modelID, target);
-				allsigs.add(target);
-				sigs.add(target);
-				EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
-						modelID);
-				EAlloyMetamodel metamodel = model.metamodel;
-				edelta = metamodel.getDeltaSetFunc().call(original, target)
-						.cardinality();
-				edelta = metamodel.getDeltaRelFunc().call(original, target);
-				AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs);
-				finalfact = finalfact.and(model.metamodel.getConforms().call(
-						target));
-				finalfact = finalfact.and(model.getModelConstraint().formula);
-			} catch (Err e) {
-				throw new ErrorAlloy(e.getMessage());
-			}
+			PrimSig target = AlloyEchoTranslator.getInstance().getModel(modelID).setTarget();
+			targetstates.put(modelID, target);
+			allsigs.add(target);
+			sigs.add(target);
+			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
+					modelID);
+			EAlloyMetamodel metamodel = model.metamodel;
+			edelta = metamodel.getDeltaSetFunc().call(original, target)
+					.cardinality();
+			edelta = metamodel.getDeltaRelFunc().call(original, target);
+			AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs);
+			finalfact = finalfact.and(model.metamodel.getConforms(modelID).formula);
+			finalfact = finalfact.and(model.getModelConstraint().formula);
+			AlloyEchoTranslator.getInstance().getModel(modelID).unsetTarget();
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
@@ -295,8 +285,7 @@ public class AlloyRunner implements EngineRunner {
 					modelID);
 			EAlloyMetamodel metamodel = model.metamodel;
 			finalfact = finalfact.and(model.getModelConstraint().formula);
-			finalfact = finalfact.and(metamodel.getConforms().call(
-					model.getModelSig()));
+			finalfact = finalfact.and(metamodel.getConforms(modelID).formula);
 		}
 		finalfact = finalfact.and(trans.getConstraint(modelIDs).formula);
 		EchoReporter.getInstance().debug("Final fact: "+finalfact);
@@ -347,8 +336,8 @@ public class AlloyRunner implements EngineRunner {
 							.getModel(modelID).setTarget();
 					targetstates.put(modelID, target);
 					allsigs.add(target);
-					finalfact = finalfact.and(model.metamodel.getConforms()
-							.call(target));
+					finalfact = finalfact.and(model.metamodel
+							.getConforms(modelID).formula);
 					if (!EchoOptionsSetup.getInstance().isOperationBased()) {
 						EAlloyMetamodel metamodel = model.metamodel;
 						try {

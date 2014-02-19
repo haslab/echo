@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.ast.alloy;
+package pt.uminho.haslab.echo.engine.alloy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,11 +12,6 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.echo.engine.alloy.AlloyContext;
-import pt.uminho.haslab.echo.engine.alloy.AlloyEchoTranslator;
-import pt.uminho.haslab.echo.engine.alloy.AlloyOptimizations;
-import pt.uminho.haslab.echo.engine.alloy.AlloyUtil;
-import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -31,17 +26,17 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
-public class EAlloyRelation extends EEngineRelation {
+class EAlloyRelation extends EEngineRelation {
 	
 	/** the transformation model parameters declarations */
 	private List<AlloyDecl> modelParamsDecls = new ArrayList<AlloyDecl>();
 
-	public EAlloyRelation(EEngineRelation parentTranslator, ERelation relation)
+	EAlloyRelation(EEngineRelation parentTranslator, ERelation relation)
 			throws EchoError {
 		super(relation, parentTranslator);
 	}
 
-	public EAlloyRelation(EAlloyTransformation eAlloyTransformation,
+	EAlloyRelation(EAlloyTransformation eAlloyTransformation,
 			EDependency dep, ERelation rel) throws EchoError {
 		super(rel, dep, eAlloyTransformation);
 	}
@@ -136,7 +131,7 @@ public class EAlloyRelation extends EEngineRelation {
 		new EAlloyRelation(this, rel);
 	}
 
-	public List<AlloyDecl> getModelParams() {
+	List<AlloyDecl> getModelParams() {
 		return modelParamsDecls;
 	}
 

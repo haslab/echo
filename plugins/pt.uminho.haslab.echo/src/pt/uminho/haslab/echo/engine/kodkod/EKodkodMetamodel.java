@@ -3,12 +3,14 @@ package pt.uminho.haslab.echo.engine.kodkod;
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
 import kodkod.util.nodes.PrettyPrinter;
+
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
@@ -31,22 +33,23 @@ class EKodkodMetamodel extends EEngineMetamodel {
     /**maps the hierarchy */
     private Map<String,Set<String>> mapParents;
     /**maps a eReference relation into its type relations*/
-    private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType;
+    private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType = new HashMap<Relation, Pair<Set<Relation>,Set<Relation>>>();
     /**maps an attribute relation with int as a type, to  */
     private Map<Relation, Set<Relation>> mapIntType;
 
-
     /**facts about the meta-model*/
 	private Formula facts;
-    /**disjint relations*/
+    /**disjoint relations*/
     private Formula disjoint = null;
 
-    public Formula getFacts() {
+	@Override
+    public KodkodFormula getConforms(String modelID) {
+		// TODO ignoring model ID!
         if(disjoint == null){
             makeDisjointFact();
             facts = facts.and(disjoint);
         }
-        return facts;
+        return new KodkodFormula(facts);
     }
 
 	public EKodkodMetamodel(EMetamodel metaModel) throws EchoError{
@@ -358,4 +361,6 @@ class EKodkodMetamodel extends EEngineMetamodel {
     private void makeDisjointFact() {
         disjoint = Expression.intersection(getClassRelations()).no();
     }
+
+
 }

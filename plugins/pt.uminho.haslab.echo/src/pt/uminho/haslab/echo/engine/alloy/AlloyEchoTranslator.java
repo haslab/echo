@@ -17,18 +17,14 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
-import pt.uminho.haslab.echo.engine.ast.alloy.AlloyExpression;
-import pt.uminho.haslab.echo.engine.ast.alloy.AlloyFormula;
-import pt.uminho.haslab.echo.engine.ast.alloy.AlloyIntExpression;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyMetamodel;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyModel;
-import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyTransformation;
+import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.mde.model.EElement;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
@@ -43,11 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class AlloyEchoTranslator extends EchoTranslator {
-
-    public AlloyEchoTranslator() {}
-
-    //private static AlloyEchoTranslator instance = new AlloyEchoTranslator();
+class AlloyEchoTranslator extends EchoTranslator {
 
     public static AlloyEchoTranslator getInstance() {
         return (AlloyEchoTranslator) EchoTranslator.getInstance();
@@ -82,12 +74,14 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Translates EObject models to the respective Alloy specs.
 	 * @param model the model to translate
 	 */
+	@Override
 	public void translateModel(EModel model) throws EchoError {
 		EAlloyMetamodel mmtrans = metamodelalloys.get(model.getMetamodel().ID);	
 		EAlloyModel modeltrans = new EAlloyModel(model,mmtrans);
 		modelalloys.put(model.ID,modeltrans);
 	}
 	
+	@Override
 	public EAlloyModel getModel(String modelID) {
 		return modelalloys.get(modelID);
 	}
@@ -97,6 +91,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
         return modelalloys.containsKey(modelID);
     }
 
+	@Override
 	public void remModel(String modelID) {
 		modelalloys.remove(modelID);
 	}
@@ -104,6 +99,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	/** Translates ECore meta-models to the respective Alloy specs.
 	 * @param metaModel the meta-model to translate
 	 */
+	@Override
 	public void translateMetaModel(EMetamodel metaModel) throws EchoError {
 		EAlloyMetamodel alloymm = new EAlloyMetamodel(metaModel);
 		metamodelalloys.put(metaModel.ID,alloymm);
@@ -115,6 +111,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
         return metamodelalloys.containsKey(metamodelID);
     }
     
+	@Override
 	public EAlloyMetamodel getMetamodel(String metamodelID) {
 		EAlloyMetamodel metamodel = metamodelalloys.get(metamodelID);
 		if (metamodelID == null)
@@ -124,6 +121,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		return metamodel;
 	}
 	
+	@Override
 	public void remMetaModel(String metamodelID) {
 		metamodelalloys.remove(metamodelID);
 	}
@@ -131,6 +129,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
     /** Translates the QVT transformation to the respective Alloy specs
 	 * Assumes default model dependencies
 	 * @throws EchoError */
+	@Override
 	public void translateTransformation(ETransformation constraint) throws EchoError {
 		Map<String,List<EDependency>> deps = new HashMap<String,List<EDependency>>();
 		for (ERelation r : constraint.getRelations()) {
@@ -150,15 +149,15 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		qvtalloys.put(constraint.ID, qvtrans);
 	}
 	
+	@Override
 	public void remTransformation(String transformationID)  {
 		qvtalloys.remove(transformationID);
 	}
 	
-	public boolean hasTransformation(String transformationID)
-	{
+	@Override
+	public boolean hasTransformation(String transformationID) {
 		return qvtalloys.containsKey(transformationID);
 	}
-		
     
     @Override
     public AlloyFormula getTrueFormula() {
@@ -188,12 +187,12 @@ public class AlloyEchoTranslator extends EchoTranslator {
     }
 
 
-    public void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap) throws ErrorAlloy {
+    void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap) throws ErrorAlloy {
 		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
 		sc.put(Sig.STRING, overall);
 		for (Entry<String,String> cla : scopesmap.keySet()) {
 			if (cla.getKey().equals("") && cla.getValue().equals("String"))
-				sc.put(PrimSig.STRING, scopesmap.get(cla));
+				sc.put(Sig.STRING, scopesmap.get(cla));
 			else {
 				EAlloyMetamodel e2a = metamodelalloys.get(cla.getKey());
 				EClassifier eclass = e2a.metamodel.getEObject().getEClassifier(cla.getValue());
@@ -214,7 +213,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	 *            the models' IDs
 	 * @throws ErrorAlloy
 	 */
-	public void createScopesFromID(List<String> modelIDs) throws ErrorAlloy {
+	void createScopesFromID(List<String> modelIDs) throws ErrorAlloy {
 		Map<PrimSig, Integer> scopesmap = new HashMap<PrimSig, Integer>();
 		Map<PrimSig, Integer> scopesexact = new HashMap<PrimSig, Integer>();
 		for (String modelID : modelIDs) {
@@ -310,7 +309,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		* xsi:schemaLocation attribute in the document
 		*/
 		Map<Object,Object> options = new HashMap<Object,Object>();
-		options.put(XMIResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+		options.put(XMLResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
 		try{
 		    resource.save(options);
 	    }catch (Exception e) {
@@ -319,8 +318,8 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		
 	}
 
-
-	EAlloyTransformation getQVTTransformation(String qvtID) {
+	@Override
+	public EAlloyTransformation getQVTTransformation(String qvtID) {
 		EAlloyTransformation t = qvtalloys.get(qvtID);
 		if (t == null) {
 			EchoReporter.getInstance().warning("Looking for non-existing QVT-R: "+qvtID, Task.TRANSLATE_TRANSFORMATION);
@@ -338,7 +337,7 @@ public class AlloyEchoTranslator extends EchoTranslator {
 		if (scopes != null)
 			aux = new ArrayList<CommandScope>(scopes);
 		try {
-			aux.add(new CommandScope(PrimSig.STRING, true, strings));
+			aux.add(new CommandScope(Sig.STRING, true, strings));
 		} catch (ErrorSyntax e) {
 			throw new ErrorAlloy(e.getMessage());
 		}
@@ -348,14 +347,14 @@ public class AlloyEchoTranslator extends EchoTranslator {
 
 
 
-	public List<PrimSig> getEnumSigs(String metamodeluri){
+	List<PrimSig> getEnumSigs(String metamodeluri){
 		EAlloyMetamodel e2a = metamodelalloys.get(metamodeluri);
 		List<PrimSig> aux = new ArrayList<PrimSig>(e2a.getEnumSigs());
 		return aux;
 	}	
 
 
-	public PrimSig getClassifierFromSig(EClassifier c) {
+	PrimSig getClassifierFromSig(EClassifier c) {
 		if (c.getName().equals("EString")) return Sig.STRING;
 		else if (c.getName().equals("EBoolean")) return Sig.NONE;
 		else {
@@ -380,20 +379,6 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	Field getFieldFromFeature(String metamodeluri, EStructuralFeature f) {
 		EAlloyMetamodel e2a = metamodelalloys.get(metamodeluri);
 		return e2a.getFieldFromSFeature(f);
-	}
-
-	
-	public EStructuralFeature getESFeatureFromName(String pck, String cla, String fie) {
-		EAlloyMetamodel e2a = metamodelalloys.get(pck);
-		if (e2a == null) return null;
-		EClass eclass = (EClass) e2a.metamodel.getEObject().getEClassifier(cla);
-		return eclass.getEStructuralFeature(fie);
-	}
-
-	public EClassifier getEClassifierFromName(String metamodelID, String cla) {
-		EAlloyMetamodel e2a = metamodelalloys.get(metamodelID);
-		if (e2a == null) return null;
-		return e2a.metamodel.getEObject().getEClassifier(cla);
 	}
 
 	/**
@@ -458,6 +443,11 @@ public class AlloyEchoTranslator extends EchoTranslator {
 	@Override
 	public AlloyExpression getEmptyExpression() {
 		return new AlloyExpression(Sig.NONE);
+	}
+
+	@Override
+	public ITContext newContext() {
+		return new AlloyContext();
 	}
 
 
