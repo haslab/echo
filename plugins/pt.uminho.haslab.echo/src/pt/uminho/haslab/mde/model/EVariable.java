@@ -1,19 +1,18 @@
 package pt.uminho.haslab.mde.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Echo representation of a variable.

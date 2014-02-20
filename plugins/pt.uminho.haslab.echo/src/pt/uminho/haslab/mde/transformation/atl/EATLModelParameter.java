@@ -1,12 +1,11 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.EObject;
-
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An embedding of an EMF ATL model parameter in Echo.

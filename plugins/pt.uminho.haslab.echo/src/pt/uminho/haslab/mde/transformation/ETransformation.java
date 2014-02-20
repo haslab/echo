@@ -1,12 +1,11 @@
 package pt.uminho.haslab.mde.transformation;
 
-import java.util.List;
-
 import org.eclipse.emf.ecore.EObject;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.model.EArtifact;
+
+import java.util.List;
 
 /**
  * An embedding of an EMF transformation between model parameters in Echo.

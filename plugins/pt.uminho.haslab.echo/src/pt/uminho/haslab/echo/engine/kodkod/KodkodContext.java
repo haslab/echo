@@ -1,16 +1,8 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import kodkod.ast.Expression;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.engine.ITContext;
@@ -20,6 +12,8 @@ import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
+
+import java.util.*;
 
 /**
  * Auxiliary context for the translation of artifacts to Kodkod.

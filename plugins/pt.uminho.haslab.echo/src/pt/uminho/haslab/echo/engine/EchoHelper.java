@@ -4,7 +4,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelDomain;

@@ -1,10 +1,10 @@
 package pt.uminho.haslab.echo.engine;
 
-import java.util.List;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
+
+import java.util.List;
 
 /**
  * Auxiliary context for the translation of transformations to engine.

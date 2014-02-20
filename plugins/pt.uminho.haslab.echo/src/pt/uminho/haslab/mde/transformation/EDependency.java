@@ -1,9 +1,9 @@
 package pt.uminho.haslab.mde.transformation;
 
-import java.util.List;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
+
+import java.util.List;
 
 /**
  * Denotes a dependency between the domain models of a relation is a particular constraint instantiation.

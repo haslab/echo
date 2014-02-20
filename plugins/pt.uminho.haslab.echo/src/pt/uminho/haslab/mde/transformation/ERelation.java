@@ -1,10 +1,10 @@
 package pt.uminho.haslab.mde.transformation;
 
-import java.util.List;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.model.EPredicate;
+
+import java.util.List;
 
 /**
  * An embedding of a relation of an EMF transformation in Echo.

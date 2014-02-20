@@ -1,18 +1,13 @@
 package pt.uminho.haslab.echo.engine;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.EchoTypeError;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.engine.ast.Constants;
-import pt.uminho.haslab.echo.engine.ast.IDecl;
-import pt.uminho.haslab.echo.engine.ast.IExpression;
-import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.echo.engine.ast.IIntExpression;
-import pt.uminho.haslab.echo.engine.ast.INode;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.ocl.examples.pivot.*;
+import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
+import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
+import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
+import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.engine.ast.*;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -22,23 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.ocl.examples.pivot.BooleanLiteralExp;
-import org.eclipse.ocl.examples.pivot.IfExp;
-import org.eclipse.ocl.examples.pivot.IteratorExp;
-import org.eclipse.ocl.examples.pivot.OCLExpression;
-import org.eclipse.ocl.examples.pivot.OperationCallExp;
-import org.eclipse.ocl.examples.pivot.Property;
-import org.eclipse.ocl.examples.pivot.PropertyCallExp;
-import org.eclipse.ocl.examples.pivot.TypeExp;
-import org.eclipse.ocl.examples.pivot.UnlimitedNaturalLiteralExp;
-import org.eclipse.ocl.examples.pivot.Variable;
-import org.eclipse.ocl.examples.pivot.VariableExp;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
-import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
-import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
 /**
  * Translates EMF OCL expressions into engine representation.

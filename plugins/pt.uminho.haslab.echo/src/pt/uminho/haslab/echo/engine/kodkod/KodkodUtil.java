@@ -1,7 +1,6 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Relation;
-
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 

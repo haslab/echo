@@ -1,9 +1,9 @@
 package pt.uminho.haslab.mde.model;
 
+import org.eclipse.emf.ecore.EStructuralFeature;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * Echo representation of a model property.

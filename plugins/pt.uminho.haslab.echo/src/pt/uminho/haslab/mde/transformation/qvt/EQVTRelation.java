@@ -1,18 +1,17 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.qvtd.pivot.qvtbase.Pattern;
 import org.eclipse.qvtd.pivot.qvtbase.Predicate;
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
-
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An embedding of an EMF QVT-R relation in Echo.

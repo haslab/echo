@@ -6,19 +6,14 @@ import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.ocl.examples.pivot.Type;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.mde.MDEManager;
-import pt.uminho.haslab.mde.model.EMetamodel;
-import pt.uminho.haslab.mde.model.EVariable;
-import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class AlloyUtil {
 

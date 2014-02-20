@@ -2,7 +2,6 @@ package pt.uminho.haslab.mde.transformation.qvt;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;

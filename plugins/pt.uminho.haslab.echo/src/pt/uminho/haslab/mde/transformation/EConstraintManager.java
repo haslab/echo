@@ -1,11 +1,11 @@
 package pt.uminho.haslab.mde.transformation;
 
+import pt.uminho.haslab.mde.model.EModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import pt.uminho.haslab.mde.model.EModel;
 
 /**
  * Manages the current set of inter-model constraints.

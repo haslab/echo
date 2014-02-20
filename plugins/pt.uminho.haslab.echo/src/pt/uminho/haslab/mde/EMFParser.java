@@ -1,9 +1,5 @@
 package pt.uminho.haslab.mde;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -20,9 +16,12 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
 import org.eclipse.xtext.resource.XtextResourceSet;
-
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.ErrorParser;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Parses EMF resources (XMI models, ECore packages, QVT-R and ATL transformations)

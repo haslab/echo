@@ -1,7 +1,5 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
-import java.util.List;
-
 import kodkod.ast.Relation;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
@@ -13,6 +11,8 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
+
+import java.util.List;
 
 public class EKodkodRelation extends EEngineRelation {
 

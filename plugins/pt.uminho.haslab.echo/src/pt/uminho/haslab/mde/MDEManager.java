@@ -1,12 +1,8 @@
 package pt.uminho.haslab.mde;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
@@ -16,6 +12,9 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that manages EMF resources (identified by URI) as Echo artifacts.

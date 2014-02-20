@@ -1,13 +1,12 @@
 package pt.uminho.haslab.mde.model;
 
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.EObject;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Echo representation of an EMF condition
