@@ -32,13 +32,14 @@ class EKodkodMetamodel extends EEngineMetamodel {
     private Map<String,Set<String>> mapParents;
     /**maps a eReference relation into its type relations*/
     private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType;
-    /**maps an non string attribute relation*/
-    private Map<Relation, Set<Relation>> mapAttType;
-
+    /**maps a attribute relation with type = int*/
+    private Map<Relation, Set<Relation>> mapIntType;
+    /**maps a attribute relation with type = bool*/
+    private Map<Relation, Set<Relation>> mapBoolType;
 
     /**facts about the meta-model*/
 	private Formula facts;
-    /**disjint relations*/
+    /**disjoint relations*/
     private Formula disjoint = null;
 
     public Formula getFacts() {
@@ -55,7 +56,8 @@ class EKodkodMetamodel extends EEngineMetamodel {
 		mapSfRel = new HashMap<>();
         mapParents = new HashMap<>();
         mapRefType = new HashMap<>();
-        mapAttType = new HashMap<>();
+        mapIntType = new HashMap<>();
+        mapBoolType = new HashMap<>();
 		facts = Formula.TRUE;
 	}
 	
@@ -88,10 +90,10 @@ class EKodkodMetamodel extends EEngineMetamodel {
                             KodkodFormula oclExpr = (KodkodFormula) converter.translateFormula(
                                     invariant.getBodyExpression());
 
-                            System.out.println(PrettyPrinter.print(oclExpr.formula, 2));
+                            System.out.println(PrettyPrinter.print(oclExpr.FORMULA, 2));
                             System.out.println(invariant.getBodyExpression());
 
-                            Formula oclKodkod = oclExpr.formula.forAll(((KodkodDecl)self).decl);
+                            Formula oclKodkod = oclExpr.FORMULA.forAll(((KodkodDecl)self).decl);
 
                             //TODO kodkod optimizations?
                             /*AlloyOptimizations opt = new AlloyOptimizations();
@@ -213,8 +215,14 @@ class EKodkodMetamodel extends EEngineMetamodel {
 				attribute  = Relation.unary(attrName);
 				facts = facts.and(attribute.in(domain));
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
+
+                mapBoolType.put(attribute,getRelDomain(className));
+
+
 			} else if(attr.getEType().getName().equals("EString")) {
 				attribute = Relation.binary(attrName);
+                facts = facts.and(attribute.function(domain, KodkodUtil.stringRel));
+                mapSfRel.put(className+"::"+attr.getName(),attribute);
                 Set<Relation> set = new HashSet<>();
                 set.add(KodkodUtil.stringRel);
 
@@ -222,13 +230,13 @@ class EKodkodMetamodel extends EEngineMetamodel {
                         new Pair<>(
                                 getRelDomain(className),
                                 set));
-
-				facts = facts.and(attribute.function(domain, KodkodUtil.stringRel));
-                mapSfRel.put(className+"::"+attr.getName(),attribute);
 			} else if(attr.getEType().getName().equals("EInt")) {
 				attribute = Relation.binary(attrName);
+
 				facts = facts.and(attribute.function(domain, Expression.INTS));
                 mapSfRel.put(className+"::"+attr.getName(),attribute);
+
+                mapIntType.put(attribute,getRelDomain(className));
 			} 
 			else if (attr.getEType() instanceof EEnum) {
 				//TODO
@@ -359,11 +367,15 @@ class EKodkodMetamodel extends EEngineMetamodel {
         return mapRefType.get(sf);
     }
 
-    Set<Relation> getAttType(Relation at)
+    Set<Relation> getIntType(Relation at)
     {
-               return mapAttType.get(at);
+               return mapIntType.get(at);
     }
 
+    Set<Relation> getBoolType(Relation at)
+    {
+        return mapBoolType.get(at);
+    }
 
     private void makeDisjointFact() {
         disjoint = Expression.intersection(getClassRelations()).no();

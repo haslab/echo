@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.TransformFactory;
 
 /**
@@ -18,6 +19,11 @@ public class KodkodFactory implements TransformFactory {
 
     @Override
     public EchoTranslator createTranslator() {
-        return new KodkodEchoTranslator();  //To change body of implemented methods use File | Settings | File Templates.
+        return new KodkodEchoTranslator();
+    }
+
+    @Override
+    public ITContext createContext() {
+        return new KodkodContext();
     }
 }

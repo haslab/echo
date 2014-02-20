@@ -1,9 +1,5 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import kodkod.ast.Formula;
 import kodkod.ast.Relation;
 import pt.uminho.haslab.echo.EchoError;
@@ -16,6 +12,10 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An embedding of a model transformation in Kodkod.
@@ -83,10 +83,10 @@ public class EKodkodTransformation extends EEngineTransformation {
 	protected void defineSubRelationField(EEngineRelation relation, IFormula e)
 			throws ErrorKodkod {
 		if (subRelationDefs == null)
-			subRelationDefs = new HashMap<String, Formula>();
+			subRelationDefs = new HashMap<>();
 
 		subRelationDefs.put(EchoHelper.relationFieldName(relation.relation,
-				relation.dependency.target), ((KodkodFormula) e).formula);
+				relation.dependency.target), ((KodkodFormula) e).FORMULA);
 	}
 
 	/** {@inheritDoc} */
@@ -94,7 +94,7 @@ public class EKodkodTransformation extends EEngineTransformation {
 	public void addSubRelationField(EEngineRelation relation, IExpression exp)
 			throws ErrorKodkod {
 		if (subRelationFields == null)
-			subRelationFields = new HashMap<String, Relation>();
+			subRelationFields = new HashMap<>();
 		Relation field = (Relation) ((KodkodExpression) exp).EXPR;
 
 		subRelationFields.put(EchoHelper.relationFieldName(relation.relation,
@@ -105,11 +105,11 @@ public class EKodkodTransformation extends EEngineTransformation {
 	@Override
 	protected void addTopRelationConstraint(EEngineRelation relation) {
 		if (topRelationConstraints == null)
-			topRelationConstraints = new HashMap<String, Formula>();
+			topRelationConstraints = new HashMap<>();
 
 		topRelationConstraints.put(EchoHelper.relationPredName(
 				relation.relation, relation.dependency.target),
-				((KodkodFormula) relation.constraint).formula);
+				((KodkodFormula) relation.constraint).FORMULA);
 	}
 
 	/** {@inheritDoc} */

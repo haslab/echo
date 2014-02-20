@@ -11,40 +11,40 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
  */
 class KodkodFormula implements IFormula {
 
-    public final Formula formula;
+    public final Formula FORMULA;
     public KodkodFormula(Formula f){
-        this.formula = f;
+        this.FORMULA = f;
     }
 
     @Override
     public IFormula and(IFormula f) {
-        return new KodkodFormula(formula.and(((KodkodFormula) f).formula));
+        return new KodkodFormula(FORMULA.and(((KodkodFormula) f).FORMULA));
     }
 
     @Override
     public IFormula or(IFormula f) {
-        return new KodkodFormula(formula.or(((KodkodFormula) f).formula));
+        return new KodkodFormula(FORMULA.or(((KodkodFormula) f).FORMULA));
     }
 
     @Override
     public IFormula iff(IFormula f) {
-        return new KodkodFormula(formula.iff(((KodkodFormula) f).formula));
+        return new KodkodFormula(FORMULA.iff(((KodkodFormula) f).FORMULA));
     }
 
     @Override
     public IFormula implies(IFormula f) {
-        return new KodkodFormula(formula.implies(((KodkodFormula) f).formula));
+        return new KodkodFormula(FORMULA.implies(((KodkodFormula) f).FORMULA));
     }
 
     @Override
     public IFormula not() {
-        return new KodkodFormula(formula.not());
+        return new KodkodFormula(FORMULA.not());
     }
 
     @Override
     public IExpression thenElse(IExpression thenExpr, IExpression elseExpr) {
 
-        return new KodkodExpression(formula.thenElse(
+        return new KodkodExpression(FORMULA.thenElse(
                 ((KodkodExpression) thenExpr).EXPR,((KodkodExpression) elseExpr).EXPR));
     }
 
@@ -55,7 +55,7 @@ class KodkodFormula implements IFormula {
         for(IDecl d : extraDecls)
             ds = ds.and(((KodkodDecl) d).decl);
 
-        return new KodkodExpression(formula.comprehension(ds));
+        return new KodkodExpression(FORMULA.comprehension(ds));
     }
 
     @Override
@@ -64,7 +64,7 @@ class KodkodFormula implements IFormula {
         for(IDecl d : extraDecls)
             ds = ds.and(((KodkodDecl) d).decl);
 
-        return new KodkodFormula(formula.forAll(ds));
+        return new KodkodFormula(FORMULA.forAll(ds));
     }
 
     @Override
@@ -73,7 +73,7 @@ class KodkodFormula implements IFormula {
         for(IDecl d : extraDecls)
             ds = ds.and(((KodkodDecl) d).decl);
 
-        return new KodkodFormula(formula.forSome(ds));
+        return new KodkodFormula(FORMULA.forSome(ds));
     }
 
 

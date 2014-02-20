@@ -32,6 +32,8 @@ public class EchoRunner {
     
 
 
+
+
 	/**
 	 * Translates a meta-model into Alloy
 	 * @param metaModel the EPackage representing the meta-model to translate

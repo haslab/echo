@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.engine.alloy;
 
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
+import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.TransformFactory;
 
 /**
@@ -21,5 +22,10 @@ public class AlloyFactory implements TransformFactory {
     @Override
     public EchoTranslator createTranslator() {
         return new AlloyEchoTranslator();
+    }
+
+    @Override
+    public ITContext createContext() {
+        return new AlloyContext();
     }
 }

@@ -5,6 +5,7 @@ import kodkod.instance.Bounds;
 import kodkod.instance.Tuple;
 import kodkod.instance.TupleSet;
 import kodkod.instance.Universe;
+import kodkod.util.ints.IndexedEntry;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.util.Pair;
 
@@ -18,10 +19,8 @@ import java.util.Set;
 class TargetBinder extends AbstractBinder implements Binder{
 
     private Set<String> extras;
-    private final EKodkodModel x2k;
 
     TargetBinder(EKodkodModel x2k){
-        this.x2k = x2k;
         createExtras();
         Set<Object> uni = numberCollection();
         uni.addAll(x2k.getUniverse());
@@ -38,14 +37,84 @@ class TargetBinder extends AbstractBinder implements Binder{
             bindClassRelation(rel,map.get(rel));
 
         for(Relation rel : x2k.getMetamodel().getSfRelations())
-            bindSfRelation(rel,map.get(rel));
+            bindSfRelation(rel,map.get(rel),x2k.getMetamodel());
 
     }
 
-    private void bindSfRelation(Relation rel, Set<Object> atoms) {
+
+
+    TargetBinder(Set<EKodkodModel> models, Set<EKodkodModel> targets){
+        createExtras();
+        Set<Object> uni = numberCollection();
+        for(EKodkodModel x2k: models)
+            uni.addAll(x2k.getUniverse());
+        uni.addAll(extras);
+        universe = new Universe(uni);
+        bounds = new Bounds(universe);
+        factory = universe.factory();
+        initNumbers();
+        makeStringBounds(models);
+
+
+        models.removeAll(targets);
+        for(EKodkodModel x2k : models){
+            makeExactlyBounds(x2k);
+        }
+
+        for(EKodkodModel x2k : targets){
+            Map<Relation,Set<Object>> map = x2k.getBounds();
+
+            for(Relation rel : x2k.getMetamodel().getClassRelations())
+                bindClassRelation(rel,map.get(rel));
+
+            for(Relation rel : x2k.getMetamodel().getSfRelations())
+                bindSfRelation(rel,map.get(rel),x2k.getMetamodel());
+        }
+    }
+
+    private void bindSfRelation(Relation rel, Set<Object> atoms, EKodkodMetamodel e2k) {
 
 
         Set<Tuple> targets = new HashSet<>();
+
+
+
+        if(rel.arity()==2){
+            Pair<Set<Relation>,Set<Relation>> type = e2k.getRefTypes(rel);
+        	if(type!=null){
+                TupleSet leftTuples = factory.noneOf(1);
+        	    for (Relation relation : type.left)
+        		    leftTuples.addAll(bounds.upperBound(relation));
+
+        	    TupleSet rightTuples = factory.noneOf(1);
+        	    for(Relation relation :type.right)
+        		    rightTuples.addAll(bounds.upperBound(relation));
+
+        	    bounds.bound(rel,leftTuples.product(rightTuples));
+            }else{
+                Set<Relation> newType = e2k.getIntType(rel);
+
+                TupleSet leftTuples = factory.noneOf(1);
+                for (Relation relation : newType)
+                    leftTuples.addAll(bounds.upperBound(relation));
+
+                TupleSet rightTuples = factory.noneOf(1);
+                for(IndexedEntry<TupleSet> ts :bounds.intBounds()){
+                    rightTuples.addAll(ts.value());
+                }
+
+                bounds.bound(rel,leftTuples.product(rightTuples));
+            }
+        }
+        else{
+            Set<Relation> type = e2k.getBoolType(rel);
+            TupleSet tuples = factory.noneOf(1);
+            for(Relation relation : type)
+            {
+                tuples.addAll(bounds.upperBound(relation));
+            }
+            bounds.bound(rel,tuples);
+        }
 
         for(Object obj: atoms)
         {
@@ -60,29 +129,6 @@ class TargetBinder extends AbstractBinder implements Binder{
             bounds.setTarget(rel,factory.setOf(targets));
         else
             bounds.setTarget(rel, factory.noneOf(rel.arity()));
-
-
-
-
-        if(rel.arity()==2){
-            Pair<Set<Relation>,Set<Relation>> type = x2k.getMetamodel().getRefTypes(rel);
-        	if(type!=null){
-                TupleSet leftTuples = factory.noneOf(1);
-        	    for (Relation relation : type.left)
-        		    leftTuples.addAll(bounds.upperBound(relation));
-
-        	    TupleSet rightTuples = factory.noneOf(1);
-        	    for(Relation relation :type.right)
-        		    rightTuples.addAll(bounds.upperBound(relation));
-
-        	    bounds.bound(rel,leftTuples.product(rightTuples));
-            }else{
-
-            }
-        }
-        else{
-        	
-        }
 
     }
 
@@ -116,8 +162,26 @@ class TargetBinder extends AbstractBinder implements Binder{
             extras.add("new"+i);
     }
 
-    @Override
-    public Bounds getBounds() {
-        return null;
+
+    private void makeExactlyBounds (EKodkodModel x2k)
+    {
+        Map<Relation,Set<Object>> map = x2k.getBounds();
+
+        for(Relation rel : map.keySet())
+        {
+            Set<Tuple> tuples = new HashSet<>();
+            for(Object obj: map.get(rel))
+            {
+                if( obj instanceof Pair){
+                    Pair<?, ?> p = (Pair<?, ?>) obj;
+                    tuples.add(factory.tuple(p.left,p.right));
+                }else
+                    tuples.add(factory.tuple(obj));
+            }
+            if(!tuples.isEmpty())
+                bounds.boundExactly(rel,factory.setOf(tuples));
+            else
+                bounds.boundExactly(rel, factory.noneOf(rel.arity()));
+        }
     }
 }

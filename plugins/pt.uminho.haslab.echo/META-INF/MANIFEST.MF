@@ -8,9 +8,12 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.qvtd.pivot.qvtrelation;bundle-version="0.11.0",
  org.eclipse.xtext,
  org.eclipse.ocl.examples.xtext.base,
- org.eclipse.qvtd.xtext.qvtrelation;bundle-version="0.11.0"
+ org.eclipse.qvtd.xtext.qvtrelation;bundle-version="0.11.0",
+ org.sat4j.core;bundle-version="2.3.5",
+ org.sat4j.pb;bundle-version="2.3.5"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: src/,
+ lib/sat4j-maxsat.jar,
  lib/kodkod.jar,  
  lib/alloy4.2.jar 
 Export-Package: edu.mit.csail.sdg.alloy4viz;

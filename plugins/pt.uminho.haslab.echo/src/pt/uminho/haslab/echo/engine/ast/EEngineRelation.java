@@ -1,25 +1,16 @@
 package pt.uminho.haslab.echo.engine.ast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.ITContext;
-import pt.uminho.haslab.echo.engine.alloy.AlloyContext;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
+
+import java.util.*;
 
 /**
  * An embedding of a model transformation relation in an abstract Echo engine.
@@ -117,7 +108,7 @@ public abstract class EEngineRelation {
 		this.top = top;
 		this.transformation = transformation;
 		this.callerRelation = top ? this : parentRelation;
-		this.context = new AlloyContext();
+		this.context = EchoTranslator.getFactory().createContext();
 		this.context.setCurrentRel(callerRelation);
 		
 		initVariableLists();

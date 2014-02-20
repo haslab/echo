@@ -6,17 +6,14 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
-
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.alloy.EAlloyRelation;
 
 import java.util.HashMap;
@@ -24,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class OCL2Alloy2 implements OCLTranslator{
+public class OCL2Alloy2{
 
 	private Map<String,Entry<ExprHasName,String>> varstates;
 	private Map<String,ExprHasName> posvars;
@@ -353,7 +350,6 @@ public class OCL2Alloy2 implements OCLTranslator{
 			return news;
 		}
 
-		@Override
 		public Expr translateExpressions(List<Object> lex) throws ErrorAlloy,
 				ErrorTransform, ErrorUnsupported {
 			Expr expr = Sig.NONE.no();

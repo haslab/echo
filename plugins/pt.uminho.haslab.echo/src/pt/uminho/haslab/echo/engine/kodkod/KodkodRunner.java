@@ -1,13 +1,17 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
+
+import kodkod.ast.Formula;
 import kodkod.engine.Solution;
 import kodkod.engine.Solver;
 import kodkod.engine.satlab.SATFactory;
 import kodkod.util.nodes.PrettyPrinter;
 import pt.uminho.haslab.echo.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -41,6 +45,8 @@ public class KodkodRunner implements EngineRunner{
             System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
 
             sol = solver.solve(e2k.getFacts(), new SATBinder(x2k).getBounds());
+
+            
         }
 
     }
@@ -55,9 +61,11 @@ public class KodkodRunner implements EngineRunner{
 
         EKodkodMetamodel e2k = x2k.getMetamodel();
 
-        System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
-
+        //System.out.println(PrettyPrinter.print(e2k.getFacts(),2));
+        System.out.println("antes solve");
         sol = solver.solve(e2k.getFacts(), new TargetBinder(x2k).getBounds());
+        System.out.println("depois solve");
+        System.out.println(sol.instance());
    
         return sol.instance() != null;
     }
@@ -69,14 +77,58 @@ public class KodkodRunner implements EngineRunner{
     }
 
     @Override
-    public void check(String qvtUri, List<String> modelUris) throws ErrorInternalEngine {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void check(String transformationID, List<String> modelIDs) throws ErrorInternalEngine {
+        EKodkodTransformation t2k = KodkodEchoTranslator.getInstance().getTransformation(transformationID);
+
+        Formula facts = Formula.TRUE;
+        Set<EKodkodModel> models = new HashSet<>();
+        for(String modelID : modelIDs){
+            EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
+            facts = facts.and(x2k.getMetamodel().getFacts());
+            models.add(x2k);
+        }
+
+        facts = facts.and(t2k.getConstraint(modelIDs).FORMULA);
+
+        final Solver solver = new Solver();
+
+        solver.options().setSolver(SATFactory.DefaultSAT4J);
+        solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
+
+        sol = solver.solve(facts,new SATBinder(models).getBounds());
     }
 
+    //TODO
     @Override
-    public boolean enforce(String qvtUri, List<String> modelUris, List<String> targetUri) throws ErrorInternalEngine {
-		return false;
-		//To change body of implemented methods use File | Settings | File Templates.
+    public boolean enforce(String transformationID, List<String> modelIDs, List<String> targetIDs) throws ErrorInternalEngine {
+
+        EKodkodTransformation t2k = KodkodEchoTranslator.getInstance().getTransformation(transformationID);
+
+        Formula facts = Formula.TRUE;
+        Set<EKodkodModel> models = new HashSet<>();
+        for(String modelID : modelIDs){
+            EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
+            facts = facts.and(x2k.getMetamodel().getFacts());
+            models.add(x2k);
+        }
+
+        Set<EKodkodModel> targets = new HashSet<>();
+        for(String targetID : targetIDs){
+            EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(targetID);
+            facts = facts.and(x2k.getMetamodel().getFacts()); //TODO is targets in models?
+            targets.add(x2k);
+        }
+
+        facts = facts.and(t2k.getConstraint(modelIDs).FORMULA);
+
+        final Solver solver = new Solver();
+
+        solver.options().setSolver(SATFactory.PMaxSAT4J);
+        solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
+
+        sol = solver.solve(facts,new TargetBinder(models,targets).getBounds());
+
+        return sol.instance() != null;
     }
 
     @Override

@@ -21,6 +21,19 @@ abstract class AbstractBinder implements Binder{
     protected Bounds bounds;
 
 
+    public Bounds getBounds(){
+        return bounds;
+    }
+
+    protected void makeStringBounds(Set<EKodkodModel> models) {
+        Set<Tuple> tuples = new HashSet<>();
+        for(EKodkodModel x2k: models){
+            Set<String> strings = x2k.getStrings();
+            for(String s: strings)
+                tuples.add(factory.tuple(s));
+        }
+    }
+
     protected void makeStringBounds(EKodkodModel x2k) {
         Set<String> strings = x2k.getStrings();
         Set<Tuple> tuples = new HashSet<>();

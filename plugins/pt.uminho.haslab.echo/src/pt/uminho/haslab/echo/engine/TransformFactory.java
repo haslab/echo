@@ -17,9 +17,11 @@ public interface TransformFactory {
     public static final TransformFactory KODKOD = new KodkodFactory();
 
 
-    public abstract EngineRunner createRunner();
+    public EngineRunner createRunner();
 
-    public abstract EchoTranslator createTranslator();
+    public EchoTranslator createTranslator();
+
+    public ITContext createContext();
 
 
 

@@ -10,9 +10,14 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.EDependency;
+import pt.uminho.haslab.mde.transformation.EModelDomain;
+import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +40,8 @@ public class KodkodEchoTranslator extends EchoTranslator {
     private Map<String,EKodkodModel> models = new HashMap<>();
     /** maps models Uris into meta-models Uris*/
     private Map<String,String> model2metaModel = new HashMap<>();
+    /**maps transformationsID into EKodkodTransformation*/
+    private Map<String,EKodkodTransformation> transformations = new HashMap<>();
 
     @Override
     public void translateMetaModel(EMetamodel metaModel) throws EchoError {
@@ -89,8 +96,18 @@ public class KodkodEchoTranslator extends EchoTranslator {
 	@Override
 	public void translateTransformation(ETransformation constraint)
 			throws EchoError {
-		// TODO Auto-generated method stub
-		
+        Map<String,List<EDependency>> deps = new HashMap<String,List<EDependency>>();
+        for (ERelation r : constraint.getRelations()) {
+            List<EDependency> aux2 = new ArrayList<EDependency>();
+            for (EModelDomain dom : r.getDomains()) {
+                List<EModelDomain> aux = new ArrayList<EModelDomain>(r.getDomains());
+                aux.remove(dom);
+                aux2.add(new EDependency(dom,aux,null));
+            }
+            deps.put(r.getName(),aux2);
+        }
+		EKodkodTransformation t2k = new EKodkodTransformation(constraint,deps);
+        transformations.put(constraint.ID,t2k);
 	}
 
 	@Override
@@ -147,5 +164,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
 	}
 
 
-
+    public EKodkodTransformation getTransformation(String transformationID) {
+        return null;
+    }
 }
