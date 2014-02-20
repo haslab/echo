@@ -76,7 +76,7 @@ class EAlloyTransformation extends EEngineTransformation {
 			Decl d;
 			String metamodelID = mdl.getMetamodel().ID;
 			try {
-				d = AlloyEchoTranslator.getInstance().getMetamodel(metamodelID).sig_metamodel
+				d = AlloyEchoTranslator.getInstance().getMetamodel(metamodelID).SIG
 						.oneOf(mdl.getName());
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_VAR,

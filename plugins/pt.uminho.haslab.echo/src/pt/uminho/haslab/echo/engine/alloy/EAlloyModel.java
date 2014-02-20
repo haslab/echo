@@ -62,7 +62,7 @@ class EAlloyModel implements EEngineModel {
 		metamodel = t;
 		
 		try {
-			model_sig = new PrimSig(emodel.ID,(PrimSig) t.sig_metamodel,Attr.ONE);
+			model_sig = new PrimSig(emodel.ID,(PrimSig) t.SIG,Attr.ONE);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 		
 		initContent();
@@ -257,7 +257,7 @@ class EAlloyModel implements EEngineModel {
 	PrimSig setTarget() throws ErrorAlloy {
 		isTarget = true;
 		try {
-			trg_model_sig = new PrimSig(AlloyUtil.targetName(model_sig), metamodel.sig_metamodel, Attr.ONE);
+			trg_model_sig = new PrimSig(AlloyUtil.targetName(model_sig), metamodel.SIG, Attr.ONE);
 		} catch (Err e) {
 			throw new ErrorAlloy("", "Failed to create target sig.", e, Task.ALLOY_RUN);
 		}

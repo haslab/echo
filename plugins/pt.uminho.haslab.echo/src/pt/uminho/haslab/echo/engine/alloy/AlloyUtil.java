@@ -300,63 +300,67 @@ class AlloyUtil {
 	 * @return the mapping between variable names and their Alloy declaration
 	 * @throws EchoError
 	 */
-	static Map<String, Decl> variableListToExpr(
-			Collection<EVariable> vars,
-			AlloyContext context) throws EchoError {
-		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
-		Map<String, Decl> alloy_variable_decls = new LinkedHashMap<String, Decl>();
-
-		for (EVariable var : vars) {
-			try {
-				Expr range = Sig.NONE;
-				EObject t = var.getType();
-				String type = null;
-				if (t instanceof Type)
-					type = ((Type) t).getName();
-				else {
-					type = (String) t.eGet(t.eClass().getEStructuralFeature(
-							"name"));
-				}
-				if (type.equals("String"))
-					range = Sig.STRING;
-				else if (type.equals("Int"))
-					range = Sig.SIGINT;
-				else {
-					String metamodeluri = null;
-					if (t instanceof Type) {
-						metamodeluri = EcoreUtil.getURI(((Type) t).getPackage()).path().replace(".oclas", "").replace("resource/", "");
-					} else {
-						EObject aux = (EObject) t.eGet(t.eClass()
-								.getEStructuralFeature("model"));
-						metamodeluri = EATLTransformation.metamodeluris.get(aux
-								.eGet(aux.eClass()
-										.getEStructuralFeature("name")));
-					}
-					Expr state = null;
-					if (context.getVar(var.getName()) != null) {
-						String varModel = context.getVarModel(var.getName());
-						state = ((AlloyExpression) context.getModelExpression(varModel)).EXPR;
-					}
-					
-					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
-					if (state == null) {
-						state = translator.getMetamodel(metamodel.ID).sig_metamodel;
-					}
-					
-					EClass eclass = (EClass) metamodel.getEObject().getEClassifier(type);
-					Expr statefield = translator.getStateFieldFromClass(
-							metamodel.ID, eclass);
-					range = statefield.join(state);
-
-				}
-				alloy_variable_decls.put(var.getName(), range.oneOf(var.getName()));
-
-			} catch (Err a) {
-				throw new ErrorAlloy(a.getMessage());
-			}
-		}
-		return alloy_variable_decls;
-	}
+//	static Map<String, Decl> variables2Decls(
+//			Collection<EVariable> vars,
+//			AlloyContext context) throws EchoError {
+//		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
+//		Map<String, Decl> varDecls = new LinkedHashMap<String, Decl>();
+//
+//		for (EVariable var : vars) {
+//			try {
+//				Expr range = Sig.NONE;
+//				EObject t = var.getType();
+//				String type = null;
+//				if (t instanceof Type)
+//					type = ((Type) t).getName();
+//				else {
+//					// for ATL
+//					type = (String) t.eGet(t.eClass().getEStructuralFeature(
+//							"name"));
+//				}
+//				if (type.equals("String"))
+//					range = Sig.STRING;
+//				else if (type.equals("Int"))
+//					range = Sig.SIGINT;
+//				else {
+//					String metamodelURI = null;
+//					if (t instanceof Type) {
+//						metamodelURI = EcoreUtil.getURI(((Type) t).getPackage()).path().replace(".oclas", "").replace("resource/", "");
+//					} else {
+//						// for ATL
+//						EObject aux = (EObject) t.eGet(t.eClass()
+//								.getEStructuralFeature("model"));
+//						metamodelURI = EATLTransformation.metamodeluris.get(aux
+//								.eGet(aux.eClass()
+//										.getEStructuralFeature("name")));
+//					}
+//					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
+//					EClass eclass = (EClass) metamodel.getEObject().getEClassifier(type);
+//
+//					Expr state = null;
+//					// if already exists, try get the owning model
+//					if (context.getVar(var.getName()) != null) {
+//						String varModel = context.getVarModel(var.getName());
+//						state = context.getModelExpression(varModel).EXPR;
+//					}
+//
+//					// otherwise, get the metamodel sig
+//					if (state == null)
+//						state = translator.getMetamodel(metamodel.ID).SIG;
+//					
+//					// range is state field composed with state
+//					Expr statefield = translator.getStateFieldFromClass(
+//							metamodel.ID, eclass);
+//					range = statefield.join(state);
+//				}
+//				varDecls.put(var.getName(), range.oneOf(var.getName()));
+//
+//			} catch (Err a) {
+//				throw new ErrorAlloy(a.getMessage());
+//			}
+//		}
+//		return varDecls;
+//	}
 
 	static String targetName(PrimSig sig) {
 		return "'"+sig.label;

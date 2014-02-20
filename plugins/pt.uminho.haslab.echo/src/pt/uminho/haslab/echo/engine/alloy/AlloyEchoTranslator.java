@@ -225,8 +225,8 @@ class AlloyEchoTranslator extends EchoTranslator {
 					scopesmap.put(p, model.getClassSigs(p).size());
 		
 				// also increments state sig
-				scopesincrement.put(metamodel.sig_metamodel,1);
-				scopesexact.put(metamodel.sig_metamodel,1);
+				scopesincrement.put(metamodel.SIG,1);
+				scopesexact.put(metamodel.SIG,1);
 				// TODO: deal with strings
 				//scopesincrement.put(PrimSig.STRING,1);
 			} else {

@@ -286,7 +286,20 @@ public abstract class EEngineRelation {
 	 * @return the new declarations
 	 * @throws EchoError
 	 */
-	protected abstract Map<String, IDecl> createVarDecls(Map<EVariable, String> var2model, boolean addContext) throws EchoError;
+	protected Map<String, IDecl> createVarDecls(
+			Map<EVariable, String> var2model, boolean addContext)
+			throws EchoError {
+		// if (addContext)
+		for (EVariable s : var2model.keySet())
+			context.setVarModel(s.getName(), var2model.get(s));
+
+		Map<String, IDecl> ivars = new HashMap<>();
+		for (EVariable var : var2model.keySet())
+			ivars.put(var.getName(), context.getDecl(var));
+
+		// if (addContext) context.addVar(d);
+		return ivars;
+	}
 
 	/** 
 	 * Generates the relation field over the type of root variables.
