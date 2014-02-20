@@ -1,8 +1,6 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import kodkod.ast.Relation;
 import pt.uminho.haslab.echo.EchoError;
@@ -12,7 +10,6 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
@@ -63,27 +60,6 @@ public class EKodkodRelation extends EEngineRelation {
 //		}
 //		
 		return new KodkodExpression(field);
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	protected Map<String, IDecl> createVarDecls(Map<EVariable,String> set, boolean notTop) throws EchoError {
-		Map<String, IDecl> ivars = new HashMap<String,IDecl>();
-		
-		// Creates declarations from EMF variables (adds extra information to the context if necessary)
-
-//		if (notTop)
-//	    	for (EVariable s : set.keySet())
-//	    		context.setVarModel(s.getName(),set.get(s));
-//		
-//		Map<String, Decl> vars = KodkodUtil.variableListToExpr(set.keySet(),context);
-//	  	for (String s : vars.keySet()) {
-//	  		IDecl d = new KodkodDecl(vars.get(s));
-//			if (notTop) context.addVar(d);
-//			ivars.put(s, d);
-//	  	}	  	
-
-	  	return ivars;
 	}
 
 	@Override

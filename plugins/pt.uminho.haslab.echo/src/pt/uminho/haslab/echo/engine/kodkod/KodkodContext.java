@@ -1,11 +1,15 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import kodkod.ast.Expression;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.ocl.examples.pivot.Type;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -16,12 +20,6 @@ import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Auxiliary context for the translation of artifacts to Kodkod.
@@ -75,33 +73,17 @@ class KodkodContext implements ITContext {
     @Override
     public IDecl getDecl(EVariable x) throws EchoError {
         Expression range;
-        EObject t = x.getType();
-        String type = null;
-        if (t instanceof Type)
-            type = ((Type) t).getName();
-        else {
-            type = (String) t.eGet(t.eClass().getEStructuralFeature(
-                    "name"));
-        }
-        if (type.equals("String"))
+        EClass type = x.getType();
+    	
+        if (type.getName().equals("String"))
             range = KodkodUtil.stringRel;
-        else if (type.equals("Int"))
+        else if (type.getName().equals("Int"))
             range = Expression.INTS;
         else {
-            String metamodeluri = null;
-            if (t instanceof Type) {
-            	//EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path());
-                //EchoReporter.getInstance().debug(EcoreUtil.getURI(((Type) t).getPackage()).path().replace("resource/", ""));
-                metamodeluri = EcoreUtil.getURI(((Type) t).getPackage()).path().replace(".oclas", "").replace("resource/", "");
-            } else{
-                System.out.println("Nao deveria entrar aqui.");
-            }
-
-
-            KodkodEchoTranslator translator = KodkodEchoTranslator.getInstance();
-            EMetamodel metaModel = MDEManager.getInstance().getMetamodel(metamodeluri, false);
-            EKodkodMetamodel e2k = translator.getMetamodel(metaModel.ID);
-            range = e2k.getRelation((EClass) e2k.metamodel.getEObject().getEClassifier(type));
+        	EMetamodel metamodel = MDEManager.getInstance().getMetamodel(EcoreUtil.getURI(type.getEPackage()).path(), false);
+        	KodkodEchoTranslator translator = KodkodEchoTranslator.getInstance();
+            EKodkodMetamodel e2k = translator.getMetamodel(metamodel.ID);
+            range = e2k.getRelation(type);
         }
         return (new KodkodExpression(range)).oneOf(x.getName());
     }
@@ -140,7 +122,6 @@ class KodkodContext implements ITContext {
 	public void setVarModel(String name, String model) throws ErrorParser {
 		varModel.put(name,model);
 	}
-
 
 	/** {@inheritDoc} */
 	@Override

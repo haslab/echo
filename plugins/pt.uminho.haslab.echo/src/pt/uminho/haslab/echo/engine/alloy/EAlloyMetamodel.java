@@ -34,7 +34,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
  class EAlloyMetamodel extends EEngineMetamodel {
 	
 	/** the Alloy signature representing this meta-model */
-	final PrimSig sig_metamodel;
+	final PrimSig SIG;
 	
 	/** the model parameter of the conformity expression
 	* constraint is defined over this variable */
@@ -42,7 +42,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 	
 	/** the Alloy expression representing the conformity constraint
 	* should be defined over <code>model_var</code> */
-	private Expr constraint_conforms = Sig.NONE.no();
+	private Expr conformsPred = Sig.NONE.no();
 	
 	/** the Alloy expression representing the generation constraint 
 	* should be defined over <code>model_var</code> */
@@ -81,13 +81,13 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 		super(metamodel);
 		try {
 			//if (EchoOptionsSetup.getInstance().isOperationBased())
-			sig_metamodel = new PrimSig(metamodel.ID,AlloyEchoTranslator.STATE);
+			SIG = new PrimSig(metamodel.ID,AlloyEchoTranslator.STATE);
 			//else
 				//s = new PrimSig(URIUtil.resolveURI(metamodel.eResource()),STATE,Attr.ABSTRACT);
 		} catch (Err a) {throw new ErrorAlloy (a.getMessage()); }
 		
 		try {
-			model_var = sig_metamodel.oneOf("s_");
+			model_var = SIG.oneOf("s_");
 		} catch (Err a) {
 			throw new ErrorAlloy(
 					ErrorAlloy.FAIL_CREATE_VAR,
@@ -243,7 +243,8 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 		Func f;
 		EAlloyModel model = (EAlloyModel) EchoTranslator.getInstance().getModel(modelID);
 		try {
-			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms);
+			EchoReporter.getInstance().debug("Conforms: "+conformsPred);
+			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, conformsPred);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 					"Failed to create conforming function.", e,
@@ -262,7 +263,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 	Func getGenerate() throws ErrorAlloy {
 		Func f;
 		try {
-			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, constraint_conforms.and(constraint_generate));
+			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, conformsPred.and(constraint_generate));
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 					"Failed to create generation function.", e,
@@ -314,8 +315,8 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 			else
 				ecsig = new PrimSig(signame, parent);
 			statefield = ecsig.addField(EchoHelper.stateFieldName(metamodel, ec),
-					sig_metamodel.setOf());
-			Expr stateatoms = ecsig.equal(statefield.join(sig_metamodel));
+					SIG.setOf());
+			Expr stateatoms = ecsig.equal(statefield.join(SIG));
 			ecsig.addFact(stateatoms);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
@@ -346,7 +347,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 				if (attr.getEType().getName().equals("EBoolean"))
 					field = classsig.addField(
 							EchoHelper.featureKey(metamodel, attr),
-							sig_metamodel.setOf());
+							SIG.setOf());
 				else {
 					PrimSig type = null;
 					Expr fact = null;
@@ -369,7 +370,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 								Task.TRANSLATE_METAMODEL);
 
 					field = classsig.addField(fieldname,
-							type.product(sig_metamodel));
+							type.product(SIG));
 					fact = field.join(model_var.get());
 					Expr bound;
 					if (attr.isID())
@@ -379,7 +380,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 						bound = sig2statefield.get(classsig)
 								.join(model_var.get()).any_arrow_one(type);
 					fact = fact.in(bound);
-					constraint_conforms = constraint_conforms.and(fact);
+					conformsPred = conformsPred.and(fact);
 
 				}
 			} catch (Err err) {
@@ -432,7 +433,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 
 			try {
 				field = classsig.addField(feature_key,
-						trgsig.product(sig_metamodel));
+						trgsig.product(SIG));
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FIELD,
 						"Failed to create reference field: "
@@ -449,7 +450,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 					fact = field.join(model_var.get()).equal(
 							opField.join(model_var.get()).transpose());
 					
-					constraint_conforms = constraint_conforms.and(fact);
+					conformsPred = conformsPred.and(fact);
 				}
 			}
 
@@ -476,21 +477,21 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 					fact = (d.get()).join(field.join(model_var.get())).one()
 							.forAll(d);
 
-					constraint_conforms = constraint_conforms.and(fact);
+					conformsPred = conformsPred.and(fact);
 				} else if (reference.getLowerBound() == 0
 						&& reference.getUpperBound() == 1) {
 					fact = (d.get()).join(field.join(model_var.get())).lone()
 							.forAll(d);
-					constraint_conforms = constraint_conforms.and(fact);
+					conformsPred = conformsPred.and(fact);
 				} else if (reference.getLowerBound() == 1
 						&& reference.getUpperBound() == -1) {
 					fact = (d.get()).join(field.join(model_var.get())).some()
 							.forAll(d);
-					constraint_conforms = constraint_conforms.and(fact);
+					conformsPred = conformsPred.and(fact);
 				} else if (reference.getUpperBound() == 0) {
 					fact = (d.get()).join(field.join(model_var.get())).no()
 							.forAll(d);
-					constraint_conforms = constraint_conforms.and(fact);
+					conformsPred = conformsPred.and(fact);
 				} else if (reference.getLowerBound() == 0
 						&& reference.getUpperBound() == -1) {
 				} else {
@@ -500,7 +501,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 								.cardinality()
 								.gte(ExprConstant.makeNUMBER(reference
 										.getLowerBound())).forAll(d);
-						constraint_conforms = constraint_conforms.and(fact);
+						conformsPred = conformsPred.and(fact);
 					}
 					if (reference.getUpperBound() > 1) {
 						fact = (d.get())
@@ -508,7 +509,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 								.cardinality()
 								.lte(ExprConstant.makeNUMBER(reference
 										.getUpperBound())).forAll(d);
-						constraint_conforms = constraint_conforms.and(fact);
+						conformsPred = conformsPred.and(fact);
 					}
 				}
 
@@ -517,7 +518,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 							.oneOf("trg_");
 					fact = ((field.join(model_var.get())).join(d.get())).one()
 							.forAll(d);
-					constraint_conforms = constraint_conforms.and(fact);
+					conformsPred = conformsPred.and(fact);
 				}
 
 				Expr parState = sig2statefield.get(classsig);
@@ -525,7 +526,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 				fact = field.join(model_var.get()).in(
 						parState.join(model_var.get()).product(
 								sTypeState.join(model_var.get())));
-				constraint_conforms = constraint_conforms.and(fact);
+				conformsPred = conformsPred.and(fact);
 
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
@@ -562,9 +563,9 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 						"Failed to create annotation variable.", a,
 						Task.TRANSLATE_METAMODEL);
 			}
-			context.addVar(new AlloyDecl(self),sig_metamodel.label);
+			context.addVar(new AlloyDecl(self),SIG.label);
 			context.addVar(new AlloyDecl(model_var));
-			context.addMetamodelExpression(false, sig_metamodel.label,
+			context.addMetamodelExpression(false, SIG.label,
 					new AlloyExpression(model_var.get()));
 
 			OCLTranslator converter = new OCLTranslator(context);
@@ -587,7 +588,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 							if (annotation
 									.getSource()
 									.equals("http://www.eclipse.org/emf/2002/Ecore/OCL"))
-								constraint_conforms = constraint_conforms.and(oclalloy);
+								conformsPred = conformsPred.and(oclalloy);
 							else
 								constraint_generate = constraint_generate
 										.and(oclalloy);
@@ -626,29 +627,29 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 			Decl pre, pos, self = null;
 			try {
 				self = classsig.oneOf("self");
-				pre = sig_metamodel.oneOf("pre_");
-				pos = sig_metamodel.oneOf("pos_");
+				pre = SIG.oneOf("pre_");
+				pos = SIG.oneOf("pos_");
 				decls.add(self);
-				context.addVar(new AlloyDecl(self),sig_metamodel.label);
+				context.addVar(new AlloyDecl(self),SIG.label);
 				for (EParameter p : operation.getEParameters()) {
 					PrimSig type = AlloyEchoTranslator.getInstance()
 							.getClassifierFromSig(p.getEType());
 					Decl d = type.oneOf(p.getName());
 					decls.add(d);
-					context.addVar(new AlloyDecl(d),sig_metamodel.label);
+					context.addVar(new AlloyDecl(d),SIG.label);
 				}
 				decls.add(pre);
 				decls.add(pos);
-				context.addVar(new AlloyDecl(pre),sig_metamodel.label);
-				context.addVar(new AlloyDecl(pos),sig_metamodel.label);
+				context.addVar(new AlloyDecl(pre),SIG.label);
+				context.addVar(new AlloyDecl(pos),SIG.label);
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
 						"Failed to create operation variable.", a,
 						Task.TRANSLATE_METAMODEL);
 			}
 			OCLHelper helper = ocl.createOCLHelper(operation);
-			context.addMetamodelExpression(false, sig_metamodel.label, new AlloyExpression(pos.get()));
-			context.addMetamodelExpression(true, sig_metamodel.label, new AlloyExpression(pre.get()));
+			context.addMetamodelExpression(false, SIG.label, new AlloyExpression(pos.get()));
+			context.addMetamodelExpression(true, SIG.label, new AlloyExpression(pre.get()));
 			
 			OCLTranslator converter = new OCLTranslator(context);
 			for (EAnnotation ea : operation.getEAnnotations())
@@ -759,11 +760,11 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 				}
 
 				if (s.isAbstract != null)
-					constraint_conforms = constraint_conforms.and(childrenUnion
+					conformsPred = conformsPred.and(childrenUnion
 							.equal(sig2statefield.get(s)
 									.join(model_var.get())));
 				else
-					constraint_conforms = constraint_conforms.and(childrenUnion
+					conformsPred = conformsPred.and(childrenUnion
 							.in(sig2statefield.get(s).join(model_var.get())));
 			}
 		} catch (Err err) {
@@ -781,9 +782,9 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {
-			dm = sig_metamodel.oneOf("m_");
+			dm = SIG.oneOf("m_");
 			ds.add(dm);
-			dn = sig_metamodel.oneOf("n_");
+			dn = SIG.oneOf("n_");
 			ds.add(dn);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
@@ -800,7 +801,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 
 		Func f;
 		try {
-			f = new Func(null, sig_metamodel.label, ds, PrimSig.UNIV.setOf(),
+			f = new Func(null, SIG.label, ds, PrimSig.UNIV.setOf(),
 					result);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
@@ -821,9 +822,9 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 		Decl dm, dn;
 		List<Decl> ds = new ArrayList<Decl>();
 		try {
-			dm = sig_metamodel.oneOf("m_");
+			dm = SIG.oneOf("m_");
 			ds.add(dm);
-			dn = sig_metamodel.oneOf("n_");
+			dn = SIG.oneOf("n_");
 			ds.add(dn);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
@@ -846,7 +847,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 		}
 		Func f;
 		try {
-			f = new Func(null, sig_metamodel.label, ds, PrimSig.SIGINT, result);
+			f = new Func(null, SIG.label, ds, PrimSig.SIGINT, result);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 					"Faild to create delta function.", e,
@@ -864,15 +865,15 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 		Field next, first;
 		try {
 			ord = new PrimSig(EchoHelper.ORDNAME, Attr.ONE);
-			first = ord.addField("first", sig_metamodel.setOf());
-			next = ord.addField("next", sig_metamodel.product(sig_metamodel));
+			first = ord.addField("first", SIG.setOf());
+			next = ord.addField("next", SIG.product(SIG));
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
 					"Faild to create order sig.", e, Task.TRANSLATE_METAMODEL);
 		}
 		Expr ops = Sig.NONE.some();
 		try {
-			Decl s1 = sig_metamodel.oneOf("m_"), s2 = (s1.get().join(ord
+			Decl s1 = SIG.oneOf("m_"), s2 = (s1.get().join(ord
 					.join(next))).oneOf("n_");
 			for (Func fun : operations) {
 				List<Decl> decls = new ArrayList<Decl>();
@@ -901,7 +902,7 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 		try {
 			ord.addFact(ops);
 			List<Expr> x = new ArrayList<Expr>();
-			x.add(sig_metamodel);
+			x.add(SIG);
 			x.add(ord.join(first));
 			x.add(ord.join(next));
 			ord.addFact(ExprList.makeTOTALORDER(null, null, x));

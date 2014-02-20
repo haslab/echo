@@ -1,18 +1,18 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ITContext;
@@ -23,8 +23,9 @@ import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
-import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
+import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
 /**
@@ -76,11 +77,38 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public IDecl getDecl(EVariable x) throws EchoError {
-        Decl d = AlloyUtil.variableListToExpr(new HashSet<EVariable>(Arrays.asList(x)),this).get(x.getName());
-        IDecl ad = new AlloyDecl(d);
-        addVar(ad);
-        return ad;
+	public IDecl getDecl(EVariable var) throws EchoError {
+		// gets the type of the variable
+		EClass type = var.getType();
+	
+		try {
+			// calculates the expression representing the type in the state
+			Expr range = Sig.NONE;
+			if (type.equals("String"))
+				range = Sig.STRING;
+			else if (type.equals("Int"))
+				range = Sig.SIGINT;
+			else {
+				EMetamodel metamodel = MDEManager.getInstance().getMetamodel(EcoreUtil.getURI(type.getEPackage()).path(), false);
+				// if owning model was set, retrieve it
+				if (getVarModel(var.getName()) != null) {
+					// TODO if already exists should be used to create class expression
+					EchoReporter.getInstance().warning("Creating var that already exists: "+var.getName(),Task.TRANSLATE_METAMODEL);
+//					String varModel = getVarModel(var.getName());
+//					state = getModelExpression(varModel).EXPR;
+				}
+				range = getClassExpression(metamodel.ID, type.getName()).EXPR;
+			}
+			
+			EchoReporter.getInstance().debug("Created "+var.getName()+"::"+range);
+			
+			AlloyDecl d = new AlloyDecl(range.oneOf(var.getName()));
+			addVar(d);
+			return d;
+
+		} catch (Err a) {
+			throw new ErrorAlloy(a.getMessage());
+		}
 	}
 
 	/** {@inheritDoc} */
@@ -119,7 +147,6 @@ public class AlloyContext implements ITContext {
 
 //		EchoReporter.getInstance().debug("** SDebug result: "+metaModelID+" and "+ className +" did "+field.join(state.EXPR));
 		return (AlloyExpression) (new AlloyExpression(field)).join(state);
-		
 	}
 
 	/** {@inheritDoc} */

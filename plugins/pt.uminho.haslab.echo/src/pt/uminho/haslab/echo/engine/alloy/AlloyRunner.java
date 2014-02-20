@@ -238,7 +238,7 @@ class AlloyRunner implements EngineRunner {
 
 		allsigs.addAll(metamodel.getAllSigs());
 		scopes = AlloyEchoTranslator.getInstance().getScopes();
-		PrimSig state = metamodel.sig_metamodel;
+		PrimSig state = metamodel.SIG;
 		try {
 			PrimSig target = new PrimSig(AlloyUtil.targetName(state), state,
 					Attr.ONE);
