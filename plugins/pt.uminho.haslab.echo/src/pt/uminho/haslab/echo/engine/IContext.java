@@ -91,15 +91,15 @@ public interface IContext {
     /**
      * The current model of the context.
      * Should be used in <code>getClassExpression</code> and <code>getPropExpression</code>
-     * @param object
+     * @param model
      */
-	void setCurrentModel(String object);
+	void setCurrentModel(String model);
 
     /**
-     * If the context is currently in pre-state.
+     * If the context is currently in pre-state mode.
      * Should be used in <code>getClassExpression</code> and <code>getPropExpression</code>
-     * @param object
+     * @param preState if pre-state mode
      */
-	void setCurrentPre(boolean pre);
+	void setCurrentPre(boolean preState);
 	
 }

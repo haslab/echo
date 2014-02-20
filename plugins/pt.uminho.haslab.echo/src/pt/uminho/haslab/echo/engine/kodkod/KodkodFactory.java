@@ -2,28 +2,26 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
-import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.TransformFactory;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tmg
- * Date: 10/24/13
- * Time: 12:31 PM
+ * Launches Kodkod transformation and runner objects.
+ * 
+ * @author tmg
+ * @version 0.4 20/02/2014
  */
 public class KodkodFactory implements TransformFactory {
-    @Override
+	
+	/** {@inheritDoc} */
+	@Override
     public EngineRunner createRunner() {
         return new KodkodRunner();
     }
 
+	/** {@inheritDoc} */
     @Override
     public EchoTranslator createTranslator() {
         return new KodkodEchoTranslator();
     }
 
-    @Override
-    public ITContext createContext() {
-        return new KodkodContext();
-    }
 }

@@ -5,6 +5,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.engine.EchoHelper;
 
 /**
  * The Echo representation of an abstract artifact.
@@ -22,7 +23,7 @@ public abstract class EArtifact {
 	private String URI;
 
 	protected EArtifact(String iD, EObject artifact) throws ErrorUnsupported, ErrorParser {
-		ID = iD+this.hashCode();
+		ID = EchoHelper.makeID(iD, this);
 		URI = EcoreUtil.getURI(artifact).path();
 		process(artifact);
 	}

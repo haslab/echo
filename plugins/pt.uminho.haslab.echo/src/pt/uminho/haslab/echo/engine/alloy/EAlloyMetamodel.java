@@ -571,7 +571,7 @@ import java.util.*;
 							ExpressionInOCL invariant = helper
 									.createInvariant(sExpr);
 							IFormula form = converter.translateFormula(invariant.getBodyExpression());
-							Expr oclalloy = ((AlloyFormula) form).formula.forAll(self);
+							Expr oclalloy = ((AlloyFormula) form).FORMULA.forAll(self);
 							AlloyOptimizations opt = new AlloyOptimizations();
 							if (EchoOptionsSetup.getInstance().isOptimize()) {
 								oclalloy = opt.trading(oclalloy);
@@ -653,7 +653,7 @@ import java.util.*;
 							ExpressionInOCL invariant = helper
 									.createPostcondition(sExpr);
 							IFormula form = converter.translateFormula(invariant.getBodyExpression());
-							oclalloy = oclalloy.and(((AlloyFormula) form).formula);
+							oclalloy = oclalloy.and(((AlloyFormula) form).FORMULA);
 							EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
 						} catch (ParserException e) {
 							throw new ErrorParser(ErrorParser.OCL,

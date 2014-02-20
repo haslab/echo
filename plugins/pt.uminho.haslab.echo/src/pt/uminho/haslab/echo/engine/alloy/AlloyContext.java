@@ -10,8 +10,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ITContext;
@@ -33,19 +31,29 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
  * Variables are uniquely identified by name.
  *
  * @author nmm
- * @version 0.4 17/02/2014
+ * @version 0.4 20/02/2014
  */
 public class AlloyContext implements ITContext {
 
+	/** variables representation in Alloy */
 	private Map<String,AlloyExpression> varExp = new HashMap<String,AlloyExpression>();
+	/** variables owning model, if inferred */
 	private Map<String,String> varModel = new HashMap<String,String>();
+	
+	/** pre-state model variables, indexed by metamodel ID */
 	private Map<String,AlloyExpression> modelPre = new HashMap<String,AlloyExpression>();
+	/** post-state model variables, indexed by metamodel ID */
 	private Map<String,AlloyExpression> modelPos = new HashMap<String,AlloyExpression>();
+	/** pre-state model variables, indexed by transformation model parameter */
 	private Map<String,AlloyExpression> modelPreT = new HashMap<String,AlloyExpression>();
+	/** post-state model variables, indexed by transformation model parameter */
 	private Map<String,AlloyExpression> modelPosT = new HashMap<String,AlloyExpression>();
 	
+	/** the model to be currently considered in expression management */
 	private String currentModel;
+	/** the current relation being translated */
 	private EAlloyRelation currentRel;
+	/** if methods should be run in pre-state mode */
 	private boolean currentPre = false;
 	
 	/** {@inheritDoc} */
@@ -62,8 +70,8 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public void addVar(IDecl decl, String extra) {
-		varModel.put(decl.name(),extra);
+	public void addVar(IDecl decl, String ownerModel) {
+		varModel.put(decl.name(),ownerModel);
 		addVar(decl);
 	}
 
@@ -90,17 +98,13 @@ public class AlloyContext implements ITContext {
 			else {
 				EMetamodel metamodel = MDEManager.getInstance().getMetamodel(var.getMetamodel(), false);
 				// if owning model was set, retrieve it
-				if (getVarModel(var.getName()) != null) {
-					// TODO if already exists should be used to create class expression
-					EchoReporter.getInstance().warning("Creating var that already exists: "+var.getName(),Task.TRANSLATE_METAMODEL);
-//					String varModel = getVarModel(var.getName());
-//					state = getModelExpression(varModel).EXPR;
-				}
+				String temp = currentModel;
+				if (getVarModel(var.getName()) != null)
+					setCurrentModel(getVarModel(var.getName()));
 				range = getClassExpression(metamodel.ID, type).EXPR;
+				currentModel = temp;
 			}
-			
-			EchoReporter.getInstance().debug("Created "+var.getName()+"::"+range);
-			
+						
 			AlloyDecl d = new AlloyDecl(range.oneOf(var.getName()));
 			if (addContext) addVar(d);
 			return d;
@@ -113,38 +117,40 @@ public class AlloyContext implements ITContext {
 	/** {@inheritDoc} */
 	@Override
 	public AlloyExpression getPropExpression(String metaModelID, String className, String fieldName) {
-		EchoReporter.getInstance().debug("** getPropExpression: "+metaModelID+ ", " + className + ", "+fieldName + " with "+currentModel+ " so "+getModelExpression(currentModel));
-
 		EAlloyMetamodel ameta = AlloyEchoTranslator.getInstance().getMetamodel(metaModelID);
-        Expr statesig = null;
-        if (currentModel != null)
-			statesig = getModelExpression(currentModel).EXPR;
-		
-		if (statesig == null)
-			statesig = getModelExpression(metaModelID).EXPR;		
+		AlloyExpression state = (AlloyExpression) Constants.EMPTY();
 
+		// tries to retrieve the state sig of the current model context
+		if (currentModel != null) state = getModelExpression(currentModel);		
+        // otherwise uses the generic metamodel sig
+		if (state == null) state = getModelExpression(metaModelID);		
+
+		// fetches the corresponding field
 		EClass eclass = ((EClass) ameta.metamodel.getEObject().getEClassifier(className));
 		EStructuralFeature feature = eclass.getEStructuralFeature(fieldName);
 		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metaModelID,feature);
-		EchoReporter.getInstance().debug("** getPropExpression result: "+field + " . " + statesig);
+		
+		// calculates the expression field.state
 		if (field == null) return null;
-		return new AlloyExpression(field.join(statesig));
+		return (AlloyExpression) (new AlloyExpression(field)).join(state);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public AlloyExpression getClassExpression(String metaModelID, String className) throws ErrorParser, ErrorUnsupported {
-		EMetamodel emeta = MDEManager.getInstance().getMetamodelID(metaModelID);
-		EClass eclass = (EClass) emeta.getEObject().getEClassifier(className);
-		
-		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metaModelID, eclass);
-		
+		EMetamodel emeta = MDEManager.getInstance().getMetamodelID(metaModelID);		
 		AlloyExpression state = (AlloyExpression) Constants.EMPTY();
 		
+		// tries to retrieve the state sig of the current model context
 		if (currentModel != null) state = getModelExpression(currentModel);
-		else state = getModelExpression(metaModelID);
+        // otherwise uses the generic metamodel sig
+		if (state == null) state = getModelExpression(metaModelID);
 
-//		EchoReporter.getInstance().debug("** SDebug result: "+metaModelID+" and "+ className +" did "+field.join(state.EXPR));
+		// fetches the corresponding field
+		EClass eclass = (EClass) emeta.getEObject().getEClassifier(className);
+		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metaModelID, eclass);
+
+		// calculates the expression statefield.state
 		return (AlloyExpression) (new AlloyExpression(field)).join(state);
 	}
 
@@ -208,10 +214,13 @@ public class AlloyContext implements ITContext {
 		return new ArrayList<AlloyExpression>(res);
 	}
 
+	/** {@inheritDoc} */
+	@Override
 	public void setCurrentRel(EEngineRelation parentRelation) {
 		currentRel = (EAlloyRelation) parentRelation;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public EAlloyRelation getCallerRel() {
 		return currentRel;

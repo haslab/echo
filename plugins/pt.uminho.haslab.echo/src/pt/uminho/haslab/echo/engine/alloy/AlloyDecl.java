@@ -5,23 +5,28 @@ import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 
 /**
- * Created by tmg on 2/10/14.
+ * Alloy representation of a variable declaration.
+ * 
+ * @author nmm,tmg
+ * @version 0.4 20/02/2014
  */
 class AlloyDecl implements IDecl{
 
-    public final Decl decl;
+    public final Decl DECL;
 
     AlloyDecl(Decl decl) {
-        this.decl = decl;
+        this.DECL = decl;
     }
 
-    @Override
+	/** {@inheritDoc} */
+   @Override
     public IExpression variable() {
-        return new AlloyExpression(decl.get());
+        return new AlloyExpression(DECL.get());
     }
 
-    @Override
+	/** {@inheritDoc} */
+   	@Override
     public String name() {
-        return decl.get().label;
+        return DECL.get().label;
     }
 }

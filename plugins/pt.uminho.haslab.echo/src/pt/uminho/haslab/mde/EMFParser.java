@@ -26,8 +26,9 @@ import pt.uminho.haslab.echo.ErrorParser;
 
 /**
  * Parses EMF resources (XMI models, ECore packages, QVT-R and ATL transformations)
- * @author nmm
- *
+ * 
+ * @author nmm, tmg
+ * @version 0.4 20/02/2014
  */
 public class EMFParser {
 

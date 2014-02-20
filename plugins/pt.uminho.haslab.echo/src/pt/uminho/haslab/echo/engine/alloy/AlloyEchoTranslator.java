@@ -36,6 +36,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * Manages the translation of Echo artifacts into Alloy.
+ * 
+ * @author nmm,tmg
+ * @version 0.4 20/02/2014
+ */
 class AlloyEchoTranslator extends EchoTranslator {
 
     public static AlloyEchoTranslator getInstance() {
@@ -168,14 +174,14 @@ class AlloyEchoTranslator extends EchoTranslator {
 
     @Override
     public void writeAllInstances(EchoSolution solution, String metamodelID, String modelURI) throws EchoError {
-        writeAllInstances(((AlloyTuple) solution.getContents()).getSolution(),metamodelID,modelURI,
-                ((AlloyTuple)solution.getContents()).getState(modelURI));
+        writeAllInstances(((AlloySolution) solution.getContents()).getSolution(),metamodelID,modelURI,
+                ((AlloySolution)solution.getContents()).getState(modelURI));
     }
 
     @Override
     public void writeInstance(EchoSolution solution, String modelID) throws EchoError {
-    	PrimSig statesig = ((AlloyTuple)solution.getContents()).getState(modelID);
-        writeInstance(((AlloyTuple) solution.getContents()).getSolution(), modelID, statesig);
+    	PrimSig statesig = ((AlloySolution)solution.getContents()).getState(modelID);
+        writeInstance(((AlloySolution) solution.getContents()).getSolution(), modelID, statesig);
     }
 
     @Override
@@ -197,7 +203,7 @@ class AlloyEchoTranslator extends EchoTranslator {
 				sc.put(sig, scopesmap.get(cla));
 			}
 		}
-		scopes = AlloyUtil.createScope(new HashMap<PrimSig,Integer>(),sc);
+		scopes = AlloyHelper.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
 	/**
@@ -237,7 +243,7 @@ class AlloyEchoTranslator extends EchoTranslator {
 				}
 			}
 		}
-		scopes = AlloyUtil.createScope(scopesmap, scopesexact);
+		scopes = AlloyHelper.createScope(scopesmap, scopesexact);
 //		EchoReporter.getInstance().debug("Init scope: "+scopes);
 //		EchoReporter.getInstance().debug("Increment: "+scopesincrement);
 	}	
@@ -425,7 +431,7 @@ class AlloyEchoTranslator extends EchoTranslator {
         }
 
         @Override public final Boolean visit(Sig.Field x) {
-        	String metamodeluri = AlloyUtil.getMetamodelIDfromExpr(x);
+        	String metamodeluri = EchoHelper.getMetamodelIDfromLabel(x.label);
         	EAlloyMetamodel e2a = metamodelalloys.get(metamodeluri);
         	if (e2a == null) return false;
         	EStructuralFeature sf = e2a.getSFeatureFromField(x);

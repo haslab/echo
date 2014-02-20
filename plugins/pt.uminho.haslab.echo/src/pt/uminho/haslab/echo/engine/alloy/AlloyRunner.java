@@ -19,8 +19,10 @@ import java.util.Map.Entry;
 import static com.google.common.primitives.Ints.max;
 
 /**
- * @author nmm
- *
+ * Runs MDE commands using Alloy as the underlying solver.
+ * 
+ * @author nmm,tmg
+ * @version 0.4 20/02/2014
  */
 class AlloyRunner implements EngineRunner {
 	
@@ -104,8 +106,8 @@ class AlloyRunner implements EngineRunner {
 			addInstanceSigs(modelID);
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
-			finalfact = finalfact.and(model.metamodel.getConforms(modelID).formula);
-			finalfact = finalfact.and(model.getModelConstraint().formula);
+			finalfact = finalfact.and(model.metamodel.getConforms(modelID).FORMULA);
+			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 		}
 
 		try {
@@ -126,7 +128,7 @@ class AlloyRunner implements EngineRunner {
 		for (String modelID : modelIDs) {
 			addInstanceSigs(modelID);
 			finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-					.getModel(modelID).getModelConstraint().formula);
+					.getModel(modelID).getModelConstraint().FORMULA);
 		}
 		try {
 			cmd = new Command(true, overall, intscope, -1, finalfact);
@@ -175,8 +177,8 @@ class AlloyRunner implements EngineRunner {
 					.cardinality();
 			edelta = metamodel.getDeltaRelFunc().call(original, target);
 			AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs);
-			finalfact = finalfact.and(model.metamodel.getConforms(modelID).formula);
-			finalfact = finalfact.and(model.getModelConstraint().formula);
+			finalfact = finalfact.and(model.metamodel.getConforms(modelID).FORMULA);
+			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 			AlloyEchoTranslator.getInstance().getModel(modelID).unsetTarget();
 			while (!sol.satisfiable()) {
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
@@ -219,7 +221,7 @@ class AlloyRunner implements EngineRunner {
 		scopes = AlloyEchoTranslator.getInstance().getScopes();
 		PrimSig state = metamodel.SIG;
 		try {
-			PrimSig target = new PrimSig(AlloyUtil.targetName(state), state,
+			PrimSig target = new PrimSig(EchoHelper.targetName(metamodelID), state,
 					Attr.ONE);
 			targetstates.put(targetURI, target);
 			allsigs.add(target);
@@ -263,10 +265,10 @@ class AlloyRunner implements EngineRunner {
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
 			EAlloyMetamodel metamodel = model.metamodel;
-			finalfact = finalfact.and(model.getModelConstraint().formula);
-			finalfact = finalfact.and(metamodel.getConforms(modelID).formula);
+			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
+			finalfact = finalfact.and(metamodel.getConforms(modelID).FORMULA);
 		}
-		finalfact = finalfact.and(trans.getConstraint(modelIDs).formula);
+		finalfact = finalfact.and(trans.getConstraint(modelIDs).FORMULA);
 		EchoReporter.getInstance().debug("Final fact: "+finalfact);
 
 		try {
@@ -308,7 +310,7 @@ class AlloyRunner implements EngineRunner {
 				EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 						modelID);
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-						.getModel(modelID).getModelConstraint().formula);
+						.getModel(modelID).getModelConstraint().FORMULA);
 				if (targetIDs.contains(modelID)) {
 					original = state;
 					PrimSig target = AlloyEchoTranslator.getInstance()
@@ -316,7 +318,7 @@ class AlloyRunner implements EngineRunner {
 					targetstates.put(modelID, target);
 					allsigs.add(target);
 					finalfact = finalfact.and(model.metamodel
-							.getConforms(modelID).formula);
+							.getConforms(modelID).FORMULA);
 					if (!EchoOptionsSetup.getInstance().isOperationBased()) {
 						EAlloyMetamodel metamodel = model.metamodel;
 						try {
@@ -344,7 +346,7 @@ class AlloyRunner implements EngineRunner {
 			AlloyFormula expr = AlloyEchoTranslator.getInstance()
 					.getQVTTransformation(transformationID)
 					.getConstraint(modelIDs);
-			finalfact = finalfact.and(expr.formula);
+			finalfact = finalfact.and(expr.FORMULA);
 			for (String targetID : targetIDs)
 				AlloyEchoTranslator.getInstance().getModel(targetID)
 						.unsetTarget();
@@ -394,7 +396,7 @@ class AlloyRunner implements EngineRunner {
 			if (!uri.equals(targetURI)) {
 				addInstanceSigs(uri);
 				finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-						.getModel(uri).getModelConstraint().formula);
+						.getModel(uri).getModelConstraint().FORMULA);
 			} else {
 				PrimSig target = AlloyEchoTranslator.getInstance()
 						.getModel(uri).setTarget();
@@ -407,7 +409,7 @@ class AlloyRunner implements EngineRunner {
 		}
 		AlloyFormula expr = AlloyEchoTranslator.getInstance()
 				.getQVTTransformation(transformationID).getConstraint(modelIDs);
-		finalfact = finalfact.and(expr.formula);
+		finalfact = finalfact.and(expr.FORMULA);
 		AlloyEchoTranslator.getInstance()
 				.getModel(targetURI).unsetTarget();
 
@@ -439,7 +441,7 @@ class AlloyRunner implements EngineRunner {
 	private void increment() throws ErrorAlloy {
 		Expr runfact = finalfact;
 		if (edelta.isSame(ExprConstant.makeNUMBER(0))) {
-			scopes = AlloyUtil.incrementStringScopes(scopes);
+			scopes = AlloyHelper.incrementStringScopes(scopes);
 			overall++;
 		} else {
 			try {
@@ -512,7 +514,7 @@ class AlloyRunner implements EngineRunner {
 		if (sol != null)
 			return new EchoSolution() {
 
-				AlloyTuple tuple = new AlloyTuple(sol, targetstates);
+				AlloySolution tuple = new AlloySolution(sol, targetstates);
 
 				@Override
 				public Object getContents() {

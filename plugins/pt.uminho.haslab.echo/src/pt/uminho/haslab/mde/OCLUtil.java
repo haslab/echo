@@ -26,7 +26,6 @@ import pt.uminho.haslab.mde.model.EVariable;
 
 public class OCLUtil {
 
-
 	// retrieves the list of variable occurrences of an OCL expression (very incomplete)
 	public static Map<EVariable,String> variablesOCLExpression (OCLExpression exp, String mdl) throws ErrorUnsupported, ErrorTransform {
 		final Map<EVariable,String> vars = new HashMap<EVariable,String>();

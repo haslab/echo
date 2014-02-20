@@ -39,7 +39,7 @@ public class EConstraintManager {
 		if (cs == null) cs = new ArrayList<EConstraint>();
 		for (EConstraint c : cs) {
 			boolean same = true;
-			for (int i = 0; i < models.size() && same; i ++)
+			for (int i = 0; i < models.size() && same; i++)
 				same = same && c.models.get(i).equals(models.get(i));
 			if (same) return c;
 		}
@@ -164,7 +164,7 @@ public class EConstraintManager {
 			StringBuilder s = new StringBuilder(transformation.getName());
 			s.append(": ");
 			s.append(models.get(0).toString());
-			for (int i = 1; i < models.size(); i ++) {
+			for (int i = 1; i < models.size(); i++) {
 				s.append(" <-> ");
 				s.append(models.get(i).toString());
 			}

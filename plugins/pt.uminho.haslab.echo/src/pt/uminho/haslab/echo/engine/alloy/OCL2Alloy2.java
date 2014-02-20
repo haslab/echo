@@ -362,7 +362,7 @@ public class OCL2Alloy2{
 				ErrorTransform, ErrorUnsupported {
 			Expr expr = Sig.NONE.no();
 			for (Object ex : lex) {
-				expr = AlloyUtil.cleanAnd(expr, oclExprToAlloy((EObject) ex));
+				expr = expr.and(oclExprToAlloy((EObject) ex));
 			}
 			return new AlloyFormula(expr);
 		}

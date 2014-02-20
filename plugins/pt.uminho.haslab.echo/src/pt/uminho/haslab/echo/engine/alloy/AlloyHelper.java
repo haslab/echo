@@ -1,26 +1,38 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorSyntax;
-import edu.mit.csail.sdg.alloy4compiler.ast.*;
+import edu.mit.csail.sdg.alloy4compiler.ast.CommandScope;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprLet;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprList;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.ocl.examples.pivot.Type;
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.mde.MDEManager;
-import pt.uminho.haslab.mde.model.EMetamodel;
-import pt.uminho.haslab.mde.model.EVariable;
-import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
+import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
-import java.util.*;
-
-class AlloyUtil {
+/**
+ * Alloy helper methods
+ * 
+ * @author nmm
+ * @version 0.4 20/02/2014
+ */
+class AlloyHelper {
 
 	/** the top state signature name */	
 	static String STRINGNAME = "String";
@@ -28,31 +40,13 @@ class AlloyUtil {
 
 	private static Map<String,Integer> counter = new HashMap<String,Integer>();
 
-	/** retrieves the meta-model URI from an Alloy signature 
-	 * @param sig the Alloy signature
-	 * @return the meta-model URI
-	 */
-	static String getMetamodelIDfromExpr(ExprHasName sig) {
-		return EchoHelper.getMetamodelIDfromLabel(sig.label);
-	}
-
 	static String elementName(PrimSig parent) {
 		Integer c = counter.get(parent.label);
 		if (c == null) {
 			c = 0;
 		}
-
 		counter.put(parent.label, ++c);
-
 		return parent.label +"#"+ c +"#";
-	}
-
-
-	// ignores first parameter if "no none" or "true"
-	static Expr cleanAnd (Expr e, Expr f) {
-		if (e.isSame(Sig.NONE.no()) || e.isSame(ExprConstant.TRUE)) return f;
-		else if (f.isSame(Sig.NONE.no()) || f.isSame(ExprConstant.TRUE)) return e;
-		else return e.and(f);
 	}
 
 	static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, Map<PrimSig,Integer> sizesexact) throws ErrorAlloy {
@@ -288,83 +282,4 @@ class AlloyUtil {
 		}
 
 	}
-
-
-	/** 
-	 * Converts a list of variable declarations to their representation in Alloy
-	 * If the variable has the owning model defined in <code>variable_models</code>, uses the appropriate model sig in the range
-	 * Otherwise uses the respective metamodel sig
-	 * @param vars the variables to convert
-	 * @param variable_models maps variables to their owning model
-	 * @param modelparam2var the Alloy variables representing each model parameter
-	 * @return the mapping between variable names and their Alloy declaration
-	 * @throws EchoError
-	 */
-//	static Map<String, Decl> variables2Decls(
-//			Collection<EVariable> vars,
-//			AlloyContext context) throws EchoError {
-//		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
-//		Map<String, Decl> varDecls = new LinkedHashMap<String, Decl>();
-//
-//		for (EVariable var : vars) {
-//			try {
-//				Expr range = Sig.NONE;
-//				EObject t = var.getType();
-//				String type = null;
-//				if (t instanceof Type)
-//					type = ((Type) t).getName();
-//				else {
-//					// for ATL
-//					type = (String) t.eGet(t.eClass().getEStructuralFeature(
-//							"name"));
-//				}
-//				if (type.equals("String"))
-//					range = Sig.STRING;
-//				else if (type.equals("Int"))
-//					range = Sig.SIGINT;
-//				else {
-//					String metamodelURI = null;
-//					if (t instanceof Type) {
-//						metamodelURI = EcoreUtil.getURI(((Type) t).getPackage()).path().replace(".oclas", "").replace("resource/", "");
-//					} else {
-//						// for ATL
-//						EObject aux = (EObject) t.eGet(t.eClass()
-//								.getEStructuralFeature("model"));
-//						metamodelURI = EATLTransformation.metamodeluris.get(aux
-//								.eGet(aux.eClass()
-//										.getEStructuralFeature("name")));
-//					}
-//					EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
-//					EClass eclass = (EClass) metamodel.getEObject().getEClassifier(type);
-//
-//					Expr state = null;
-//					// if already exists, try get the owning model
-//					if (context.getVar(var.getName()) != null) {
-//						String varModel = context.getVarModel(var.getName());
-//						state = context.getModelExpression(varModel).EXPR;
-//					}
-//
-//					// otherwise, get the metamodel sig
-//					if (state == null)
-//						state = translator.getMetamodel(metamodel.ID).SIG;
-//					
-//					// range is state field composed with state
-//					Expr statefield = translator.getStateFieldFromClass(
-//							metamodel.ID, eclass);
-//					range = statefield.join(state);
-//				}
-//				varDecls.put(var.getName(), range.oneOf(var.getName()));
-//
-//			} catch (Err a) {
-//				throw new ErrorAlloy(a.getMessage());
-//			}
-//		}
-//		return varDecls;
-//	}
-
-	static String targetName(PrimSig sig) {
-		return "'"+sig.label;
-	}
-
-
 }
