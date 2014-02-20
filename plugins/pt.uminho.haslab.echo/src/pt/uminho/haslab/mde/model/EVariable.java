@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
@@ -33,6 +35,7 @@ public class EVariable {
 	}
 
 	private String name;
+	private String metamodelURI;
 	private EObject type;
 
 	private EVariable(EObject var) {
@@ -40,9 +43,14 @@ public class EVariable {
 		if (var instanceof VariableDeclaration) {
 			this.type = ((VariableDeclaration) var).getType();
 			this.name = ((VariableDeclaration) var).getName();
+			this.metamodelURI = EcoreUtil.getURI(((Type) type).getPackage()).path().replace(".oclas", "").replace("resource/", "");
 		} 
 		// ATL variable
 		else{
+			EObject aux = (EObject) type.eGet(type.eClass()
+					.getEStructuralFeature("model"));
+			metamodelURI = EATLTransformation.metamodeluris.get(aux
+					.eGet(aux.eClass().getEStructuralFeature("name")));
 			EStructuralFeature type = var.eClass().getEStructuralFeature("type");
 			this.type = (EObject) var.eGet(type);
 			EStructuralFeature name = var.eClass().getEStructuralFeature("name");
@@ -50,30 +58,28 @@ public class EVariable {
 				name = var.eClass().getEStructuralFeature("varName");
 			this.name = (String) var.eGet(name);
 		}
+		EchoReporter.getInstance().debug("** Created var: "+name+"::"+metamodelURI);
 	}
 
 	public String getName() {
 		return name;
 	}
-	public EClass getType() throws ErrorParser, ErrorUnsupported {
+	
+	public String getMetamodel() {
+		return metamodelURI;
+	}
+	
+	public String getType() throws ErrorParser, ErrorUnsupported {
 		String stype = null;
-		String metamodelURI = null;
-		if (type instanceof Type) {
+	if (type instanceof Type) {
 			stype = ((Type) type).getName();
-			metamodelURI = EcoreUtil.getURI(((Type) type).getPackage()).path().replace(".oclas", "").replace("resource/", "");
+			
 		}
 		else {
 			// for ATL
 			stype = (String) type.eGet(type.eClass().getEStructuralFeature(
 					"name"));
-			EObject aux = (EObject) type.eGet(type.eClass()
-					.getEStructuralFeature("model"));
-			metamodelURI = EATLTransformation.metamodeluris.get(aux
-					.eGet(aux.eClass().getEStructuralFeature("name")));
 		}
-		
-		EMetamodel metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
-		return (EClass) metamodel.getEObject().getEClassifier(stype);
-
+		return stype;
 	}
 }

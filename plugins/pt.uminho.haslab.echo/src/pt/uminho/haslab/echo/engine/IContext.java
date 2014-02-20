@@ -59,12 +59,13 @@ public interface IContext {
     List<String> getVars();
 
     /**
-     * Retrieves de declaration of a variable.
+     * Retrieves the declaration of a variable.
      * @param var the variable
+     * @param addContext if the variable should be stored in the context
      * @return the matching declaration
      * @throws EchoError
      */
-    IDecl getDecl(EVariable var) throws EchoError;
+    IDecl getDecl(EVariable var, boolean addContext) throws EchoError;
 
     /**
      * Returns the expression representing a property call.

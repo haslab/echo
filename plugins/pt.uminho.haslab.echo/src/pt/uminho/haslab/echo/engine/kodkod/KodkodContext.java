@@ -9,7 +9,6 @@ import java.util.Map;
 import kodkod.ast.Expression;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
@@ -45,7 +44,7 @@ class KodkodContext implements ITContext {
     public KodkodContext(){}
 
     @Override
-    public IExpression getVar(String name) {
+    public KodkodExpression getVar(String name) {
         return varExp.get(name);
     }
 
@@ -71,25 +70,27 @@ class KodkodContext implements ITContext {
 
 	/** {@inheritDoc} */
     @Override
-    public IDecl getDecl(EVariable x) throws EchoError {
+    public KodkodDecl getDecl(EVariable var, boolean addContext) throws EchoError {
         Expression range;
-        EClass type = x.getType();
+        String type = var.getType();
     	
-        if (type.getName().equals("String"))
+        if (type.equals("String"))
             range = KodkodUtil.stringRel;
-        else if (type.getName().equals("Int"))
+        else if (type.equals("Int"))
             range = Expression.INTS;
         else {
-        	EMetamodel metamodel = MDEManager.getInstance().getMetamodel(EcoreUtil.getURI(type.getEPackage()).path(), false);
+        	EMetamodel metamodel = MDEManager.getInstance().getMetamodel(var.getMetamodel(), false);
         	KodkodEchoTranslator translator = KodkodEchoTranslator.getInstance();
             EKodkodMetamodel e2k = translator.getMetamodel(metamodel.ID);
-            range = e2k.getRelation(type);
+            range = e2k.getRelation((EClass) metamodel.getEObject().getEClassifier(type));
         }
-        return (new KodkodExpression(range)).oneOf(x.getName());
+        KodkodDecl d = (new KodkodExpression(range)).oneOf(var.getName());
+        if (addContext) addVar(d);
+        return d;
     }
 
     @Override
-    public IExpression getPropExpression(String metaModelID, String className, String fieldName) {
+    public KodkodExpression getPropExpression(String metaModelID, String className, String fieldName) {
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
 
         return new KodkodExpression(
@@ -98,10 +99,8 @@ class KodkodContext implements ITContext {
     }
 
     @Override
-    public IExpression getClassExpression(String metaModelID, String className) {
-
+    public KodkodExpression getClassExpression(String metaModelID, String className) {
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
-
         return new KodkodExpression(
                 e2k.getRelation((EClass) e2k.metamodel.getEObject().getEClassifier(className))
         );
@@ -145,10 +144,10 @@ class KodkodContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public List<IExpression> getModelExpressions() {
+	public List<KodkodExpression> getModelExpressions() {
 		Collection<KodkodExpression> res = currentPre?modelPreT.values():modelPosT.values();
 		if (res == null) res = currentPre?modelPre.values():modelPos.values();
-		return new ArrayList<IExpression>(res);
+		return new ArrayList<KodkodExpression>(res);
 	}
 
 	/** {@inheritDoc} */
@@ -171,7 +170,7 @@ class KodkodContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public EEngineRelation getCallerRel() {
+	public EKodkodRelation getCallerRel() {
 		return currentRel;
 	}
 

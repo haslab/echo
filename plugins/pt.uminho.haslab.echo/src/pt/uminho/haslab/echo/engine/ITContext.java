@@ -33,7 +33,7 @@ public interface ITContext extends IContext {
 	 * Otherwise, will return the meta-model sets.
 	 * @return the model expressions involved in the context
 	 */
-	public List<IExpression> getModelExpressions();
+	public List<? extends IExpression> getModelExpressions();
 
 	/**
 	 * The relation that called the current transformation.

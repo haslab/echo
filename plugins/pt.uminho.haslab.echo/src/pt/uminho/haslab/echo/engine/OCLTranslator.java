@@ -278,7 +278,7 @@ public class OCLTranslator {
 					+ varIterator);
 		EVariable x = EVariable.getVariable(varIterator.get(0));
 
-		IDecl d = context.getDecl(x);
+		IDecl d = context.getDecl(x, true);
 
 		IExpression src = translateExpression(expr.getSource());
 
@@ -536,7 +536,7 @@ public class OCLTranslator {
 			if (it.getIterator().size() > 1)
 				throw new ErrorUnsupported("Unsupported number of variables.");
 			
-			IDecl d = context.getDecl(EVariable.getVariable(it.getIterator().get(0)));
+			IDecl d = context.getDecl(EVariable.getVariable(it.getIterator().get(0)), true);
 			IExpression bdy = translateExpression(it.getBody());
 			IDecl dd = bdy.oneOf("2_");
 			exp = Constants.TRUE().comprehension(d, dd);

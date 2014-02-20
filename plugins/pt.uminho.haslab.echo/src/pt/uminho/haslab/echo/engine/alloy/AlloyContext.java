@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
@@ -77,9 +76,9 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public IDecl getDecl(EVariable var) throws EchoError {
+	public AlloyDecl getDecl(EVariable var, boolean addContext) throws EchoError {
 		// gets the type of the variable
-		EClass type = var.getType();
+		String type = var.getType();
 	
 		try {
 			// calculates the expression representing the type in the state
@@ -89,7 +88,7 @@ public class AlloyContext implements ITContext {
 			else if (type.equals("Int"))
 				range = Sig.SIGINT;
 			else {
-				EMetamodel metamodel = MDEManager.getInstance().getMetamodel(EcoreUtil.getURI(type.getEPackage()).path(), false);
+				EMetamodel metamodel = MDEManager.getInstance().getMetamodel(var.getMetamodel(), false);
 				// if owning model was set, retrieve it
 				if (getVarModel(var.getName()) != null) {
 					// TODO if already exists should be used to create class expression
@@ -97,13 +96,13 @@ public class AlloyContext implements ITContext {
 //					String varModel = getVarModel(var.getName());
 //					state = getModelExpression(varModel).EXPR;
 				}
-				range = getClassExpression(metamodel.ID, type.getName()).EXPR;
+				range = getClassExpression(metamodel.ID, type).EXPR;
 			}
 			
 			EchoReporter.getInstance().debug("Created "+var.getName()+"::"+range);
 			
 			AlloyDecl d = new AlloyDecl(range.oneOf(var.getName()));
-			addVar(d);
+			if (addContext) addVar(d);
 			return d;
 
 		} catch (Err a) {
@@ -203,10 +202,10 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public List<IExpression> getModelExpressions() {
+	public List<AlloyExpression> getModelExpressions() {
 		Collection<AlloyExpression> res = currentPre?modelPreT.values():modelPosT.values();
 		if (res == null) res = currentPre?modelPre.values():modelPos.values();
-		return new ArrayList<IExpression>(res);
+		return new ArrayList<AlloyExpression>(res);
 	}
 
 	public void setCurrentRel(EEngineRelation parentRelation) {

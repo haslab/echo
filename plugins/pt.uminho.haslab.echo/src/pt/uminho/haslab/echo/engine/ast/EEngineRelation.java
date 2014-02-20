@@ -198,6 +198,7 @@ public abstract class EEngineRelation {
 		sourceVar2engineDecl = createVarDecls(sourceVar2model,true);
 		targetVar2engineDecl = createVarDecls(targetVar2model,true);
 	  	whenVar2engineDecl = createVarDecls(preVar2model,true);
+	  	// if non-top, root variables can't be added to the context
 	  	rootVar2engineDecl = createVarDecls(rootvariables,!top);
 	
 	}
@@ -289,15 +290,14 @@ public abstract class EEngineRelation {
 	protected Map<String, IDecl> createVarDecls(
 			Map<EVariable, String> var2model, boolean addContext)
 			throws EchoError {
-		// if (addContext)
-		for (EVariable s : var2model.keySet())
-			context.setVarModel(s.getName(), var2model.get(s));
+		if (addContext)
+			for (EVariable s : var2model.keySet())
+				context.setVarModel(s.getName(), var2model.get(s));
 
 		Map<String, IDecl> ivars = new HashMap<>();
 		for (EVariable var : var2model.keySet())
-			ivars.put(var.getName(), context.getDecl(var));
+			ivars.put(var.getName(), context.getDecl(var, addContext));
 
-		// if (addContext) context.addVar(d);
 		return ivars;
 	}
 
@@ -335,16 +335,16 @@ public abstract class EEngineRelation {
 		transformation.addTopRelationConstraint(this);
 	}
 	
-	
 	/** 
 	 * Adds to the parent transformation the field representing this non-top call.
 	 * @param rootExps 
 	 * @throws EchoError
 	 */
 	private IExpression addRelationField() throws EchoError {
-		if (relation.getDomains().size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
+		if (relation.getDomains().size() > 2)
+			throw new ErrorUnsupported(
+					"Calls between more than 2 models not yet supported.");
 		List<IDecl> rootVars = new ArrayList<IDecl>();
-		rootVar2engineDecl.get(relation.getDomains().get(0).getRootVariable().getName());
 		for (EModelDomain d : relation.getDomains())
 			rootVars.add(rootVar2engineDecl.get(d.getRootVariable().getName()));
 		IExpression field = addNonTopRel(rootVars);
