@@ -1,25 +1,16 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
-
+import edu.mit.csail.sdg.alloy4graph.DotColor;
+import edu.mit.csail.sdg.alloy4graph.DotShape;
+import edu.mit.csail.sdg.alloy4viz.*;
+import org.eclipse.emf.ecore.*;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
-import edu.mit.csail.sdg.alloy4graph.DotColor;
-import edu.mit.csail.sdg.alloy4graph.DotShape;
-import edu.mit.csail.sdg.alloy4viz.AlloyModel;
-import edu.mit.csail.sdg.alloy4viz.AlloyRelation;
-import edu.mit.csail.sdg.alloy4viz.AlloySet;
-import edu.mit.csail.sdg.alloy4viz.AlloyType;
-import edu.mit.csail.sdg.alloy4viz.VizState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GraphPainter {
 

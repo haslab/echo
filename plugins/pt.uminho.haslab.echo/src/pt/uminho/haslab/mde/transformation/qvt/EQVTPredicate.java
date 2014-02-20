@@ -1,13 +1,7 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
@@ -15,6 +9,11 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.OCLUtil;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An embedding of a predicate of an EMF QVT-R transformations in Echo.

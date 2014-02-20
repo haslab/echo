@@ -2,7 +2,6 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 
 import kodkod.ast.Formula;
-import kodkod.ast.Formula;
 import kodkod.engine.Solution;
 import kodkod.engine.Solver;
 import kodkod.engine.satlab.SATFactory;

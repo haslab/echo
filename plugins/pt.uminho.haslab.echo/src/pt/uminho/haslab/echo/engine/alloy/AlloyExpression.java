@@ -3,9 +3,12 @@ package pt.uminho.haslab.echo.engine.alloy;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.engine.ast.*;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.engine.ast.IDecl;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 
 /**
  * Created by tmg on 2/4/14.

@@ -1,28 +1,14 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import kodkod.ast.Relation;
-
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EEnumLiteral;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import org.eclipse.emf.ecore.*;
+import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.engine.ast.EEngineModel;
 import pt.uminho.haslab.echo.util.Pair;
 import pt.uminho.haslab.mde.model.EModel;
+
+import java.util.*;
 
 class EKodkodModel implements EEngineModel {
 

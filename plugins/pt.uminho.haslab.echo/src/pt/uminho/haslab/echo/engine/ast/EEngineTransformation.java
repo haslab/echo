@@ -1,16 +1,16 @@
 package pt.uminho.haslab.echo.engine.ast;
 
-import java.util.List;
-import java.util.Map;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * An embedding of a model transformation in an abstract Echo engine.

@@ -88,7 +88,7 @@ public class EKodkodTransformation extends EEngineTransformation {
 			subRelationDefs = new HashMap<>();
 
 		subRelationDefs.put(EchoHelper.relationFieldName(relation.relation,
-				relation.dependency.target), ((KodkodFormula) e).FORMULA);
+				relation.dependency.target), ((KodkodFormula) e).formula);
 	}
 
 	/** {@inheritDoc} */
@@ -113,7 +113,7 @@ public class EKodkodTransformation extends EEngineTransformation {
 
 		topRelationConstraints.put(EchoHelper.relationPredName(
 				relation.relation, relation.dependency.target),
-				((KodkodFormula) relation.constraint).FORMULA);
+				((KodkodFormula) relation.constraint).formula);
 	}
 
 	/** {@inheritDoc} */

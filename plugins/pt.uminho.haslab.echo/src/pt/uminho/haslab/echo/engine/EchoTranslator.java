@@ -2,12 +2,7 @@ package pt.uminho.haslab.echo.engine;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
-import pt.uminho.haslab.echo.engine.ast.EEngineModel;
-import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
-import pt.uminho.haslab.echo.engine.ast.IExpression;
-import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.echo.engine.ast.IIntExpression;
+import pt.uminho.haslab.echo.engine.ast.*;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.ETransformation;

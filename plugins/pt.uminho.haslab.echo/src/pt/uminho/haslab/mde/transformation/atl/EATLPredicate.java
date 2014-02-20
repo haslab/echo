@@ -1,12 +1,6 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.emf.ecore.EObject;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -16,6 +10,11 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.OCLUtil;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An embedding of a predicate of an EMF ATL transformations in Echo.

@@ -2,7 +2,8 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Expression;
 import kodkod.ast.Variable;
-import pt.uminho.haslab.echo.engine.ast.*;
+import pt.uminho.haslab.echo.engine.ast.Constants;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
 
 /**
  * Created by tmg on 2/4/14.
