@@ -12,11 +12,9 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class AlloyOptimizations {
+class AlloyOptimizations {
 
-	public AlloyOptimizations () {}
-	
-	public Expr trading(Expr expr) throws ErrorUnsupported {
+	Expr trading(Expr expr) throws ErrorUnsupported {
 		TradeQnt trader = new TradeQnt();
 		Expr res = null;
 		try {
@@ -26,7 +24,7 @@ public class AlloyOptimizations {
 		return res;
 	}
 	
-	public Expr onePoint(Expr expr) throws ErrorUnsupported {
+	Expr onePoint(Expr expr) throws ErrorUnsupported {
 		
 		OnePointQnt onpointer = new OnePointQnt();
 		Expr res = null;

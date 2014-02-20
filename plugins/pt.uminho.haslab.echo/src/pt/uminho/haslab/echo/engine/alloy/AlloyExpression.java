@@ -1,9 +1,8 @@
-package pt.uminho.haslab.echo.engine.ast.alloy;
+package pt.uminho.haslab.echo.engine.alloy;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.ast.*;
@@ -11,11 +10,11 @@ import pt.uminho.haslab.echo.engine.ast.*;
 /**
  * Created by tmg on 2/4/14.
  */
-public class AlloyExpression implements IExpression{
+class AlloyExpression implements IExpression{
 
-    public final Expr EXPR;
+    final Expr EXPR;
 
-    public AlloyExpression(Expr expression){
+    AlloyExpression(Expr expression){
         EXPR = expression;
     }
 

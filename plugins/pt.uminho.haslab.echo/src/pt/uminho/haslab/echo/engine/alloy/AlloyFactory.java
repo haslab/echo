@@ -13,7 +13,6 @@ import pt.uminho.haslab.echo.engine.TransformFactory;
  */
 public class AlloyFactory implements TransformFactory {
 
-
     @Override
     public EngineRunner createRunner() {
         return  new AlloyRunner();

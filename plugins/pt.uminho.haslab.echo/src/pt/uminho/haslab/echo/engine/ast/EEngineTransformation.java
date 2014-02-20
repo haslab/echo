@@ -111,7 +111,7 @@ public abstract class EEngineTransformation {
 	 *            the expression that denotes the call
 	 * @throws ErrorInternalEngine
 	 */
-	public abstract void addSubRelationField(EEngineRelation rel,
+	protected abstract void addSubRelationField(EEngineRelation rel,
 			IExpression field) throws ErrorInternalEngine;
 
 	/**

@@ -11,75 +11,75 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
  */
 class KodkodFormula implements IFormula {
 
-    public final Formula FORMULA;
+    public final Formula formula;
     public KodkodFormula(Formula f){
-        this.FORMULA = f;
+        this.formula = f;
     }
 
     @Override
-    public IFormula and(IFormula f) {
-        return new KodkodFormula(FORMULA.and(((KodkodFormula) f).FORMULA));
+    
+    public KodkodFormula and(IFormula f) {
+        return new KodkodFormula(formula.and(((KodkodFormula) f).formula));
     }
 
     @Override
-    public IFormula or(IFormula f) {
-        return new KodkodFormula(FORMULA.or(((KodkodFormula) f).FORMULA));
+    public KodkodFormula or(IFormula f) {
+        return new KodkodFormula(formula.or(((KodkodFormula) f).formula));
     }
 
     @Override
-    public IFormula iff(IFormula f) {
-        return new KodkodFormula(FORMULA.iff(((KodkodFormula) f).FORMULA));
+    public KodkodFormula iff(IFormula f) {
+        return new KodkodFormula(formula.iff(((KodkodFormula) f).formula));
     }
 
     @Override
-    public IFormula implies(IFormula f) {
-        return new KodkodFormula(FORMULA.implies(((KodkodFormula) f).FORMULA));
+    public KodkodFormula implies(IFormula f) {
+        return new KodkodFormula(formula.implies(((KodkodFormula) f).formula));
     }
 
     @Override
-    public IFormula not() {
-        return new KodkodFormula(FORMULA.not());
+    public KodkodFormula not() {
+        return new KodkodFormula(formula.not());
     }
 
     @Override
-    public IExpression thenElse(IExpression thenExpr, IExpression elseExpr) {
+    public KodkodExpression thenElse(IExpression thenExpr, IExpression elseExpr) {
 
-        return new KodkodExpression(FORMULA.thenElse(
+        return new KodkodExpression(formula.thenElse(
                 ((KodkodExpression) thenExpr).EXPR,((KodkodExpression) elseExpr).EXPR));
     }
 
     //TODO check
     @Override
-    public IExpression comprehension(IDecl firstDecl, IDecl... extraDecls) {
+    public KodkodExpression comprehension(IDecl firstDecl, IDecl... extraDecls) {
         Decls ds = ((KodkodDecl) firstDecl).decl;
         for(IDecl d : extraDecls)
             ds = ds.and(((KodkodDecl) d).decl);
 
-        return new KodkodExpression(FORMULA.comprehension(ds));
+        return new KodkodExpression(formula.comprehension(ds));
     }
 
     @Override
-    public IFormula forAll(IDecl decl, IDecl... extraDecls) {
+    public KodkodFormula forAll(IDecl decl, IDecl... extraDecls) {
         Decls ds = ((KodkodDecl) decl).decl;
         for(IDecl d : extraDecls)
             ds = ds.and(((KodkodDecl) d).decl);
 
-        return new KodkodFormula(FORMULA.forAll(ds));
+        return new KodkodFormula(formula.forAll(ds));
     }
 
     @Override
-    public IFormula forSome(IDecl decl, IDecl... extraDecls) {
+    public KodkodFormula forSome(IDecl decl, IDecl... extraDecls) {
         Decls ds = ((KodkodDecl) decl).decl;
         for(IDecl d : extraDecls)
             ds = ds.and(((KodkodDecl) d).decl);
 
-        return new KodkodFormula(FORMULA.forSome(ds));
+        return new KodkodFormula(formula.forSome(ds));
     }
 
 
     @Override
-    public IFormula forOne(IDecl d) {
-
+    public KodkodFormula forOne(IDecl d) {
         return comprehension(d).one();
     }
 

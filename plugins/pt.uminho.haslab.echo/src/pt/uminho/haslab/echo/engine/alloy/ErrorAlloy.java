@@ -4,9 +4,8 @@ import edu.mit.csail.sdg.alloy4.Err;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 
-public class ErrorAlloy extends  ErrorInternalEngine {
+public class ErrorAlloy extends ErrorInternalEngine {
 	private static final long serialVersionUID = 1L;
-
 	
 	public ErrorAlloy(String msg) { super(msg); }
 	public ErrorAlloy(String code, String msg, Err err, Task task) { 

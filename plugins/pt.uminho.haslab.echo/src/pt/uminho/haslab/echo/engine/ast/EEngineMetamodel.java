@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EReference;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.model.EMetamodel;
@@ -99,5 +100,7 @@ public abstract class EEngineMetamodel {
 		}
 		return new ArrayList<EClass>(candidates.values());
 	}
+	
+	protected abstract IFormula getConforms(String modelID) throws ErrorInternalEngine;
 	
 }

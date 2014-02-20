@@ -16,9 +16,7 @@ import java.util.Set;
  */
 class SATBinder extends AbstractBinder implements Binder {
 
-
-
-    SATBinder(EKodkodModel x2k)
+	SATBinder(EKodkodModel x2k)
     {
         Set<Object> uni = numberCollection();
         uni.addAll(x2k.getUniverse());

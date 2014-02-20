@@ -2,7 +2,12 @@ package pt.uminho.haslab.echo.engine;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
-import pt.uminho.haslab.echo.engine.ast.*;
+import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
+import pt.uminho.haslab.echo.engine.ast.EEngineModel;
+import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -17,20 +22,12 @@ public abstract class EchoTranslator {
 
     private static EchoTranslator instance;
 
-    private static TransformFactory factory;
-
     public static EchoTranslator getInstance() {
         return instance;
     }
 
-    public static TransformFactory getFactory() {
-        return factory;
-    }
-
-    public static void init(TransformFactory transformFactory){
-        instance = transformFactory.createTranslator();
-        factory = transformFactory;
-
+    public static void init(TransformFactory factory){
+        instance = factory.createTranslator();
     }
 	
     public abstract void translateModel(EModel model) throws EchoError;
@@ -65,5 +62,9 @@ public abstract class EchoTranslator {
 
 	public abstract EEngineModel getModel(String modelID);
 
+	public abstract EEngineTransformation getQVTTransformation(String qvtID);
+
 	public abstract IExpression getEmptyExpression();
+
+	public abstract ITContext newContext();
 }

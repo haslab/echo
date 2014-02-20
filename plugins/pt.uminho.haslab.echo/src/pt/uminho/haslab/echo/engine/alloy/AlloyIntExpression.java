@@ -1,4 +1,4 @@
-package pt.uminho.haslab.echo.engine.ast.alloy;
+package pt.uminho.haslab.echo.engine.alloy;
 
 
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -8,15 +8,14 @@ import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 /**
  * Created by tmg on 2/10/14.
  */
-public class AlloyIntExpression extends AlloyExpression implements IIntExpression {
+class AlloyIntExpression extends AlloyExpression implements IIntExpression {
 
-    public final Expr expr;
+    final Expr expr;
 
-    public AlloyIntExpression(Expr expr) {
+    AlloyIntExpression(Expr expr) {
     	super (expr);
         this.expr = expr;
     }
-
 
     @Override
     public IFormula lt(IIntExpression intExpression) {

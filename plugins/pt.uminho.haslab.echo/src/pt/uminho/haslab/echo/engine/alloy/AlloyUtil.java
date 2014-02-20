@@ -15,7 +15,6 @@ import org.eclipse.ocl.examples.pivot.Type;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.echo.engine.ast.alloy.AlloyExpression;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -41,11 +40,11 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
-public class AlloyUtil {
+class AlloyUtil {
 
 	/** the top state signature name */	
-	public static String STRINGNAME = "String";
-	public static String INTNAME = "Int";
+	static String STRINGNAME = "String";
+	static String INTNAME = "Int";
 
 	private static Map<String,Integer> counter = new HashMap<String,Integer>();
 
@@ -53,11 +52,11 @@ public class AlloyUtil {
 	 * @param sig the Alloy signature
 	 * @return the meta-model URI
 	 */
-	public static String getMetamodelIDfromExpr(ExprHasName sig) {
+	static String getMetamodelIDfromExpr(ExprHasName sig) {
 		return EchoHelper.getMetamodelIDfromLabel(sig.label);
 	}
 
-	public static String elementName(PrimSig parent) {
+	static String elementName(PrimSig parent) {
 		Integer c = counter.get(parent.label);
 		if (c == null) {
 			c = 0;
@@ -70,13 +69,13 @@ public class AlloyUtil {
 
 
 	// ignores first parameter if "no none" or "true"
-	public static Expr cleanAnd (Expr e, Expr f) {
+	static Expr cleanAnd (Expr e, Expr f) {
 		if (e.isSame(Sig.NONE.no()) || e.isSame(ExprConstant.TRUE)) return f;
 		else if (f.isSame(Sig.NONE.no()) || f.isSame(ExprConstant.TRUE)) return e;
 		else return e.and(f);
 	}
 
-	public static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, Map<PrimSig,Integer> sizesexact) throws ErrorAlloy {
+	static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, Map<PrimSig,Integer> sizesexact) throws ErrorAlloy {
 		List<CommandScope> scopes = new ArrayList<CommandScope>();
 
 		for (PrimSig sig : sizes.keySet()) 
@@ -89,8 +88,7 @@ public class AlloyUtil {
 		return ConstList.make(scopes);
 	}
 
-
-	public static ConstList<CommandScope> incrementStringScopes (List<CommandScope> scopes) throws ErrorAlloy {
+	static ConstList<CommandScope> incrementStringScopes (List<CommandScope> scopes) throws ErrorAlloy {
 		List<CommandScope> list = new ArrayList<CommandScope>();
 
 		for (CommandScope scope : scopes)
@@ -102,7 +100,7 @@ public class AlloyUtil {
 		return ConstList.make(list);
 	}
 
-	public static List<Decl> ordDecls (List<Decl> decls){
+	static List<Decl> ordDecls (List<Decl> decls){
 		List<Decl> res = new ArrayList<Decl>();
 		int last = decls.size()+1;
 		while (last > decls.size() && decls.size() != 1) {
@@ -130,19 +128,20 @@ public class AlloyUtil {
 
 		return res;
 	}
+	
 	/**
 	 * returns true is able to determine true;
 	 * false otherwise
 	 * @param exp
 	 * @return
 	 */
-	public static boolean isTrue (Expr exp) {
+	static boolean isTrue (Expr exp) {
 		if (exp.isSame(Sig.NONE.no())) return true;
 		if (exp.isSame(ExprConstant.TRUE)) return true;
 		return false;
 	}
 
-	public static Expr replace(Expr in, Expr find, Expr replace) throws Err {
+	static Expr replace(Expr in, Expr find, Expr replace) throws Err {
 		Replacer replacer = new Replacer(find, replace);
 		return replacer.visitThis(in);
 	}
@@ -236,7 +235,7 @@ public class AlloyUtil {
 
 	}
 
-	public static List<ExprVar> getVars(Expr in) throws ErrorUnsupported {
+	static List<ExprVar> getVars(Expr in) throws ErrorUnsupported {
 		VarGetter getter = new VarGetter();
 		List<ExprVar> res;
 		try {
@@ -321,7 +320,7 @@ public class AlloyUtil {
 	 * @return the mapping between variable names and their Alloy declaration
 	 * @throws EchoError
 	 */
-	public static Map<String, Decl> variableListToExpr(
+	static Map<String, Decl> variableListToExpr(
 			Collection<EVariable> vars,
 			AlloyContext context) throws EchoError {
 		AlloyEchoTranslator translator = AlloyEchoTranslator.getInstance();
@@ -364,8 +363,7 @@ public class AlloyUtil {
 						state = translator.getMetamodel(metamodel.ID).sig_metamodel;
 					}
 					
-					EClass eclass = (EClass) translator.getEClassifierFromName(
-							metamodel.ID, type);
+					EClass eclass = (EClass) metamodel.getEObject().getEClassifier(type);
 					Expr statefield = translator.getStateFieldFromClass(
 							metamodel.ID, eclass);
 					range = statefield.join(state);
@@ -380,7 +378,7 @@ public class AlloyUtil {
 		return alloy_variable_decls;
 	}
 
-	public static String targetName(PrimSig sig) {
+	static String targetName(PrimSig sig) {
 		return "'"+sig.label;
 	}
 

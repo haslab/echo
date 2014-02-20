@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.engine.kodkod;
 import kodkod.ast.Formula;
 import kodkod.ast.Relation;
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
@@ -75,6 +76,7 @@ public class EKodkodTransformation extends EEngineTransformation {
 	/** {@inheritDoc} */
 	@Override
 	protected KodkodFormula getConstraint(List<String> modelIDs) {
+		// TODO ignoring model IDs!
 		return new KodkodFormula(form);
 	}
 
@@ -106,6 +108,8 @@ public class EKodkodTransformation extends EEngineTransformation {
 	protected void addTopRelationConstraint(EEngineRelation relation) {
 		if (topRelationConstraints == null)
 			topRelationConstraints = new HashMap<>();
+
+		EchoReporter.getInstance().debug("Rel fact: "+((KodkodFormula) relation.constraint).formula);
 
 		topRelationConstraints.put(EchoHelper.relationPredName(
 				relation.relation, relation.dependency.target),

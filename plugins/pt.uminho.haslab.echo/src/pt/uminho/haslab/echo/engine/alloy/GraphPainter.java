@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -26,7 +27,6 @@ public class GraphPainter {
 	public GraphPainter (VizState vizstate) {
 		this.vizstate = vizstate;
 	}
-	
 	
 	/**
 	 * Generates the Alloy theme for a Viz instance
@@ -74,7 +74,7 @@ public class GraphPainter {
 					if (metamodel != null) {
 						String classname = EchoHelper.getClassifierName(label);
 						
-						EClassifier eclass = (EClassifier) AlloyEchoTranslator.getInstance().getEClassifierFromName(metamodel.ID, classname);					
+						EClassifier eclass = metamodel.getEObject().getEClassifier(classname);					
 						if (classname != null && AlloyEchoTranslator.getInstance().getSigFromClass(metamodelID, eclass) != null) {
 							vizstate.label.put(atype, classname);
 							vizstate.nodeColor.put(atype, DotColor.GRAY);
@@ -122,15 +122,18 @@ public class GraphPainter {
 		for (AlloyRelation t : vizstate.getCurrentModel().getRelations()){
 			String label = vizstate.label.get(t);
 			if (EchoHelper.mayBeFeature(label)) {
-				String metamodeluri = EchoHelper.getMetamodelIDfromLabel(label);
+				String metamodelID = EchoHelper.getMetamodelIDfromLabel(label);
 				String ref = EchoHelper.getFeatureName(label);
 				AlloyType sig = t.getTypes().get(0);
 				String cla = EchoHelper.getClassifierName(sig.getName());
-				EStructuralFeature sf = AlloyEchoTranslator.getInstance().getESFeatureFromName(metamodeluri,cla,ref);
+				EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(
+						metamodelID);
+				EStructuralFeature sf = ((EClass) metamodel.getEObject()
+						.getEClassifier(cla)).getEStructuralFeature(ref);
 				if (sf != null) {
 					if (sf instanceof EAttribute) {
 						vizstate.edgeVisible.put(t, false);
-						vizstate.attribute.put(t, true);
+				vizstate.attribute.put(t, true);
 					} else if (sf instanceof EReference) {
 						vizstate.edgeVisible.put(t, true);
 						vizstate.attribute.put(t, false);
