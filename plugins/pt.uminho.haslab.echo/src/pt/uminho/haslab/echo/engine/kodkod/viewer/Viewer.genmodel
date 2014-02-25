@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/pt.uminho.haslab.echo/src" modelPluginID="pt.uminho.haslab.echo"
+    modelName="VizInstance" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0" copyrightFields="false"
+    operationReflection="true" importOrganizing="true">
+  <foreignModel>Viewer.ecore</foreignModel>
+  <genPackages prefix="Viewer" disposableProviderFactory="true" ecorePackage="Viewer.ecore#/">
+    <genClasses ecoreClass="Viewer.ecore#//Sig">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/parentID"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/label"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Sig/atom"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/builtin"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/ID"/>
+    </genClasses>
+    <genClasses ecoreClass="Viewer.ecore#//Field">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Field/ID"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Field/parentID"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Field/label"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Field/tuple"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Field/types"/>
+    </genClasses>
+    <genClasses ecoreClass="Viewer.ecore#//Instance">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Instance/bitwidth"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Instance/maxseq"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Instance/command"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Instance/filename"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Instance/sig"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Instance/field"/>
+    </genClasses>
+    <genClasses ecoreClass="Viewer.ecore#//Atom">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Atom/label"/>
+    </genClasses>
+    <genClasses ecoreClass="Viewer.ecore#//AlloyTuple">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//AlloyTuple/atom"/>
+    </genClasses>
+    <genClasses ecoreClass="Viewer.ecore#//alloy">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//alloy/builddate"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//alloy/instance"/>
+    </genClasses>
+    <genClasses ecoreClass="Viewer.ecore#//Types">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Types/type"/>
+    </genClasses>
+    <genClasses ecoreClass="Viewer.ecore#//Type">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Type/ID"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

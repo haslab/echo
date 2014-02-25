@@ -1,10 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Echo
+Bundle-Name: %pluginName
 Bundle-SymbolicName: pt.uminho.haslab.echo;singleton:=true
 Bundle-Version: 0.3.1.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.eclipse.emf.ecore,
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.ecore,
  org.eclipse.qvtd.pivot.qvtrelation;bundle-version="0.11.0",
  org.eclipse.xtext,
  org.eclipse.ocl.examples.xtext.base,
@@ -14,24 +15,22 @@ Require-Bundle: org.eclipse.emf.ecore,
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: src/,
  lib/sat4j-maxsat.jar,
- lib/kodkod.jar,  
- lib/alloy4.2.jar 
-Export-Package: edu.mit.csail.sdg.alloy4viz;
-  uses:="new edu.mit.csail.sdg.alloy4viz,
-   edu.mit.csail.sdg.alloy4,
-   edu.mit.csail.sdg.alloy4graph,
-   javax.swing,
-   edu.mit.csail.sdg.alloy4compiler.translator,
-   javax.swing.event",
- pt.uminho.haslab.echo;
-  uses:="org.eclipse.emf.ecore,
-   pt.uminho.haslab.echo.transform,
-   edu.mit.csail.sdg.alloy4viz,
-   org.eclipse.qvtd.pivot.qvtrelation",
+ lib/kodkod.jar,
+ lib/alloy4.2.jar
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Export-Package: edu.mit.csail.sdg.alloy4viz;uses:="new edu.mit.csail.sdg.alloy4viz,  edu.mit.csail.sdg.alloy4,  edu.mit.csail.sdg.alloy4graph,  javax.swing,  edu.mit.csail.sdg.alloy4compiler.translator,  javax.swing.event",
+ pt.uminho.haslab.echo;uses:="org.eclipse.emf.ecore,  pt.uminho.haslab.echo.transform,  edu.mit.csail.sdg.alloy4viz,  org.eclipse.qvtd.pivot.qvtrelation",
  pt.uminho.haslab.echo.engine,
  pt.uminho.haslab.echo.engine.ast,
  pt.uminho.haslab.mde,
  pt.uminho.haslab.mde.model,
  pt.uminho.haslab.mde.transformation,
  pt.uminho.haslab.mde.transformation.atl,
- pt.uminho.haslab.mde.transformation.qvt
+ pt.uminho.haslab.mde.transformation.qvt,
+ pt.uminho.haslab.echo.engine.kodkod.viewer,
+ pt.uminho.haslab.echo.engine.kodkod.viewer.impl,
+ pt.uminho.haslab.echo.engine.kodkod.viewer.util,
+ viewer,
+ viewer.impl,
+ viewer.util
