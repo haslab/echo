@@ -15,7 +15,6 @@ public class EchoHelper {
 	public static String NEWSNAME = "news@";
 	public static String STATESIGNAME = "State@";
 
-
 	public static String relationFieldName (ERelation rel, EModelDomain dir) {
 		try {
 			EModelParameter model = dir.getModel();
@@ -24,7 +23,6 @@ public class EchoHelper {
 			return "Err";
 		}
 	}
-
 
 	public static String getMetamodelIDfromLabel(String label) {
 		return label.split("@")[0];
@@ -61,8 +59,6 @@ public class EchoHelper {
 		return aux[aux.length-1];
 	}
 
-
-
 	public static boolean mayBeClass(String label) {
 		return label.split("@").length == 2;
 	}
@@ -79,11 +75,9 @@ public class EchoHelper {
 		return mayBeClass(label) && label.split("#").length == 2 && label.endsWith("#");
 	}
 
-
 	public static boolean isStateField(String label) {
 		return mayBeClass(label) && label.endsWith("@");
 	}
-
 
 	public static String classifierKey (EMetamodel pck, EClassifier ec) {
 		return (pck.ID + "@" + ec.getName());
@@ -110,5 +104,12 @@ public class EchoHelper {
 			return "Err";
 		}		
 	}
+	
+	public static String makeID(String prefix, Object obj) {
+		return prefix + obj.hashCode();
+	}
 
+	public static String targetName(String model) {
+		return "'"+model;
+	}
 }

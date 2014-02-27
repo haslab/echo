@@ -2,8 +2,6 @@ package pt.uminho.haslab.echo.engine.ast;
 
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 
-
-
 /**
  * Created with IntelliJ IDEA.
  * User: tmg

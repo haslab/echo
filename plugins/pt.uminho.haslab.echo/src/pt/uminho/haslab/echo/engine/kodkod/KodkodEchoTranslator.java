@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tmg
- * Date: 10/24/13
- * Time: 12:41 PM
+ * Manages the translation of Echo artifacts into Kodkod.
+ * 
+ * @author nmm,tmg
+ * @version 0.4 20/02/2014
  */
 public class KodkodEchoTranslator extends EchoTranslator {
     public KodkodEchoTranslator(){}

@@ -59,12 +59,13 @@ public interface IContext {
     List<String> getVars();
 
     /**
-     * Retrieves de declaration of a variable.
+     * Retrieves the declaration of a variable.
      * @param var the variable
+     * @param addContext if the variable should be stored in the context
      * @return the matching declaration
      * @throws EchoError
      */
-    IDecl getDecl(EVariable var) throws EchoError;
+    IDecl getDecl(EVariable var, boolean addContext) throws EchoError;
 
     /**
      * Returns the expression representing a property call.
@@ -90,15 +91,15 @@ public interface IContext {
     /**
      * The current model of the context.
      * Should be used in <code>getClassExpression</code> and <code>getPropExpression</code>
-     * @param object
+     * @param model
      */
-	void setCurrentModel(String object);
+	void setCurrentModel(String model);
 
     /**
-     * If the context is currently in pre-state.
+     * If the context is currently in pre-state mode.
      * Should be used in <code>getClassExpression</code> and <code>getPropExpression</code>
-     * @param object
+     * @param preState if pre-state mode
      */
-	void setCurrentPre(boolean pre);
+	void setCurrentPre(boolean preState);
 	
 }

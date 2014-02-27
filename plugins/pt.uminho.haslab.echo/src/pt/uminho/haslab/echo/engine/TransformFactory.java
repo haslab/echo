@@ -16,14 +16,9 @@ public interface TransformFactory {
     public static final TransformFactory ALLOY = new AlloyFactory();
     public static final TransformFactory KODKOD = new KodkodFactory();
 
-
     public EngineRunner createRunner();
 
     public EchoTranslator createTranslator();
-
-    public ITContext createContext();
-
-
 
 
 

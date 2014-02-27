@@ -12,9 +12,17 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Generates an Alloy theme for a given solution.
+ * 
+ * @author nmm
+ * @version 0.4 20/02/2014
+ */
 public class GraphPainter {
 
+	/** the visualizer state with the solution */
 	private VizState vizstate;
+	
 	public GraphPainter (VizState vizstate) {
 		this.vizstate = vizstate;
 	}
@@ -56,7 +64,7 @@ public class GraphPainter {
 				else if (atype.getName().equals(EchoHelper.STATESIGNAME)) {
 					statet = atype;
 				}
-				else if (atype.getName().equals(AlloyUtil.STRINGNAME) || atype.getName().equals(AlloyUtil.INTNAME) || atype.getName().startsWith(EchoHelper.ORDNAME)) {
+				else if (atype.getName().equals(AlloyHelper.STRINGNAME) || atype.getName().equals(AlloyHelper.INTNAME) || atype.getName().startsWith(EchoHelper.ORDNAME)) {
 					vizstate.label.put(atype, label.replace("\"", ""));
 				}
 				else if (!EchoHelper.isElement(label)){

@@ -37,7 +37,7 @@ class EAlloyRelation extends EEngineRelation {
 	/** {@inheritDoc} */
 	@Override
 	protected AlloyFormula simplify(IFormula formula) throws ErrorUnsupported {
-		Expr afact = ((AlloyFormula)formula).formula;
+		Expr afact = ((AlloyFormula)formula).FORMULA;
 		AlloyOptimizations opt = new AlloyOptimizations();
 		afact = opt.trading(afact);
 		afact = opt.onePoint(afact);
@@ -82,7 +82,7 @@ class EAlloyRelation extends EEngineRelation {
 				
 		Field field = null;
 		try {
-			Sig s = (Sig) ((AlloyDecl) rootVars.get(0)).decl.expr.type().toExpr();
+			Sig s = (Sig) ((AlloyDecl) rootVars.get(0)).DECL.expr.type().toExpr();
 						for (Field f : s.getFields()) {
 				if (f.label.equals(EchoHelper.relationFieldName(relation,
 						dependency.target)))

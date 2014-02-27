@@ -139,11 +139,11 @@ class EAlloyTransformation extends EEngineTransformation {
 		// appropriate model parameters
 		List<Decl> decls = new ArrayList<Decl>();
 		for (AlloyDecl d : ((EAlloyRelation) rel).getModelParams())
-			decls.add(d.decl);
+			decls.add(d.DECL);
 		try {
 			Func f = new Func(null, EchoHelper.relationFieldName(rel.relation,
 					rel.dependency.target) + "def", decls, null,
-					((AlloyFormula) def).formula);
+					((AlloyFormula) def).FORMULA);
 			subRelationDefs.put(f.label, f);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,
@@ -165,7 +165,7 @@ class EAlloyTransformation extends EEngineTransformation {
 		List<Decl> decls = new ArrayList<Decl>();
 		Field field = (Field) ((AlloyExpression) exp).EXPR;
 		for (AlloyDecl d : ((EAlloyRelation) relation).getModelParams())
-			decls.add(d.decl);
+			decls.add(d.DECL);
 		try {
 			Func x = new Func(null, EchoHelper.relationFieldName(
 					relation.relation, relation.dependency.target), decls,
@@ -190,11 +190,11 @@ class EAlloyTransformation extends EEngineTransformation {
 		// model parameters
 		List<Decl> decls = new ArrayList<Decl>();
 		for (AlloyDecl d : ((EAlloyRelation) relation).getModelParams())
-			decls.add(d.decl);
+			decls.add(d.DECL);
 		try {
 			Func x = new Func(null, EchoHelper.relationPredName(
 					relation.relation, relation.dependency.target), decls,
-					null, ((AlloyFormula) relation.constraint).formula);
+					null, ((AlloyFormula) relation.constraint).FORMULA);
 			topRelationConstraints.put(x.label, x);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FUNC,

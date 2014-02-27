@@ -58,15 +58,16 @@ public class EKodkodRelation extends EEngineRelation {
 //							+ relation.getName(),
 //					Task.TRANSLATE_TRANSFORMATION);
 //		}
-//		
 		return new KodkodExpression(field);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void newRelation(EQVTRelation rel) throws EchoError {
 		new EKodkodRelation(this, rel);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void manageModelParams() throws ErrorInternalEngine,
 			ErrorUnsupported, ErrorParser {

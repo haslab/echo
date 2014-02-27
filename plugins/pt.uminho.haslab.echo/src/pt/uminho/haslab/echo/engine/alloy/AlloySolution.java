@@ -6,19 +6,18 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tmg
- * Date: 10/25/13
- * Time: 11:51 AM
-
+ * Represents an Alloy solution.
+ * 
+ * @author tmg
+ * @version 0.4 10/25/2013
  */
-class AlloyTuple {
+class AlloySolution {
 
     private A4Solution sol;
     private Map<String,Sig.PrimSig> state;
 
-    AlloyTuple(A4Solution sol, Map<String,Sig.PrimSig> state) {
-        this.sol =sol;
+    AlloySolution(A4Solution sol, Map<String,Sig.PrimSig> state) {
+        this.sol = sol;
         this.state = state;
     }
 

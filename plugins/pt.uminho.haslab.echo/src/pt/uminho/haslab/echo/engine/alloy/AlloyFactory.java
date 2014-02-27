@@ -2,29 +2,26 @@ package pt.uminho.haslab.echo.engine.alloy;
 
 import pt.uminho.haslab.echo.EngineRunner;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
-import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.TransformFactory;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tmg
- * Date: 10/23/13
- * Time: 7:05 PM
+ * Launches Alloy transformation and runner objects.
+ * 
+ * @author tmg
+ * @version 0.4 20/02/2014
  */
 public class AlloyFactory implements TransformFactory {
 
-    @Override
+	/** {@inheritDoc} */
+	@Override
     public EngineRunner createRunner() {
         return  new AlloyRunner();
     }
 
-    @Override
+	/** {@inheritDoc} */
+	@Override
     public EchoTranslator createTranslator() {
         return new AlloyEchoTranslator();
     }
 
-    @Override
-    public ITContext createContext() {
-        return new AlloyContext();
-    }
 }

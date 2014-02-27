@@ -7,10 +7,13 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprConstant;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EStructuralFeature;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.EEngineModel;
 import pt.uminho.haslab.mde.model.*;
 
@@ -135,7 +138,7 @@ class EAlloyModel implements EEngineModel {
 		PrimSig classsig = metamodel.getSigFromEClassifier(eelement.type);
 		PrimSig elementsig;
 		try {
-			elementsig = new PrimSig(AlloyUtil.elementName(classsig), classsig,
+			elementsig = new PrimSig(AlloyHelper.elementName(classsig), classsig,
 					Attr.ONE);
 		} catch (Err a) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
@@ -257,7 +260,7 @@ class EAlloyModel implements EEngineModel {
 	PrimSig setTarget() throws ErrorAlloy {
 		isTarget = true;
 		try {
-			trg_model_sig = new PrimSig(AlloyUtil.targetName(model_sig), metamodel.SIG, Attr.ONE);
+			trg_model_sig = new PrimSig(EchoHelper.targetName(emodel.ID), metamodel.SIG, Attr.ONE);
 		} catch (Err e) {
 			throw new ErrorAlloy("", "Failed to create target sig.", e, Task.ALLOY_RUN);
 		}
