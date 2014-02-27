@@ -5,13 +5,16 @@
     importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0" copyrightFields="false"
     operationReflection="true" importOrganizing="true">
   <foreignModel>Viewer.ecore</foreignModel>
-  <genPackages prefix="Viewer" disposableProviderFactory="true" ecorePackage="Viewer.ecore#/">
+  <genPackages prefix="Viewer" basePackage="pt.uminho.haslab.echo.engine.kodkod" disposableProviderFactory="true"
+      ecorePackage="Viewer.ecore#/">
     <genClasses ecoreClass="Viewer.ecore#//Sig">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/parentID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/label"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Sig/atom"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/builtin"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/ID"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Sig/abstract"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Viewer.ecore#//Sig/type"/>
     </genClasses>
     <genClasses ecoreClass="Viewer.ecore#//Field">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Viewer.ecore#//Field/ID"/>

@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 import pt.uminho.haslab.echo.engine.kodkod.viewer.Atom;
 import pt.uminho.haslab.echo.engine.kodkod.viewer.Sig;
+import pt.uminho.haslab.echo.engine.kodkod.viewer.Type;
 import pt.uminho.haslab.echo.engine.kodkod.viewer.ViewerPackage;
 
 import java.util.Collection;
@@ -27,20 +28,54 @@ import java.util.Collection;
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#getParentID <em>Parent ID</em>}</li>
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#getLabel <em>Label</em>}</li>
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#getAtom <em>Atom</em>}</li>
- *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#isBuiltin <em>Builtin</em>}</li>
+ *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#getBuiltin <em>Builtin</em>}</li>
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#getID <em>ID</em>}</li>
+ *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#getAbstract <em>Abstract</em>}</li>
+ *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.SigImpl#getType <em>Type</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
 public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
-	/**
+
+    /**
+     * Copy constructor, already defines all fields, assumes parent to be univ and built-in false
+     */
+    SigImpl(int ID, String label){
+        this.id = ID;
+        this.label = label;
+        this.parentID = 2;
+        this.builtin = null;
+
+    }
+
+    /**
+     * Copy constructor, already defines all fields, assumes built-in false
+     */
+    SigImpl(int ID, int parentID, String label){
+        this.id = ID;
+        this.label = label;
+        this.parentID = parentID;
+        this.builtin = null;
+    }
+
+    /**
+     * Copy constructor
+     */
+    SigImpl(int ID, int parentID, String label, String builtin){
+        this.id = ID;
+        this.label = label;
+        this.parentID = parentID;
+        this.builtin = builtin;
+    }
+
+
+    /**
 	 * The default value of the '{@link #getParentID() <em>Parent ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getParentID()
-	 * @generated
 	 * @ordered
 	 */
 	protected static final int PARENT_ID_EDEFAULT = 0;
@@ -86,34 +121,33 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 	protected EList<Atom> atom;
 
 	/**
-	 * The default value of the '{@link #isBuiltin() <em>Builtin</em>}' attribute.
+	 * The default value of the '{@link #getBuiltin() <em>Builtin</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isBuiltin()
+	 * @see #getBuiltin()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final boolean BUILTIN_EDEFAULT = false;
+	protected static final String BUILTIN_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #isBuiltin() <em>Builtin</em>}' attribute.
+	 * The cached value of the '{@link #getBuiltin() <em>Builtin</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isBuiltin()
+	 * @see #getBuiltin()
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean builtin = BUILTIN_EDEFAULT;
+	protected String builtin = BUILTIN_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getID() <em>ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getID()
-	 * @generated
 	 * @ordered
 	 */
-	protected static final int ID_EDEFAULT = 0;
+	protected static final int ID_EDEFAULT = -1;
 
 	/**
 	 * The cached value of the '{@link #getID() <em>ID</em>}' attribute.
@@ -124,6 +158,36 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 	 * @ordered
 	 */
 	protected int id = ID_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getAbstract() <em>Abstract</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getAbstract()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String ABSTRACT_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getAbstract() <em>Abstract</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getAbstract()
+	 * @generated
+	 * @ordered
+	 */
+	protected String abstract_ = ABSTRACT_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getType() <em>Type</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getType()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<Type> type;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -203,7 +267,7 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isBuiltin() {
+	public String getBuiltin() {
 		return builtin;
 	}
 
@@ -212,8 +276,8 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setBuiltin(boolean newBuiltin) {
-		boolean oldBuiltin = builtin;
+	public void setBuiltin(String newBuiltin) {
+		String oldBuiltin = builtin;
 		builtin = newBuiltin;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, ViewerPackage.SIG__BUILTIN, oldBuiltin, builtin));
@@ -245,11 +309,46 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getAbstract() {
+		return abstract_;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setAbstract(String newAbstract) {
+		String oldAbstract = abstract_;
+		abstract_ = newAbstract;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ViewerPackage.SIG__ABSTRACT, oldAbstract, abstract_));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EList<Type> getType() {
+		if (type == null) {
+			type = new EObjectContainmentEList<Type>(Type.class, this, ViewerPackage.SIG__TYPE);
+		}
+		return type;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ViewerPackage.SIG__ATOM:
 				return ((InternalEList<?>)getAtom()).basicRemove(otherEnd, msgs);
+			case ViewerPackage.SIG__TYPE:
+				return ((InternalEList<?>)getType()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -269,9 +368,13 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 			case ViewerPackage.SIG__ATOM:
 				return getAtom();
 			case ViewerPackage.SIG__BUILTIN:
-				return isBuiltin();
+				return getBuiltin();
 			case ViewerPackage.SIG__ID:
 				return getID();
+			case ViewerPackage.SIG__ABSTRACT:
+				return getAbstract();
+			case ViewerPackage.SIG__TYPE:
+				return getType();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -296,10 +399,17 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 				getAtom().addAll((Collection<? extends Atom>)newValue);
 				return;
 			case ViewerPackage.SIG__BUILTIN:
-				setBuiltin((Boolean)newValue);
+				setBuiltin((String)newValue);
 				return;
 			case ViewerPackage.SIG__ID:
 				setID((Integer)newValue);
+				return;
+			case ViewerPackage.SIG__ABSTRACT:
+				setAbstract((String)newValue);
+				return;
+			case ViewerPackage.SIG__TYPE:
+				getType().clear();
+				getType().addAll((Collection<? extends Type>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -328,6 +438,12 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 			case ViewerPackage.SIG__ID:
 				setID(ID_EDEFAULT);
 				return;
+			case ViewerPackage.SIG__ABSTRACT:
+				setAbstract(ABSTRACT_EDEFAULT);
+				return;
+			case ViewerPackage.SIG__TYPE:
+				getType().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -347,9 +463,13 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 			case ViewerPackage.SIG__ATOM:
 				return atom != null && !atom.isEmpty();
 			case ViewerPackage.SIG__BUILTIN:
-				return builtin != BUILTIN_EDEFAULT;
+				return BUILTIN_EDEFAULT == null ? builtin != null : !BUILTIN_EDEFAULT.equals(builtin);
 			case ViewerPackage.SIG__ID:
 				return id != ID_EDEFAULT;
+			case ViewerPackage.SIG__ABSTRACT:
+				return ABSTRACT_EDEFAULT == null ? abstract_ != null : !ABSTRACT_EDEFAULT.equals(abstract_);
+			case ViewerPackage.SIG__TYPE:
+				return type != null && !type.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -372,6 +492,8 @@ public class SigImpl extends MinimalEObjectImpl.Container implements Sig {
 		result.append(builtin);
 		result.append(", ID: ");
 		result.append(id);
+		result.append(", abstract: ");
+		result.append(abstract_);
 		result.append(')');
 		return result.toString();
 	}

@@ -6,12 +6,13 @@ import kodkod.engine.Solution;
 import kodkod.engine.Solver;
 import kodkod.engine.satlab.SATFactory;
 import kodkod.util.nodes.PrettyPrinter;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.xtext.resource.XtextResourceSet;
 import pt.uminho.haslab.echo.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,7 +25,7 @@ public class KodkodRunner implements EngineRunner{
     public KodkodRunner(){}   //TODO
 
 
-    private Solution sol;
+    private KodkodSolution sol = null;
 
     @Override
     public void show(List<String> modelUris) throws ErrorInternalEngine {
@@ -44,7 +45,12 @@ public class KodkodRunner implements EngineRunner{
 
             System.out.println(PrettyPrinter.print(e2k.getConforms(modelID).formula,2));
 
-            sol = solver.solve(e2k.getConforms(modelID).formula, new SATBinder(x2k).getBounds());
+            Set<EKodkodMetamodel> meta = new HashSet<>();
+            meta.add(x2k.getMetamodel());
+
+            sol = new KodkodSolution(
+                    solver.solve(e2k.getConforms(modelID).formula, new SATBinder(x2k).getBounds()),
+                    meta);
         }
 
     }
@@ -61,9 +67,15 @@ public class KodkodRunner implements EngineRunner{
 
         System.out.println(PrettyPrinter.print(e2k.getConforms(modelID).formula,2));
 
-        sol = solver.solve(e2k.getConforms(modelID).formula, new TargetBinder(x2k).getBounds());
+        Set<EKodkodMetamodel> meta = new HashSet<>();
+        meta.add(x2k.getMetamodel());
+
+
+        sol = new KodkodSolution(
+                solver.solve(e2k.getConforms(modelID).formula, new TargetBinder(x2k).getBounds()),
+                meta);
    
-        return sol.instance() != null;
+        return sol.satisfiable();
     }
 
     @Override
@@ -78,10 +90,12 @@ public class KodkodRunner implements EngineRunner{
 
         Formula facts = Formula.TRUE;
         Set<EKodkodModel> models = new HashSet<>();
+        Set<EKodkodMetamodel> metas = new HashSet<>();
         for(String modelID : modelIDs){
             EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
             facts = facts.and(x2k.getMetamodel().getConforms(modelID).formula);
             models.add(x2k);
+            metas.add(x2k.getMetamodel());
         }
 
         facts = facts.and(t2k.getConstraint(modelIDs).formula);
@@ -91,7 +105,12 @@ public class KodkodRunner implements EngineRunner{
         solver.options().setSolver(SATFactory.DefaultSAT4J);
         solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
-        sol = solver.solve(facts,new SATBinder(models).getBounds());
+
+
+
+        sol = new KodkodSolution(
+                    solver.solve(facts,new SATBinder(models).getBounds()),
+                    metas);
     }
 
     @Override
@@ -101,9 +120,11 @@ public class KodkodRunner implements EngineRunner{
 
         Formula facts = Formula.TRUE;
         Set<EKodkodModel> models = new HashSet<>();
+        Set<EKodkodMetamodel> metaModels = new HashSet<>();
         for(String modelID : modelIDs){
             EKodkodModel x2k = KodkodEchoTranslator.getInstance().getModel(modelID);
             models.add(x2k);
+            metaModels.add(x2k.getMetamodel());
         }
 
         Set<EKodkodModel> targets = new HashSet<>();
@@ -120,9 +141,11 @@ public class KodkodRunner implements EngineRunner{
         solver.options().setSolver(SATFactory.PMaxSAT4J);
         solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
-        sol = solver.solve(facts,new TargetBinder(models,targets).getBounds());
+        sol = new KodkodSolution(
+                solver.solve(facts,new TargetBinder(models,targets).getBounds()),
+                metaModels);
 
-        return sol.instance() != null;
+        return sol.satisfiable();
     }
 
     @Override
@@ -138,29 +161,51 @@ public class KodkodRunner implements EngineRunner{
 
     @Override
     public EchoSolution getSolution() {
-        if(sol!=null)
-            return new EchoSolution() {
-                @Override
-                public boolean satisfiable() {
-                    return sol.instance() != null;
-                }
-
-                @Override
-                public void writeXML(String filename) {
-
-                }
-
-                @Override
-                public Object getContents() {
-                    return sol;
-                }
-            };
-        else
-            return null;
+       return sol;
     }
 
     @Override
     public void cancel() {
 
+    }
+
+    private class KodkodSolution implements EchoSolution{
+        Solution sol;
+        Set<EKodkodMetamodel> metas;
+
+        KodkodSolution(Solution s, Set<EKodkodMetamodel> metas)
+        {
+            sol = s;
+            this.metas = metas;
+        }
+
+        @Override
+        public boolean satisfiable() {
+            return sol.instance() != null;
+        }
+
+        @Override
+        public void writeXML(String filename) {
+            InstanceViewer iv = new InstanceViewer(sol.instance().relationTuples(),metas);
+
+
+            XtextResourceSet resourceSet = new XtextResourceSet();
+
+            XMLResource resource = (XMLResource) resourceSet.createResource(URI.createURI(filename));
+            resource.getContents().add(iv.getAlloyInstance());
+
+            Map<Object,Object> options = new HashMap<>();
+            //options.put(XMLResource.OPTION_SCHEMA_LOCATION, true);
+            try{
+                resource.save(options);
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public Object getContents() {
+            return sol;
+        }
     }
 }

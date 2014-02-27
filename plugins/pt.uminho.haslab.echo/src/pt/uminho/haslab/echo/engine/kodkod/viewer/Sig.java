@@ -16,8 +16,10 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getParentID <em>Parent ID</em>}</li>
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getLabel <em>Label</em>}</li>
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getAtom <em>Atom</em>}</li>
- *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#isBuiltin <em>Builtin</em>}</li>
+ *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getBuiltin <em>Builtin</em>}</li>
  *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getID <em>ID</em>}</li>
+ *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getAbstract <em>Abstract</em>}</li>
+ *   <li>{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getType <em>Type</em>}</li>
  * </ul>
  * </p>
  *
@@ -103,22 +105,22 @@ public interface Sig extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Builtin</em>' attribute.
-	 * @see #setBuiltin(boolean)
+	 * @see #setBuiltin(String)
 	 * @see pt.uminho.haslab.echo.engine.kodkod.viewer.ViewerPackage#getSig_Builtin()
 	 * @model
 	 * @generated
 	 */
-	boolean isBuiltin();
+	String getBuiltin();
 
 	/**
-	 * Sets the value of the '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#isBuiltin <em>Builtin</em>}' attribute.
+	 * Sets the value of the '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getBuiltin <em>Builtin</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Builtin</em>' attribute.
-	 * @see #isBuiltin()
+	 * @see #getBuiltin()
 	 * @generated
 	 */
-	void setBuiltin(boolean value);
+	void setBuiltin(String value);
 
 	/**
 	 * Returns the value of the '<em><b>ID</b></em>' attribute.
@@ -145,5 +147,47 @@ public interface Sig extends EObject {
 	 * @generated
 	 */
 	void setID(int value);
+
+	/**
+	 * Returns the value of the '<em><b>Abstract</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Abstract</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Abstract</em>' attribute.
+	 * @see #setAbstract(String)
+	 * @see pt.uminho.haslab.echo.engine.kodkod.viewer.ViewerPackage#getSig_Abstract()
+	 * @model
+	 * @generated
+	 */
+	String getAbstract();
+
+	/**
+	 * Sets the value of the '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getAbstract <em>Abstract</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Abstract</em>' attribute.
+	 * @see #getAbstract()
+	 * @generated
+	 */
+	void setAbstract(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Type</b></em>' containment reference list.
+	 * The list contents are of type {@link pt.uminho.haslab.echo.engine.kodkod.viewer.Type}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Type</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Type</em>' containment reference list.
+	 * @see pt.uminho.haslab.echo.engine.kodkod.viewer.ViewerPackage#getSig_Type()
+	 * @model containment="true"
+	 * @generated
+	 */
+	EList<Type> getType();
 
 } // Sig

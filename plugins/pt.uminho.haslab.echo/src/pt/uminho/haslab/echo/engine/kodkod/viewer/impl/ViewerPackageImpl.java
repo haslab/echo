@@ -192,6 +192,24 @@ public class ViewerPackageImpl extends EPackageImpl implements ViewerPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSig_Abstract() {
+		return (EAttribute)sigEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getSig_Type() {
+		return (EReference)sigEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getField() {
 		return fieldEClass;
 	}
@@ -437,6 +455,8 @@ public class ViewerPackageImpl extends EPackageImpl implements ViewerPackage {
 		createEReference(sigEClass, SIG__ATOM);
 		createEAttribute(sigEClass, SIG__BUILTIN);
 		createEAttribute(sigEClass, SIG__ID);
+		createEAttribute(sigEClass, SIG__ABSTRACT);
+		createEReference(sigEClass, SIG__TYPE);
 
 		fieldEClass = createEClass(FIELD);
 		createEAttribute(fieldEClass, FIELD__ID);
@@ -504,8 +524,10 @@ public class ViewerPackageImpl extends EPackageImpl implements ViewerPackage {
 		initEAttribute(getSig_ParentID(), ecorePackage.getEInt(), "parentID", null, 0, 1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSig_Label(), ecorePackage.getEString(), "label", null, 0, 1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getSig_Atom(), this.getAtom(), null, "atom", null, 0, -1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSig_Builtin(), ecorePackage.getEBoolean(), "builtin", null, 0, 1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSig_Builtin(), ecorePackage.getEString(), "builtin", null, 0, 1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSig_ID(), ecorePackage.getEInt(), "ID", null, 0, 1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSig_Abstract(), ecorePackage.getEString(), "abstract", null, 0, 1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getSig_Type(), this.getType(), null, "type", null, 0, -1, Sig.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(fieldEClass, Field.class, "Field", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getField_ID(), ecorePackage.getEInt(), "ID", null, 0, 1, Field.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

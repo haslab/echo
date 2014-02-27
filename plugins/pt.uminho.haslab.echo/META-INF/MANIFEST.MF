@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %pluginName
 Bundle-SymbolicName: pt.uminho.haslab.echo;singleton:=true
 Bundle-Version: 0.3.1.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -17,8 +16,6 @@ Bundle-ClassPath: src/,
  lib/sat4j-maxsat.jar,
  lib/kodkod.jar,
  lib/alloy4.2.jar
-Bundle-Vendor: %providerName
-Bundle-Localization: plugin
 Export-Package: edu.mit.csail.sdg.alloy4viz;uses:="new edu.mit.csail.sdg.alloy4viz,  edu.mit.csail.sdg.alloy4,  edu.mit.csail.sdg.alloy4graph,  javax.swing,  edu.mit.csail.sdg.alloy4compiler.translator,  javax.swing.event",
  pt.uminho.haslab.echo;uses:="org.eclipse.emf.ecore,  pt.uminho.haslab.echo.transform,  edu.mit.csail.sdg.alloy4viz,  org.eclipse.qvtd.pivot.qvtrelation",
  pt.uminho.haslab.echo.engine,
@@ -30,7 +27,4 @@ Export-Package: edu.mit.csail.sdg.alloy4viz;uses:="new edu.mit.csail.sdg.alloy4v
  pt.uminho.haslab.mde.transformation.qvt,
  pt.uminho.haslab.echo.engine.kodkod.viewer,
  pt.uminho.haslab.echo.engine.kodkod.viewer.impl,
- pt.uminho.haslab.echo.engine.kodkod.viewer.util,
- viewer,
- viewer.impl,
- viewer.util
+ pt.uminho.haslab.echo.engine.kodkod.viewer.util

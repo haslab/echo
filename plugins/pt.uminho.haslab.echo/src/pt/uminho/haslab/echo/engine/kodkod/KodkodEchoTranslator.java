@@ -136,16 +136,18 @@ public class KodkodEchoTranslator extends EchoTranslator {
     }
 
     @Override
-	public void writeAllInstances(EchoSolution solution, String metaModelUri,
+	public void writeAllInstances(EchoSolution solution, String metaModelID,
 			String modelUri) throws EchoError {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void writeInstance(EchoSolution solution, String modelUri)
+	public void writeInstance(EchoSolution solution, String modelID)
 			throws EchoError {
-		// TODO Auto-generated method stub
+
+
+
 		
 	}
 

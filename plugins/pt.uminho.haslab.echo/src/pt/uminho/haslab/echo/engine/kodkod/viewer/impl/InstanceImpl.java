@@ -52,7 +52,6 @@ public class InstanceImpl extends MinimalEObjectImpl.Container implements Instan
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getBitwidth()
-	 * @generated
 	 * @ordered
 	 */
 	protected int bitwidth = BITWIDTH_EDEFAULT;
@@ -62,10 +61,9 @@ public class InstanceImpl extends MinimalEObjectImpl.Container implements Instan
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getMaxseq()
-	 * @generated
 	 * @ordered
 	 */
-	protected static final int MAXSEQ_EDEFAULT = 0;
+	protected static final int MAXSEQ_EDEFAULT = -1;
 
 	/**
 	 * The cached value of the '{@link #getMaxseq() <em>Maxseq</em>}' attribute.

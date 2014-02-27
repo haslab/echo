@@ -6,6 +6,7 @@ import kodkod.instance.Tuple;
 import kodkod.instance.TupleSet;
 import kodkod.instance.Universe;
 import kodkod.util.ints.IndexedEntry;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.util.Pair;
 
@@ -81,7 +82,8 @@ class TargetBinder extends AbstractBinder implements Binder{
 
         if(rel.arity()==2){
             Pair<Set<Relation>,Set<Relation>> type = e2k.getRefTypes(rel);
-        	if(type!=null){
+            EStructuralFeature sf = e2k.getSf(rel);
+            if(type!=null){
                 TupleSet leftTuples = factory.noneOf(1);
         	    for (Relation relation : type.left)
         		    leftTuples.addAll(bounds.upperBound(relation));
@@ -91,8 +93,8 @@ class TargetBinder extends AbstractBinder implements Binder{
         		    rightTuples.addAll(bounds.upperBound(relation));
 
         	    bounds.bound(rel,leftTuples.product(rightTuples));
-            }else{
-                Set<Relation> newType = e2k.getIntType(rel);
+            }else if (sf.getEType().getName().equals("EInt")){
+                Set<Relation> newType = e2k.getType(rel);
 
                 TupleSet leftTuples = factory.noneOf(1);
                 for (Relation relation : newType)
@@ -104,7 +106,21 @@ class TargetBinder extends AbstractBinder implements Binder{
                 }
 
                 bounds.bound(rel,leftTuples.product(rightTuples));
+            }else{
+                Set<Relation> newType = e2k.getType(rel);
+
+                TupleSet leftTuples = factory.noneOf(1);
+                for (Relation relation : newType)
+                    leftTuples.addAll(bounds.upperBound(relation));
+
+                TupleSet rightTuples = factory.noneOf(1);
+
+                rightTuples.addAll(bounds.upperBound(KodkodUtil.stringRel));
+
+
+                bounds.bound(rel,leftTuples.product(rightTuples));
             }
+
         }
         else{
             Set<Relation> type = e2k.getBoolType(rel);

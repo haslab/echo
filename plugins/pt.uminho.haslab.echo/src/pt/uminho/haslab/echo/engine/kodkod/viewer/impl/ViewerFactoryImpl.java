@@ -76,7 +76,22 @@ public class ViewerFactoryImpl extends EFactoryImpl implements ViewerFactory {
 		return sig;
 	}
 
-	/**
+    @Override
+    public Sig createSig(int ID, int parentID, String label, String builtin) {
+        return new SigImpl(ID,parentID,label,builtin);
+    }
+
+    @Override
+    public Sig createSig(int ID, int parentID, String label) {
+        return new SigImpl(ID, parentID,label);
+    }
+
+    @Override
+    public Sig createSig(int ID, String label) {
+        return new SigImpl(ID,label);
+    }
+
+    /**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated

@@ -28,14 +28,18 @@ class EKodkodMetamodel extends EEngineMetamodel {
 	private Map<String,Relation> mapClassRel;
 	/** maps structural features into respective Kodkod relations */
 	private Map<String,Relation> mapSfRel;
+    /** maps relations into structural features */
+    private Map<Relation,EStructuralFeature> mapRelSf;
     /**maps the hierarchy */
     private Map<String,Set<String>> mapParents;
     /**maps a eReference relation into its type relations*/
     private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType;
     /**maps a attribute relation with type = int*/
-    private Map<Relation, Set<Relation>> mapIntType;
+    private Map<Relation, Set<Relation>> mapType;
     /**maps a attribute relation with type = bool*/
     private Map<Relation, Set<Relation>> mapBoolType;
+
+    private Set<EClass> abstracts ;
 
 
     /**facts about the meta-model*/
@@ -57,10 +61,12 @@ class EKodkodMetamodel extends EEngineMetamodel {
 		super(metaModel);
 		mapClassRel = new HashMap<>();
 		mapSfRel = new HashMap<>();
+		mapRelSf = new HashMap<>();
         mapParents = new HashMap<>();
         mapRefType = new HashMap<>();
-        mapIntType = new HashMap<>();
+        mapType = new HashMap<>();
         mapBoolType = new HashMap<>();
+        abstracts = new HashSet<>();
 		facts = Formula.TRUE;
 	}
 	
@@ -154,6 +160,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 
                 facts = facts.and(refRel.in(classRel.product(coDomain)));
 				mapSfRel.put(eReference.getEContainingClass().getName()+"::"+eReference.getName(),refRel);
+                mapRelSf.put(refRel,eReference);
 				
 				if(eOpposite!= null){
 					Relation opRel = getRelation(eOpposite);
@@ -217,20 +224,23 @@ class EKodkodMetamodel extends EEngineMetamodel {
 			if(attr.getEType().getName().equals("EBoolean")) {					
 				attribute  = Relation.unary(attrName);
 				facts = facts.and(attribute.in(domain));
-                mapSfRel.put(className+"::"+attr.getName(),attribute);
+                mapBoolType.put(attribute,getRelDomain(className));
 			} else if(attr.getEType().getName().equals("EString")) {
 				attribute = Relation.binary(attrName);
 				facts = facts.and(attribute.function(domain, KodkodUtil.stringRel));
-                mapSfRel.put(className+"::"+attr.getName(),attribute);
+                mapType.put(attribute,getRelDomain(className));
 			} else if(attr.getEType().getName().equals("EInt")) {
 				attribute = Relation.binary(attrName);
 				facts = facts.and(attribute.function(domain, Expression.INTS));
-                mapSfRel.put(className+"::"+attr.getName(),attribute);
+                mapType.put(attribute, getRelDomain(className));
 			} 
 			else if (attr.getEType() instanceof EEnum) {
 				//TODO
+                attribute = null;
 			} 
 			else throw new ErrorUnsupported("Primitive type for attribute not supported: "+attr+".");
+            mapSfRel.put(className+"::"+attr.getName(),attribute);
+            mapRelSf.put(attribute,attr);
 		}
 		
 	}
@@ -269,7 +279,8 @@ class EKodkodMetamodel extends EEngineMetamodel {
             String relName = KodkodUtil.pckPrefix(metamodel.getEObject(),ec.getName());
             eCRel = Relation.unary(relName);
             mapClassRel.put(ec.getName(), eCRel);
-        }
+        }else
+            abstracts.add(ec);
         //TODO: What if ec is abstract
     }
 
@@ -348,6 +359,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 
 	EClassifier getEClass(Relation classRelation) {
 		//TODO: not sure of equals.
+        //TODO: safer to have an extra map, also faster.
 		for (String cla : mapClassRel.keySet())
 			if (mapClassRel.get(cla).equals(classRelation)) return metamodel.getEObject().getEClassifier(cla);
 		return null;
@@ -356,9 +368,9 @@ class EKodkodMetamodel extends EEngineMetamodel {
         return mapRefType.get(sf);
     }
 
-    Set<Relation> getIntType(Relation at)
+    Set<Relation> getType(Relation at)
     {
-               return mapIntType.get(at);
+               return mapType.get(at);
     }
 
     Set<Relation> getBoolType(Relation at)
@@ -370,5 +382,12 @@ class EKodkodMetamodel extends EEngineMetamodel {
         disjoint = Expression.intersection(getClassRelations()).no();
     }
 
+    Set<EClass> getAbstracts() {
+        return abstracts;
+    }
+
+    EStructuralFeature getSf(Relation rel){
+        return mapRelSf.get(rel);
+    }
 
 }

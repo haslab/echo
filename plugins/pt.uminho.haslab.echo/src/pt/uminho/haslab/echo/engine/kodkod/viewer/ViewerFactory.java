@@ -30,6 +30,33 @@ public interface ViewerFactory extends EFactory {
 	 */
 	Sig createSig();
 
+
+    /**
+     * Returns a new object of class '<em>Sig</em>'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return a new object of class '<em>Sig</em>'.
+     */
+    Sig createSig(int ID, int parentID, String label, String builtin);
+
+
+    /**
+     * Returns a new object of class '<em>Sig</em>'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return a new object of class '<em>Sig</em>'.
+     */
+    Sig createSig(int ID, int parentID, String label);
+
+
+    /**
+     * Returns a new object of class '<em>Sig</em>'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return a new object of class '<em>Sig</em>'.
+     */
+    Sig createSig(int ID,String label);
+
 	/**
 	 * Returns a new object of class '<em>Field</em>'.
 	 * <!-- begin-user-doc -->

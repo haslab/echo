@@ -31,7 +31,7 @@ public interface ViewerPackage extends EPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	String eNAME = "pt/uminho/haslab/echo/engine/kodkod/viewer";
+	String eNAME = "viewer";
 
 	/**
 	 * The package namespace URI.
@@ -47,7 +47,7 @@ public interface ViewerPackage extends EPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	String eNS_PREFIX = "asd";
+	String eNS_PREFIX = "";
 
 	/**
 	 * The singleton instance of the package.
@@ -113,13 +113,31 @@ public interface ViewerPackage extends EPackage {
 	int SIG__ID = 4;
 
 	/**
+	 * The feature id for the '<em><b>Abstract</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SIG__ABSTRACT = 5;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SIG__TYPE = 6;
+
+	/**
 	 * The number of structural features of the '<em>Sig</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SIG_FEATURE_COUNT = 5;
+	int SIG_FEATURE_COUNT = 7;
 
 	/**
 	 * The number of operations of the '<em>Sig</em>' class.
@@ -524,11 +542,11 @@ public interface ViewerPackage extends EPackage {
 	EReference getSig_Atom();
 
 	/**
-	 * Returns the meta object for the attribute '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#isBuiltin <em>Builtin</em>}'.
+	 * Returns the meta object for the attribute '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getBuiltin <em>Builtin</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the meta object for the attribute '<em>Builtin</em>'.
-	 * @see pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#isBuiltin()
+	 * @see pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getBuiltin()
 	 * @see #getSig()
 	 * @generated
 	 */
@@ -544,6 +562,28 @@ public interface ViewerPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getSig_ID();
+
+	/**
+	 * Returns the meta object for the attribute '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getAbstract <em>Abstract</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Abstract</em>'.
+	 * @see pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getAbstract()
+	 * @see #getSig()
+	 * @generated
+	 */
+	EAttribute getSig_Abstract();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getType <em>Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Type</em>'.
+	 * @see pt.uminho.haslab.echo.engine.kodkod.viewer.Sig#getType()
+	 * @see #getSig()
+	 * @generated
+	 */
+	EReference getSig_Type();
 
 	/**
 	 * Returns the meta object for class '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.Field <em>Field</em>}'.
@@ -874,6 +914,22 @@ public interface ViewerPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SIG__ID = eINSTANCE.getSig_ID();
+
+		/**
+		 * The meta object literal for the '<em><b>Abstract</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SIG__ABSTRACT = eINSTANCE.getSig_Abstract();
+
+		/**
+		 * The meta object literal for the '<em><b>Type</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference SIG__TYPE = eINSTANCE.getSig_Type();
 
 		/**
 		 * The meta object literal for the '{@link pt.uminho.haslab.echo.engine.kodkod.viewer.impl.FieldImpl <em>Field</em>}' class.
