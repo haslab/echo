@@ -113,7 +113,7 @@ public abstract class EEngineRelation {
 		
 		initVariableLists();
 		
-		IExpression sub = null;
+		IExpression sub = Constants.EMPTY();
 		// must be created before calculating the constraint, as it may be recursively called
 		if (!top) sub = addRelationField();
 		
@@ -322,6 +322,7 @@ public abstract class EEngineRelation {
 		if (relation.getDomains().size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
 		IDecl fst = rootVar2engineDecl.get(relation.getDomains().get(0).getRootVariable().getName());
 		IDecl snd = rootVar2engineDecl.get(relation.getDomains().get(1).getRootVariable().getName());
+		System.out.println(constraint.comprehension(fst,snd));
 		IFormula e = field.eq(constraint.comprehension(fst,snd));
 		transformation.defineSubRelationField(this,e);
 	}
