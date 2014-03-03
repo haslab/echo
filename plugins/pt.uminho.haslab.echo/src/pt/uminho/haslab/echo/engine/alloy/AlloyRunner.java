@@ -115,8 +115,6 @@ class AlloyRunner implements EngineRunner {
 			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
 					aoptions);
-			EchoReporter.getInstance().debug("sigs: "+allsigs);
-			EchoReporter.getInstance().debug("final: "+finalfact+" and "+sol.satisfiable());
 		} catch (Err a) {
 			throw new ErrorAlloy(a.getMessage());
 		}
@@ -132,7 +130,6 @@ class AlloyRunner implements EngineRunner {
 			addInstanceSigs(modelID);
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
-			finalfact = finalfact.and(model.metamodel.getConforms(modelID).FORMULA);
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 		}
 		try {
@@ -276,8 +273,6 @@ class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(metamodel.getConforms(modelID).FORMULA);
 		}
 		finalfact = finalfact.and(trans.getConstraint(modelIDs).FORMULA);
-		EchoReporter.getInstance().debug("Final fact: "+finalfact);
-
 		try {
 			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,

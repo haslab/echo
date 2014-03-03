@@ -124,7 +124,7 @@ public class AlloyContext implements ITContext {
 		// tries to retrieve the state sig of the current model context
 		if (currentModel != null) state = getModelExpression(currentModel);		
         // otherwise uses the generic metamodel sig
-		if (state == null) state = getModelExpression(metaModelID);		
+		if (state.equals(Constants.EMPTY())) state = getModelExpression(metaModelID);		
 
 		// fetches the corresponding field
 		EClass eclass = ((EClass) ameta.metamodel.getEObject().getEClassifier(className));

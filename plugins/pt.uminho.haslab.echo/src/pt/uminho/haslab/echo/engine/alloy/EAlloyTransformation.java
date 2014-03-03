@@ -7,6 +7,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.EchoHelper;
@@ -97,12 +98,14 @@ class EAlloyTransformation extends EEngineTransformation {
 
 		// calls top relations with transformation parameters
 		Expr fact = Sig.NONE.no();
-		for (Func f : topRelationConstraints.values())
-			fact = fact.and(f.call(vars));
+		if (topRelationConstraints != null)
+			for (Func f : topRelationConstraints.values())
+				fact = fact.and(f.call(vars));
 
 		// calls sub relation fields definitions with transformation parameters
-		for (Func f : subRelationDefs.values())
-			fact = fact.and(f.call(vars));
+		if (subRelationDefs != null)
+			for (Func f : subRelationDefs.values())
+				fact = fact.and(f.call(vars));
 
 		// creates functions with transformation parameters
 		try {
@@ -121,6 +124,7 @@ class EAlloyTransformation extends EEngineTransformation {
 	protected AlloyFormula getConstraint(List<String> modelIDs) {
 		// calls constraint function with the model's state sig
 		List<Expr> sigs = new ArrayList<Expr>();
+		EchoReporter.getInstance().debug("qvt: "+func.getBody());
 		for (String modelID : modelIDs) {
 			EAlloyModel mdl = (EAlloyModel) EchoTranslator.getInstance().getModel(modelID);
 			sigs.add(mdl.getModelSig());
