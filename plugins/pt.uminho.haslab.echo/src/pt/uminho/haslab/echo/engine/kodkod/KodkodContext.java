@@ -12,10 +12,12 @@ import org.eclipse.emf.ecore.EClass;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -172,6 +174,13 @@ class KodkodContext implements ITContext {
 	@Override
 	public EKodkodRelation getCallerRel() {
 		return currentRel;
+	}
+
+	@Override
+	public IFormula createFrameCondition(String metaModelID, String frame)
+			throws ErrorParser, ErrorUnsupported {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

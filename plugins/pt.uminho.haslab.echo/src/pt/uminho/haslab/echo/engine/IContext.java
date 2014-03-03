@@ -5,6 +5,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EVariable;
 
 import java.util.List;
@@ -101,5 +102,8 @@ public interface IContext {
      * @param preState if pre-state mode
      */
 	void setCurrentPre(boolean preState);
+
+	IFormula createFrameCondition(String metaModelID, String frame)
+			throws ErrorParser, ErrorUnsupported;
 	
 }

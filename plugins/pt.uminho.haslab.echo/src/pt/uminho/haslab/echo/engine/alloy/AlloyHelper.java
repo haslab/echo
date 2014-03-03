@@ -34,10 +34,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
  */
 class AlloyHelper {
 
-	/** the top state signature name */	
-	static String STRINGNAME = "String";
-	static String INTNAME = "Int";
-
 	private static Map<String,Integer> counter = new HashMap<String,Integer>();
 
 	static String elementName(PrimSig parent) {

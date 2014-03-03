@@ -9,11 +9,11 @@
   <tables name="Employee">
     <columns
         name="name"/>
+    <columns
+        name="X"/>
   </tables>
   <tables name="Employer">
     <columns
         name="name"/>
-    <columns
-        name="X"/>
   </tables>
 </rdbms:Scheme>

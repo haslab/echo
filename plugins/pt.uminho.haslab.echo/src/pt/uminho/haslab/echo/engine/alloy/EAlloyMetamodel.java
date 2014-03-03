@@ -21,6 +21,7 @@ import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
+import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
@@ -650,33 +651,43 @@ import java.util.*;
 			context.addMetamodelExpression(true, SIG.label, new AlloyExpression(pre.get()));
 			
 			OCLTranslator converter = new OCLTranslator(context);
-			for (EAnnotation ea : operation.getEAnnotations())
+			Expr oclalloy = Sig.NONE.no();
+			for (EAnnotation ea : operation.getEAnnotations()) {
 				if (ea.getSource().equals(
 						"http://www.eclipse.org/emf/2002/Ecore/OCL")) {
-					Expr oclalloy = Sig.NONE.no();
 					for (String sExpr : ea.getDetails().values()) {
 						try {
 							ExpressionInOCL invariant = helper
 									.createPostcondition(sExpr);
 							IFormula form = converter.translateFormula(invariant.getBodyExpression());
 							oclalloy = oclalloy.and(((AlloyFormula) form).FORMULA);
-							EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
 						} catch (ParserException e) {
+							e.printStackTrace();
 							throw new ErrorParser(ErrorParser.OCL,
 									"Failed to parse OCL operation.",
 									e.getMessage(), Task.TRANSLATE_METAMODEL);
 						}
 					}
-					try {
-						Func fun = new Func(null, operation.getName(), decls,
-								null, oclalloy);
-						operations.add(fun);
-					} catch (Err a) {
-						throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
-								"Failed to create operation function.", a,
-								Task.TRANSLATE_METAMODEL);
+				} else if (ea.getSource().equals(
+						"Echo/@frame")) {
+					for (String sExpr : ea.getDetails().values()) {
+						IFormula form = context.createFrameCondition(metamodel.ID, sExpr);
+						oclalloy = oclalloy.and(((AlloyFormula) form).FORMULA);
 					}
 				}
+			}
+			EchoReporter.getInstance().debug("*** OPERATION "+operation.getName()+": "+oclalloy);
+			try {
+				if(!oclalloy.isSame(Sig.NONE.no())) {
+					Func fun = new Func(null, operation.getName(), decls,
+							null, oclalloy);
+					operations.add(fun); 
+				}
+			} catch (Err a) {
+				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
+						"Failed to create operation function.", a,
+						Task.TRANSLATE_METAMODEL);
+			}
 
 			for (String cl : converter.getOCLAreNews().keySet()) {
 				updateCreation(cl,converter.getOCLAreNews().get(cl));

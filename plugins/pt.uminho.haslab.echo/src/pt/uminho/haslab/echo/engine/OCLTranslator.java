@@ -552,5 +552,5 @@ public class OCLTranslator {
 					+ prop.getName());
 		return exp;
 	}
-
+	
 }

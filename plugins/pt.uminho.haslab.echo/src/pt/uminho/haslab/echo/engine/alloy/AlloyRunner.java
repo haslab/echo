@@ -112,11 +112,9 @@ class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 		}
 		try {
-			cmd = new Command(true, 0, intscope, -1, finalfact);
+			cmd = new Command(true, overall, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
 					aoptions);
-			EchoReporter.getInstance().debug("sigs: "+allsigs);
-			EchoReporter.getInstance().debug("final: "+finalfact+" and "+sol.satisfiable());
 		} catch (Err a) {
 			throw new ErrorAlloy(a.getMessage());
 		}
@@ -132,7 +130,6 @@ class AlloyRunner implements EngineRunner {
 			addInstanceSigs(modelID);
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
-			finalfact = finalfact.and(model.metamodel.getConforms(modelID).FORMULA);
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 		}
 		try {
@@ -186,6 +183,7 @@ class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 			AlloyEchoTranslator.getInstance().getModel(modelID).unsetTarget();
 			while (!sol.satisfiable()) {
+				EchoReporter.getInstance().debug("scopes: "+scopes);
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
 				if (overall >= EchoOptionsSetup.getInstance().getMaxDelta())
@@ -276,10 +274,8 @@ class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(metamodel.getConforms(modelID).FORMULA);
 		}
 		finalfact = finalfact.and(trans.getConstraint(modelIDs).FORMULA);
-		EchoReporter.getInstance().debug("Final fact: "+finalfact);
-
 		try {
-			cmd = new Command(true, 0, intscope, -1, finalfact);
+			cmd = new Command(true, overall, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
 					aoptions);
 		} catch (Err a) {
@@ -299,7 +295,7 @@ class AlloyRunner implements EngineRunner {
 	@Override
 	public boolean enforce(String transformationID, List<String> modelIDs,
 			List<String> targetIDs) throws ErrorAlloy {
-		AlloyEchoTranslator.getInstance().createScopesFromID(targetIDs);
+		AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs,targetIDs);
 		check(transformationID, modelIDs);
 		if (sol.satisfiable())
 			throw new ErrorAlloy("Instances already consistent.");
@@ -358,6 +354,7 @@ class AlloyRunner implements EngineRunner {
 				AlloyEchoTranslator.getInstance().getModel(targetID)
 						.unsetTarget();
 			while (!sol.satisfiable()) {
+				EchoReporter.getInstance().debug("scopes: "+scopes);
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
 				if (overall >= EchoOptionsSetup.getInstance().getMaxDelta())
