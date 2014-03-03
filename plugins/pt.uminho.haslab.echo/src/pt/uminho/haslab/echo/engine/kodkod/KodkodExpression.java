@@ -59,7 +59,9 @@ class KodkodExpression implements IExpression {
 
     @Override
     public KodkodFormula eq(IExpression e) {
-        return new KodkodFormula(EXPR.eq(((KodkodExpression) e).EXPR));
+        return new KodkodFormula(
+        		EXPR.eq(
+        		((KodkodExpression) e).EXPR));
     }
 
     @Override
@@ -99,5 +101,10 @@ class KodkodExpression implements IExpression {
 	public boolean hasVar(IExpression var) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	@Override
+	public String toString(){
+		return EXPR.toString();
 	}
 }

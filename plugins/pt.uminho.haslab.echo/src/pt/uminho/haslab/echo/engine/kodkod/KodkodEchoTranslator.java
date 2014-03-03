@@ -1,5 +1,6 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
+import kodkod.ast.Expression;
 import kodkod.ast.Formula;
 import kodkod.ast.IntConstant;
 import pt.uminho.haslab.echo.EchoError;
@@ -91,8 +92,7 @@ public class KodkodEchoTranslator extends EchoTranslator {
 
 	@Override
 	public boolean hasMetaModel(String metamodelID) {
-		// TODO Auto-generated method stub
-		return false;
+		return metaModels.containsKey(metamodelID);
 	}
 
     @Override
@@ -164,15 +164,14 @@ public class KodkodEchoTranslator extends EchoTranslator {
 
 	@Override
 	public IExpression getEmptyExpression() {
-		// TODO Auto-generated method stub
-		return null;
+		return  new KodkodExpression(
+                Expression.NONE);
 	}
 
 
 	@Override
 	public EKodkodTransformation getQVTTransformation(String qvtID) {
-		// TODO Auto-generated method stub
-		return null;
+		return transKodkod.get(qvtID);
 	}
 
 

@@ -83,7 +83,7 @@ class EAlloyRelation extends EEngineRelation {
 		Field field = null;
 		try {
 			Sig s = (Sig) ((AlloyDecl) rootVars.get(0)).DECL.expr.type().toExpr();
-						for (Field f : s.getFields()) {
+		    for (Field f : s.getFields()) {
 				if (f.label.equals(EchoHelper.relationFieldName(relation,
 						dependency.target)))
 					field = f;
