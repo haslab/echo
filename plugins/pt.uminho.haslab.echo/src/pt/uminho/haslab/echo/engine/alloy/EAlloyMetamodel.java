@@ -2,16 +2,19 @@ package pt.uminho.haslab.echo.engine.alloy;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
@@ -54,8 +57,8 @@ import java.util.*;
 	/** maps structural feature names into respective Alloy fields */
 	private Map<String,Field> feature2field = new HashMap<String,Field>();
 		
-	/** maps literals into respective Alloy signatures */
-	private BiMap<EEnumLiteral,PrimSig> literal2sig = HashBiMap.create();
+	/** maps enum literals into respective Alloy signatures */
+	private BiMap<String,PrimSig> literal2sig = HashBiMap.create();
 	
 	/** maps signatures into respective Alloy state fields */
 	private Map<PrimSig,Field> sig2statefield = new HashMap<PrimSig,Field>();
@@ -184,7 +187,7 @@ import java.util.*;
 	* @return the matching signature
 	*/
 	PrimSig getSigFromEEnumLiteral(EEnumLiteral e) {
-		return literal2sig.get(e);
+		return literal2sig.get(e.getName());
 	}
 	
 	/**
@@ -192,7 +195,8 @@ import java.util.*;
 	* @return the matching enum literal
 	*/
 	EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
-		return literal2sig.inverse().get(s);
+		EEnum enu = (EEnum) metamodel.getEObject().getEClassifier(s.parent.label);
+		return enu.getEEnumLiteral(s.label);
 	}
 	
 	/**
@@ -729,7 +733,7 @@ import java.util.*;
 							"Failed to create enum literal sig.", a,
 							Task.TRANSLATE_METAMODEL);
 				}
-				literal2sig.put(lit, litSig);
+				literal2sig.put(lit.getName(), litSig);
 			}
 		}
 	}

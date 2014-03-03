@@ -89,6 +89,7 @@
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EEnum /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Type"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Package" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//NameIdentity">
     <eAnnotations source="Echo/Gen">
@@ -132,5 +133,10 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="NameIdentity" abstract="true">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="Type" instanceTypeName="Type">
+    <eLiterals name="Int"/>
+    <eLiterals name="String" value="2"/>
+    <eLiterals name="Float" value="1" literal="Float"/>
   </eClassifiers>
 </ecore:EPackage>

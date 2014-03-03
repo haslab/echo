@@ -219,6 +219,7 @@ class AlloyRunner implements EngineRunner {
 
 		allsigs.addAll(metamodel.getAllSigs());
 		scopes = AlloyEchoTranslator.getInstance().getScopes();
+		EchoReporter.getInstance().debug("Init gen scopes: "+scopes);
 		PrimSig state = metamodel.SIG;
 		try {
 			PrimSig target = new PrimSig(EchoHelper.targetName(metamodelID), state,
@@ -244,6 +245,7 @@ class AlloyRunner implements EngineRunner {
 			if (overall >= EchoOptionsSetup.getInstance().getMaxDelta())
 				return false;
 			increment();
+			EchoReporter.getInstance().debug("Inc gen scopes: "+scopes);
 		}
 		return true;
 	}

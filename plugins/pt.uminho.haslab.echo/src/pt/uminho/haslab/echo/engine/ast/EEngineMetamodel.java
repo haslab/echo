@@ -63,7 +63,6 @@ public abstract class EEngineMetamodel {
 	abstract protected void processEnums(List<EEnum> enumList) throws EchoError;
 	abstract protected void processClass(EClass eclass) throws EchoError;
 
-
 	/** calculates all possible root classes for this meta-model
 	 * root classes are those classes not contained in any container reference
 	 * @return the list of root classes
@@ -71,20 +70,22 @@ public abstract class EEngineMetamodel {
 	public List<EClass> getRootClass() {
 		Map<Integer, EClass> classes = new HashMap<Integer, EClass>();
 		for (EClassifier obj : metamodel.getEObject().getEClassifiers())
-			if (obj instanceof EClass)
+			if (obj instanceof EClass && !((EClass) obj).isAbstract())
 				classes.put(obj.getClassifierID(), (EClass) obj);
 		Map<Integer, EClass> candidates = new HashMap<Integer, EClass>(classes);
-
 		for (EClass obj : classes.values()) {
+			EchoReporter.getInstance().debug("Candidates before "+obj.getName()+": "+candidates);
 			for (EReference ref : obj.getEReferences())
 				if (ref.isContainment())
 					candidates
 							.remove(ref.getEReferenceType().getClassifierID());
+			EchoReporter.getInstance().debug("Candidates after refs "+obj.getName()+": "+candidates);
 			List<EClass> sups = obj.getESuperTypes();
 			if (sups != null && sups.size() != 0)
 				if (!candidates.keySet()
-						.contains(sups.get(0).getClassifierID()))
+						.contains(sups.get(0).getClassifierID()) && !sups.get(0).isAbstract())
 					candidates.remove(obj.getClassifierID());
+			EchoReporter.getInstance().debug("Candidates after sups "+obj.getName()+": "+candidates);
 		}
 		return new ArrayList<EClass>(candidates.values());
 	}

@@ -8,7 +8,6 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
-import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.*;
@@ -216,7 +215,7 @@ class EAlloyModel implements EEngineModel {
 				siblings = siblings.plus(elementsig);
 		} else if (value instanceof EEnumLiteral) {
 			siblings = siblings.plus(elementsig.product(metamodel
-					.getSigFromEEnumLiteral((EEnumLiteral) value)));
+					.getSigFromEEnumLiteral((org.eclipse.emf.ecore.EEnumLiteral) value.getValue())));
 		} else if (value instanceof EString) {
 			Expr str = ExprConstant.Op.STRING.make(null, ((EString) value).getValue());
 			siblings = siblings.plus(elementsig.product(str));
