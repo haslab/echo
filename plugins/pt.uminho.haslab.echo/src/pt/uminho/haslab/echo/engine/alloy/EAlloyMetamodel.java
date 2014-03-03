@@ -195,8 +195,9 @@ import java.util.*;
 	* @return the matching enum literal
 	*/
 	EEnumLiteral getEEnumLiteralFromSig(PrimSig s) {
-		EEnum enu = (EEnum) metamodel.getEObject().getEClassifier(s.parent.label);
-		return enu.getEEnumLiteral(s.label);
+		EchoReporter.getInstance().debug("Fetching lit "+s.label+" but "+EchoHelper.getFeatureName(s.label)+ " over "+s.parent.label+" but "+EchoHelper.getClassifierName(s.parent.label));
+		EEnum enu = (EEnum) metamodel.getEObject().getEClassifier(EchoHelper.getClassifierName(s.parent.label));
+		return enu.getEEnumLiteral(EchoHelper.getFeatureName(s.label));
 	}
 	
 	/**
