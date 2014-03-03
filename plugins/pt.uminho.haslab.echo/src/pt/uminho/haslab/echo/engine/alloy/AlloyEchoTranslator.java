@@ -255,6 +255,44 @@ class AlloyEchoTranslator extends EchoTranslator {
 //		EchoReporter.getInstance().debug("Increment: "+scopesincrement);
 	}	
 	
+	public void createScopesFromID(List<String> modelIDs, List<String> targetIDs) throws ErrorAlloy {
+		Map<PrimSig, Integer> scopesmap = new HashMap<PrimSig, Integer>();
+		Map<PrimSig, Integer> scopesexact = new HashMap<PrimSig, Integer>();
+		for (String modelID : modelIDs) {
+			EAlloyModel model = modelalloys.get(modelID);
+			EAlloyMetamodel metamodel = model.metamodel;
+			if (targetIDs.contains(modelID)) {	
+				if (EchoOptionsSetup.getInstance().isOperationBased()) {
+					// gets creation count from operations
+					scopesincrement = metamodel.getCreationCount();
+					// gets initial scope for sigs with creations
+					for (PrimSig p : metamodel.getCreationCount().keySet())
+						scopesmap.put(p, model.getClassSigs(p).size());
+			
+					// also increments state sig
+					scopesincrement.put(metamodel.SIG,1);
+					scopesexact.put(metamodel.SIG,1);
+					// TODO: deal with strings
+					//scopesincrement.put(PrimSig.STRING,1);
+				} else {
+					scopesexact.put(metamodel.SIG,0);
+					// scope is the number of all elements
+					for (PrimSig sig : metamodel.getCAllSigs()) {
+						if (!(metamodel.getEClassifierFromSig(sig) instanceof EEnum)) {
+							int count = model.getClassSigs(sig) == null ? 0 : model.getClassSigs(sig).size();
+							scopesmap.put(sig, count);
+							scopesincrement.put(sig,1);
+						}
+					}
+				}
+			} else {
+				scopesexact.put(metamodel.SIG,0);
+			}
+		}
+		scopes = AlloyHelper.createScope(scopesmap, scopesexact);
+	}
+
+	
 	/**
 	 * Increments a collection of scopes.
 	 * If operation-based, increments only by the defined creation count 
@@ -454,6 +492,7 @@ class AlloyEchoTranslator extends EchoTranslator {
 	public ITContext newContext() {
 		return new AlloyContext();
 	}
+
 
 
 }

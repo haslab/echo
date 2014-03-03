@@ -295,7 +295,7 @@ class AlloyRunner implements EngineRunner {
 	@Override
 	public boolean enforce(String transformationID, List<String> modelIDs,
 			List<String> targetIDs) throws ErrorAlloy {
-		AlloyEchoTranslator.getInstance().createScopesFromID(targetIDs);
+		AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs,targetIDs);
 		check(transformationID, modelIDs);
 		if (sol.satisfiable())
 			throw new ErrorAlloy("Instances already consistent.");
@@ -354,6 +354,7 @@ class AlloyRunner implements EngineRunner {
 				AlloyEchoTranslator.getInstance().getModel(targetID)
 						.unsetTarget();
 			while (!sol.satisfiable()) {
+				EchoReporter.getInstance().debug("scopes: "+scopes);
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
 				if (overall >= EchoOptionsSetup.getInstance().getMaxDelta())
