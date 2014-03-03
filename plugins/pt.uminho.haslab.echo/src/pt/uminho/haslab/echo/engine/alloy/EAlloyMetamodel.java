@@ -239,7 +239,7 @@ import java.util.*;
 		Func f;
 		EAlloyModel model = (EAlloyModel) EchoTranslator.getInstance().getModel(modelID);
 		try {
-			EchoReporter.getInstance().debug("Conforms: "+conformsPred);
+//			EchoReporter.getInstance().debug("Conforms: "+conformsPred);
 			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, conformsPred);
 		} catch (Err e) {
 			throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
@@ -554,6 +554,7 @@ import java.util.*;
 			Field statefield = sig2statefield.get(classsig);
 			try {
 				self = (statefield.join(model_var.get())).oneOf("self");
+				EchoReporter.getInstance().debug("self range: "+statefield.join(model_var.get()));
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_VAR,
 						"Failed to create annotation variable.", a,

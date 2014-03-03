@@ -33,12 +33,22 @@ public class EchoReporter {
 
 	public void start(Task qualifier,String message) {
 		inittime.put(qualifier, System.currentTimeMillis());
+		switch (qualifier) {
+		case ALLOY_RUN :
+			System.out.println(message);
+			break;
+		default:
+			break;
+		}
 	}
 	
 	public void result (Task qualifier, String string, boolean result) {
 		long time = System.currentTimeMillis() - inittime.get(qualifier);
 		endtime.put(qualifier, time);
 		switch (qualifier) {
+			case ALLOY_RUN :
+				System.out.println(string);
+				break;
 			case ECHO_RUN :
 				if (result) System.out.println("Bye (" + time + "ms).");
 				else System.out.println("No more instances (" + time + "ms).");

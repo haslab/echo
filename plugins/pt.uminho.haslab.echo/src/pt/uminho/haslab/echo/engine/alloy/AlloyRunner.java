@@ -86,6 +86,8 @@ class AlloyRunner implements EngineRunner {
 						"Primary vars: " + primaryVars + ", vars: " + totalVars
 								+ ", clauses: " + clauses);
 			}
+			
+			
 		};
 		aoptions = new A4Options();
 		aoptions.solver = A4Options.SatSolver.SAT4J;
@@ -109,11 +111,12 @@ class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(model.metamodel.getConforms(modelID).FORMULA);
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 		}
-
 		try {
-			cmd = new Command(true, overall, intscope, -1, finalfact);
+			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
 					aoptions);
+			EchoReporter.getInstance().debug("sigs: "+allsigs);
+			EchoReporter.getInstance().debug("final: "+finalfact+" and "+sol.satisfiable());
 		} catch (Err a) {
 			throw new ErrorAlloy(a.getMessage());
 		}
@@ -127,11 +130,13 @@ class AlloyRunner implements EngineRunner {
 	public void show(List<String> modelIDs) throws ErrorAlloy {
 		for (String modelID : modelIDs) {
 			addInstanceSigs(modelID);
-			finalfact = finalfact.and(AlloyEchoTranslator.getInstance()
-					.getModel(modelID).getModelConstraint().FORMULA);
+			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
+					modelID);
+			finalfact = finalfact.and(model.metamodel.getConforms(modelID).FORMULA);
+			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 		}
 		try {
-			cmd = new Command(true, overall, intscope, -1, finalfact);
+			cmd = new Command(true, 0, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
 					aoptions);
 		} catch (Err a) {

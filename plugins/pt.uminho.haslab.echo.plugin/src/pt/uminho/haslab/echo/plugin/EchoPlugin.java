@@ -32,8 +32,6 @@ public class EchoPlugin extends AbstractUIPlugin {
     public final static String QVT_ICON = "qvt.gif";
     public final static String XMI_ICON = "xmi.gif";
 
-
-
 	/** the current EchoPlugin instance **/
 	private static EchoPlugin instance;
 

@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ITContext;
@@ -104,7 +105,7 @@ public class AlloyContext implements ITContext {
 				range = getClassExpression(metamodel.ID, type).EXPR;
 				currentModel = temp;
 			}
-						
+			EchoReporter.getInstance().debug("Context decl: "+var.getName()+"::"+range);
 			AlloyDecl d = new AlloyDecl(range.oneOf(var.getName()));
 			if (addContext) addVar(d);
 			return d;
@@ -144,7 +145,7 @@ public class AlloyContext implements ITContext {
 		// tries to retrieve the state sig of the current model context
 		if (currentModel != null) state = getModelExpression(currentModel);
         // otherwise uses the generic metamodel sig
-		if (state == null) state = getModelExpression(metaModelID);
+		if (state.equals(Constants.EMPTY())) state = getModelExpression(metaModelID);
 
 		// fetches the corresponding field
 		EClass eclass = (EClass) emeta.getEObject().getEClassifier(className);
