@@ -18,6 +18,7 @@ import pt.uminho.haslab.echo.engine.ast.Constants;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
@@ -226,5 +227,33 @@ public class AlloyContext implements ITContext {
 	public EAlloyRelation getCallerRel() {
 		return currentRel;
 	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public IFormula createFrameCondition(String metaModelID, String frame) throws ErrorParser, ErrorUnsupported {
+		String className = frame.split("\\.")[0];
+		IExpression pre,post;
+		boolean temp = currentPre;
+		if (frame.split("\\.").length == 1) {
+			currentPre = true;
+			pre = getClassExpression(metaModelID, className);
+			currentPre = false;
+			post = getClassExpression(metaModelID, className);
+		}
+		else if (frame.split("\\.").length == 2) {
+			String fieldName = frame.split("\\.")[1];
+			currentPre = true;
+			pre = getPropExpression(metaModelID, className, fieldName);
+			currentPre = false;
+			post = getPropExpression(metaModelID, className, fieldName);			
+		} 
+		else {
+			currentPre = temp;
+			throw new ErrorParser("Failed to parse frame condition: "+frame);
+		}
+		currentPre = temp;
+		return pre.eq(post);
+	}
+
 
 }
