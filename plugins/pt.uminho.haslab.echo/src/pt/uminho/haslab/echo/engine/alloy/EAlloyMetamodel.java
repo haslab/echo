@@ -661,8 +661,8 @@ import java.util.*;
 									.createPostcondition(sExpr);
 							IFormula form = converter.translateFormula(invariant.getBodyExpression());
 							oclalloy = oclalloy.and(((AlloyFormula) form).FORMULA);
-							EchoReporter.getInstance().debug("*** OPERATION: "+oclalloy);
 						} catch (ParserException e) {
+							e.printStackTrace();
 							throw new ErrorParser(ErrorParser.OCL,
 									"Failed to parse OCL operation.",
 									e.getMessage(), Task.TRANSLATE_METAMODEL);
@@ -672,14 +672,17 @@ import java.util.*;
 						"Echo/@frame")) {
 					for (String sExpr : ea.getDetails().values()) {
 						IFormula form = context.createFrameCondition(metamodel.ID, sExpr);
-						EchoReporter.getInstance().debug("*** FRAME: "+form);
+						oclalloy = oclalloy.and(((AlloyFormula) form).FORMULA);
 					}
 				}
 			}
+			EchoReporter.getInstance().debug("*** OPERATION "+operation.getName()+": "+oclalloy);
 			try {
-				Func fun = new Func(null, operation.getName(), decls,
-						null, oclalloy);
-				operations.add(fun);
+				if(!oclalloy.isSame(Sig.NONE.no())) {
+					Func fun = new Func(null, operation.getName(), decls,
+							null, oclalloy);
+					operations.add(fun); 
+				}
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_FUNC,
 						"Failed to create operation function.", a,

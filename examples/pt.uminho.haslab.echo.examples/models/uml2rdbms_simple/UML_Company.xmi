@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="ASCII"?>
-<uml:Package
-    xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:uml="UML"
-    xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"
-    name="Company">
-  <classes name="Employee"
-      persistent="true"
-      super="//@classes.1"/>
-  <classes name="Person"
-      child="//@classes.0 //@classes.2">
-    <attributes
-        name="name"
-        type="String"/>
+<uml:Package xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="UML" xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore" name="Company">
+  <classes name="Company" persistent="true" super="//@classes.1"/>
+  <classes name="Person" child="//@classes.0 //@classes.2">
+    <attributes name="name" type="Float"/>
   </classes>
-  <classes name="Employer"
-      persistent="true"
-      super="//@classes.1"/>
+  <classes name="Employer" persistent="true" super="//@classes.1"/>
 </uml:Package>
