@@ -1,10 +1,12 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
+import kodkod.ast.Expression;
 import kodkod.ast.Relation;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -36,7 +38,12 @@ public class EKodkodRelation extends EEngineRelation {
 	/** {@inheritDoc} */
 	@Override
 	protected KodkodExpression addNonTopRel(List<IDecl> rootVars) throws ErrorKodkod {
-		Relation field = null;
+		Relation field = Relation.binary(EchoHelper.relationFieldName(relation,dependency.target));
+
+
+        Expression exp = ((KodkodDecl)  rootVars.get(0)).decl.expression();
+        extraRelConstraint = extraRelConstraint.and(new KodkodFormula(field.in(exp.product(Expression.UNIV))));
+
 
 		// Creates a relation between the TYPES of the root variables (only two for now)
 		

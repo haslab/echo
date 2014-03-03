@@ -6,6 +6,7 @@ import kodkod.instance.Tuple;
 import kodkod.instance.TupleSet;
 import kodkod.instance.Universe;
 import kodkod.util.ints.IndexedEntry;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.util.Pair;
@@ -106,7 +107,7 @@ class TargetBinder extends AbstractBinder implements Binder{
                 }
 
                 bounds.bound(rel,leftTuples.product(rightTuples));
-            }else{
+            }else if (sf.getEType().getName().equals("EString")){
                 Set<Relation> newType = e2k.getType(rel);
 
                 TupleSet leftTuples = factory.noneOf(1);
@@ -119,6 +120,21 @@ class TargetBinder extends AbstractBinder implements Binder{
 
 
                 bounds.bound(rel,leftTuples.product(rightTuples));
+            }else{       //EENUM
+                Set<Relation> newType = e2k.getType(rel);
+
+                TupleSet leftTuples = factory.noneOf(1);
+                for (Relation relation : newType)
+                    leftTuples.addAll(bounds.upperBound(relation));
+
+                EEnum eenum = (EEnum) sf.getEType();
+
+                Relation r = e2k.getRelation(eenum);
+
+                TupleSet rightTuples = bounds.upperBound(r);
+
+                bounds.bound(rel,leftTuples.product(rightTuples));
+
             }
 
         }

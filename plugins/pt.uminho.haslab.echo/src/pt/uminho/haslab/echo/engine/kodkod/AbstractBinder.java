@@ -32,6 +32,7 @@ abstract class AbstractBinder implements Binder{
             for(String s: strings)
                 tuples.add(factory.tuple(s));
         }
+        bounds.boundExactly(KodkodUtil.stringRel,factory.setOf(tuples));
     }
 
     protected void makeStringBounds(EKodkodModel x2k) {
@@ -64,6 +65,4 @@ abstract class AbstractBinder implements Binder{
 
         return res;
     }
-
-
 }

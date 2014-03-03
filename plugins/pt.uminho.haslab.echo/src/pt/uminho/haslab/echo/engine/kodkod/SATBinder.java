@@ -29,17 +29,20 @@ class SATBinder extends AbstractBinder implements Binder {
     }
 
 
+
+
     SATBinder(Set<EKodkodModel> models)
     {
         Set<Object> uni = numberCollection();
-        for(EKodkodModel x2k : models)
+        for(EKodkodModel x2k : models){
             uni.addAll(x2k.getUniverse());
+        }
+
         universe = new Universe(uni);
         bounds = new Bounds(universe);
         factory = universe.factory();
         initNumbers();
         makeStringBounds(models);
-
         for(EKodkodModel x2k :models)
             makeBounds(x2k);
     }

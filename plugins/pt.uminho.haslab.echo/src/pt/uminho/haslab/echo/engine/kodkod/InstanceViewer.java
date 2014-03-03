@@ -28,7 +28,7 @@ public class InstanceViewer {
     /** all content*/
     private final Map<Relation,TupleSet> mapRelations;
 
-    private final Map<EClass,Integer> mapClassId;
+    private final Map<EClassifier,Integer> mapClassId;
 
     private final Map<Object, String> mapObjectLabel;
 
@@ -52,6 +52,7 @@ public class InstanceViewer {
         factory = ViewerFactory.eINSTANCE;
 
         makeBasic();
+        makeEnums();
 
         Set<EClass> abs = metaInfo.getAbstracts();
         Set<Relation> refs = new HashSet<>();
@@ -149,41 +150,77 @@ public class InstanceViewer {
             string.getAtom().add(a);
         }
 
+
+
+
+
+
     }
 
-    private void handleRel(Relation rel) {
-        //TODO getEclass might return enum
-        EClass ec =(EClass) metaInfo.getEClass(rel);
-        if(!mapClassId.containsKey(ec)){
+    private void makeEnums(){
+        HashSet<EEnum> enums = new HashSet<>();
+        for(EKodkodMetamodel e2k : metaInfo.getMetas())
+            enums.addAll(e2k.getEEnums());
+
+        for(EEnum en: enums)
+        {
+            Relation rel = metaInfo.getRelation(en);
             Sig s;
-            String className = ec.getName();
-            int id =  idCounter++;
-            mapClassId.put(ec,id);
-            EList<EClass> list = ec.getESuperTypes();
-            if(list.size()>0)
-            {
-                EClass parent = list.get(0);
-                Relation p = metaInfo.getRelation(parent);
-                if(p == null)
-                    handleAbs(parent);
-                else
-                    handleRel(p);
-                s = factory.createSig(id,mapClassId.get(parent),className);
-            }else
-                s = factory.createSig(id,className);
+            int id = idCounter++;
+            s = factory.createSig(id,en.getName());
             instance.getSig().add(s);
 
             TupleSet ts = mapRelations.get(rel);
             for(Tuple t: ts )
             {
-                String atomLabel = NamingHelper.nameAtom(ec);
-                mapObjectLabel.put(t.atom(0),atomLabel);
+                EEnumLiteral el = (EEnumLiteral)  t.atom(0);
+                mapObjectLabel.put(el,el.getName());
                 Atom atom = factory.createAtom();
-                atom.setLabel(atomLabel);
+                atom.setLabel(el.getName());
                 s.getAtom().add(atom);
             }
+            
+            mapClassId.put(en, id);
         }
 
+
+    }
+
+    private void handleRel(Relation rel) {
+        EClassifier ecl = metaInfo.getEClass(rel);
+        if(ecl instanceof  EClass){
+            EClass ec = (EClass) ecl;
+
+            if(!mapClassId.containsKey(ec)){
+                Sig s;
+                String className = ec.getName();
+                int id =  idCounter++;
+                mapClassId.put(ec,id);
+                EList<EClass> list = ec.getESuperTypes();
+                if(list.size()>0)
+                {
+                    EClass parent = list.get(0);
+                    Relation p = metaInfo.getRelation(parent);
+                    if(p == null)
+                        handleAbs(parent);
+                    else
+                        handleRel(p);
+                    s = factory.createSig(id,mapClassId.get(parent),className);
+                }else
+                    s = factory.createSig(id,className);
+                instance.getSig().add(s);
+
+                TupleSet ts = mapRelations.get(rel);
+                for(Tuple t: ts )
+                {
+                    String atomLabel = NamingHelper.nameAtom(ec);
+                    mapObjectLabel.put(t.atom(0),atomLabel);
+                    Atom atom = factory.createAtom();
+                    atom.setLabel(atomLabel);
+                    s.getAtom().add(atom);
+                }
+            }
+        }
 
     }
 
@@ -220,20 +257,20 @@ public class InstanceViewer {
         field.setParentID(parentId);
         field.setLabel(NamingHelper.nameField(sf));
 
-        int typeId=0; //TODO might be ENUM
+        int typeId=0;
         if(sf instanceof EReference)
-            typeId = mapClassId.get((EClass) sf.getEType());
+            typeId = mapClassId.get( sf.getEType());
         else if(sf instanceof EAttribute)
         {
             if(sf.getEType().getName().equals("EString"))
                 typeId = 3;
             else if(sf.getEType().getName().equals("EInt"))
                 typeId = 1;
+            else if(sf.getEType() instanceof EEnum)
+                typeId = mapClassId.get(sf.getEType());
             else
                 System.out.println("ASDASDASDASDASDASDASDSAD");
-        }else
-        	System.out.println("dsdddddddd" + sf.getName());
-
+        }
         System.out.println(typeId);
         
         
@@ -309,6 +346,10 @@ public class InstanceViewer {
     private class MetaInfo {
         private Set<EKodkodMetamodel> metas;
 
+        public Set<EKodkodMetamodel> getMetas() {
+            return metas;
+        }
+
         MetaInfo(Set<EKodkodMetamodel> metas)
         {
             this.metas =metas;
@@ -338,7 +379,7 @@ public class InstanceViewer {
 
         }
 
-        public Relation getRelation(EClass ec) {
+        public Relation getRelation(EClassifier ec) {
             Iterator<EKodkodMetamodel> it = metas.iterator();
             Relation rel = null;
 

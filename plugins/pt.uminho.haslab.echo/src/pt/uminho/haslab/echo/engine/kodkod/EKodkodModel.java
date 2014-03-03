@@ -51,6 +51,7 @@ class EKodkodModel implements EEngineModel {
 		translator = t;
         bounds = new HashMap<>();
         universe = new HashSet<>();
+        universe.addAll(t.getAllLiterals());
         strings = new HashSet<>();
         initBounds();
         makeAtomsList(emodel.getEObject());
@@ -61,6 +62,16 @@ class EKodkodModel implements EEngineModel {
         Collection<Relation> lRel = translator.getAllRelations();
         for(Relation rel : lRel)
             bounds.put(rel,new HashSet<>());
+
+        Set<EEnum> enums = translator.getEEnums();
+        for(EEnum e: enums)
+        {
+            Relation rel = translator.getRelation(e);
+            Set<Object> set = bounds.get(rel);
+            for(EEnumLiteral el : e.getELiterals()){
+                set.add(el);
+            }
+        }
     }
 
 
@@ -149,8 +160,7 @@ class EKodkodModel implements EEngineModel {
                 set.add(pair);
                 strings.add((String) obj);
             }else if(obj instanceof EEnumLiteral){
-                pair = new Pair<>(it,obj);
-                universe.add(obj);
+                pair = new Pair<>(it,translator.getProperLiteral((EEnumLiteral) obj));
                 set.add(pair);
             }
             else

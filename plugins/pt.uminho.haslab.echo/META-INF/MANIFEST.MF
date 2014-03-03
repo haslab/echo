@@ -14,8 +14,8 @@ Require-Bundle: org.eclipse.emf.ecore,
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: src/,
  lib/sat4j-maxsat.jar,
- lib/alloy4.2.jar,
- lib/kodkod.jar
+ lib/kodkod.jar,
+ lib/alloy4.2.jar 
 Export-Package: edu.mit.csail.sdg.alloy4viz;uses:="new edu.mit.csail.sdg.alloy4viz,  edu.mit.csail.sdg.alloy4,  edu.mit.csail.sdg.alloy4graph,  javax.swing,  edu.mit.csail.sdg.alloy4compiler.translator,  javax.swing.event",
  pt.uminho.haslab.echo;uses:="org.eclipse.emf.ecore,  pt.uminho.haslab.echo.transform,  edu.mit.csail.sdg.alloy4viz,  org.eclipse.qvtd.pivot.qvtrelation",
  pt.uminho.haslab.echo.engine,
