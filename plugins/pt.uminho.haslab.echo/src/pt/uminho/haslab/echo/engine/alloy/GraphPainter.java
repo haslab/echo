@@ -67,6 +67,12 @@ public class GraphPainter {
 				else if (atype.getName().equals(AlloyHelper.STRINGNAME) || atype.getName().equals(AlloyHelper.INTNAME) || atype.getName().startsWith(EchoHelper.ORDNAME)) {
 					vizstate.label.put(atype, label.replace("\"", ""));
 				}
+				else if (EchoHelper.mayBeEnumeLit(label)){
+					String litname = EchoHelper.getEnumeLitName(label);
+					vizstate.label.put(atype, litname);
+					vizstate.nodeColor.put(atype, null);
+					vizstate.shape.put(atype, null);
+				}
 				else if (!EchoHelper.isElement(label)){
 					String metamodelID = EchoHelper.getMetamodelIDfromLabel(label);
 					EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(metamodelID);

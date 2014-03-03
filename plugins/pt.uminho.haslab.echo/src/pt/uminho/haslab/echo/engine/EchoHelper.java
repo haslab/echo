@@ -48,6 +48,17 @@ public class EchoHelper {
 		return res;
 	}
 
+	public static String getEnumeLitName(String label) {
+		String res = null;
+		String[] aux = label.split("@");
+		if (aux.length > 2) {
+			if (isElement(label)) res = aux[2].split("#")[0];
+			else res = aux[2];
+		}
+		return res;
+	}
+
+
 	public static String getModelName(String label) {
 		String[] aux = label.split("/");
 		if (label.charAt(0) == '\'') return "target@"+aux[aux.length-1];
@@ -64,6 +75,10 @@ public class EchoHelper {
 	}
 
 	public static boolean mayBeFeature(String label) {
+		return label.split("@").length == 3;
+	}
+	
+	public static boolean mayBeEnumeLit(String label) {
 		return label.split("@").length == 3;
 	}
 
