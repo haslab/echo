@@ -112,7 +112,7 @@ class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 		}
 		try {
-			cmd = new Command(true, 0, intscope, -1, finalfact);
+			cmd = new Command(true, overall, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
 					aoptions);
 		} catch (Err a) {
@@ -183,6 +183,7 @@ class AlloyRunner implements EngineRunner {
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
 			AlloyEchoTranslator.getInstance().getModel(modelID).unsetTarget();
 			while (!sol.satisfiable()) {
+				EchoReporter.getInstance().debug("scopes: "+scopes);
 				if (delta >= EchoOptionsSetup.getInstance().getMaxDelta())
 					return false;
 				if (overall >= EchoOptionsSetup.getInstance().getMaxDelta())
@@ -274,7 +275,7 @@ class AlloyRunner implements EngineRunner {
 		}
 		finalfact = finalfact.and(trans.getConstraint(modelIDs).FORMULA);
 		try {
-			cmd = new Command(true, 0, intscope, -1, finalfact);
+			cmd = new Command(true, overall, intscope, -1, finalfact);
 			sol = TranslateAlloyToKodkod.execute_command(rep, allsigs, cmd,
 					aoptions);
 		} catch (Err a) {

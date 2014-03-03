@@ -7,16 +7,19 @@ import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
@@ -236,10 +239,14 @@ class AlloyEchoTranslator extends EchoTranslator {
 				// TODO: deal with strings
 				//scopesincrement.put(PrimSig.STRING,1);
 			} else {
+				scopesexact.put(metamodel.SIG,0);
 				// scope is the number of all elements
 				for (PrimSig sig : metamodel.getCAllSigs()) {
-					int count = model.getClassSigs(sig) == null ? 0 : model.getClassSigs(sig).size();
-					scopesmap.put(sig, count);
+					if (!(metamodel.getEClassifierFromSig(sig) instanceof EEnum)) {
+						int count = model.getClassSigs(sig) == null ? 0 : model.getClassSigs(sig).size();
+						scopesmap.put(sig, count);
+						scopesincrement.put(sig,1);
+					}
 				}
 			}
 		}
@@ -260,20 +267,15 @@ class AlloyEchoTranslator extends EchoTranslator {
 	ConstList<CommandScope> incrementScopes(List<CommandScope> scopes)
 			throws ErrorSyntax {
 		List<CommandScope> list = new ArrayList<CommandScope>();
-		for (CommandScope scope : scopes)
-			if (EchoOptionsSetup.getInstance().isOperationBased()) {
-				// increments every scope by the defined increment
-				// should include inheritance
-				Integer i = scopesincrement.get(scope.sig);
-				if (i == null)
-					i = 0;
-				list.add(new CommandScope(scope.sig, scope.isExact,
-						scope.startingScope + i));
-			} else
-				// increments every scope by 1
-				list.add(new CommandScope(scope.sig, scope.isExact,
-						scope.startingScope + 1));
-
+		for (CommandScope scope : scopes) {
+			// increments every scope by the defined increment
+			// should include inheritance
+			Integer i = scopesincrement.get(scope.sig);
+			if (i == null)
+				i = 0;
+			list.add(new CommandScope(scope.sig, scope.isExact,
+					scope.startingScope + i));
+		}
 		return ConstList.make(list);
 	}
 	

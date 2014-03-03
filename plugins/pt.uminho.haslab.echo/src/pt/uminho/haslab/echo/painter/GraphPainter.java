@@ -1,9 +1,11 @@
-package pt.uminho.haslab.echo.engine.alloy;
+package pt.uminho.haslab.echo.painter;
 
 import edu.mit.csail.sdg.alloy4graph.DotColor;
 import edu.mit.csail.sdg.alloy4graph.DotShape;
 import edu.mit.csail.sdg.alloy4viz.*;
+
 import org.eclipse.emf.ecore.*;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.mde.MDEManager;
@@ -64,7 +66,7 @@ public class GraphPainter {
 				else if (atype.getName().equals(EchoHelper.STATESIGNAME)) {
 					statet = atype;
 				}
-				else if (atype.getName().equals(AlloyHelper.STRINGNAME) || atype.getName().equals(AlloyHelper.INTNAME) || atype.getName().startsWith(EchoHelper.ORDNAME)) {
+				else if (atype.getName().equals(EchoHelper.STRINGNAME) || atype.getName().equals(EchoHelper.INTNAME) || atype.getName().startsWith(EchoHelper.ORDNAME)) {
 					vizstate.label.put(atype, label.replace("\"", ""));
 				}
 				else if (EchoHelper.mayBeEnumeLit(label)){
@@ -80,7 +82,7 @@ public class GraphPainter {
 						String classname = EchoHelper.getClassifierName(label);
 						
 						EClassifier eclass = metamodel.getEObject().getEClassifier(classname);					
-						if (classname != null && AlloyEchoTranslator.getInstance().getSigFromClass(metamodelID, eclass) != null) {
+						if (classname != null && eclass != null) {
 							vizstate.label.put(atype, classname);
 							vizstate.nodeColor.put(atype, DotColor.GRAY);
 							vizstate.shape.put(atype, availableshapes.get(i));

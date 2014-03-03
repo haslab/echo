@@ -4,6 +4,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EStructuralFeature;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
@@ -13,7 +14,12 @@ import pt.uminho.haslab.mde.transformation.ERelation;
 public class EchoHelper {
 	public static String ORDNAME = "ord@";
 	public static String NEWSNAME = "news@";
+	
+	/** the top state signature name */	
 	public static String STATESIGNAME = "State@";
+
+	public static String STRINGNAME = "String";
+	public static String INTNAME = "Int";
 
 	public static String relationFieldName (ERelation rel, EModelDomain dir) {
 		try {
