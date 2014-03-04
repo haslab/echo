@@ -3,8 +3,20 @@ package pt.uminho.haslab.echo.engine.kodkod;
 import kodkod.ast.Expression;
 import kodkod.ast.Formula;
 import kodkod.ast.IntConstant;
+import kodkod.engine.Solution;
+import kodkod.instance.Instance;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
@@ -136,19 +148,30 @@ public class KodkodEchoTranslator extends EchoTranslator {
     }
 
     @Override
-	public void writeAllInstances(EchoSolution solution, String metaModelID,
-			String modelUri) throws EchoError {
-		// TODO Auto-generated method stub
-		
+	public void writeAllInstances(EchoSolution solution, String metaModelID, String modelUri) throws EchoError {
+        EKodkodMetamodel e2k = metaModels.get(metaModelID);
+        List<EClass> rootclasses = e2k.getRootClass();
+        if (rootclasses.size() != 1) throw new ErrorUnsupported("Could not resolve root class: "+rootclasses);
+
+        Instance instance = ((Solution) solution.getContents()).instance();
+
+        EObject root =(EObject) instance.tuples(e2k.getRelation(rootclasses.get(0))).iterator().next().atom(0);
+
+        writeXMIKodkod(instance,modelUri,e2k,root);
 	}
 
 	@Override
 	public void writeInstance(EchoSolution solution, String modelID)
 			throws EchoError {
 
+        EKodkodModel x2k = models.get(modelID);
+        EObject root = x2k.getModel().getRootEElement().getEObject();
 
+        Instance instance = ((Solution) solution.getContents()).instance();
 
-		
+        EKodkodMetamodel e2k = x2k.getMetamodel();
+
+        writeXMIKodkod(instance,x2k.getModel().getURI(),e2k,root);
 	}
 
     @Override
@@ -180,6 +203,28 @@ public class KodkodEchoTranslator extends EchoTranslator {
 		return new KodkodContext();
 	}
 
+    private void writeXMIKodkod(Instance ins, String targetURI, EKodkodMetamodel e2k, EObject root) throws EchoError {
+        Kodkod2XMI k2x = new Kodkod2XMI(ins,root,e2k);
 
+        ResourceSet resourceSet = new ResourceSetImpl();
+        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
+                "*", new XMIResourceFactoryImpl());
+
+        Resource resource = resourceSet.createResource(URI.createURI(targetURI));
+        resource.getContents().add(k2x.getModel());
+
+		/*
+		* Save the resource using OPTION_SCHEMA_LOCATION save option toproduce
+		* xsi:schemaLocation attribute in the document
+		*/
+        Map<Object,Object> options = new HashMap<Object,Object>();
+        options.put(XMLResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+        try{
+            resource.save(options);
+        }catch (Exception e) {
+            throw new ErrorTransform(e.getMessage());
+        }
+
+    }
 
 }

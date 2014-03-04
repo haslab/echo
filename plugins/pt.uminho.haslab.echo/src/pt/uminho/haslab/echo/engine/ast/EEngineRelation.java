@@ -66,6 +66,8 @@ public abstract class EEngineRelation {
 	private Map<String,IDecl> targetVar2engineDecl = new HashMap<String,IDecl>();
 
 	public final IFormula constraint;
+
+    protected IFormula extraRelConstraint;
 	
 	/** 
 	 * Embeds a non-top relation into the engine representation.
@@ -110,18 +112,21 @@ public abstract class EEngineRelation {
 		this.callerRelation = top ? this : parentRelation;
 		this.context = EchoTranslator.getInstance().newContext();
 		this.context.setCurrentRel(callerRelation);
-		
+
+
+
 		initVariableLists();
 		
 		IExpression sub = Constants.EMPTY();
+        extraRelConstraint = Constants.TRUE();
 		// must be created before calculating the constraint, as it may be recursively called
 		if (!top) sub = addRelationField();
 		
 		IFormula temp = calculateConstraint();
 		if (EchoOptionsSetup.getInstance().isOptimize())
-			constraint = simplify(temp);
+			constraint = simplify(extraRelConstraint.and(temp));
 		else 
-			constraint = temp;
+			constraint = extraRelConstraint.and(temp);
 		
 		if (top) addRelationConstraint();
 		else addRelationDef(sub);

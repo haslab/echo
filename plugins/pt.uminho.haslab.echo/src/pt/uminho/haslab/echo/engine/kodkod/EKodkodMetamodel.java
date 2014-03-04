@@ -3,14 +3,12 @@ package pt.uminho.haslab.echo.engine.kodkod;
 import kodkod.ast.*;
 import kodkod.ast.operator.Multiplicity;
 import kodkod.util.nodes.PrettyPrinter;
-
 import org.eclipse.emf.ecore.*;
 import org.eclipse.ocl.examples.pivot.ExpressionInOCL;
 import org.eclipse.ocl.examples.pivot.OCL;
 import org.eclipse.ocl.examples.pivot.ParserException;
 import org.eclipse.ocl.examples.pivot.helper.OCLHelper;
 import org.eclipse.ocl.examples.pivot.utilities.PivotEnvironmentFactory;
-
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
@@ -23,6 +21,9 @@ import pt.uminho.haslab.mde.model.EMetamodel;
 import java.util.*;
 
 class EKodkodMetamodel extends EEngineMetamodel {
+
+    //TODO can classes have the same name as enums?
+
 
     //TODO verify facts that mention classes with children must be changed.
     //TODO Use MDE and check if MDE uses sf hierarchy properly.
@@ -41,9 +42,12 @@ class EKodkodMetamodel extends EEngineMetamodel {
     private Map<Relation, Set<Relation>> mapType;
     /**maps a attribute relation with type = bool*/
     private Map<Relation, Set<Relation>> mapBoolType;
+    /**maps EEnumLiterals names into EEnumLiterals*/
+    private Map<String,EEnumLiteral> literals;
 
     private Set<EClass> abstracts ;
 
+    private Set<EEnum> enums;
 
     /**facts about the meta-model*/
 	private Formula facts;
@@ -70,6 +74,8 @@ class EKodkodMetamodel extends EEngineMetamodel {
         mapType = new HashMap<>();
         mapBoolType = new HashMap<>();
         abstracts = new HashSet<>();
+        enums = new HashSet<>();
+        literals = new HashMap<>();
 		facts = Formula.TRUE;
 	}
 	
@@ -238,8 +244,9 @@ class EKodkodMetamodel extends EEngineMetamodel {
                 mapType.put(attribute, getRelDomain(className));
 			} 
 			else if (attr.getEType() instanceof EEnum) {
-				//TODO
-                attribute = null;
+                attribute = Relation.binary(attrName);
+                facts = facts.and(attribute.function(domain,mapClassRel.get(attr.getEType().getName())));
+                mapType.put(attribute, getRelDomain(className));
 			} 
 			else throw new ErrorUnsupported("Primitive type for attribute not supported: "+attr+".");
             mapSfRel.put(className+"::"+attr.getName(),attribute);
@@ -287,6 +294,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
     }
 
 
+
     Expression getDomain(String className){
         Expression result = mapClassRel.get(className);
         if(result == null)
@@ -327,12 +335,30 @@ class EKodkodMetamodel extends EEngineMetamodel {
     }
 
     protected void processEnums(List<EEnum> enumList) {
-		// TODO Enums   -> save and then bind?
-		
+
+        for(EEnum enu : enumList){
+            enums.add(enu);
+            Relation rel = Relation.unary(enu.getName());
+            mapClassRel.put(enu.getName(),rel);
+            for(EEnumLiteral el : enu.getELiterals())
+                literals.put(enu.getName() + "@" + el.getName(), el);
+        }
+
 	}
 
+    Set<EEnum> getEEnums(){
+        return enums;
+    }
+
+    Collection<EEnumLiteral> getAllLiterals(){
+        for(EEnumLiteral el : literals.values())
+            System.out.println(el);
+
+
+        return literals.values();
+    }
+
 	Collection<Relation> getClassRelations(){
-		
 		return mapClassRel.values();
 	}
 
@@ -350,7 +376,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
         return res;
     }
 
-    Relation getRelation(EClass cc)
+    Relation getRelation(EClassifier cc)
     {
         return  mapClassRel.get(cc.getName());
     }
@@ -392,4 +418,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
         return mapRelSf.get(rel);
     }
 
+    EEnumLiteral getProperLiteral(EEnumLiteral el){
+        return literals.get(el.getEEnum().getName() + "@" + el.getName());
+    }
 }
