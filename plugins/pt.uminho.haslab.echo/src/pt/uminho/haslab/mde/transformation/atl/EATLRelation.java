@@ -34,7 +34,7 @@ public class EATLRelation implements ERelation {
 		EchoReporter.getInstance().debug("Processing rule "+rule.getName());
 		EchoReporter.getInstance().debug("Processing rule "+rule.getFields());
 		EchoReporter.getInstance().debug("Processing rule "+rule.getInputElements());
-		EchoReporter.getInstance().debug("Processing rule "+rule.getMatcher());
+		EchoReporter.getInstance().debug("Processing rule "+rule.getMatcher().getBodyFor());
 		EchoReporter.getInstance().debug("Processing rule "+rule.getMode());
 		EchoReporter.getInstance().debug("Processing rule "+rule.getPostApply());
 		EchoReporter.getInstance().debug("Processing rule "+rule.getOutputElements());

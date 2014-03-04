@@ -14,9 +14,9 @@
     <eOperations name="addAttribute">
       <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_add_attr" value="Attribute.allInstances()->one(x | x.oclIsNew() and x.name = n and self.attributes->includes(x))"/>
-        <details key="frame_add_attr" value="Class.allInstances()-> forAll(x | x.attributes@pre = x.attributes or x = self)"/>
-        <details key="frame_add_attr" value="NamedEntity.allInstances@pre()-> forAll(x | x.name@pre = x.name or x = self)"/>
-        <details key="frame_add_attr" value="Attribute.allInstances@pre()-> forAll(x | x.type@pre = x.type or x = self)"/>
+        <details key="post_frame_attributes" value="Class.allInstances()->forAll(x | x.attributes@pre = x.attributes or x = self)"/>
+        <details key="post_frame_name" value="NamedEntity.allInstances@pre()->forAll(x | x.name@pre = x.name or x = self)"/>
+        <details key="post_frame_type" value="Attribute.allInstances@pre()-> forAll(x | x.type@pre = x.type or x = self)"/>
       </eAnnotations>
       <eAnnotations source="Echo/@frame">
         <details key="Package.classes" value="Package.classes"/>
@@ -88,7 +88,7 @@
     <eOperations name="setName">
       <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
         <details key="post_set_name" value="self.name = n"/>
-        <details key="frame_set_name" value="NamedEntity.allInstances()-> forAll(x | x.name@pre = x.name or x = self)"/>
+        <details key="post_frame_name" value="NamedEntity.allInstances()->forAll(x | x.name@pre = x.name or x = self)"/>
       </eAnnotations>
       <eAnnotations source="Echo/@frame">
         <details key="Package.classes" value="Package.classes"/>

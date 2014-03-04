@@ -192,7 +192,6 @@ class AlloyEchoTranslator extends EchoTranslator {
     	return new AlloyIntExpression(ExprConstant.makeNUMBER(n));
     }
 
-
     void createScopesFromSizes(int overall, Map<Entry<String,String>,Integer> scopesmap) throws ErrorAlloy {
 		Map<PrimSig,Integer> sc = new HashMap<PrimSig,Integer>();
 		sc.put(Sig.STRING, overall);
@@ -202,10 +201,12 @@ class AlloyEchoTranslator extends EchoTranslator {
 			else {
 				EAlloyMetamodel e2a = metamodelalloys.get(cla.getKey());
 				EClassifier eclass = e2a.metamodel.getEObject().getEClassifier(cla.getValue());
+				sc.put(e2a.SIG,0);
 				PrimSig sig = e2a.getSigFromEClassifier(eclass);
 				sc.put(sig, scopesmap.get(cla));
 			}
 		}
+
 		scopes = AlloyHelper.createScope(new HashMap<PrimSig,Integer>(),sc);
 	}
 	
