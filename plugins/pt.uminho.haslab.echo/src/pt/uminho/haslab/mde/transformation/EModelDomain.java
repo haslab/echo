@@ -21,8 +21,9 @@ public abstract class EModelDomain {
 	
 	/** the model parameter regarding this model domain 
 	 * @throws ErrorParser 
-	 * @throws ErrorUnsupported */
-	abstract public EModelParameter getModel() throws ErrorUnsupported, ErrorParser;
+	 * @throws ErrorUnsupported 
+	 * @throws EchoError */
+	abstract public EModelParameter getModel() throws ErrorUnsupported, ErrorParser, EchoError;
 	
 	/** the root variable of the domain */
 	abstract public EVariable getRootVariable();

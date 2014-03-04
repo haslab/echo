@@ -2,7 +2,9 @@ package pt.uminho.haslab.mde;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.m2m.atl.emftvm.Module;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
@@ -10,6 +12,7 @@ import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
 
@@ -43,10 +46,7 @@ public class MDEManager {
 	private Map<String,EMetamodel> metamodels = new HashMap<String,EMetamodel>();
 
 	/** maps QVT-R transformation URIs to processed transformations */
-	private Map<String,EQVTTransformation> qvtTransformations = new HashMap<String,EQVTTransformation>();
-
-	/** maps ATL transformation URIs to processed transformations */
-	private Map<String,EATLTransformation> atlTransformations = new HashMap<String,EATLTransformation>();
+	private Map<String,ETransformation> transformations = new HashMap<>();
 
 	/** maps artifacts IDs to the respective URIs */
 	private Map<String,String> id2uri = new HashMap<String,String>();
@@ -172,28 +172,36 @@ public class MDEManager {
 
 	/**
 	 * Loads a QVT-R transformation identified by its URI
-	 * @param qvtURI the QVT-R transformation URI
+	 * @param transURI the QVT-R transformation URI
 	 * @param forceReload TODO
 	 * @return the processed QVT-R transformation
-	 * @throws ErrorParser
-	 * @throws ErrorUnsupported
 	 * @throws EchoError
 	 */
-	public EQVTTransformation getQVTTransformation(String qvtURI, boolean forceReload) throws ErrorUnsupported, ErrorParser {
-		EQVTTransformation qvt = qvtTransformations.get(qvtURI);
-		if (qvt == null || forceReload) {
-			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, qvtURI);
-			RelationalTransformation trans = EMFParser.loadQVT(qvtURI);
-			if (qvt == null) {
-				qvt = new EQVTTransformation(trans);
-				qvtTransformations.put(qvtURI, qvt);				
-			} else {
-				qvt.update(trans);
+	public ETransformation getETransformation(String transURI, boolean forceReload) throws EchoError {
+		ETransformation trans = transformations.get(transURI);
+		if (trans == null || forceReload) {
+			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, transURI);
+			if (transURI.split("\\.")[transURI.split("\\.").length-1].equals("qvtr")) {
+				RelationalTransformation qtrans = EMFParser.loadQVT(transURI);
+				if (trans == null) {
+					trans = new EQVTTransformation(qtrans);
+					transformations.put(transURI, trans);				
+				} else {
+					trans.update(qtrans);
+				}
+			} else if (transURI.split("\\.")[transURI.split("\\.").length-1].equals("emftvm")) {
+				Module atrans = EMFParser.loadATL(transURI);
+				if (trans == null) {
+					trans = new EATLTransformation(atrans);
+					transformations.put(transURI, trans);				
+				} else {
+					trans.update(atrans);
+				}
 			}
-			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, qvtURI, true);
+			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, transURI, true);
 		}
-		id2uri.put(qvt.ID,qvtURI);
-		return qvt;
+		id2uri.put(trans.ID,transURI);
+		return trans;
 	}
 
 	/**
@@ -201,90 +209,31 @@ public class MDEManager {
 	 * If there is an ID, then the transformation was already parser previously
 	 * @param qvtID the transformation ID
 	 * @return the processed transformation
-	 * @throws ErrorParser
-	 * @throws ErrorUnsupported
+	 * @throws EchoError 
 	 */
-	public EQVTTransformation getQVTTransformationID(String qvtID) throws ErrorParser, ErrorUnsupported {
+	public ETransformation getETransformationID(String qvtID) throws EchoError {
 		String URI = id2uri.get(qvtID);
 		if (URI==null)
 			if (URI == null) throw new ErrorParser("QVT-R ID "+ qvtID +" not found.");
-		return getQVTTransformation(URI, false);
+		return getETransformation(URI, false);
 	}
 
 	/**
 	 * Removes a QVT-R transformation identified by its URI
-	 * @param qvtURI
+	 * @param transURI
 	 * @return the removed transformation
 	 */
-	public EQVTTransformation disposeQVTTransformation(String qvtURI) {
-		return qvtTransformations.remove(qvtURI);
+	public ETransformation disposeETransformation(String transURI) {
+		return transformations.remove(transURI);
 	}
 
 	/**
 	 * Tests if a QVT-R transformation identified by URI is already loaded
-	 * @param qvtURI the transformation URI
+	 * @param transURI the transformation URI
 	 * @return whether the transformation is loaded
 	 */
-	public boolean hasQVTTransformation(String qvtURI) {
-		return qvtTransformations.get(qvtURI) != null;
-	}
-
-	/**
-	 * Loads an ATL transformation identified by its URI
-	 * @param atlURI the ATL transformation URI
-	 * @return the processed ATL transformation
-	 * @throws ErrorParser
-	 * @throws ErrorUnsupported
-	 * @throws EchoError
-	 */
-	public EATLTransformation getATLTransformation(String atlURI, boolean forceReload) throws ErrorUnsupported, ErrorParser {
-		EATLTransformation atl = atlTransformations.get(atlURI);
-		if (atl == null || forceReload) {
-			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, atlURI);
-			EObject eobj = EMFParser.loadATL(atlURI);
-			if (atl == null) {
-				atl = new EATLTransformation(eobj);
-				atlTransformations.put(atlURI, atl);				
-			} else {
-				atl.update(eobj);
-			}
-			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, atlURI, true);
-		}
-		//id2uri.put(atl.ID,atlURI);
-		return atl;
-	}
-
-	/**
-	 * Gets an ATL transformation identified by its ID
-	 * If there is an ID, then the transformation was already parser previously
-	 * @param atlID the transformation ID
-	 * @return the processed transformation
-	 * @throws ErrorParser
-	 * @throws ErrorUnsupported
-	 */
-	public EATLTransformation getATLTransformationID(String atlID) throws ErrorParser, ErrorUnsupported {
-		String URI = id2uri.get(atlID);
-		if (URI==null)
-			if (URI == null) throw new ErrorParser("ATL ID "+ atlID +" not found.");
-		return getATLTransformation(URI, false);
-	}
-
-	/**
-	 * Removes an ATL transformation identified by its URI
-	 * @param atlURI
-	 * @return the removed transformation
-	 */
-	public EATLTransformation disposeATLTransformation(String atlURI) {
-		return atlTransformations.remove(atlURI);
-	}
-
-	/**
-	 * Tests if an ATL transformation, identified by URI, is already loaded
-	 * @param atlURI the transformation URI
-	 * @return whether the transformation is loaded
-	 */
-	public boolean hasATLTransformation(String atlURI) {
-		return atlTransformations.get(atlURI) != null;
+	public boolean hasETransformation(String transURI) {
+		return transformations.get(transURI) != null;
 	}
 
 	public void backUpTarget(String targetPath) throws ErrorParser {

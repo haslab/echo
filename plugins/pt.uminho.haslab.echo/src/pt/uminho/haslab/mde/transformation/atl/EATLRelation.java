@@ -2,7 +2,11 @@ package pt.uminho.haslab.mde.transformation.atl;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.m2m.atl.emftvm.Rule;
+
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -19,14 +23,21 @@ import java.util.List;
  * @version 0.4 13/02/2014
  */
 public class EATLRelation implements ERelation {
-	private EObject relation;
+	private Rule relation;
 	private List<EModelDomain> domains = new ArrayList<EModelDomain>();
 
 
-	public EATLRelation(EObject rule) throws ErrorParser {
-		if (rule.eClass().getName().equals("MatchedRule") || rule.eClass().getName().equals("LazyMatchedRule") )
-			this.relation = rule;
-		else throw new ErrorParser("Bad atl");
+	public EATLRelation(Rule rule) throws ErrorParser {
+		// should test if matched or lazy matched rule
+		this.relation = rule;
+		EchoReporter.getInstance().debug("Processing rule "+rule);
+		EchoReporter.getInstance().debug("Processing rule "+rule.getName());
+		EchoReporter.getInstance().debug("Processing rule "+rule.getFields());
+		EchoReporter.getInstance().debug("Processing rule "+rule.getInputElements());
+		EchoReporter.getInstance().debug("Processing rule "+rule.getMatcher());
+		EchoReporter.getInstance().debug("Processing rule "+rule.getMode());
+		EchoReporter.getInstance().debug("Processing rule "+rule.getPostApply());
+		EchoReporter.getInstance().debug("Processing rule "+rule.getOutputElements());
 		EStructuralFeature inmdls = relation.eClass().getEStructuralFeature("inPattern");
 		EStructuralFeature outmdls = relation.eClass().getESuperTypes().get(0).getEStructuralFeature("outPattern");
 		EObject obj = (EObject) relation.eGet(inmdls);

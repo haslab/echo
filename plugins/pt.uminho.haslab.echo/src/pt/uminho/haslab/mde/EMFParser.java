@@ -4,10 +4,20 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.m2m.atl.emftvm.EmftvmFactory;
+import org.eclipse.m2m.atl.emftvm.ExecEnv;
+import org.eclipse.m2m.atl.emftvm.Metamodel;
+import org.eclipse.m2m.atl.emftvm.Model;
+import org.eclipse.m2m.atl.emftvm.Module;
+import org.eclipse.m2m.atl.emftvm.compiler.AtlResourceFactoryImpl;
+import org.eclipse.m2m.atl.emftvm.util.DefaultModuleResolver;
+import org.eclipse.m2m.atl.emftvm.util.ModuleResolver;
+import org.eclipse.m2m.atl.emftvm.util.TimingData;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
@@ -16,10 +26,13 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
 import org.eclipse.qvtd.xtext.qvtrelation.QVTrelationStandaloneSetup;
 import org.eclipse.xtext.resource.XtextResourceSet;
+
 import pt.uminho.haslab.echo.EchoOptionsSetup;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +66,8 @@ public class EMFParser {
 			resourceSet.getResourceFactoryRegistry()
 			.getExtensionToFactoryMap().put(
 					"ecore", new EcoreResourceFactoryImpl());
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("atl", new AtlResourceFactoryImpl());
+
 			OCLstdlib.install();
 			QVTrelationStandaloneSetup.doSetup();
 		}
@@ -146,9 +161,51 @@ public class EMFParser {
 	 * @return the parsed transformation
 	 * @throws ErrorParser
 	 */
-	public static EObject loadATL(String atlURI) {
-		// TODO Auto-generated method stub
-		return null;
+	public static Module loadATL(String atlURI) {
+		ExecEnv env = EmftvmFactory.eINSTANCE.createExecEnv();
+		
+		// Load metamodels
+		Metamodel metaModel = EmftvmFactory.eINSTANCE.createMetamodel();
+		metaModel.setResource(resourceSet.getResource(URI.createURI("/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"), true));
+		env.registerMetaModel("UML", metaModel);
+		metaModel = EmftvmFactory.eINSTANCE.createMetamodel();
+		metaModel.setResource(resourceSet.getResource(URI.createURI("/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore"), true));
+		env.registerMetaModel("RDBMS", metaModel);
+
+		// Load models
+//		Model inModel = EmftvmFactory.eINSTANCE.createModel();
+//		inModel.setResource(resourceSet.getResource(URI.createURI("input.xmi", true), true));
+//		env.registerInputModel("IN", inModel);
+//
+//		Model inOutModel = EmftvmFactory.eINSTANCE.createModel();
+//		inOutModel.setResource(resourceSet.getResource(URI.createURI("inout.xmi", true), true));
+//		env.registerInOutModel("INOUT", inOutModel);
+//
+//		Model outModel = EmftvmFactory.eINSTANCE.createModel();
+//		outModel.setResource(resourceSet.createResource(URI.createFileURI("out.xmi")));
+//		env.registerOutputModel("OUT", outModel);
+
+		// Load and run module
+		String prefix = "/pt.uminho.haslab.echo.examples/transformations/atl/uml2rdbms_simple/";
+//		String prefix = URI.createPlatformPluginURI("pt.uminho.haslab.echo.plugin", true).toString()+"/pt.uminho.haslab.echo.examples/transformations/atl/uml2rdbms_simple/";
+		EchoReporter.getInstance().debug("Pre "+prefix);
+		ModuleResolver mr = new DefaultModuleResolver(prefix, new ResourceSetImpl());
+//		TimingData td = new TimingData();
+		Module module = env.loadModule(mr, atlURI.split("/")[atlURI.split("/").length-1].split("\\.emftvm")[0]);
+
+//		td.finishLoading();
+//		env.run(td);
+//		td.finish();
+
+		// Save models
+//		inOutModel.getResource().save(Collections.emptyMap());
+//		outModel.getResource().save(Collections.emptyMap());
+//	
+//		Model model = EmftvmFactory.eINSTANCE.createModel();
+//		EObject module = resourceSet.getResource(URI.createURI(atlURI), true).getContents().get(0);
+//        EObject inm = resourceSet.getResource(URI.createURI(atlURI), true).getContents().get(1);
+//        EObject oum = resourceSet.getResource(URI.createURI(atlURI), true).getContents().get(2);
+        return module;
 	}
 
 	/**

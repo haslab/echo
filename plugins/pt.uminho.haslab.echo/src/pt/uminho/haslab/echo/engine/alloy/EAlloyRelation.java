@@ -45,9 +45,10 @@ class EAlloyRelation extends EEngineRelation {
 		return new AlloyFormula(afact);
 	}
 	
-	/** {@inheritDoc} */
+	/** {@inheritDoc} 
+	 * @throws EchoError */
 	@Override
-	protected void manageModelParams() throws ErrorAlloy, ErrorUnsupported, ErrorParser {
+	protected void manageModelParams() throws EchoError {
 		// required because super class calls from constructor
 		if (modelParamsDecls == null) modelParamsDecls = new ArrayList<>();
 		// creates declarations (variables) for the relation model parameters

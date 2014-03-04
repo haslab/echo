@@ -3,12 +3,18 @@ package pt.uminho.haslab.mde.transformation.atl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.m2m.atl.emftvm.ModelDeclaration;
+import org.eclipse.m2m.atl.emftvm.Module;
+import org.eclipse.m2m.atl.emftvm.Rule;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTModelParameter;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,46 +31,14 @@ import java.util.Map;
  */
 public class EATLTransformation extends ETransformation {
 
-	private List<EModelParameter> models = new ArrayList<EModelParameter>();
-	private List<ERelation> relations = new ArrayList<ERelation>();
-	private EObject transformation;
-	public final EObject mdl1;
-	public final EObject mdl2;
-	public static Map<String,String> metamodeluris = new HashMap<String,String>();
+	private Map<String,EATLModelParameter> modelParams;
+	private List<EATLRelation> relations = new ArrayList<>();
+	private Module transformation;
 
-	public EATLTransformation(EObject module, EObject mdl1, EObject mdl2) throws EchoError {
-		super("",module);
-		this.transformation = module;
-		this.mdl1 = mdl1;
-		this.mdl2 = mdl2;
-		if (!module.eClass().getName().equals("Module")) throw new ErrorParser("Bad atl");
+	public static Map<String,String> metamodeluris = new HashMap<>();
 
-		EStructuralFeature cms = module.eClass().getEStructuralFeature("commentsBefore");
-		EList<String> comments = (EList<String>) module.eGet(cms);
-		for (String comment : comments) {
-			if (comment.split(" ")[1].equals("@nsURI"))
-				metamodeluris.put(comment.split(" ")[2].split("=")[0],comment.split(" ")[2].split("=")[1]);
-		}
-
-		EStructuralFeature elements = module.eClass().getEStructuralFeature("elements");
-		EStructuralFeature inmdls = module.eClass().getEStructuralFeature("inModels");
-		EStructuralFeature outmdls = module.eClass().getEStructuralFeature("outModels");
-		EList<EObject> objs = (EList<EObject>) module.eGet(elements);
-		for (EObject x : objs)
-			relations.add(new EATLRelation(x));
-		objs = (EList<EObject>) module.eGet(inmdls);
-		for (EObject x : objs)
-			models.add(new EATLModelParameter(x,this));
-		objs = (EList<EObject>) module.eGet(outmdls);
-		for (EObject x : objs)
-			models.add(new EATLModelParameter(x,this));
-	}
-
-	public EATLTransformation(EObject loadATL) throws ErrorUnsupported, ErrorParser {
-		super("",loadATL);
-		mdl1 = null;
-		mdl2 = null;
-		// TODO Auto-generated constructor stub
+	public EATLTransformation(Module module) throws EchoError {
+		super(module.getName(),module);
 	}
 
 	@Override
@@ -73,18 +47,28 @@ public class EATLTransformation extends ETransformation {
 	}
 
 	@Override
-	protected void process(EObject artifact) throws ErrorUnsupported {
-		// TODO Auto-generated method stub
+	protected void process(EObject module) throws ErrorUnsupported, ErrorParser {
+		this.transformation = (Module) module;
+
+		if (modelParams == null) modelParams = new HashMap<>();
+		if (relations == null) relations = new ArrayList<>();
+	
+		for (Rule x : transformation.getRules())
+			relations.add(new EATLRelation(x));
+		for (ModelDeclaration x : transformation.getInputModels())
+			modelParams.put(x.getModelName(), new EATLModelParameter(x,this));
+		for (ModelDeclaration x : transformation.getOutputModels())
+			modelParams.put(x.getModelName(), new EATLModelParameter(x,this));
 	}
 
 
 	@Override
-	public List<EModelParameter> getModelParams() {
-		return models;
+	public List<EATLModelParameter> getModelParams() {
+		return new ArrayList<EATLModelParameter>(modelParams.values());
 	}
 
 	@Override
-	public List<ERelation> getRelations() {
+	public List<EATLRelation> getRelations() {
 		return relations;
 	}
 
