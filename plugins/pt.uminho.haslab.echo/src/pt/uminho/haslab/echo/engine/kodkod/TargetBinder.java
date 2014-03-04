@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.util.Pair;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ class TargetBinder extends AbstractBinder implements Binder{
 
 
 
-    TargetBinder(Set<EKodkodModel> models, Set<EKodkodModel> targets){
+    TargetBinder(Set<EKodkodModel> models, Set<EKodkodModel> targets,Collection<Relation> extraRels){
         createExtras();
         Set<Object> uni = numberCollection();
         for(EKodkodModel x2k: models)

@@ -6,6 +6,7 @@ import kodkod.instance.Tuple;
 import kodkod.instance.Universe;
 import pt.uminho.haslab.echo.util.Pair;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +32,7 @@ class SATBinder extends AbstractBinder implements Binder {
 
 
 
-    SATBinder(Set<EKodkodModel> models)
+    SATBinder(Set<EKodkodModel> models,Collection<Relation>extraRels)
     {
         Set<Object> uni = numberCollection();
         for(EKodkodModel x2k : models){

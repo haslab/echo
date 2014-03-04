@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Decls;
 import kodkod.ast.Formula;
+import kodkod.util.nodes.PrettyPrinter;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -81,6 +82,22 @@ class KodkodFormula implements IFormula {
     @Override
     public KodkodFormula forOne(IDecl d) {
         return comprehension(d).one();
+    }
+
+    @Override
+    public String toString (){
+        return PrettyPrinter.print(formula,3);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o)
+            return true;
+        else if(! (o instanceof KodkodFormula))
+            return false;
+        else
+            return formula.equals(((KodkodFormula)o).formula);
     }
 
 }

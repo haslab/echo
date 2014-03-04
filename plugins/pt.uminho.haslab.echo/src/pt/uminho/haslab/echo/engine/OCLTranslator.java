@@ -225,7 +225,7 @@ public class OCLTranslator {
 
 	private INode translate(PropertyCallExp expr) throws EchoError {
 		context.setCurrentModel(null);
-		context.setCurrentPre(((PropertyCallExp) expr).isPre());
+		context.setCurrentPre(expr.isPre());
 		INode res = null;
 		IExpression var = translateExpression(expr.getSource());
 		IExpression aux = propertyToField(expr.getReferredProperty());

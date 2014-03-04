@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Expression;
 import kodkod.ast.Variable;
+import kodkod.util.nodes.PrettyPrinter;
 import pt.uminho.haslab.echo.engine.ast.Constants;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 
@@ -13,7 +14,7 @@ class KodkodExpression implements IExpression {
     public final Expression EXPR;
 
     KodkodExpression(Expression expression){
-        EXPR = expression;
+            EXPR = expression;
     }
 
     @Override
@@ -102,9 +103,9 @@ class KodkodExpression implements IExpression {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-	@Override
-	public String toString(){
-		return EXPR.toString();
-	}
+
+    @Override
+    public String toString (){
+        return PrettyPrinter.print(EXPR, 3);
+    }
 }

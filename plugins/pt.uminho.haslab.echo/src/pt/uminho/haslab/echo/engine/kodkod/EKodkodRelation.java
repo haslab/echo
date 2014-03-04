@@ -41,8 +41,10 @@ public class EKodkodRelation extends EEngineRelation {
 		Relation field = Relation.binary(EchoHelper.relationFieldName(relation,dependency.target));
 
 
+        //TODO this cannot be univ x univ(bounds)
         Expression exp = ((KodkodDecl)  rootVars.get(0)).decl.expression();
         extraRelConstraint = extraRelConstraint.and(new KodkodFormula(field.in(exp.product(Expression.UNIV))));
+        //transformation.addType(field,exp);
 
 
 		// Creates a relation between the TYPES of the root variables (only two for now)

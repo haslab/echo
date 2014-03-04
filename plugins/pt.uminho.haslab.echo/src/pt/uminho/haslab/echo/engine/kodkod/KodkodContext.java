@@ -1,15 +1,8 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import kodkod.ast.Expression;
-
+import kodkod.ast.Relation;
 import org.eclipse.emf.ecore.EClass;
-
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -21,6 +14,8 @@ import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.model.EVariable;
+
+import java.util.*;
 
 /**
  * Auxiliary context for the translation of artifacts to Kodkod.
@@ -94,17 +89,18 @@ class KodkodContext implements ITContext {
     @Override
     public KodkodExpression getPropExpression(String metaModelID, String className, String fieldName) {
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
-
-        return new KodkodExpression(
-                e2k.getRelation(((EClass) e2k.metamodel.getEObject().getEClassifier(className)).getEStructuralFeature(fieldName))
-        );
+        Relation r = e2k.getRelation(((EClass) e2k.metamodel.getEObject().getEClassifier(className)).getEStructuralFeature(fieldName));
+        if(r!=null)
+            return new KodkodExpression(r);
+        else
+            return null;
     }
 
     @Override
     public KodkodExpression getClassExpression(String metaModelID, String className) {
         EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
         return new KodkodExpression(
-                e2k.getRelation((EClass) e2k.metamodel.getEObject().getEClassifier(className))
+                e2k.getRelation(e2k.metamodel.getEObject().getEClassifier(className))
         );
     }
 

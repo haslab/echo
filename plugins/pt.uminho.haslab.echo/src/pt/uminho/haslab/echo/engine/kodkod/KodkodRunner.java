@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 
 import kodkod.ast.Formula;
+import kodkod.ast.Relation;
 import kodkod.engine.Solution;
 import kodkod.engine.Solver;
 import kodkod.engine.satlab.SATFactory;
@@ -28,7 +29,7 @@ public class KodkodRunner implements EngineRunner{
     private KodkodSolution sol = null;
 
     @Override
-    public void show(List<String> modelUris) throws ErrorInternalEngine {
+    public void show(List<String> modelUris) throws ErrorInternalEngine {  //TODO
         //To change body of implemented methods use File | Settings | File Templates.
     }
     @Override
@@ -80,7 +81,7 @@ public class KodkodRunner implements EngineRunner{
 
     @Override
     public boolean generate(String metaModelUri, Map<Map.Entry<String, String>, Integer> scope, String targeturi) throws ErrorInternalEngine, ErrorUnsupported {
-		return false;
+		return false;  //TODO
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -88,6 +89,11 @@ public class KodkodRunner implements EngineRunner{
     public void check(String transformationID, List<String> modelIDs) throws ErrorInternalEngine {
         EKodkodTransformation t2k = KodkodEchoTranslator.getInstance().getQVTTransformation(transformationID);
 
+        Map<String,Relation> map =  t2k.getSubRelationFields();
+        Collection<Relation> fields=null;
+        if(map!=null){
+            fields =map.values();
+        }
         Formula facts = Formula.TRUE;
         Set<EKodkodModel> models = new HashSet<>();
         Set<EKodkodMetamodel> metas = new HashSet<>();
@@ -109,7 +115,7 @@ public class KodkodRunner implements EngineRunner{
 
 
         sol = new KodkodSolution(
-                    solver.solve(facts,new SATBinder(models).getBounds()),
+                    solver.solve(facts,new SATBinder(models,fields).getBounds()),
                     metas);
     }
 
@@ -117,6 +123,12 @@ public class KodkodRunner implements EngineRunner{
     public boolean enforce(String transformationID, List<String> modelIDs, List<String> targetIDs) throws ErrorInternalEngine {
 
         EKodkodTransformation t2k = KodkodEchoTranslator.getInstance().getQVTTransformation(transformationID);
+
+        Map<String,Relation> map =  t2k.getSubRelationFields();
+        Collection<Relation> fields=null;
+        if(map!=null){
+            fields =map.values();
+        }
 
         Formula facts = Formula.TRUE;
         Set<EKodkodModel> models = new HashSet<>();
@@ -142,7 +154,7 @@ public class KodkodRunner implements EngineRunner{
         solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
         sol = new KodkodSolution(
-                solver.solve(facts,new TargetBinder(models,targets).getBounds()),
+                solver.solve(facts,new TargetBinder(models,targets,fields).getBounds()),
                 metaModels);
 
         return sol.satisfiable();
@@ -150,12 +162,12 @@ public class KodkodRunner implements EngineRunner{
 
     @Override
     public boolean generateQvt(String qvtUri, List<String> modelUris, String targetUri, String metaModelUri) throws ErrorInternalEngine, ErrorUnsupported {
-		return false;
+		return false;      //TODO
 		//To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void nextInstance() throws ErrorInternalEngine {
+    public void nextInstance() throws ErrorInternalEngine {  //TODO
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -165,7 +177,7 @@ public class KodkodRunner implements EngineRunner{
     }
 
     @Override
-    public void cancel() {
+    public void cancel() {   //TODO
 
     }
 

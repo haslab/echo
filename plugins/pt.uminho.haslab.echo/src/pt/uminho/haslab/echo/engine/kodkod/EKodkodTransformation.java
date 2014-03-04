@@ -67,8 +67,9 @@ public class EKodkodTransformation extends EEngineTransformation {
 			fact = fact.and(f);
 
 		// add all sub-relation field definitions
-		for (Formula f : subRelationDefs.values())
-			fact = fact.and(f);
+		if(subRelationDefs != null)
+			for (Formula f : subRelationDefs.values())
+				fact = fact.and(f);
 
 		form = fact;
 	}
@@ -138,4 +139,7 @@ public class EKodkodTransformation extends EEngineTransformation {
 		return (KodkodFormula) form;
 	}
 
+    public Map<String, Relation> getSubRelationFields() {
+        return subRelationFields;
+    }
 }
