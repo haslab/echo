@@ -4,6 +4,8 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.qvtd.pivot.qvtbase.Pattern;
 import org.eclipse.qvtd.pivot.qvtbase.Predicate;
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
+
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
@@ -45,11 +47,12 @@ public class EQVTRelation implements ERelation {
 		return relation.isIsTopLevel();
 	}
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc} 
+	 * @throws EchoError */
 	@Override
-	public EQVTTransformation getTransformation() throws ErrorUnsupported, ErrorParser {
+	public EQVTTransformation getTransformation() throws EchoError {
 		String URI = EcoreUtil.getURI(relation.getTransformation()).path();
-		return MDEManager.getInstance().getQVTTransformation(URI, false);
+		return (EQVTTransformation) MDEManager.getInstance().getETransformation(URI, false);
 	}
 
 	/** {@inheritDoc} */

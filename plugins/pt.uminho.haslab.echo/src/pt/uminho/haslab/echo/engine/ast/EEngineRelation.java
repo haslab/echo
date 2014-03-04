@@ -277,8 +277,9 @@ public abstract class EEngineRelation {
 	 * @throws ErrorInternalEngine
 	 * @throws ErrorParser 
 	 * @throws ErrorUnsupported 
+	 * @throws EchoError 
 	 */
-	protected abstract void manageModelParams() throws ErrorInternalEngine, ErrorUnsupported, ErrorParser;
+	protected abstract void manageModelParams() throws ErrorInternalEngine, ErrorUnsupported, ErrorParser, EchoError;
 
 	/**
 	 * Creates engine variable declarations from a set of EMF variables with an associated model.

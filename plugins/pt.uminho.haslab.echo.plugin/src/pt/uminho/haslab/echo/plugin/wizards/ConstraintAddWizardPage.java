@@ -29,6 +29,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
 
 public class ConstraintAddWizardPage extends WizardPage {
@@ -94,7 +95,7 @@ public class ConstraintAddWizardPage extends WizardPage {
 	
 	private void buildTexts() {
 
-		EQVTTransformation qvt = null;
+		ETransformation trans = null;
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		KeyListener kl = new KeyListenerHelper();
 
@@ -103,13 +104,13 @@ public class ConstraintAddWizardPage extends WizardPage {
 		for (Label c : model2label.values()) c.dispose();
 		
 		try {
-			qvt = MDEManager.getInstance().getQVTTransformation(qvtresource.getFullPath().toString(),false);
+			trans = MDEManager.getInstance().getETransformation(qvtresource.getFullPath().toString(),false);
 		} catch (EchoError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		params = new ArrayList<String>();
-		for (EModelParameter mdl : qvt.getModelParams()) {
+		for (EModelParameter mdl : trans.getModelParams()) {
 			params.add(mdl.getName());
 			Label label = new Label(container, SWT.NULL);
 			label.setText(mdl.getName() + " model:");

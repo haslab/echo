@@ -1,5 +1,6 @@
 package pt.uminho.haslab.mde.transformation;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.model.EPredicate;
@@ -18,8 +19,9 @@ public interface ERelation {
 
 	/** the parent transformation 
 	 * @throws ErrorParser 
-	 * @throws ErrorUnsupported */
-	public ETransformation getTransformation() throws ErrorUnsupported, ErrorParser;
+	 * @throws ErrorUnsupported 
+	 * @throws EchoError */
+	public ETransformation getTransformation() throws ErrorUnsupported, ErrorParser, EchoError;
 
 	/** if the relation is top level */
 	public boolean isTop();
