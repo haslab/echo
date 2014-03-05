@@ -369,7 +369,16 @@ public class OCLTranslator {
 		else if (expr.getReferredOperation().getName().equals("intersection"))
 			res = ((IExpression) src).intersection(translateExpression(expr
 					.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("excludes"))
+			res = (translateExpression(expr.getArgument().get(0)))
+					.in((IExpression) src).not();
+		else if (expr.getReferredOperation().getName().equals("excludesAll"))
+			res = (translateExpression(expr.getArgument().get(0)))
+					.in((IExpression) src).not();
 		else if (expr.getReferredOperation().getName().equals("includes"))
+			res = (translateExpression(expr.getArgument().get(0)))
+					.in((IExpression) src);
+		else if (expr.getReferredOperation().getName().equals("includesAll"))
 			res = (translateExpression(expr.getArgument().get(0)))
 					.in((IExpression) src);
 		else if (expr.getReferredOperation().getName().equals("oclAsSet")

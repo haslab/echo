@@ -296,18 +296,20 @@ public class ResourceManager {
 			ctracked.put(mm, l);
 		}
 		
-		ETransformation qvt = parser.getETransformation(qvtRes.getFullPath(), false);
+		ETransformation trans = parser.getETransformation(qvtRes.getFullPath(), false);
 		
-		for (int i=0;i<qvt.getModelParams().size();i++) {
-			if (!qvt.getModelParams().get(i).getMetamodel().equals(models.get(i).getMetamodel()))
+		for (int i=0;i<trans.getModelParams().size();i++) {
+			EchoReporter.getInstance().debug("type-check: "+trans.getModelParams().get(i).getMetamodel().ID+" = "+models.get(i).getMetamodel().ID);
+
+			if (!trans.getModelParams().get(i).getMetamodel().ID.equals(models.get(i).getMetamodel().ID))
 				throw new ErrorAPI("Model does not type-check.");
 		}
 		
-		if (!runner.hasTransformation(qvt.ID)) {
-			runner.addTransformation(qvt);
+		if (!runner.hasTransformation(trans.ID)) {
+			runner.addTransformation(trans);
 		}
 		
-		return runner.addConstraint(qvt, models);
+		return runner.addConstraint(trans, models);
 	}
 	
 	public EConstraint addQVTConstraint(IResource resqvt, List<IResource> resmodels)
