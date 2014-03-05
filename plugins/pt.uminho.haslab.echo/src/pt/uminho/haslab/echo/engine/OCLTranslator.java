@@ -366,6 +366,15 @@ public class OCLTranslator {
 		else if (expr.getReferredOperation().getName().equals("union"))
 			res = ((IExpression) src).union(translateExpression(expr
 					.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("including"))
+			res = ((IExpression) src).union(translateExpression(expr
+					.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("excluding"))
+			res = ((IExpression) src).difference(translateExpression(expr
+					.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("-"))
+			res = ((IExpression) src).difference(translateExpression(expr
+					.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("intersection"))
 			res = ((IExpression) src).intersection(translateExpression(expr
 					.getArgument().get(0)));
