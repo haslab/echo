@@ -115,7 +115,7 @@
                      </test>
                      <test
                            property="org.eclipse.core.resources.name"
-                           value="*.emftvm">
+                           value="*.atl">
                      </test>
                      </or>
                   </adapt>

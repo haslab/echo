@@ -188,15 +188,15 @@ public class MDEManager {
 				} else {
 					trans.update(qtrans);
 				}
-			}/* else if (transURI.split("\\.")[transURI.split("\\.").length-1].equals("emftvm")) {
-				Module atrans = EMFParser.loadATL(transURI);
+			} else if (transURI.split("\\.")[transURI.split("\\.").length-1].equals("atl")) {
+				EObject atrans = EMFParser.loadATL(transURI);
 				if (trans == null) {
 					trans = new EATLTransformation(atrans);
 					transformations.put(transURI, trans);				
 				} else {
 					trans.update(atrans);
 				}
-			}*/
+			}
 			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, transURI, true);
 		}
 		id2uri.put(trans.ID,transURI);

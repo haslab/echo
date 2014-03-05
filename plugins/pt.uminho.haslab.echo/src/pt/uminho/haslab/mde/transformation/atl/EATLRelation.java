@@ -4,19 +4,12 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.qvtd.pivot.qvtbase.Pattern;
-import org.eclipse.qvtd.pivot.qvtbase.Predicate;
 
 import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
-import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
-import pt.uminho.haslab.mde.transformation.ETransformation;
-import pt.uminho.haslab.mde.transformation.qvt.EQVTPredicate;
-import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +31,9 @@ public class EATLRelation implements ERelation {
 		EStructuralFeature inmdls = relation.eClass().getEStructuralFeature("inPattern");
 		EStructuralFeature outmdls = relation.eClass().getESuperTypes().get(0).getEStructuralFeature("outPattern");
 		EObject obj = (EObject) relation.eGet(inmdls);
-		domains.add(new EATLModelDomain(obj));
+		domains.add(new EATLModelDomain(this, obj));
 		obj = (EObject) relation.eGet(outmdls);
-		domains.add(new EATLModelDomain(obj));
+		domains.add(new EATLModelDomain(this, obj));
 	}
 
 	@Override
