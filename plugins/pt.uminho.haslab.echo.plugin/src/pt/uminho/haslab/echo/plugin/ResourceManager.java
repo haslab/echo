@@ -296,7 +296,7 @@ public class ResourceManager {
 			ctracked.put(mm, l);
 		}
 		
-		ETransformation qvt = parser.getETransformation(qvtURI, false);
+		ETransformation qvt = parser.getETransformation(qvtRes.getFullPath(), false);
 		
 		for (int i=0;i<qvt.getModelParams().size();i++) {
 			if (!qvt.getModelParams().get(i).getMetamodel().equals(models.get(i).getMetamodel()))
@@ -333,7 +333,7 @@ public class ResourceManager {
 	}
 	
 	public void removeAllQVTConstraint(IResource transformationRes) throws EchoError {
-		ETransformation etrans = parser.getETransformation(transformationRes.getFullPath().toString(), false);
+		ETransformation etrans = parser.getETransformation(transformationRes.getFullPath(), false);
 		runner.removeAllConstraint(etrans.ID);
 	}
 
@@ -344,7 +344,7 @@ public class ResourceManager {
 	public List<EConstraint> getConstraints(IResource transformationRes) {
 		ETransformation trans;
 		try {
-			trans = parser.getETransformation(transformationRes.getFullPath().toString(), false);
+			trans = parser.getETransformation(transformationRes.getFullPath(), false);
 			return runner.getConstraintsTransformation(trans.ID);
 		} catch (EchoError e) {
 			e.printStackTrace();
@@ -368,7 +368,7 @@ public class ResourceManager {
 	 */
 	private ETransformation reloadQVTConstraintAction(IResource transforamtionRes) throws EchoError {
 		String qvtURI = transforamtionRes.getFullPath().toString();
-		ETransformation trans = parser.getETransformation(qvtURI, true);
+		ETransformation trans = parser.getETransformation(transforamtionRes.getFullPath(), true);
 		runner.remTransformation(trans.ID);
 		runner.addTransformation(trans);
 		reporter.debug("QVT " + qvtURI + " reloaded.");
@@ -387,7 +387,7 @@ public class ResourceManager {
 	public boolean isManagedQVT(IResource qvtRes) throws EchoError {
 		String qvtURI = qvtRes.getFullPath().toString();
 		if(!MDEManager.getInstance().hasETransformation(qvtURI)) return false;
-		ETransformation transformation = MDEManager.getInstance().getETransformation(qvtURI, false);
+		ETransformation transformation = MDEManager.getInstance().getETransformation(qvtRes.getFullPath(), false);
 		return runner.hasTransformation(transformation.ID);
 	}
 	
@@ -477,7 +477,7 @@ public class ResourceManager {
 		if (!isManagedModel(ressource))
 			addModelAction(ressource);
 		
-		ETransformation trans = parser.getETransformation(resqvt.getFullPath().toString(), false);
+		ETransformation trans = parser.getETransformation(resqvt.getFullPath(), false);
 
 		String metamodelURI = trans.getModelParams().get(newp).getMetamodel().getURI();
 		EMetamodel metamodel = parser.getMetamodel(metamodelURI, false);

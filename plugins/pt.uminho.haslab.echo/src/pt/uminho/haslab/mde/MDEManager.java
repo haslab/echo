@@ -1,5 +1,7 @@
 package pt.uminho.haslab.mde;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
@@ -171,50 +173,36 @@ public class MDEManager {
 
 	/**
 	 * Loads a QVT-R transformation identified by its URI
-	 * @param transURI the QVT-R transformation URI
+	 * @param transPath the QVT-R transformation URI
 	 * @param forceReload TODO
 	 * @return the processed QVT-R transformation
 	 * @throws EchoError
 	 */
-	public ETransformation getETransformation(String transURI, boolean forceReload) throws EchoError {
-		ETransformation trans = transformations.get(transURI);
+	public ETransformation getETransformation(IPath transPath, boolean forceReload) throws EchoError {
+		ETransformation trans = transformations.get(transPath);
 		if (trans == null || forceReload) {
-			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, transURI);
-			if (transURI.split("\\.")[transURI.split("\\.").length-1].equals("qvtr")) {
-				RelationalTransformation qtrans = EMFParser.loadQVT(transURI);
+			EchoReporter.getInstance().start(Task.PROCESS_RESOURCES, transPath.toString());
+			if (transPath.getFileExtension().equals("qvtr")) {
+				RelationalTransformation qtrans = EMFParser.loadQVT(transPath);
 				if (trans == null) {
 					trans = new EQVTTransformation(qtrans);
-					transformations.put(transURI, trans);				
+					transformations.put(transPath.toString(), trans);				
 				} else {
 					trans.update(qtrans);
 				}
-			} else if (transURI.split("\\.")[transURI.split("\\.").length-1].equals("atl")) {
-				EObject atrans = EMFParser.loadATL(transURI);
+			} else if (transPath.getFileExtension().equals("atl")) {
+				EObject atrans = EMFParser.loadATL(transPath);
 				if (trans == null) {
 					trans = new EATLTransformation(atrans);
-					transformations.put(transURI, trans);				
+					transformations.put(transPath.toString(), trans);				
 				} else {
 					trans.update(atrans);
 				}
 			}
-			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, transURI, true);
+			EchoReporter.getInstance().result(Task.PROCESS_RESOURCES, transPath.toString(), true);
 		}
-		id2uri.put(trans.ID,transURI);
+		id2uri.put(trans.ID,transPath.toString());
 		return trans;
-	}
-
-	/**
-	 * Gets a QVT-R transformation identified by its ID
-	 * If there is an ID, then the transformation was already parser previously
-	 * @param qvtID the transformation ID
-	 * @return the processed transformation
-	 * @throws EchoError 
-	 */
-	public ETransformation getETransformationID(String qvtID) throws EchoError {
-		String URI = id2uri.get(qvtID);
-		if (URI==null)
-			if (URI == null) throw new ErrorParser("QVT-R ID "+ qvtID +" not found.");
-		return getETransformation(URI, false);
 	}
 
 	/**
@@ -238,6 +226,7 @@ public class MDEManager {
 	public void backUpTarget(String targetPath) throws ErrorParser {
 		EMFParser.backUpTarget(targetPath);
 	}
+
 
 
 }

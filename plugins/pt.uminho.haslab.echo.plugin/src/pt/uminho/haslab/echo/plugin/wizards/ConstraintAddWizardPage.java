@@ -104,7 +104,7 @@ public class ConstraintAddWizardPage extends WizardPage {
 		for (Label c : model2label.values()) c.dispose();
 		
 		try {
-			trans = MDEManager.getInstance().getETransformation(qvtresource.getFullPath().toString(),false);
+			trans = MDEManager.getInstance().getETransformation(qvtresource.getFullPath(),false);
 		} catch (EchoError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

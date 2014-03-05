@@ -1,6 +1,12 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 
@@ -20,16 +26,15 @@ public class EATLModelParameter extends EModelParameter {
 	private static Map<EObject,EATLModelParameter> list = new HashMap<EObject,EATLModelParameter>();
 	private EObject mdl;
 	private EATLTransformation module;
+	private EMetamodel metamodel;
 
-	public EATLModelParameter(EObject mdl2,EATLTransformation module) {
+	public EATLModelParameter(EObject mdl2,EATLTransformation module) throws ErrorParser, ErrorUnsupported {
 		this.module = module;
 		mdl = mdl2.eCrossReferences().get(0);
 		list.put(mdl,this);
-		System.out.println(getName());
-	}
-
-	public String getMetamodelURI() {
-		return EATLTransformation.metamodeluris.get(getName());
+		EObject x = (EObject) mdl2.eGet(mdl2.eClass().getEStructuralFeature("metamodel"));
+		String y = (String) x.eGet(x.eClass().getEStructuralFeature("name"));		
+		metamodel = MDEManager.getInstance().getMetamodel(EATLTransformation.metamodeluris.get(y),false);
 	}
 
 	@Override
@@ -43,8 +48,7 @@ public class EATLModelParameter extends EModelParameter {
 
 	@Override
 	public EMetamodel getMetamodel() {
-		// TODO Auto-generated method stub
-		return null;
+		return metamodel;
 	}
 
 }

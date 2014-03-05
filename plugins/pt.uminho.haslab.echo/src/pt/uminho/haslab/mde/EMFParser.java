@@ -1,5 +1,7 @@
 package pt.uminho.haslab.mde;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -22,8 +24,11 @@ import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -109,19 +114,15 @@ public class EMFParser {
 
 	/**
 	 * Parses a QVT-R transformation from a QVT-R specification
-	 * @param qvtURI the transformation URI
+	 * @param qvtPath the transformation URI
 	 * @return the parsed transformation
 	 * @throws ErrorParser
 	 */
-	static public RelationalTransformation loadQVT(String qvtURI) throws ErrorParser {
+	static public RelationalTransformation loadQVT(IPath qvtPath) throws ErrorParser {
 		Resource pivotResource;
 		try{
 			CS2PivotResourceAdapter adapter = null;
-			URI inputURI;
-			if (EchoOptionsSetup.getInstance().isStandalone())
-				inputURI = URI.createURI(qvtURI);
-			else
-				inputURI = URI.createPlatformResourceURI(qvtURI,true);
+			URI inputURI = URI.createPlatformResourceURI(qvtPath.toString(),true);
 			BaseCSResource xtextResource = (BaseCSResource) resourceSet.getResource(inputURI, true);
 
 			xtextResource.unload();
@@ -134,7 +135,7 @@ public class EMFParser {
 			adapter = xtextResource.getCS2ASAdapter(null);
 			//adapter = BaseCSResource.getCS2ASAdapter(xtextResource, null);
 			pivotResource = adapter.getASResource(xtextResource);
-			pivotResource.setURI(URI.createURI(qvtURI));
+			pivotResource.setURI(URI.createURI(qvtPath.toString()));
 			String message = PivotUtil.formatResourceDiagnostics(pivotResource.getErrors(), "Error parsing QVT.", "\n\t");
 			if (message != null) throw new ErrorParser (message,"QVT Parser");
 
@@ -152,10 +153,11 @@ public class EMFParser {
 	 * @return the parsed transformation
 	 * @throws ErrorParser
 	 */
-	public static EObject loadATL(String atlURI) {
+	public static EObject loadATL(IPath atlPath) {
 		EObject module = null;
 		try {
-			FileInputStream f = new FileInputStream(atlURI);
+			resourceSet.getURIConverter().createInputStream(URI.createURI(atlPath.toOSString()));
+			InputStream f = resourceSet.getURIConverter().createInputStream(URI.createURI(atlPath.toOSString()));
 			module = AtlParser.getDefault().parse(f);
 			EchoReporter.getInstance().debug(module.eClass().toString());
 			EchoReporter.getInstance().debug(module.eContents().toString());

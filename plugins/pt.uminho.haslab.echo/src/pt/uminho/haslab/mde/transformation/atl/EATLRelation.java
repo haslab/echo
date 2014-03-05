@@ -1,5 +1,6 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -43,8 +44,8 @@ public class EATLRelation implements ERelation {
 
 	@Override
 	public EATLTransformation getTransformation() throws EchoError {
-		String URI = EcoreUtil.getURI((EObject) relation.eGet(relation.eClass().getEStructuralFeature("module"))).path();
-		return (EATLTransformation) MDEManager.getInstance().getETransformation(URI, false);
+		Path path = new Path(EcoreUtil.getURI((EObject) relation.eGet(relation.eClass().getEStructuralFeature("module"))).toFileString());
+		return (EATLTransformation) MDEManager.getInstance().getETransformation(path, false);
 	}
 
 	@Override
