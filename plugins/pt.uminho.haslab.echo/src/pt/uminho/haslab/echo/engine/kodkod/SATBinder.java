@@ -3,10 +3,10 @@ package pt.uminho.haslab.echo.engine.kodkod;
 import kodkod.ast.Relation;
 import kodkod.instance.Bounds;
 import kodkod.instance.Tuple;
+import kodkod.instance.TupleSet;
 import kodkod.instance.Universe;
 import pt.uminho.haslab.echo.util.Pair;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +32,7 @@ class SATBinder extends AbstractBinder implements Binder {
 
 
 
-    SATBinder(Set<EKodkodModel> models,Collection<Relation>extraRels)
+    SATBinder(Set<EKodkodModel> models, Map<Relation, Pair<Set<Relation>, Set<Relation>>> extraRels)
     {
         Set<Object> uni = numberCollection();
         for(EKodkodModel x2k : models){
@@ -46,6 +46,23 @@ class SATBinder extends AbstractBinder implements Binder {
         makeStringBounds(models);
         for(EKodkodModel x2k :models)
             makeBounds(x2k);
+
+
+
+        for(Relation r: extraRels.keySet()){
+
+            TupleSet leftTuples = factory.noneOf(1);
+            for (Relation relation : extraRels.get(r).left)
+                leftTuples.addAll(bounds.upperBound(relation));
+
+            TupleSet rightTuples = factory.noneOf(1);
+            for(Relation relation :extraRels.get(r).right)
+                rightTuples.addAll(bounds.upperBound(relation));
+
+            bounds.bound(r,leftTuples.product(rightTuples));
+
+        }
+
     }
 
 

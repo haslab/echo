@@ -10,6 +10,7 @@ import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.util.Pair;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -17,6 +18,7 @@ import pt.uminho.haslab.mde.transformation.ETransformation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An embedding of a model transformation in Kodkod.
@@ -38,11 +40,25 @@ public class EKodkodTransformation extends EEngineTransformation {
 	/** the Kodkod formulas defining top-relation constraints */
 	private Map<String, Formula> topRelationConstraints;
 
+    /**the types of kodkod relations denoting sub-relation calls*/
+    private Map<Relation,Pair<Set<Relation>,Set<Relation>>> relationTypes;
+
 	/** {@inheritDoc} */
 	EKodkodTransformation(ETransformation transformation,
 			Map<String, List<EDependency>> dependencies) throws EchoError {
 		super(transformation, dependencies);
 	}
+
+    void defineRelationType(Relation r,Pair<Set<Relation>,Set<Relation>> type)
+    {
+    	if(relationTypes ==null)
+    		relationTypes = new HashMap<>();    		
+        relationTypes.put(r,type);
+    }
+
+    Map<Relation, Pair<Set<Relation>,Set<Relation>>> getRelationTypes() {
+        return relationTypes;
+    }
 
 	/** {@inheritDoc} */
 	@Override

@@ -42,7 +42,7 @@ public abstract class EEngineRelation {
 	
 	/** the engine declarations of the root variables
 	 * null if top call */
-	private Map<String, IDecl> rootVar2engineDecl = new HashMap<String,IDecl>();
+	protected Map<String, IDecl> rootVar2engineDecl = new HashMap<>();
 
 	/** the root variables of the relation being translated*/
 	private Map<EVariable,String> rootvariables = new HashMap<EVariable,String>();
@@ -274,8 +274,8 @@ public abstract class EEngineRelation {
 	 * @return the engine embedding
 	 * @throws EchoError
 	 */
-	private IFormula translateCondition(EPredicate pred) throws EchoError {
-		return pred.translate(context);
+	private IFormula translateCondition(EPredicate predicate) throws EchoError {
+		return predicate.translate(context);
 	}
 	/**
 	 * Initializes anything related with the relation model parameters, if needed.
@@ -289,7 +289,7 @@ public abstract class EEngineRelation {
 	/**
 	 * Creates engine variable declarations from a set of EMF variables with an associated model.
 	 * @param var2model the variables to translate associated with a model
-	 * @param root if the variables should be added to the transformation context
+	 * @param addContext if the variables should be added to the transformation context
 	 * @return the new declarations
 	 * @throws EchoError
 	 */
@@ -310,16 +310,16 @@ public abstract class EEngineRelation {
 	/** 
 	 * Generates the relation field over the type of root variables.
 	 * Must be run before the relation constraint is created (otherwise recursive calls will fail)
-	 * @param rootExps the root variable declarations
-	 * @return the field for this relation's sub-calls
+	 *
+     * @param rootVars the root variable declarations
+     * @return the field for this relation's sub-calls
 	 * @throws EchoError
 	 * TODO: Support for n models
 	 */
-	protected abstract IExpression addNonTopRel(List<IDecl> rootVars) throws EchoError;
+	protected abstract IExpression addNonTopRel(List<? extends EModelDomain> rootVars) throws EchoError;
 
 	/**
 	 * Adds to the parent transformation the constraint defining the non-top call.
-	 * @param fact the constraint defining this relation
 	 * @param field the field representing this sub relation
 	 * @throws EchoError
 	 * TODO: Support for n models
@@ -335,7 +335,6 @@ public abstract class EEngineRelation {
 	
 	/** 
 	 * Adds to the parent transformation the constraint representing this top call.
-	 * @param fact the constraint defining this relation
 	 * @throws EchoError
 	 */
 	private void addRelationConstraint() throws EchoError {
@@ -344,20 +343,18 @@ public abstract class EEngineRelation {
 	
 	/** 
 	 * Adds to the parent transformation the field representing this non-top call.
-	 * @param rootExps 
 	 * @throws EchoError
 	 */
 	private IExpression addRelationField() throws EchoError {
 		if (relation.getDomains().size() > 2)
 			throw new ErrorUnsupported(
 					"Calls between more than 2 models not yet supported.");
-		List<IDecl> rootVars = new ArrayList<IDecl>();
-		for (EModelDomain d : relation.getDomains())
-			rootVars.add(rootVar2engineDecl.get(d.getRootVariable().getName()));
-		IExpression field = addNonTopRel(rootVars);
+
+		IExpression field = addNonTopRel(relation.getDomains());
 		transformation.addSubRelationField(this, field);
 		return field;
 	}
+
 
 	/**
 	 * Simplifies a formula.

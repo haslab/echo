@@ -5,13 +5,17 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
-import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.transformation.EDependency;
+import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
@@ -76,11 +80,16 @@ class EAlloyRelation extends EEngineRelation {
 		}
 	}
 
-	/** {@inheritDoc}  */
+	/** {@inheritDoc}
+     * @param eModelDomains*/
 	@Override
-	protected AlloyExpression addNonTopRel(List<IDecl> rootVars) throws ErrorAlloy, ErrorUnsupported {
-		if (rootVars.size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
-				
+	protected AlloyExpression addNonTopRel(List<? extends EModelDomain> eModelDomains) throws ErrorAlloy, ErrorUnsupported {
+		if (eModelDomains.size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
+        List<IDecl> rootVars = new ArrayList<>();
+        for (EModelDomain d : eModelDomains)
+
+            rootVars.add(rootVar2engineDecl.get(d.getRootVariable().getName()));
+
 		Field field = null;
 		try {
 			Sig s = (Sig) ((AlloyDecl) rootVars.get(0)).DECL.expr.type().toExpr();

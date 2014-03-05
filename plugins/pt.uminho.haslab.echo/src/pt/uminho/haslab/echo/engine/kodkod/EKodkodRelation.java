@@ -7,14 +7,19 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
+import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.util.Pair;
 import pt.uminho.haslab.mde.transformation.EDependency;
+import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class EKodkodRelation extends EEngineRelation {
 
@@ -37,36 +42,29 @@ public class EKodkodRelation extends EEngineRelation {
 
 	/** {@inheritDoc} */
 	@Override
-	protected KodkodExpression addNonTopRel(List<IDecl> rootVars) throws ErrorKodkod {
+	protected KodkodExpression addNonTopRel(List<? extends EModelDomain> eModelDomains) throws EchoError {
 		Relation field = Relation.binary(EchoHelper.relationFieldName(relation,dependency.target));
 
+        List<IDecl> rootVars = new ArrayList<>();
+        for (EModelDomain d : eModelDomains)
+            rootVars.add(rootVar2engineDecl.get(d.getRootVariable().getName()));
 
-        //TODO this cannot be univ x univ(bounds)
+        //TODO this should not be univ x univ(bounds)
         Expression exp = ((KodkodDecl)  rootVars.get(0)).decl.expression();
         extraRelConstraint = extraRelConstraint.and(new KodkodFormula(field.in(exp.product(Expression.UNIV))));
-        //transformation.addType(field,exp);
 
+        EKodkodMetamodel leftMeta = ((EKodkodMetamodel) EchoTranslator.getInstance().getMetamodel(
+                eModelDomains.get(0).getModel().getMetamodel().ID));
 
-		// Creates a relation between the TYPES of the root variables (only two for now)
-		
-//		try {
-//			Sig s = (Sig) ((KodkodDecl) fst).decl.expr.type().toExpr();
-//			for (Field f : s.getFields()) {
-//				if (f.label.equals(EchoHelper.relationFieldName(relation,
-//						dependency.target)))
-//					field = f;
-//			}
-//			if (field == null) {
-//				field = s.addField(EchoHelper.relationFieldName(relation,
-//						dependency.target),
-//				/* type.setOf() */Sig.UNIV.setOf());
-//			}
-//		} catch (Err a) {
-//			throw new ErrorKodkod(ErrorInternalEngine.FAIL_CREATE_FIELD,
-//					"Failed to create relation field representation: "
-//							+ relation.getName(),
-//					Task.TRANSLATE_TRANSFORMATION);
-//		}
+        EKodkodMetamodel rightMeta = ((EKodkodMetamodel) EchoTranslator.getInstance().getMetamodel(
+                eModelDomains.get(1).getModel().getMetamodel().ID));
+
+        Pair<Set<Relation>,Set<Relation>> type = new Pair<>(
+                leftMeta.getRelDomain(eModelDomains.get(0).getRootVariable().getType()),
+                rightMeta.getRelDomain(eModelDomains.get(1).getRootVariable().getType()));
+
+        ((EKodkodTransformation) transformation).defineRelationType(field, type);
+
 		return new KodkodExpression(field);
 	}
 

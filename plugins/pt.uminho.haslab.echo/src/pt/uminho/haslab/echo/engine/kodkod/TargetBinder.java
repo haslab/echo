@@ -11,7 +11,6 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.util.Pair;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +45,7 @@ class TargetBinder extends AbstractBinder implements Binder{
 
 
 
-    TargetBinder(Set<EKodkodModel> models, Set<EKodkodModel> targets,Collection<Relation> extraRels){
+    TargetBinder(Set<EKodkodModel> models, Set<EKodkodModel> targets, Map<Relation, Pair<Set<Relation>, Set<Relation>>> extraRels){
         createExtras();
         Set<Object> uni = numberCollection();
         for(EKodkodModel x2k: models)
@@ -73,6 +72,21 @@ class TargetBinder extends AbstractBinder implements Binder{
             for(Relation rel : x2k.getMetamodel().getSfRelations())
                 bindSfRelation(rel,map.get(rel),x2k.getMetamodel());
         }
+
+        for(Relation r: extraRels.keySet()){
+
+            TupleSet leftTuples = factory.noneOf(1);
+            for (Relation relation : extraRels.get(r).left)
+                leftTuples.addAll(bounds.upperBound(relation));
+
+            TupleSet rightTuples = factory.noneOf(1);
+            for(Relation relation :extraRels.get(r).right)
+                rightTuples.addAll(bounds.upperBound(relation));
+
+            bounds.bound(r,leftTuples.product(rightTuples));
+
+        }
+
     }
 
     private void bindSfRelation(Relation rel, Set<Object> atoms, EKodkodMetamodel e2k) {

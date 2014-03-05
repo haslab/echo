@@ -139,8 +139,10 @@ class EKodkodModel implements EEngineModel {
 
 
     private void processAttribute(Object obj, Set<Object> set, EObject it) throws EchoError {
-        if(obj instanceof Boolean)
-            set.add(it);
+        if(obj instanceof Boolean){
+            if((Boolean) obj)
+                set.add(it);
+        }
         else
         {
             Pair<EObject,?> pair;

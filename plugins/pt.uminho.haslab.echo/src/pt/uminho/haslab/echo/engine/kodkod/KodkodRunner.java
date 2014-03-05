@@ -11,6 +11,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.util.Pair;
 
 import java.io.IOException;
 import java.util.*;
@@ -89,11 +90,7 @@ public class KodkodRunner implements EngineRunner{
     public void check(String transformationID, List<String> modelIDs) throws ErrorInternalEngine {
         EKodkodTransformation t2k = KodkodEchoTranslator.getInstance().getQVTTransformation(transformationID);
 
-        Map<String,Relation> map =  t2k.getSubRelationFields();
-        Collection<Relation> fields=null;
-        if(map!=null){
-            fields =map.values();
-        }
+        Map<Relation,Pair<Set<Relation>,Set<Relation>>> relationTypes =  t2k.getRelationTypes();
         Formula facts = Formula.TRUE;
         Set<EKodkodModel> models = new HashSet<>();
         Set<EKodkodMetamodel> metas = new HashSet<>();
@@ -115,7 +112,7 @@ public class KodkodRunner implements EngineRunner{
 
 
         sol = new KodkodSolution(
-                    solver.solve(facts,new SATBinder(models,fields).getBounds()),
+                    solver.solve(facts,new SATBinder(models,relationTypes).getBounds()),
                     metas);
     }
 
@@ -124,11 +121,8 @@ public class KodkodRunner implements EngineRunner{
 
         EKodkodTransformation t2k = KodkodEchoTranslator.getInstance().getQVTTransformation(transformationID);
 
-        Map<String,Relation> map =  t2k.getSubRelationFields();
-        Collection<Relation> fields=null;
-        if(map!=null){
-            fields =map.values();
-        }
+        Map<Relation,Pair<Set<Relation>,Set<Relation>>> relationTypes =  t2k.getRelationTypes();
+
 
         Formula facts = Formula.TRUE;
         Set<EKodkodModel> models = new HashSet<>();
@@ -154,7 +148,7 @@ public class KodkodRunner implements EngineRunner{
         solver.options().setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
 
         sol = new KodkodSolution(
-                solver.solve(facts,new TargetBinder(models,targets,fields).getBounds()),
+                solver.solve(facts,new TargetBinder(models,targets,relationTypes).getBounds()),
                 metaModels);
 
         return sol.satisfiable();
