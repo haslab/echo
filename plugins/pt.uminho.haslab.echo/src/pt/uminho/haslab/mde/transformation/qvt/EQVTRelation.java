@@ -1,5 +1,6 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.qvtd.pivot.qvtbase.Pattern;
 import org.eclipse.qvtd.pivot.qvtbase.Predicate;
@@ -51,8 +52,8 @@ public class EQVTRelation implements ERelation {
 	 * @throws EchoError */
 	@Override
 	public EQVTTransformation getTransformation() throws EchoError {
-		String URI = EcoreUtil.getURI(relation.getTransformation()).path();
-		return (EQVTTransformation) MDEManager.getInstance().getETransformation(URI, false);
+		Path path = new Path(EcoreUtil.getURI(relation.getTransformation()).path());
+		return (EQVTTransformation) MDEManager.getInstance().getETransformation(path, false);
 	}
 
 	/** {@inheritDoc} */
