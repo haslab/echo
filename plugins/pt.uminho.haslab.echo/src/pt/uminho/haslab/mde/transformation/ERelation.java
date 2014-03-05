@@ -30,7 +30,7 @@ public interface ERelation {
 	public String getName();
 
 	/** the model domains */
-	public List<EModelDomain> getDomains();
+	public List<? extends EModelDomain> getDomains();
 
 	/** the post-condition */
 	public EPredicate getPost();

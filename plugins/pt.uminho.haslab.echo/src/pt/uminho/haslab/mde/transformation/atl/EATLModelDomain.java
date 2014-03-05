@@ -61,7 +61,6 @@ public class EATLModelDomain extends EModelDomain {
 			for (EObject bd : (EList<EObject>) var.eGet(bindings))
 				x.addCondition(bd);
 		}
-
 		return x;
 	}
 

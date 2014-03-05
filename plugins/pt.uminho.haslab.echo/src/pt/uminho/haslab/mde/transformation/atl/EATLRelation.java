@@ -1,15 +1,22 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.m2m.atl.emftvm.Rule;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.qvtd.pivot.qvtbase.Pattern;
+import org.eclipse.qvtd.pivot.qvtbase.Predicate;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTPredicate;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,27 +24,17 @@ import java.util.List;
 /**
  * An embedding of an EMF ATL relation in Echo.
  * 
- * TODO: Very incomplete
- * 
  * @author nmm
- * @version 0.4 13/02/2014
+ * @version 0.4 05/03/2014
  */
 public class EATLRelation implements ERelation {
-	private Rule relation;
-	private List<EModelDomain> domains = new ArrayList<EModelDomain>();
+	private EObject relation;
+	private List<EATLModelDomain> domains = new ArrayList<>();
 
-
-	public EATLRelation(Rule rule) throws ErrorParser {
-		// should test if matched or lazy matched rule
-		this.relation = rule;
-		EchoReporter.getInstance().debug("Processing rule "+rule);
-		EchoReporter.getInstance().debug("Processing rule "+rule.getName());
-		EchoReporter.getInstance().debug("Processing rule "+rule.getFields());
-		EchoReporter.getInstance().debug("Processing rule "+rule.getInputElements());
-		EchoReporter.getInstance().debug("Processing rule "+rule.getMatcher().getBodyFor());
-		EchoReporter.getInstance().debug("Processing rule "+rule.getMode());
-		EchoReporter.getInstance().debug("Processing rule "+rule.getPostApply());
-		EchoReporter.getInstance().debug("Processing rule "+rule.getOutputElements());
+	public EATLRelation(EObject rule) throws ErrorUnsupported, ErrorParser {
+		if (rule.eClass().getName().equals("MatchedRule") || rule.eClass().getName().equals("LazyMatchedRule") )
+			this.relation = rule;
+		else throw new ErrorUnsupported("Bad atl");
 		EStructuralFeature inmdls = relation.eClass().getEStructuralFeature("inPattern");
 		EStructuralFeature outmdls = relation.eClass().getESuperTypes().get(0).getEStructuralFeature("outPattern");
 		EObject obj = (EObject) relation.eGet(inmdls);
@@ -52,10 +49,9 @@ public class EATLRelation implements ERelation {
 	}
 
 	@Override
-	public ETransformation getTransformation() {
-		EStructuralFeature module = relation.eClass().getEStructuralFeature("module");
-		//EATLTransformation x = EATLTransformation.get((EObject) relation.eGet(module));
-		return null;
+	public EATLTransformation getTransformation() throws EchoError {
+		String URI = EcoreUtil.getURI((EObject) relation.eGet(relation.eClass().getEStructuralFeature("module"))).path();
+		return (EATLTransformation) MDEManager.getInstance().getETransformation(URI, false);
 	}
 
 	@Override
@@ -65,14 +61,26 @@ public class EATLRelation implements ERelation {
 	}
 
 	@Override
-	public List<EModelDomain> getDomains() {
+	public List<EATLModelDomain> getDomains() {
 		return domains;
 
 	}
 
 	@Override
 	public EATLPredicate getPost() {
-		return null;
+		EStructuralFeature outmdls = relation.eClass().getESuperTypes().get(0).getEStructuralFeature("outPattern");
+		EObject post = (EObject) relation.eGet(outmdls);
+		EATLPredicate x = new EATLPredicate();
+
+		EStructuralFeature elems = post.eClass().getEStructuralFeature("elements");
+		EList<EObject> objs = (EList<EObject>) post.eGet(elems);
+		EObject var = objs.get(0);
+		EStructuralFeature bindings = var.eClass().getEStructuralFeature("bindings");
+		for (EObject bd : (EList<EObject>) var.eGet(bindings))
+			x.addCondition(bd);
+		
+		return x;
+
 	}
 
 	@Override

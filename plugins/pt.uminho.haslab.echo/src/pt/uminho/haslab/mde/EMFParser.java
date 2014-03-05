@@ -9,15 +9,6 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.m2m.atl.emftvm.EmftvmFactory;
-import org.eclipse.m2m.atl.emftvm.ExecEnv;
-import org.eclipse.m2m.atl.emftvm.Metamodel;
-import org.eclipse.m2m.atl.emftvm.Model;
-import org.eclipse.m2m.atl.emftvm.Module;
-import org.eclipse.m2m.atl.emftvm.compiler.AtlResourceFactoryImpl;
-import org.eclipse.m2m.atl.emftvm.util.DefaultModuleResolver;
-import org.eclipse.m2m.atl.emftvm.util.ModuleResolver;
-import org.eclipse.m2m.atl.emftvm.util.TimingData;
 import org.eclipse.ocl.examples.pivot.model.OCLstdlib;
 import org.eclipse.ocl.examples.pivot.utilities.PivotUtil;
 import org.eclipse.ocl.examples.xtext.base.utilities.BaseCSResource;
@@ -66,7 +57,7 @@ public class EMFParser {
 			resourceSet.getResourceFactoryRegistry()
 			.getExtensionToFactoryMap().put(
 					"ecore", new EcoreResourceFactoryImpl());
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("atl", new AtlResourceFactoryImpl());
+//			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("atl", new AtlResourceFactoryImpl());
 
 			OCLstdlib.install();
 			QVTrelationStandaloneSetup.doSetup();
@@ -161,16 +152,16 @@ public class EMFParser {
 	 * @return the parsed transformation
 	 * @throws ErrorParser
 	 */
-	public static Module loadATL(String atlURI) {
-		ExecEnv env = EmftvmFactory.eINSTANCE.createExecEnv();
-		
-		// Load metamodels
-		Metamodel metaModel = EmftvmFactory.eINSTANCE.createMetamodel();
-		metaModel.setResource(resourceSet.getResource(URI.createURI("/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"), true));
-		env.registerMetaModel("UML", metaModel);
-		metaModel = EmftvmFactory.eINSTANCE.createMetamodel();
-		metaModel.setResource(resourceSet.getResource(URI.createURI("/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore"), true));
-		env.registerMetaModel("RDBMS", metaModel);
+	public static EObject loadATL(String atlURI) {
+//		ExecEnv env = EmftvmFactory.eINSTANCE.createExecEnv();
+//		
+//		// Load metamodels
+//		Metamodel metaModel = EmftvmFactory.eINSTANCE.createMetamodel();
+//		metaModel.setResource(resourceSet.getResource(URI.createURI("/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"), true));
+//		env.registerMetaModel("UML", metaModel);
+//		metaModel = EmftvmFactory.eINSTANCE.createMetamodel();
+//		metaModel.setResource(resourceSet.getResource(URI.createURI("/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore"), true));
+//		env.registerMetaModel("RDBMS", metaModel);
 
 		// Load models
 //		Model inModel = EmftvmFactory.eINSTANCE.createModel();
@@ -186,12 +177,12 @@ public class EMFParser {
 //		env.registerOutputModel("OUT", outModel);
 
 		// Load and run module
-		String prefix = "/pt.uminho.haslab.echo.examples/transformations/atl/uml2rdbms_simple/";
+//		String prefix = "/pt.uminho.haslab.echo.examples/transformations/atl/uml2rdbms_simple/";
 //		String prefix = URI.createPlatformPluginURI("pt.uminho.haslab.echo.plugin", true).toString()+"/pt.uminho.haslab.echo.examples/transformations/atl/uml2rdbms_simple/";
-		EchoReporter.getInstance().debug("Pre "+prefix);
-		ModuleResolver mr = new DefaultModuleResolver(prefix, new ResourceSetImpl());
+//		EchoReporter.getInstance().debug("Pre "+prefix);
+//		ModuleResolver mr = new DefaultModuleResolver(prefix, new ResourceSetImpl());
 //		TimingData td = new TimingData();
-		Module module = env.loadModule(mr, atlURI.split("/")[atlURI.split("/").length-1].split("\\.emftvm")[0]);
+//		Module module = env.loadModule(mr, atlURI.split("/")[atlURI.split("/").length-1].split("\\.emftvm")[0]);
 
 //		td.finishLoading();
 //		env.run(td);
@@ -205,7 +196,7 @@ public class EMFParser {
 //		EObject module = resourceSet.getResource(URI.createURI(atlURI), true).getContents().get(0);
 //        EObject inm = resourceSet.getResource(URI.createURI(atlURI), true).getContents().get(1);
 //        EObject oum = resourceSet.getResource(URI.createURI(atlURI), true).getContents().get(2);
-        return module;
+        return null;
 	}
 
 	/**

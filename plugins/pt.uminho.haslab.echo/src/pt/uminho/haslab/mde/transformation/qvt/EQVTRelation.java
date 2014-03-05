@@ -26,7 +26,7 @@ public class EQVTRelation implements ERelation {
 	/** the processed EMF relation */
 	private org.eclipse.qvtd.pivot.qvtrelation.Relation relation;
 	/** the model domains of the relation */
-	private List<EModelDomain> domains = new ArrayList<EModelDomain>();
+	private List<EQVTModelDomain> domains = new ArrayList<>();
 
 	/**
 	 * Processes an EMF QVT-R relation.
@@ -63,7 +63,7 @@ public class EQVTRelation implements ERelation {
 
 	/** {@inheritDoc} */
 	@Override
-	public List<EModelDomain> getDomains() {
+	public List<EQVTModelDomain> getDomains() {
 		return domains;
 	}
 
