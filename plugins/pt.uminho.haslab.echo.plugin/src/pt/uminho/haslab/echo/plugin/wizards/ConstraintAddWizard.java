@@ -11,6 +11,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -83,11 +84,14 @@ public class ConstraintAddWizard extends Wizard {
 		} else if (new_count == 0) {
 			try {
 				List<IResource> models = new ArrayList<IResource>();
-				for (String s : page.getModels())
+				for (String s : page.getModels()) {
+					EchoReporter.getInstance().debug("type-check: "+s);
 					models.add(ResourcesPlugin.getWorkspace().getRoot()
 						.findMember(s));
-			
+				}
+				
 				IResource qvt_resource = page.getQvt();
+
 				ProjectPropertiesManager.getProperties(qvt_resource.getProject())
 						.addQVTConstraint(qvt_resource, models);
 			} catch (Exception e) {

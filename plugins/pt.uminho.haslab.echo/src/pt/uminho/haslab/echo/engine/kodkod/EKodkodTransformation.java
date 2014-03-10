@@ -79,6 +79,7 @@ public class EKodkodTransformation extends EEngineTransformation {
 		Formula fact = Formula.TRUE;
 
 		// add all top relation constraints
+		if (topRelationConstraints != null)
 		for (Formula f : topRelationConstraints.values())
 			fact = fact.and(f);
 

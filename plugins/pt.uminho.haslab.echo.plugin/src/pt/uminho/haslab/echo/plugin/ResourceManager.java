@@ -299,8 +299,6 @@ public class ResourceManager {
 		ETransformation trans = parser.getETransformation(qvtRes.getFullPath(), false);
 		
 		for (int i=0;i<trans.getModelParams().size();i++) {
-			EchoReporter.getInstance().debug("type-check: "+trans.getModelParams().get(i).getMetamodel().ID+" = "+models.get(i).getMetamodel().ID);
-
 			if (!trans.getModelParams().get(i).getMetamodel().ID.equals(models.get(i).getMetamodel().ID))
 				throw new ErrorAPI("Model does not type-check.");
 		}
