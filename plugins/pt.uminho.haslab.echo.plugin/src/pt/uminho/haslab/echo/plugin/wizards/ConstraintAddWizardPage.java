@@ -2,6 +2,7 @@ package pt.uminho.haslab.echo.plugin.wizards;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,10 +40,10 @@ public class ConstraintAddWizardPage extends WizardPage {
 	private Text qvttext;
 	private IResource qvtresource;
 
-	private Map<String,Text> model2text = new HashMap<String,Text>();
+	private Map<String,Text> model2text = new LinkedHashMap<>();
 	
-	private Map<String,Button> model2button = new HashMap<String,Button>();
-	private Map<String,Label> model2label = new HashMap<String,Label>();
+	private Map<String,Button> model2button = new HashMap<>();
+	private Map<String,Label> model2label = new HashMap<>();
 
 	private Map<String,IResource> model2resource = new HashMap<String,IResource>();
 
