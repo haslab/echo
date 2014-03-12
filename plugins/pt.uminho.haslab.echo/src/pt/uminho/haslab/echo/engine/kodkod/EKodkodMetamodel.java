@@ -38,12 +38,15 @@ class EKodkodMetamodel extends EEngineMetamodel {
     private Map<String,Set<String>> mapParents;
     /**maps a eReference relation into its type relations*/
     private Map<Relation,Pair<Set<Relation>,Set<Relation>>> mapRefType;
-    /**maps a attribute relation with type = int*/
+    /**maps a attribute relation with type = int + string + enum*/
     private Map<Relation, Set<Relation>> mapType;
     /**maps a attribute relation with type = bool*/
     private Map<Relation, Set<Relation>> mapBoolType;
     /**maps EEnumLiterals names into EEnumLiterals*/
     private Map<String,EEnumLiteral> literals;
+
+    /** maps containment references, key is the type name,value is the set of containment relations */
+    private Map<String, Set<Relation>> containmentMap ;
 
     private Set<EClass> abstracts ;
 
@@ -53,6 +56,8 @@ class EKodkodMetamodel extends EEngineMetamodel {
 	private Formula facts;
     /**disjoint relations*/
     private Formula disjoint = null;
+    /** */
+    private boolean processedContainers = false;
 
 	@Override
     public KodkodFormula getConforms(String modelID) {
@@ -60,11 +65,69 @@ class EKodkodMetamodel extends EEngineMetamodel {
         if(disjoint == null){
             makeDisjointFact();
             facts = facts.and(disjoint);
+        }if(!processedContainers){
+            makeContainmentFact();
+            processedContainers = true;
         }
+
         return new KodkodFormula(facts);
     }
 
-	public EKodkodMetamodel(EMetamodel metaModel) throws EchoError{
+    private void makeContainmentFact() {
+
+
+        for (String current : containmentMap.keySet()) {
+            Set<Relation> containers = getParentsContainers(current);
+            Set<Pair<Relation,Relation>> typeGroups = getSameTypeContainers(current);
+            makeContainmentFact(containers,typeGroups,getDomain(current));
+        }
+    }
+
+    private Set<Pair<Relation,Relation>> getSameTypeContainers(String current) {
+        Set<Pair<Relation,Relation>> res = new HashSet<>();
+
+        Object[] containers = containmentMap.get(current).toArray();
+
+        for(int i=0;i<containers.length;i++)
+        {
+            Relation rel =(Relation) containers[i];
+            for(int j = i+1 ;j<containers.length;j++)
+            {
+                Relation rel2 =(Relation) containers[j];
+                if(mapRefType.get(rel2).left.containsAll(mapRefType.get(rel).left)
+                        || mapRefType.get(rel).left.containsAll(mapRefType.get(rel2).left ))
+                    res.add(new Pair<>(rel,rel2));
+            }
+        }
+
+        return res;
+    }
+
+    Set<Relation> getParentsContainers(String className)
+    {
+        Set<Relation> res = new HashSet<>();
+        if(containmentMap.containsKey(className))
+            res.addAll(containmentMap.get(className));
+        if(mapParents.containsKey(className)){
+            Set<String> parents = mapParents.get(className);
+            for(String s: parents){
+                Set<Relation> aux = getParentsContainers(s);
+                res.addAll(aux);
+            }
+        }
+        return res;
+    }
+
+    private void makeContainmentFact(Set<Relation> all,Set<Pair<Relation,Relation>> sameType, Expression type){
+        Variable x = Variable.unary("x");
+        Decl d = x.declare(Multiplicity.ONE,type);
+        facts = facts.and( Expression.union(all).join(x).one().forAll(d));
+
+        for(Pair<Relation,Relation> pair: sameType)
+                facts = facts.and(pair.left.intersection(pair.right).join(x).no().forAll(d));
+    }
+
+    public EKodkodMetamodel(EMetamodel metaModel) throws EchoError{
 		super(metaModel);
 		mapClassRel = new HashMap<>();
 		mapSfRel = new HashMap<>();
@@ -76,6 +139,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
         abstracts = new HashSet<>();
         enums = new HashSet<>();
         literals = new HashMap<>();
+        containmentMap = new HashMap<>();
 		facts = Formula.TRUE;
 	}
 	
@@ -214,7 +278,15 @@ class EKodkodMetamodel extends EEngineMetamodel {
 				if(eReference.isContainment()){
 					d = x.declare(Multiplicity.ONE, coDomain);
 					facts = facts.and(
-							refRel.join(x).one().forAll(d));
+							refRel.join(x).lone().forAll(d));
+
+                    if(containmentMap.containsKey(coDomainName))
+                        containmentMap.get(coDomainName).add(refRel);
+                    else{
+                        Set<Relation> newContainers = new HashSet<>();
+                        newContainers.add(refRel);
+                        containmentMap.put(coDomainName,newContainers);
+                    }
 				}
 				
 			}
@@ -290,7 +362,6 @@ class EKodkodMetamodel extends EEngineMetamodel {
             mapClassRel.put(ec.getName(), eCRel);
         }else
             abstracts.add(ec);
-        //TODO: What if ec is abstract
     }
 
 
