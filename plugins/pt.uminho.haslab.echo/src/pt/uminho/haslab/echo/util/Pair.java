@@ -17,4 +17,15 @@ public class Pair<L,R> {
         this.left = left;
         this.right = right;
     }
+
+    public boolean equals(Pair p2){
+        return this.left.equals(p2.left) && this.right.equals(p2.right);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        return this == o || o instanceof Pair && equals((Pair) o);
+
+    }
 }

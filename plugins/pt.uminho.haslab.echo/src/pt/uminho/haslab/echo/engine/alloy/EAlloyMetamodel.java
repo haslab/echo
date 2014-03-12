@@ -19,6 +19,7 @@ import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.EEngineMetamodel;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.util.Pair;
 import pt.uminho.haslab.mde.model.EMetamodel;
 
 import java.util.*;
@@ -31,8 +32,11 @@ import java.util.*;
 	/** the model parameter of the conformity expression
 	* constraint is defined over this variable */
 	private final Decl model_var;
-	
-	/** the Alloy expression representing the conformity constraint
+
+    /**containment constraint */
+    private boolean doneContainments = false;
+
+    /** the Alloy expression representing the conformity constraint
 	* should be defined over <code>model_var</code> */
 	private Expr conformsPred = Sig.NONE.no();
 	
@@ -62,8 +66,11 @@ import java.util.*;
 	
 	/** list of Alloy functions resulting from operation translation */
 	private List<Func> operations = new ArrayList<Func>();
-	
-	
+
+     /** maps containment references, key is the type name,value is the set of containment fields */
+    private Map<String,Set<Field>> mapContainment = new HashMap<>();
+
+
 	/**
 	* Creates a translator from meta-models (represented by an EMetamodel) to Alloy artifacts
      * @param metamodel the metamodel to translate
@@ -234,7 +241,12 @@ import java.util.*;
 	* @throws ErrorAlloy 
 	*/
 	protected AlloyFormula getConforms(String modelID) throws ErrorAlloy {
-		Func f;
+		if(!doneContainments){
+            makeContainmentConstraint();
+            doneContainments = true;
+        }
+
+        Func f;
 		EAlloyModel model = (EAlloyModel) EchoTranslator.getInstance().getModel(modelID);
 		try {
 //			EchoReporter.getInstance().debug("Conforms: "+conformsPred);
@@ -248,7 +260,76 @@ import java.util.*;
 				model.getModelSig()));
 	}
 
-	/**
+     private void makeContainmentConstraint() {
+         for (String current : mapContainment.keySet()) {
+             Set<Field> containers = getParentsContainers(current);
+             Set<Pair<Field,Field>> typeGroups = getSameTypeContainers(current);
+             makeContainmentFact(containers,typeGroups,classifier2sig.get(current));
+         }
+     }
+
+     private Set<Pair<Field,Field>> getSameTypeContainers(String current) {
+         Set<Pair<Field,Field>> res = new HashSet<>();
+
+         Object[] containers = mapContainment.get(current).toArray();
+
+         for(int i=0;i<containers.length;i++)
+         {
+             Field f =(Field) containers[i];
+             for(int j = i+1 ;j<containers.length;j++)
+             {
+
+                 Field f2 =(Field) containers[j];
+                 if(f.sig.isSameOrDescendentOf(f2.sig) || f2.sig.isSameOrDescendentOf(f.sig))
+                     res.add(new Pair<>(f,f2));
+             }
+         }
+
+         return res;
+     }
+
+     Set<Field> getParentsContainers(String className)
+     {
+         Set<Field> res = new HashSet<>();
+         if(mapContainment.containsKey(className))
+             res.addAll(mapContainment.get(className));
+         PrimSig parent = classifier2sig.get(className).parent;
+         if(parent != null && parent != Sig.UNIV && parent != Sig.NONE){
+             String s = EchoHelper.classifierKey(metamodel,getEClassifierFromSig(parent));
+             Set<Field> aux = getParentsContainers(s);
+             res.addAll(aux);
+         }
+         return res;
+     }
+
+     private void makeContainmentFact(Set<Field> all,Set<Pair<Field,Field>> sameType, PrimSig type){
+         try {
+             Decl d  = (sig2statefield.get(type).join(model_var.get()))
+                     .oneOf("trg_");
+
+             Expr aux = Sig.NONE.product(Sig.NONE);
+             for(Field f : all){
+                 aux = aux.plus(f.join(model_var.get()));
+             }
+             conformsPred = conformsPred.and(aux.join(d.get()).one()).forAll(d);
+
+             for(Pair<Field,Field> p : sameType)
+             {
+                 conformsPred = conformsPred.and(
+                         p.left.join(model_var.get()).intersect(p.right.join(model_var.get())).
+                                 join(d.get()).no().forAll(d)
+                 );
+             }
+
+
+         } catch (Err err) {
+             err.printStackTrace();
+         }
+     }
+
+
+
+     /**
 	* Returns the {@link Func} that constraints the generation of models
 	* consists of the conform constraints and the generation constraints
 	* @return the predicate
@@ -402,8 +483,8 @@ import java.util.*;
 	protected void processReferences(List<EReference> references)
 			throws EchoError {
 		for (EReference reference : references) {
-			PrimSig classsig = classifier2sig.get(EchoHelper.classifierKey(
-					metamodel, reference.getEContainingClass()));
+			PrimSig classsig = classifier2sig.get(
+                    EchoHelper.classifierKey(metamodel, reference.getEContainingClass()));
 			EReference op = reference.getEOpposite();
 
 			if (op != null && EchoOptionsSetup.getInstance().isOptimize()) {
@@ -420,8 +501,8 @@ import java.util.*;
 			if (cc == null)
 				throw new ErrorParser(ErrorParser.METAMODEL,"Failed to find reference '"+reference.getName()+"' type.",
 						"Check the meta-model specification.",Task.TRANSLATE_METAMODEL);
-			PrimSig trgsig = classifier2sig.get(EchoHelper.classifierKey(metamodel,
-					cc));
+			String coDomainName = EchoHelper.classifierKey(metamodel,cc);
+            PrimSig trgsig = classifier2sig.get(coDomainName);
 			Field field;
 			String feature_key = EchoHelper.featureKey(metamodel, reference);
 
@@ -510,9 +591,18 @@ import java.util.*;
 				if (reference.isContainment()) {
 					d = (sig2statefield.get(trgsig).join(model_var.get()))
 							.oneOf("trg_");
-					fact = ((field.join(model_var.get())).join(d.get())).one()
+					fact = ((field.join(model_var.get())).join(d.get())).lone()
 							.forAll(d);
 					conformsPred = conformsPred.and(fact);
+
+
+                    if(mapContainment.containsKey(coDomainName))
+                        mapContainment.get(coDomainName).add(field);
+                    else{
+                        Set<Field> newContainers = new HashSet<>();
+                        newContainers.add(field);
+                        mapContainment.put(coDomainName,newContainers);
+                    }
 				}
 
 				Expr parState = sig2statefield.get(classsig);
