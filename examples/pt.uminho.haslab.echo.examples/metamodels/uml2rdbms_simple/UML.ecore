@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="UML" nsURI="UML" nsPrefix="uml">
-  <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="#//NamedEntity">
+  <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//NamedEntity">
     <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
       <details key="acyclic_inheritance" value="not self->closure(super)->includes(self)"/>
       <details key="unique_names" value="self.attributes->forAll(x | self.attributes->forAll(y | x = y or x.name &lt;> y.name))"/>
@@ -49,18 +49,21 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="persistent" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
-        eType="#//Attribute" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="#//Class"
-        eOpposite="#//Class/child"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Attribute"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/child"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="namespace" lowerBound="1"
-        eType="#//Package" eOpposite="#//Package/classes"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Package"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Package/classes"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="child" upperBound="-1"
-        eType="#//Class" eOpposite="#//Class/super"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/super"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Attribute" eSuperTypes="#//NamedEntity">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//Type"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Attribute" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//NamedEntity">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EEnum /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Type"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Package" eSuperTypes="#//NamedEntity">
+  <eClassifiers xsi:type="ecore:EClass" name="Package" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//NamedEntity">
     <eAnnotations source="Echo/Gen">
       <details key="gen_linear" value="self.classes->one(x | x.super->isEmpty())"/>
       <details key="lkm" value="self.classes->size() = 3"/>
@@ -82,7 +85,8 @@
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="classes" upperBound="-1"
-        eType="#//Class" containment="true" eOpposite="#//Class/namespace"/>
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/namespace"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="NamedEntity" abstract="true">
     <eOperations name="setName">

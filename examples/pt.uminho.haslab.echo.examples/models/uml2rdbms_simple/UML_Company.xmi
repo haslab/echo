@@ -6,7 +6,7 @@
     xmlns:uml="UML"
     xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"
     name="Company">
-  <classes name="Employee"
+  <classes name="Employeer"
       persistent="true"
       super="//@classes.1"/>
   <classes name="Person"

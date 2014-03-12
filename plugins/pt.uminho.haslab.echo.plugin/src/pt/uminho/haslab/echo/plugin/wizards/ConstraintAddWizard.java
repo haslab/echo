@@ -85,7 +85,6 @@ public class ConstraintAddWizard extends Wizard {
 			try {
 				List<IResource> models = new ArrayList<IResource>();
 				for (String s : page.getModels()) {
-					EchoReporter.getInstance().debug("type-check: "+s);
 					models.add(ResourcesPlugin.getWorkspace().getRoot()
 						.findMember(s));
 				}

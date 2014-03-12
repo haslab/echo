@@ -42,10 +42,11 @@ public abstract class EEngineTransformation {
 		initModelParams();
 
 		// translates each top relation
-		for (ERelation rel : transformation.getRelations())
+		for (ERelation rel : transformation.getRelations()) {
 			if (rel.isTop())
-				for (EDependency dep : dependencies.get(rel.getName()))
+				for (EDependency dep : dependencies.get(rel.getName())) 
 					createRelation(rel, dep);
+		}
 
 		processConstraint();
 		EchoReporter.getInstance().result(Task.TRANSLATE_TRANSFORMATION,
