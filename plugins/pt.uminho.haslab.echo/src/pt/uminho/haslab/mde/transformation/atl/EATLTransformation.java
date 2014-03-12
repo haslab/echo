@@ -30,7 +30,7 @@ import java.util.Map;
 public class EATLTransformation extends ETransformation {
 
 	private Map<String,EATLModelParameter> modelParams;
-	private List<EATLRelation> relations = new ArrayList<>();
+	private List<EATLRelation> relations;
 	private EObject transformation;
 
 	public static Map<String,String> metamodeluris = new HashMap<>();
@@ -70,10 +70,8 @@ public class EATLTransformation extends ETransformation {
 		EStructuralFeature inmdls = module.eClass().getEStructuralFeature("inModels");
 		EStructuralFeature outmdls = module.eClass().getEStructuralFeature("outModels");
 		EList<EObject> objs = (EList<EObject>) module.eGet(elements);
-		for (EObject x : objs) {
+		for (EObject x : objs)
 			relations.add(new EATLRelation(x));
-			System.out.println("add here: "+relations);
-		}
 		objs = (EList<EObject>) module.eGet(inmdls);
 		for (EObject x : objs)
 			modelParams.put((String) x.eGet(x.eClass().getEStructuralFeature("name")), new EATLModelParameter(x,this));
@@ -90,7 +88,6 @@ public class EATLTransformation extends ETransformation {
 
 	@Override
 	public List<EATLRelation> getRelations() {
-		System.out.println("been here: "+relations);
 		return relations;
 	}
 
