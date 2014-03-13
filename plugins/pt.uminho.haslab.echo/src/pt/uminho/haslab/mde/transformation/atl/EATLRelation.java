@@ -7,6 +7,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
@@ -24,11 +25,13 @@ import java.util.List;
 public class EATLRelation implements ERelation {
 	private EObject relation;
 	private List<EATLModelDomain> domains = new ArrayList<>();
-
-	public EATLRelation(EObject rule) throws ErrorUnsupported, ErrorParser {
+	private EATLTransformation transformation;
+	
+	public EATLRelation(EATLTransformation transformation, EObject rule) throws ErrorUnsupported, ErrorParser {
 		if (rule.eClass().getName().equals("MatchedRule") || rule.eClass().getName().equals("LazyMatchedRule") )
 			this.relation = rule;
 		else throw new ErrorUnsupported("Bad atl");
+		this.transformation = transformation;
 		EStructuralFeature inmdls = relation.eClass().getEStructuralFeature("inPattern");
 		EStructuralFeature outmdls = relation.eClass().getESuperTypes().get(0).getEStructuralFeature("outPattern");
 		EObject obj = (EObject) relation.eGet(inmdls);
@@ -44,8 +47,7 @@ public class EATLRelation implements ERelation {
 
 	@Override
 	public EATLTransformation getTransformation() throws EchoError {
-		Path path = new Path(EcoreUtil.getURI((EObject) relation.eGet(relation.eClass().getEStructuralFeature("module"))).toFileString());
-		return (EATLTransformation) MDEManager.getInstance().getETransformation(path, false);
+		return transformation;
 	}
 
 	@Override

@@ -20,7 +20,7 @@ import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
  * @version 0.4 13/02/2014
  */
 public class EATLModelDomain extends EModelDomain {
-	private EObject domain;
+	private EObject domain; // InPattern or OutPattern
 	private EATLRelation relation;
 
 	public EATLModelDomain(EATLRelation rule, EObject dom) throws ErrorParser {
@@ -34,8 +34,8 @@ public class EATLModelDomain extends EModelDomain {
 	@Override
 	public EATLModelParameter getModel() {
 		EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
-		EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
-		EObject var = objs.get(0);
+		EList<EObject> objs = (EList<EObject>) domain.eGet(elems); 
+		EObject var = objs.get(0); // InPatternElement or OutPatternElement
 		for (EObject x : var.eContents())
 			if (x.eClass().getName().equals("OclModelElement")) {
 				return EATLModelParameter.get(x.eCrossReferences().get(0));
@@ -47,7 +47,7 @@ public class EATLModelDomain extends EModelDomain {
 	public EVariable getRootVariable() {
 		EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
 		EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
-		EObject obj = objs.get(0);
+		EObject obj = objs.get(0); // InPatternElement or OutPatternElement
 		return EVariable.getVariable(obj);
 	}
 

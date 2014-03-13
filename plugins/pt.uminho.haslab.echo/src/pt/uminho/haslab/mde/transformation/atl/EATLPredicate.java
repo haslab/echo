@@ -1,6 +1,7 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
 import org.eclipse.emf.ecore.EObject;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -26,7 +27,6 @@ import java.util.Map;
  */
 public class EATLPredicate implements EPredicate {
 	private List<EObject> exps = new ArrayList<EObject>();
-	private OCL2Alloy2 trad;
 
 	@Override
 	public void addCondition(EObject expr) {
@@ -40,6 +40,7 @@ public class EATLPredicate implements EPredicate {
 
 	@Override
 	public IFormula translate(IContext context) throws EchoError {
+		OCL2Alloy2 trad = new OCL2Alloy2(context);
 		return trad.translateExpressions(exps);
 	}
 

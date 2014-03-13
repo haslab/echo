@@ -27,7 +27,6 @@ import java.util.Map;
 public class OCLTranslator {
 
 	protected final IContext context;
-	protected boolean isPre = false;
 	private Map<String, Integer> news = new HashMap<>();
 
 	public OCLTranslator(IContext context) {

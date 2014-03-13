@@ -3,6 +3,7 @@ package pt.uminho.haslab.mde.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -12,6 +13,8 @@ import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.transformation.atl.EATLModelParameter;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 
 /**
@@ -26,7 +29,12 @@ public class EVariable {
 
 	public static EVariable getVariable(EObject xx) {
 		if (vars.get(xx)==null) {
-			vars.put(xx, new EVariable(xx));
+			try {
+				vars.put(xx, new EVariable(xx));
+			} catch (ErrorUnsupported | ErrorParser e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return vars.get(xx);
 	}
@@ -35,7 +43,7 @@ public class EVariable {
 	private String metamodelURI;
 	private EObject type;
 
-	private EVariable(EObject var) {
+	private EVariable(EObject var) throws ErrorUnsupported, ErrorParser {
 		// standard EMF variable
 		if (var instanceof VariableDeclaration) {
 			this.type = ((VariableDeclaration) var).getType();
@@ -44,12 +52,21 @@ public class EVariable {
 		} 
 		// ATL variable
 		else{
-			EObject aux = (EObject) type.eGet(type.eClass()
-					.getEStructuralFeature("model"));
-			metamodelURI = EATLTransformation.metamodeluris.get(aux
-					.eGet(aux.eClass().getEStructuralFeature("name")));
-			EStructuralFeature type = var.eClass().getEStructuralFeature("type");
-			this.type = (EObject) var.eGet(type);
+			// InPatternElement or OutPatternElement
+			for (Object x : var.eContents())
+				if (((EObject) x).eClass().getName().equals("OclModelElement"))
+					type = (EObject) x;
+
+//			if (var.eClass().getName().equals("OutPatternElement"))
+//				model = (EObject) var.eGet(var.eClass().getEStructuralFeature("model"));
+//			else if (var.eClass().getName().equals("InPatternElement") || var.eClass().getName().equals("SimpleInPatternElement"))
+//				model = (EObject) ((EList<EObject>) var.eGet(var.eClass().getEStructuralFeature("models"))).get(0);
+//			else throw new ErrorParser("Invalid object type: "+var.eClass());
+			
+			
+			metamodelURI = MDEManager.getInstance().getMetamodelID(EATLModelParameter.get(type.eCrossReferences().get(0)).getMetamodel().ID).getURI();
+//			EStructuralFeature type = var.eClass().getEStructuralFeature("type");
+//			this.type = (EObject) var.eGet(type);
 			EStructuralFeature name = var.eClass().getEStructuralFeature("name");
 			if (name == null)
 				name = var.eClass().getEStructuralFeature("varName");

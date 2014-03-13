@@ -71,7 +71,7 @@ public class EATLTransformation extends ETransformation {
 		EStructuralFeature outmdls = module.eClass().getEStructuralFeature("outModels");
 		EList<EObject> objs = (EList<EObject>) module.eGet(elements);
 		for (EObject x : objs)
-			relations.add(new EATLRelation(x));
+			relations.add(new EATLRelation(this,x));
 		objs = (EList<EObject>) module.eGet(inmdls);
 		for (EObject x : objs)
 			modelParams.put((String) x.eGet(x.eClass().getEStructuralFeature("name")), new EATLModelParameter(x,this));
