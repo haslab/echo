@@ -29,8 +29,8 @@ public class EKodkodRelation extends EEngineRelation {
 	}
 
 	public EKodkodRelation(EKodkodTransformation eAlloyTransformation,
-			EDependency dep, ERelation rel) throws EchoError {
-		super(rel, dep, eAlloyTransformation);
+			EDependency dep, ERelation rel, boolean trace) throws EchoError {
+		super(rel, dep, eAlloyTransformation, trace);
 	}
 
 	/** {@inheritDoc} */

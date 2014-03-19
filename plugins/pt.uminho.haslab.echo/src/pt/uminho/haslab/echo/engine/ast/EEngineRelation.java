@@ -12,6 +12,8 @@ import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
 import java.util.*;
 
+import org.eclipse.ocl.examples.pivot.OCLExpression;
+
 /**
  * An embedding of a model transformation relation in an abstract Echo engine.
  *
@@ -35,7 +37,7 @@ public abstract class EEngineRelation {
 
 	/** whether the relation is being called at top level or not
 	 * this is NOT the same as being a top relation */
-	public final boolean top;
+	public final Mode mode;
 	
 	/** the parent (calling) relation, null if top */
 	public final EEngineRelation callerRelation;
@@ -43,27 +45,31 @@ public abstract class EEngineRelation {
 	/** the engine declarations of the root variables
 	 * null if top call */
 	protected Map<String, IDecl> rootVar2engineDecl = new HashMap<>();
+	protected Map<String, IDecl> rootVarS2engineDecl = new HashMap<>();
+	protected Map<String, IDecl> rootVarT2engineDecl = new HashMap<>();
 
 	/** the root variables of the relation being translated*/
-	private Map<EVariable,String> rootvariables = new HashMap<EVariable,String>();
+	private Map<EVariable,String> rootvariables = new HashMap<>();
+	private Map<EVariable,String> rootvariablesS = new HashMap<>();
+	private Map<EVariable,String> rootvariablesT = new HashMap<>();
 
 	/** the target relation domain */
 	private EModelDomain targetdomain;
 	
 	/** the source relation domains */
-	private List<EModelDomain> sourcedomains = new ArrayList<EModelDomain>();
+	private List<EModelDomain> sourcedomains = new ArrayList<>();
 
 	/** the engine declarations of the variables occurring in the when constraint
 	 * if non-top relation, does not contain root variables*/
-	private Map<String,IDecl> whenVar2engineDecl = new HashMap<String,IDecl>();
+	private Map<String,IDecl> whenVar2engineDecl = new HashMap<>();
 	
 	/** the engine declarations of the variables occurring in the source domain but not in the when constraint
 	 * if non-top relation, does not contain root variables*/
-	private Map<String,IDecl> sourceVar2engineDecl = new HashMap<String,IDecl>();
+	private Map<String,IDecl> sourceVar2engineDecl = new HashMap<>();
 	
 	/** the engine declarations of the variables occurring in the target domain and where constraint but not in the source domains and the when constraint constraint
 	 * if non-top relation, does not contain root variables*/
-	private Map<String,IDecl> targetVar2engineDecl = new HashMap<String,IDecl>();
+	private Map<String,IDecl> targetVar2engineDecl = new HashMap<>();
 
 	public final IFormula constraint;
 
@@ -76,7 +82,7 @@ public abstract class EEngineRelation {
 	 * @throws EchoError
 	 */
 	public EEngineRelation (ERelation relation, EEngineRelation parentRelation) throws EchoError {
-		this (relation, false, parentRelation.dependency, parentRelation,parentRelation.transformation);
+		this (relation, Mode.SUB_TRACEABILITY, parentRelation.dependency, parentRelation,parentRelation.transformation);
 	}
 
 	/**
@@ -86,8 +92,8 @@ public abstract class EEngineRelation {
 	 * @param transformation the already embedded parent transformation
 	 * @throws EchoError
 	 */
-	public EEngineRelation (ERelation relation, EDependency dependency, EEngineTransformation transformation) throws EchoError {
-		this (relation,true,dependency,null,transformation);
+	public EEngineRelation (ERelation relation, EDependency dependency, EEngineTransformation transformation, boolean trace) throws EchoError {
+		this (relation,trace?Mode.TOP_TRACEABILITY:Mode.TOP_QUANTIFIER,dependency,null,transformation);
 	}
 
 	/** 
@@ -96,31 +102,29 @@ public abstract class EEngineRelation {
 	 * Top relations are represented by a predicate.
 	 * Non-top relations are represented by an relation and an associated definition.
 	 * @param relation the relation being translated
-	 * @param top whether the relation is top or not
+	 * @param mode whether the relation is top or not
 	 * @param dependency the dependency (direction) of the relation
 	 * @param parentRelation the already embedded parent relation
 	 * @param transformation the already embedded parent transformation
 	 * @throws EchoError
 	 */
-	private EEngineRelation(ERelation relation, Boolean top,
+	private EEngineRelation(ERelation relation, Mode mode,
 			EDependency dependency, EEngineRelation parentRelation, EEngineTransformation transformation)
 			throws EchoError {
 		this.relation = relation;
 		this.dependency = dependency;
-		this.top = top;
+		this.mode = mode;
 		this.transformation = transformation;
-		this.callerRelation = top ? this : parentRelation;
+		this.callerRelation = mode.isTop() ? this : parentRelation;
 		this.context = EchoTranslator.getInstance().newContext();
 		this.context.setCurrentRel(callerRelation);
-
-
 
 		initVariableLists();
 		
 		IExpression sub = Constants.EMPTY();
         extraRelConstraint = Constants.TRUE();
 		// must be created before calculating the constraint, as it may be recursively called
-		if (!top) sub = addRelationField();
+		if (!(mode == Mode.TOP_QUANTIFIER)) sub = addRelationField();
 		
 		IFormula temp = calculateConstraint();
 		if (EchoOptionsSetup.getInstance().isOptimize())
@@ -128,7 +132,7 @@ public abstract class EEngineRelation {
 		else 
 			constraint = extraRelConstraint.and(temp);
 		
-		if (top) addRelationConstraint();
+		if (mode.isTop()) addRelationConstraint();
 		else addRelationDef(sub);
 		
 	}
@@ -149,8 +153,14 @@ public abstract class EEngineRelation {
 		
 		for (EModelDomain dom : relation.getDomains()) {
 			rootvariables.put(dom.getRootVariable(),dom.getModel().getName());
-			if (dependency.target.equals(dom)) targetdomain = dom;
-			else sourcedomains.add(dom);
+			if (dependency.target.equals(dom)) {
+				rootvariablesT.put(dom.getRootVariable(),dom.getModel().getName());
+				targetdomain = dom;
+			}
+			else {
+				rootvariablesS.put(dom.getRootVariable(),dom.getModel().getName());
+				sourcedomains.add(dom);
+			}
 		}
 		
 		EPredicate prePred = relation.getPre();
@@ -193,21 +203,22 @@ public abstract class EEngineRelation {
 	
 		// if non-top call, root variables are discarded
 		for (EVariable x : rootvariables.keySet()) {
-			if (!top) {
+			if (!mode.quantifyRoots()) {
 				preVar2model.remove(x);
 				targetVar2model.remove(x);
 				sourceVar2model.remove(x);
 			} else {
-				if (preVar2model.get(x) == null) 
+				if (preVar2model.keySet().contains(x) && preVar2model.get(x) == null) 
 					preVar2model.put(x, rootvariables.get(x));
-				if (targetVar2model.get(x) == null) 
+				if (targetVar2model.keySet().contains(x) && targetVar2model.get(x) == null) 
 					targetVar2model.put(x, rootvariables.get(x));
-				if (sourceVar2model.get(x) == null) 
+				if (sourceVar2model.keySet().contains(x) && sourceVar2model.get(x) == null) 
 					sourceVar2model.put(x, rootvariables.get(x));
 			}
 		}
 	
-		EchoReporter.getInstance().debug("rootvars: "+rootvariables);
+		EchoReporter.getInstance().debug("rootvarsS: "+rootvariablesS);
+		EchoReporter.getInstance().debug("rootvarsT: "+rootvariablesT);
 		EchoReporter.getInstance().debug("srcvars: "+sourceVar2model);
 		EchoReporter.getInstance().debug("trgvars: "+targetVar2model);
 		EchoReporter.getInstance().debug("prevars: "+preVar2model);
@@ -217,7 +228,11 @@ public abstract class EEngineRelation {
 		targetVar2engineDecl = createVarDecls(targetVar2model,true);
 	  	whenVar2engineDecl = createVarDecls(preVar2model,true);
 	  	// if non-top, root variables can't be added to the context
-	  	rootVar2engineDecl = createVarDecls(rootvariables,!top);
+	  	rootVar2engineDecl = createVarDecls(rootvariables,!mode.quantifyRoots());
+	  	for (EVariable v : rootvariablesS.keySet())
+	  		rootVarS2engineDecl.put(v.getName(), rootVar2engineDecl.get(v.getName()));
+	  	for (EVariable v : rootvariablesT.keySet())
+	  		rootVarT2engineDecl.put(v.getName(), rootVar2engineDecl.get(v.getName()));
 	
 	}
 
@@ -234,7 +249,7 @@ public abstract class EEngineRelation {
 		IFormula postFormula = EchoTranslator.getInstance().getTrueFormula();
 		IFormula whenFormula = EchoTranslator.getInstance().getTrueFormula();
 
-		// exists targetVars : targetPred & postPred
+		// targetFormula := exists targetVars : targetPred & postPred
 		EPredicate postPred = relation.getPost();
 		if (postPred != null)
 			postFormula = translateCondition(postPred);
@@ -251,7 +266,7 @@ public abstract class EEngineRelation {
 					Arrays.copyOfRange(tempDecls, 1, tempDecls.length));
 		}
 
-		// forall sourceVars : sourcePreds => targetFormula
+		// sourceFormula := forall sourceVars : sourcePreds => targetFormula
 		for (EModelDomain dom : sourcedomains) {
 			EPredicate sourceCondition = dom.getCondition();
 			IFormula temp = translateCondition(sourceCondition);
@@ -269,12 +284,25 @@ public abstract class EEngineRelation {
 					Arrays.copyOfRange(tempDecls, 1, tempDecls.length));
 		}
 		
-		// forall preVars : prePred => sourceFormula
+		// formula := forall preVars : prePred => sourceFormula
 		EPredicate preCondition = relation.getPre();
 		if (preCondition != null) {
 			whenFormula = translateCondition(preCondition);
 			formula = (whenFormula.implies(formula));
 			for (IDecl d : whenVar2engineDecl.values())
+				formula = formula.forAll(d);
+		}
+		
+		if (mode == Mode.TOP_TRACEABILITY) {
+			// formula := forall srcRoot : one trgRoot : formula && (srcRoot,trgRoot) in field
+			List<IExpression> params = new ArrayList<>();
+			for (IDecl d : rootVar2engineDecl.values())
+				params.add(d.variable());
+
+			formula = formula.and(transformation.callRelation(relation, context, params));
+			for (IDecl d : rootVarT2engineDecl.values())
+				formula = formula.forOne(d);
+			for (IDecl d : rootVarS2engineDecl.values())
 				formula = formula.forAll(d);
 		}
 
@@ -379,4 +407,19 @@ public abstract class EEngineRelation {
 	abstract protected IFormula simplify(IFormula formula) throws ErrorUnsupported;
 
 	public abstract void newRelation(EQVTRelation rel) throws EchoError;
+	
+	public enum Mode {
+		TOP_QUANTIFIER,
+		TOP_TRACEABILITY,
+		SUB_TRACEABILITY;
+		
+		boolean isTop() {
+			return (this == TOP_QUANTIFIER || this == TOP_TRACEABILITY);
+		}
+
+		boolean quantifyRoots() {
+			return (this == TOP_QUANTIFIER);
+		}
+	}
+	
 }

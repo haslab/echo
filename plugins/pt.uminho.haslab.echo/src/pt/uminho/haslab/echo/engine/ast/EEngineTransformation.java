@@ -8,6 +8,7 @@ import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,9 @@ public abstract class EEngineTransformation {
 		EchoReporter.getInstance().start(Task.TRANSLATE_TRANSFORMATION,
 				transformation.getName());
 		this.transformation = transformation;
+		boolean trace = false;
+		if (transformation instanceof EATLTransformation)
+			trace = true;
 
 		initModelParams();
 
@@ -45,7 +49,7 @@ public abstract class EEngineTransformation {
 		for (ERelation rel : transformation.getRelations()) {
 			if (rel.isTop())
 				for (EDependency dep : dependencies.get(rel.getName())) 
-					createRelation(rel, dep);
+					createRelation(rel, dep, trace);
 		}
 
 		processConstraint();
@@ -60,9 +64,10 @@ public abstract class EEngineTransformation {
 	 *            the relation to translate
 	 * @param dep
 	 *            the dependency (direction) being translated
+	 * @param trace 
 	 * @throws EchoError
 	 */
-	protected abstract void createRelation(ERelation rel, EDependency dep)
+	protected abstract void createRelation(ERelation rel, EDependency dep, boolean trace)
 			throws EchoError;
 
 	/**

@@ -62,9 +62,9 @@ public class EKodkodTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void createRelation(ERelation rel, EDependency dep)
+	protected void createRelation(ERelation rel, EDependency dep, boolean trace)
 			throws EchoError {
-		new EKodkodRelation(this, dep, rel);
+		new EKodkodRelation(this, dep, rel, trace);
 	}
 
 	/** {@inheritDoc} */

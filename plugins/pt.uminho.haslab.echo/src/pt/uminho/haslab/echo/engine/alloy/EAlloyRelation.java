@@ -34,8 +34,8 @@ class EAlloyRelation extends EEngineRelation {
 	}
 
 	EAlloyRelation(EAlloyTransformation eAlloyTransformation,
-			EDependency dep, ERelation rel) throws EchoError {
-		super(rel, dep, eAlloyTransformation);
+			EDependency dep, ERelation rel, boolean trace) throws EchoError {
+		super(rel, dep, eAlloyTransformation, trace);
 	}
 
 	/** {@inheritDoc} */

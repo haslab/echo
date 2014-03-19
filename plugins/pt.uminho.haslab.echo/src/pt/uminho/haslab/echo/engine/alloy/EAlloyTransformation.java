@@ -62,9 +62,9 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void createRelation(ERelation rel, EDependency dep)
+	protected void createRelation(ERelation rel, EDependency dep, boolean trace)
 			throws EchoError {
-		new EAlloyRelation(this, dep, rel);
+		new EAlloyRelation(this, dep, rel, trace);
 	}
 
 	/** {@inheritDoc} */
