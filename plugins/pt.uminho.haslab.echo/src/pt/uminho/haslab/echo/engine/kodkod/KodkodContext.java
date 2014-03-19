@@ -2,7 +2,9 @@ package pt.uminho.haslab.echo.engine.kodkod;
 
 import kodkod.ast.Expression;
 import kodkod.ast.Relation;
+
 import org.eclipse.emf.ecore.EClass;
+
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
@@ -179,5 +181,8 @@ class KodkodContext implements ITContext {
 		return null;
 	}
 
-
+	@Override
+	public String getCurrentModel() {
+		return currentModel;
+	}
 }

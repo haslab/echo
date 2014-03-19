@@ -119,6 +119,7 @@ public class AlloyContext implements ITContext {
 	/** {@inheritDoc} */
 	@Override
 	public AlloyExpression getPropExpression(String metaModelID, String className, String fieldName) {
+		EchoReporter.getInstance().debug("var models: "+varModel);
 		EAlloyMetamodel ameta = AlloyEchoTranslator.getInstance().getMetamodel(metaModelID);
 		AlloyExpression state = (AlloyExpression) Constants.EMPTY();
 
@@ -253,6 +254,11 @@ public class AlloyContext implements ITContext {
 		}
 		currentPre = temp;
 		return pre.eq(post);
+	}
+
+	@Override
+	public String getCurrentModel() {
+		return currentModel;
 	}
 
 

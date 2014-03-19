@@ -13,6 +13,7 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.ITContext;
+import pt.uminho.haslab.echo.engine.ast.Constants;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
 import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
@@ -212,18 +213,20 @@ class EAlloyTransformation extends EEngineTransformation {
 	@Override
 	public AlloyFormula callRelation(ERelation n, ITContext context,
 			List<IExpression> params) {
-		if (subRelationFields == null)
-			return null;
-		Func f = subRelationFields.get(EchoHelper.relationFieldName(n,
-				context.getCallerRel().dependency.target));
-		if (f == null)
-			return null;
-
+		if (subRelationFields == null) return null;
+		
 		// applies the model parameters to the relation function
 		Expr[] vars = new Expr[context.getModelExpressions().size()];
 		for (int i = 0; i < context.getModelExpressions().size(); i++)
 			vars[i] = ((AlloyExpression) context.getModelExpressions().get(i)).EXPR;
+		
+		// retrieves the relation field 		
+		Func f = subRelationFields.get(EchoHelper.relationFieldName(n,
+				context.getCallerRel().dependency.target));
+		if (f == null) return null;
+
 		Expr exp = f.call(vars);
+		
 		IExpression expp = new AlloyExpression(exp);
 
 		// applies the relation parameters to the relation function
@@ -234,6 +237,25 @@ class EAlloyTransformation extends EEngineTransformation {
 		IFormula form = insig.in(expp);
 
 		return (AlloyFormula) form;
+	}
+
+	@Override
+	public IExpression callAllRelation(ITContext context, IExpression param) {
+		if (subRelationFields == null) return Constants.EMPTY();
+		
+		// applies the model parameters to the relation function
+		Expr[] vars = new Expr[context.getModelExpressions().size()];
+		for (int i = 0; i < context.getModelExpressions().size(); i++)
+			vars[i] = ((AlloyExpression) context.getModelExpressions().get(i)).EXPR;
+		
+		Expr exp = Sig.NONE;
+		// retrieves the relation field 		
+		for (Func f : subRelationFields.values())
+			exp = exp.plus(f.call(vars));
+		
+		IExpression expp = new AlloyExpression(exp);
+
+		return param.join(expp);
 	}
 
 }

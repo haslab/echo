@@ -96,6 +96,8 @@ public interface IContext {
      */
 	void setCurrentModel(String model);
 
+	String getCurrentModel();
+
     /**
      * If the context is currently in pre-state mode.
      * Should be used in <code>getClassExpression</code> and <code>getPropExpression</code>

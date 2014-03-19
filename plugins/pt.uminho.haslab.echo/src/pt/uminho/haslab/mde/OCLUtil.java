@@ -140,7 +140,7 @@ public class OCLUtil {
 
 			}
 		}*/
-		else if (exp.eClass().getName().equals("OperatorCallExp") || exp.eClass().getName().equals("OperationCallExp")) {
+		else if (exp.eClass().getName().equals("OperatorCallExp") || exp.eClass().getName().equals("OperationCallExp") || exp.eClass().getName().equals("CollectionOperationCallExp")) {
 			final EStructuralFeature source = exp.eClass().getEStructuralFeature("source");
 			final EStructuralFeature parameters = exp.eClass().getEStructuralFeature("arguments");
 			Map<EVariable,String> aux = variablesOCLExpression((EObject) exp.eGet(source),mdl);

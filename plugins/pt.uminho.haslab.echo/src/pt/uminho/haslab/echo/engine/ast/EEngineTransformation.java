@@ -141,4 +141,7 @@ public abstract class EEngineTransformation {
 	public abstract IFormula callRelation(ERelation rel, ITContext context,
 			List<IExpression> params);
 
+	public abstract IExpression callAllRelation(ITContext context,
+			IExpression param);
+
 }

@@ -159,4 +159,10 @@ public class EKodkodTransformation extends EEngineTransformation {
     public Map<String, Relation> getSubRelationFields() {
         return subRelationFields;
     }
+
+	@Override
+	public IExpression callAllRelation(ITContext context, IExpression param) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

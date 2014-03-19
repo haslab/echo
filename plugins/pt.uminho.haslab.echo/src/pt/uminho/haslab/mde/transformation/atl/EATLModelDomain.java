@@ -4,6 +4,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
@@ -38,7 +39,10 @@ public class EATLModelDomain extends EModelDomain {
 		EObject var = objs.get(0); // InPatternElement or OutPatternElement
 		for (EObject x : var.eContents())
 			if (x.eClass().getName().equals("OclModelElement")) {
-				return EATLModelParameter.get(x.eCrossReferences().get(0));
+				EObject mdlref = x.eCrossReferences().get(0);
+				EObject metamdlref = ((EList<EObject>) mdlref.eGet(mdlref.eClass().getEStructuralFeature("model"))).get(0);
+				String name = (String) metamdlref.eGet(metamdlref.eClass().getEStructuralFeature("name"));
+				return EATLModelParameter.get(name);
 			}
 		return null;
 	}
@@ -57,14 +61,15 @@ public class EATLModelDomain extends EModelDomain {
 		if (domain.eClass().getName().equals("InPattern")) {
 			EObject filter = (EObject) domain.eGet(domain.eClass().getEStructuralFeature("filter"));
 			x.addCondition(filter);
-		} else if (domain.eClass().getName().equals("OutPattern")) {
-			EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
-			EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
-			EObject var = objs.get(0);
-			EStructuralFeature bindings = var.eClass().getEStructuralFeature("bindings");
-			for (EObject bd : (EList<EObject>) var.eGet(bindings))
-				x.addCondition(bd);
-		}
+		} 
+//		else if (domain.eClass().getName().equals("OutPattern")) {
+//			EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");
+//			EList<EObject> objs = (EList<EObject>) domain.eGet(elems);
+//			EObject var = objs.get(0);
+//			EStructuralFeature bindings = var.eClass().getEStructuralFeature("bindings");
+//			for (EObject bd : (EList<EObject>) var.eGet(bindings))
+//				x.addCondition(bd);
+//		}
 		return x;
 	}
 

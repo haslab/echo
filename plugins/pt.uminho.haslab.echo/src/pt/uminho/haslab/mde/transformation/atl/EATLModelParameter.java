@@ -23,17 +23,18 @@ import java.util.Map;
  */
 public class EATLModelParameter extends EModelParameter {
 
-	private static Map<EObject,EATLModelParameter> list = new HashMap<EObject,EATLModelParameter>();
+	private static Map<String,EATLModelParameter> list = new HashMap<>();
 	private EObject mdl;
 	private EATLTransformation module;
 	private EMetamodel metamodel;
 
 	public EATLModelParameter(EObject mdl2,EATLTransformation module) throws ErrorParser, ErrorUnsupported {
 		this.module = module;
-		mdl = mdl2.eCrossReferences().get(0);
-		list.put(mdl,this);
+		mdl = mdl2;
+		
 		EObject x = (EObject) mdl2.eGet(mdl2.eClass().getEStructuralFeature("metamodel"));
 		String y = (String) x.eGet(x.eClass().getEStructuralFeature("name"));		
+		list.put((String) mdl.eGet(mdl.eClass().getEStructuralFeature("name")),this);
 		metamodel = MDEManager.getInstance().getMetamodel(EATLTransformation.metamodeluris.get(y),false);
 	}
 
@@ -42,8 +43,9 @@ public class EATLModelParameter extends EModelParameter {
 		return (String) mdl.eGet(mdl.eClass().getEStructuralFeature("name"));
 	}
 
-	public static EATLModelParameter get(EObject typedModel) {
-		return list.get(typedModel);
+	public static EATLModelParameter get(String modelName) {
+//		EchoReporter.getInstance().debug("ATL domain metamodel: "+modelName+" over "+list.keySet());
+		return list.get(modelName);
 	}
 
 	@Override

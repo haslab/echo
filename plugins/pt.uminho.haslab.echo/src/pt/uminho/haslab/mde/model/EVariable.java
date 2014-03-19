@@ -57,22 +57,17 @@ public class EVariable {
 				if (((EObject) x).eClass().getName().equals("OclModelElement"))
 					type = (EObject) x;
 
-//			if (var.eClass().getName().equals("OutPatternElement"))
-//				model = (EObject) var.eGet(var.eClass().getEStructuralFeature("model"));
-//			else if (var.eClass().getName().equals("InPatternElement") || var.eClass().getName().equals("SimpleInPatternElement"))
-//				model = (EObject) ((EList<EObject>) var.eGet(var.eClass().getEStructuralFeature("models"))).get(0);
-//			else throw new ErrorParser("Invalid object type: "+var.eClass());
-			
-			
-			metamodelURI = MDEManager.getInstance().getMetamodelID(EATLModelParameter.get(type.eCrossReferences().get(0)).getMetamodel().ID).getURI();
-//			EStructuralFeature type = var.eClass().getEStructuralFeature("type");
-//			this.type = (EObject) var.eGet(type);
+			EObject mdlref = type.eCrossReferences().get(0);
+			EObject metamdlref = ((EList<EObject>) mdlref.eGet(mdlref.eClass().getEStructuralFeature("model"))).get(0);
+			String mname = (String) metamdlref.eGet(metamdlref.eClass().getEStructuralFeature("name"));
+			metamodelURI = EATLModelParameter.get(mname).getMetamodel().getURI();
+
 			EStructuralFeature name = var.eClass().getEStructuralFeature("name");
 			if (name == null)
 				name = var.eClass().getEStructuralFeature("varName");
 			this.name = (String) var.eGet(name);
 		}
-		EchoReporter.getInstance().debug("** Created var: "+name+"::"+metamodelURI);
+//		EchoReporter.getInstance().debug("** Created var: "+name+"::"+metamodelURI);
 	}
 
 	public String getName() {

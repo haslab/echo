@@ -15,6 +15,7 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.IContext;
+import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.Constants;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -27,41 +28,44 @@ import java.util.List;
 
 public class OCL2Alloy2 {
 
-	protected final IContext context;
+	protected final ITContext context;
 
-	public OCL2Alloy2(IContext context) {
+	public OCL2Alloy2(ITContext context) {
 		this.context = context;
 	}
 
 	public INode oclExprToAlloy(EObject expr) throws ErrorTransform,
 			ErrorAlloy, ErrorUnsupported, ErrorParser {
-		if (expr.eClass().getName().equals("OperatorCallExp")) {
-			return oclExprToAlloyOC(expr);
+		if (expr.eClass().getName().equals("OperatorCallExp") || 
+				expr.eClass().getName().equals("OperationCallExp") ||
+				expr.eClass().getName().equals("CollectionOperationCallExp")) {
+			return oclExprToAlloyOperationCall(expr);
 		} else if (expr.eClass().getName()
 				.equals("NavigationOrAttributeCallExp")) {
-			return oclExprToAlloyAC(expr);
+			return oclExprToAlloyAttribute(expr);
 		} else if (expr.eClass().getName().equals("VariableExp")) {
-			return oclExprToAlloyV(expr);
+			return oclExprToAlloyVariable(expr);
 		} else if (expr.eClass().getName().equals("BooleanExp")) {
-			return oclExprToAlloyBL(expr);
+			return oclExprToAlloyBooleanLit(expr);
 		} else if (expr.eClass().getName().equals("Binding")) {
-			return oclExprToAlloyBD(expr);
+			return oclExprToAlloyBinding(expr);
 		} else
 			throw new ErrorUnsupported("OCL expression not supported: " + expr
 					+ ".");
 	}
 
-	IExpression oclExprToAlloyV(EObject expr) {
+	IExpression oclExprToAlloyVariable(EObject expr) {
 		EStructuralFeature x = expr.eClass().getEStructuralFeature(
 				"referredVariable");
 		EObject vardecl = (EObject) expr.eGet(x);
 		EStructuralFeature name = vardecl.eClass().getEStructuralFeature(
 				"varName");
 		String varname = (String) vardecl.eGet(name);
+		context.setCurrentModel(context.getVarModel(varname));
 		return context.getVar(varname);
 	}
 
-	IFormula oclExprToAlloyBL(EObject expr) {
+	IFormula oclExprToAlloyBooleanLit(EObject expr) {
 		EStructuralFeature symb = expr.eClass().getEStructuralFeature(
 				"booleanSymbol");
 		if (expr.eGet(symb).toString().equals("true"))
@@ -70,7 +74,7 @@ public class OCL2Alloy2 {
 			return Constants.FALSE();
 	}
 
-	INode oclExprToAlloyAC(EObject expr) throws ErrorTransform, ErrorAlloy,
+	INode oclExprToAlloyAttribute(EObject expr) throws ErrorTransform, ErrorAlloy,
 			ErrorUnsupported, ErrorParser {
 		INode res = null;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
@@ -104,25 +108,35 @@ public class OCL2Alloy2 {
 		return res;
 	}
 
-	INode oclExprToAlloyBD(EObject expr) throws ErrorTransform, ErrorAlloy,
+	INode oclExprToAlloyBinding(EObject expr) throws ErrorTransform, ErrorAlloy,
 			ErrorUnsupported, ErrorParser {
 		INode res = null;
 
 		EStructuralFeature value = expr.eClass().getEStructuralFeature("value");
 		INode val = oclExprToAlloy((EObject) expr.eGet(value));
-
+		
+		
+		String valmodel = context.getCurrentModel();
+		
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
 				"outPatternElement");
 		EObject sourceo = (EObject) expr.eGet(source);
 		EStructuralFeature name = sourceo.eClass().getEStructuralFeature(
 				"varName");
 		String varname = (String) sourceo.eGet(name);
+		context.setCurrentModel(context.getVarModel(varname));
 		IExpression var = context.getVar(varname);
+
+		String varmodel = context.getCurrentModel();
 
 		EStructuralFeature oname = expr.eClass().getEStructuralFeature(
 				"propertyName");
 		IExpression aux = propertyToField((String) expr.eGet(oname), var);
 
+		if (valmodel != null && !varmodel.equals(valmodel)) {
+			EchoReporter.getInstance().debug(" *** Call implicit trace! "+context.getCallerRel().transformation.callAllRelation(context, (IExpression) val));
+			val  = context.getCallerRel().transformation.callAllRelation(context, (IExpression) val);
+		}
 		String varsig = null;
 		try {
 			varsig = ((AlloyExpression) var).EXPR.type().toExpr().toString();
@@ -144,7 +158,7 @@ public class OCL2Alloy2 {
 		return res;
 	}
 
-	INode oclExprToAlloyOC(EObject expr) throws ErrorTransform, ErrorAlloy,
+	INode oclExprToAlloyOperationCall(EObject expr) throws ErrorTransform, ErrorAlloy,
 			ErrorUnsupported, ErrorParser {
 		INode res = null;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
@@ -222,7 +236,6 @@ public class OCL2Alloy2 {
 					.minus((IIntExpression) oclExprToAlloy(argumentso.get(0)));
 		else if (operatorname.equals("allInstances"))
 			res = src;
-
 		else
 			throw new ErrorUnsupported("OCL operation not supported: "
 					+ expr.toString() + ".");
@@ -252,6 +265,13 @@ public class OCL2Alloy2 {
 				exp = context.getPropExpression(metamodel.ID,
 						((EReference) feature).getEOpposite().getEContainingClass().getName(),
 						((EReference) feature).getEOpposite().getName()).transpose();
+			
+			EchoReporter.getInstance().debug("Type of proptofield: "+feature.getEType().getName());
+			if (feature.getEType().getName().equals("EString") || 
+					feature.getEType().getName().equals("EBoolean") ||
+					feature.getEType().getName().equals("EInt"))
+				context.setCurrentModel(null);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

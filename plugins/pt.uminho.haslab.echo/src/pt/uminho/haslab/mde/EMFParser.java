@@ -23,6 +23,7 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.ErrorTransform;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -159,6 +160,17 @@ public class EMFParser {
 			resourceSet.getURIConverter().createInputStream(URI.createURI(atlPath.toOSString()));
 			InputStream f = resourceSet.getURIConverter().createInputStream(URI.createURI(atlPath.toOSString()));
 			module = AtlParser.getDefault().parse(f);
+			
+//			Resource resource = resourceSet.createResource(URI.createURI("/pt.uminho.haslab.echo.examples/adsateste.xmi"));
+//			resource.getContents().add(module);
+//			Map<Object,Object> options = new HashMap<Object,Object>();
+//			options.put(XMLResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+//			try{
+//			    resource.save(options);
+//		    }catch (Exception e) {
+//		    	throw new ErrorTransform(e.getMessage());
+//		    }
+			
 			EchoReporter.getInstance().debug(module.eClass().toString());
 			EchoReporter.getInstance().debug(module.eContents().toString());
 		} catch (Exception e) {

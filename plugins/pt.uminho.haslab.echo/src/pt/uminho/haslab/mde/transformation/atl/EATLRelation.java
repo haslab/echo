@@ -59,7 +59,6 @@ public class EATLRelation implements ERelation {
 	@Override
 	public List<EATLModelDomain> getDomains() {
 		return domains;
-
 	}
 
 	@Override
@@ -81,7 +80,7 @@ public class EATLRelation implements ERelation {
 
 	@Override
 	public EATLPredicate getPre() {
-		return null;
+		return new EATLPredicate();
 	}
 
 }

@@ -192,13 +192,26 @@ public abstract class EEngineRelation {
 		}
 	
 		// if non-top call, root variables are discarded
-		if (!top)
-			for (EVariable x : rootvariables.keySet()) {
+		for (EVariable x : rootvariables.keySet()) {
+			if (!top) {
 				preVar2model.remove(x);
 				targetVar2model.remove(x);
 				sourceVar2model.remove(x);
+			} else {
+				if (preVar2model.get(x) == null) 
+					preVar2model.put(x, rootvariables.get(x));
+				if (targetVar2model.get(x) == null) 
+					targetVar2model.put(x, rootvariables.get(x));
+				if (sourceVar2model.get(x) == null) 
+					sourceVar2model.put(x, rootvariables.get(x));
 			}
+		}
 	
+		EchoReporter.getInstance().debug("rootvars: "+rootvariables);
+		EchoReporter.getInstance().debug("srcvars: "+sourceVar2model);
+		EchoReporter.getInstance().debug("trgvars: "+targetVar2model);
+		EchoReporter.getInstance().debug("prevars: "+preVar2model);
+		
 		// embed retrieved variable in engine representation
 		sourceVar2engineDecl = createVarDecls(sourceVar2model,true);
 		targetVar2engineDecl = createVarDecls(targetVar2model,true);
