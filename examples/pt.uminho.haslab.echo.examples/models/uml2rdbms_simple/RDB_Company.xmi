@@ -16,4 +16,10 @@
     <columns
         name="name"/>
   </tables>
+  <tables name="Employee">
+    <columns
+        name="name"/>
+    <columns
+        name="X"/>
+  </tables>
 </rdbms:Scheme>

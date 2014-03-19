@@ -256,6 +256,14 @@ public abstract class EEngineRelation {
 
 		IFormula targetFormula = translateCondition(targetdomain.getCondition());
 		targetFormula = targetFormula.and(postFormula);
+		
+		if (mode == Mode.TOP_TRACEABILITY) {
+			// targetFormula := exists targetVars : targetPred & postPred & (srcRoot,trgRoot) in field
+			List<IExpression> params = new ArrayList<>();
+			for (IDecl d : rootVar2engineDecl.values())
+				params.add(d.variable());
+			targetFormula = targetFormula.and(transformation.callRelation(relation, context, params));
+		}
 
 		if (targetVar2engineDecl.size() == 1)
 			targetFormula = targetFormula.forSome(targetVar2engineDecl.values().iterator().next());
@@ -264,6 +272,12 @@ public abstract class EEngineRelation {
 					new IDecl[targetVar2engineDecl.size()]);
 			targetFormula = targetFormula.forSome(tempDecls[0],
 					Arrays.copyOfRange(tempDecls, 1, tempDecls.length));
+		}
+		
+		if (mode == Mode.TOP_TRACEABILITY) {
+			// targetFormula := one rgtRoot : exists targetVars : targetPred & postPred & (srcRoot,trgRoot) in field
+			for (IDecl d : rootVarT2engineDecl.values())
+				targetFormula = targetFormula.forOne(d);
 		}
 
 		// sourceFormula := forall sourceVars : sourcePreds => targetFormula
@@ -294,14 +308,7 @@ public abstract class EEngineRelation {
 		}
 		
 		if (mode == Mode.TOP_TRACEABILITY) {
-			// formula := forall srcRoot : one trgRoot : formula && (srcRoot,trgRoot) in field
-			List<IExpression> params = new ArrayList<>();
-			for (IDecl d : rootVar2engineDecl.values())
-				params.add(d.variable());
-
-			formula = formula.and(transformation.callRelation(relation, context, params));
-			for (IDecl d : rootVarT2engineDecl.values())
-				formula = formula.forOne(d);
+			// formula := forall srcRoot : forall preVars : prePred => sourceFormula
 			for (IDecl d : rootVarS2engineDecl.values())
 				formula = formula.forAll(d);
 		}

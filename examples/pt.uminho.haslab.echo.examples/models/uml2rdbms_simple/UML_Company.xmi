@@ -6,16 +6,18 @@
     xmlns:uml="UML"
     xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"
     name="Company">
-  <classes name="Employee"
-      persistent="true"
-      super="//@classes.1"/>
   <classes name="Person"
-      child="//@classes.0 //@classes.2">
+      child="//@classes.1 //@classes.2">
     <attributes
         name="name"
         type="Float"/>
   </classes>
   <classes name="Employer"
       persistent="true"
-      super="//@classes.1"/>
+      super="//@classes.0"/>
+  <classes name="Employee"
+      persistent="true"
+      super="//@classes.0"/>
+  <classes name="Employee"
+      persistent="true"/>
 </uml:Package>
