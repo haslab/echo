@@ -23,6 +23,11 @@ public class Pair<L,R> {
     }
 
     @Override
+    public String toString(){
+            return "{" + left.toString() + " , " + right.toString() + "}";
+    }
+
+    @Override
     public boolean equals(Object o)
     {
         return this == o || o instanceof Pair && equals((Pair) o);
