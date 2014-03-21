@@ -7,7 +7,7 @@ import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.ITContext;
-import pt.uminho.haslab.echo.engine.alloy.OCL2Alloy2;
+import pt.uminho.haslab.echo.engine.alloy.ATLOCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.OCLUtil;
 import pt.uminho.haslab.mde.model.EPredicate;
@@ -41,7 +41,7 @@ public class EATLPredicate implements EPredicate {
 
 	@Override
 	public IFormula translate(ITContext context) throws EchoError {
-		OCL2Alloy2 trad = new OCL2Alloy2(context);
+		ATLOCLTranslator trad = new ATLOCLTranslator(context);
 		return trad.translateExpressions(exps);
 	}
 

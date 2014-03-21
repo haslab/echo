@@ -7,16 +7,13 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.ocl.examples.pivot.OCLExpression;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
-import pt.uminho.haslab.echo.engine.IContext;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.Constants;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
@@ -27,39 +24,38 @@ import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.atl.EATLRelation;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
-import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class OCL2Alloy2 {
+public class ATLOCLTranslator {
 
 	protected final ITContext context;
 
-	public OCL2Alloy2(ITContext context) {
+	public ATLOCLTranslator(ITContext context) {
 		this.context = context;
 	}
 
-	public INode oclExprToAlloy(EObject expr) throws EchoError {
+	public INode translateAtlOcl(EObject expr) throws EchoError {
 		if (expr.eClass().getName().equals("OperatorCallExp") || 
 				expr.eClass().getName().equals("OperationCallExp") ||
 				expr.eClass().getName().equals("CollectionOperationCallExp")) {
-			return oclExprToAlloyOperationCall(expr);
+			return translateAtlOclOperationCall(expr);
 		} else if (expr.eClass().getName()
 				.equals("NavigationOrAttributeCallExp")) {
-			return oclExprToAlloyAttribute(expr);
+			return translateAtlOclAttribute(expr);
 		} else if (expr.eClass().getName().equals("VariableExp")) {
-			return oclExprToAlloyVariable(expr);
+			return translateAtlOclVariable(expr);
 		} else if (expr.eClass().getName().equals("BooleanExp")) {
-			return oclExprToAlloyBooleanLit(expr);
+			return translateAtlOclBooleanLit(expr);
 		} else if (expr.eClass().getName().equals("Binding")) {
-			return oclExprToAlloyBinding(expr);
+			return translateAtlOclBinding(expr);
 		} else
 			throw new ErrorUnsupported("OCL expression not supported: " + expr
 					+ ".");
 	}
 
-	IExpression oclExprToAlloyVariable(EObject expr) {
+	IExpression translateAtlOclVariable(EObject expr) {
 		EStructuralFeature x = expr.eClass().getEStructuralFeature(
 				"referredVariable");
 		EObject vardecl = (EObject) expr.eGet(x);
@@ -70,7 +66,7 @@ public class OCL2Alloy2 {
 		return context.getVar(varname);
 	}
 
-	IFormula oclExprToAlloyBooleanLit(EObject expr) {
+	IFormula translateAtlOclBooleanLit(EObject expr) {
 		EStructuralFeature symb = expr.eClass().getEStructuralFeature(
 				"booleanSymbol");
 		if (expr.eGet(symb).toString().equals("true"))
@@ -79,7 +75,7 @@ public class OCL2Alloy2 {
 			return Constants.FALSE();
 	}
 
-	INode oclExprToAlloyAttribute(EObject expr) throws EchoError {
+	INode translateAtlOclAttribute(EObject expr) throws EchoError {
 		INode res = null;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
 				"source");
@@ -87,7 +83,7 @@ public class OCL2Alloy2 {
 
 		context.setCurrentModel(null);
 
-		IExpression var = (IExpression) oclExprToAlloy(sourceo);
+		IExpression var = (IExpression) translateAtlOcl(sourceo);
 		EStructuralFeature oname = expr.eClass().getEStructuralFeature("name");
 		IExpression aux = propertyToField((String) expr.eGet(oname), var);
 
@@ -112,11 +108,11 @@ public class OCL2Alloy2 {
 		return res;
 	}
 
-	INode oclExprToAlloyBinding(EObject expr) throws EchoError {
+	INode translateAtlOclBinding(EObject expr) throws EchoError {
 		INode res = null;
 
 		EStructuralFeature value = expr.eClass().getEStructuralFeature("value");
-		INode val = oclExprToAlloy((EObject) expr.eGet(value));
+		INode val = translateAtlOcl((EObject) expr.eGet(value));
 		
 		
 		String valmodel = context.getCurrentModel();
@@ -161,14 +157,14 @@ public class OCL2Alloy2 {
 		return res;
 	}
 
-	INode oclExprToAlloyOperationCall(EObject expr) throws EchoError {
+	INode translateAtlOclOperationCall(EObject expr) throws EchoError {
 		INode res = null;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
 				"source");
 		EStructuralFeature operat = expr.eClass().getEStructuralFeature(
 				"operationName");
 		String operatorname = (String) expr.eGet(operat);
-		INode src = oclExprToAlloy((EObject) expr.eGet(source));
+		INode src = translateAtlOcl((EObject) expr.eGet(source));
 		EStructuralFeature arguments = expr.eClass().getEStructuralFeature(
 				"arguments");
 		EList<EObject> argumentso = (EList<EObject>) expr.eGet(arguments);
@@ -179,13 +175,13 @@ public class OCL2Alloy2 {
 		else if (operatorname.equals("size"))
 			res = ((IExpression) src).cardinality();
 		else if (operatorname.equals("=")) {
-			INode aux = oclExprToAlloy(argumentso.get(0));
+			INode aux = translateAtlOcl(argumentso.get(0));
 			if (src instanceof IFormula)
 				res = ((IFormula) src).iff((IFormula) aux);
 			else
 				res = ((IExpression) src).eq((IExpression) aux);
 		} else if (operatorname.equals("<>")) {
-			INode aux = oclExprToAlloy(argumentso.get(0));
+			INode aux = translateAtlOcl(argumentso.get(0));
 			EStructuralFeature type = argumentso.get(0).eClass()
 					.getEStructuralFeature("type");
 			EObject typeo = (EObject) argumentso.get(0).eGet(type);
@@ -197,45 +193,45 @@ public class OCL2Alloy2 {
 			else
 				res = ((IExpression) src).eq((IExpression) aux).not();
 		} else if (operatorname.equals("and"))
-			res = ((IFormula) src).and((IFormula) oclExprToAlloy(argumentso
+			res = ((IFormula) src).and((IFormula) translateAtlOcl(argumentso
 					.get(0)));
 		else if (operatorname.equals("or"))
-			res = ((IFormula) src).or((IFormula) oclExprToAlloy(argumentso
+			res = ((IFormula) src).or((IFormula) translateAtlOcl(argumentso
 					.get(0)));
 		else if (operatorname.equals("implies"))
-			res = ((IFormula) src).implies((IFormula) oclExprToAlloy(argumentso
+			res = ((IFormula) src).implies((IFormula) translateAtlOcl(argumentso
 					.get(0)));
 		else if (operatorname.equals("<"))
 			res = ((IIntExpression) src)
-					.lt((IIntExpression) oclExprToAlloy(argumentso.get(0)));
+					.lt((IIntExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals(">"))
 			res = ((IIntExpression) src)
-					.gt((IIntExpression) oclExprToAlloy(argumentso.get(0)));
+					.gt((IIntExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals("<="))
 			res = ((IIntExpression) src)
-					.lte((IIntExpression) oclExprToAlloy(argumentso.get(0)));
+					.lte((IIntExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals(">="))
 			res = ((IIntExpression) src)
-					.gte((IIntExpression) oclExprToAlloy(argumentso.get(0)));
+					.gte((IIntExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals("union"))
 			res = ((IExpression) src)
-					.union((IExpression) oclExprToAlloy(argumentso.get(0)));
+					.union((IExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals("intersection"))
 			res = ((IExpression) src)
-					.intersection((IExpression) oclExprToAlloy(argumentso
+					.intersection((IExpression) translateAtlOcl(argumentso
 							.get(0)));
 		else if (operatorname.equals("includes"))
-			res = ((IExpression) oclExprToAlloy(argumentso.get(0)))
+			res = ((IExpression) translateAtlOcl(argumentso.get(0)))
 					.in((IExpression) src);
 		else if (operatorname.equals("oclAsSet")
 				|| operatorname.equals("asSet"))
 			res = src;
 		else if (operatorname.equals("+"))
 			res = ((IIntExpression) src)
-					.plus((IIntExpression) oclExprToAlloy(argumentso.get(0)));
+					.plus((IIntExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals("-"))
 			res = ((IIntExpression) src)
-					.minus((IIntExpression) oclExprToAlloy(argumentso.get(0)));
+					.minus((IIntExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals("allInstances"))
 			res = src;
 		else if (((EATLTransformation) context.getCallerRel().transformation.transformation).getRelation(operatorname) != null) {
@@ -244,7 +240,7 @@ public class OCL2Alloy2 {
 			// translates variable parameters
 			List<IExpression> params = new ArrayList<IExpression>();
 			for (EObject arg : argumentso) {
-				IExpression param = (IExpression) oclExprToAlloy(arg);
+				IExpression param = (IExpression) translateAtlOcl(arg);
 				params.add(param);
 			}
 
@@ -309,7 +305,7 @@ public class OCL2Alloy2 {
 	public IFormula translateExpressions(List<EObject> lex) throws EchoError {
 		IFormula expr = Constants.TRUE();
 		for (Object ex : lex) {
-			expr = expr.and((IFormula) oclExprToAlloy((EObject) ex));
+			expr = expr.and((IFormula) translateAtlOcl((EObject) ex));
 		}
 		return expr;
 	}

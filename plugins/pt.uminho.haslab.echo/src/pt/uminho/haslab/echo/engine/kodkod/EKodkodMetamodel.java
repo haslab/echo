@@ -205,7 +205,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 	protected void processReferences(List<EReference> eReferences) throws ErrorTransform {
 		for(EReference eReference : eReferences) {
 			String className = eReference.getEContainingClass().getName();
-			String refName = EchoHelper.featureKey(metamodel,eReference);
+			String refName = EchoHelper.featureLabel(metamodel,eReference);
 			Expression classRel = getDomain(className);
 			EReference eOpposite = eReference.getEOpposite();
 			
@@ -301,7 +301,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 		for(EAttribute attr : eAttributes) {
 			String className = attr.getEContainingClass().getName();
 			Expression domain = getDomain(className);
-			String attrName = EchoHelper.featureKey(metamodel,attr);
+			String attrName = EchoHelper.featureLabel(metamodel,attr);
 			if(attr.getEType().getName().equals("EBoolean")) {					
 				attribute  = Relation.unary(attrName);
 				facts = facts.and(attribute.in(domain));
@@ -357,7 +357,7 @@ class EKodkodMetamodel extends EEngineMetamodel {
 		}
 
         if(!ec.isAbstract()){
-            String relName = EchoHelper.classifierKey(metamodel,ec);
+            String relName = EchoHelper.classifierLabel(metamodel,ec);
             eCRel = Relation.unary(relName);
             mapClassRel.put(ec.getName(), eCRel);
         }else

@@ -113,7 +113,7 @@ import java.util.*;
  	* @return the matching Alloy signature
 	*/
 	PrimSig getSigFromEClassifier(EClassifier c) {
-		PrimSig s = classifier2sig.get(EchoHelper.classifierKey(metamodel, c));
+		PrimSig s = classifier2sig.get(EchoHelper.classifierLabel(metamodel, c));
 		if (s == null)
 			EchoReporter.getInstance().warning("Looking for non-existing classifier: "+c, Task.TRANSLATE_METAMODEL);
 		return s;
@@ -154,7 +154,7 @@ import java.util.*;
 	Field getFieldFromSFeature(EStructuralFeature f) {
 		if (f == null) 
 			EchoReporter.getInstance().warning("Looking for null feature.",Task.TRANSLATE_METAMODEL);
-		Field fi = feature2field.get(EchoHelper.featureKey(metamodel, f));
+		Field fi = feature2field.get(EchoHelper.featureLabel(metamodel, f));
 		if (fi == null)
 			EchoReporter.getInstance().warning("Looking for non-existing field: "+f+".",Task.TRANSLATE_METAMODEL);
 		return fi;
@@ -295,7 +295,7 @@ import java.util.*;
              res.addAll(mapContainment.get(className));
          PrimSig parent = classifier2sig.get(className).parent;
          if(parent != null && parent != Sig.UNIV && parent != Sig.NONE){
-             String s = EchoHelper.classifierKey(metamodel,getEClassifierFromSig(parent));
+             String s = EchoHelper.classifierLabel(metamodel,getEClassifierFromSig(parent));
              Set<Field> aux = getParentsContainers(s);
              res.addAll(aux);
          }
@@ -368,7 +368,7 @@ import java.util.*;
 	protected void processClass(EClass ec) throws EchoError {
 		PrimSig ecsig, parent = null;
 		Field statefield;
-		if (classifier2sig.get(EchoHelper.classifierKey(metamodel, ec)) != null)
+		if (classifier2sig.get(EchoHelper.classifierLabel(metamodel, ec)) != null)
 			return;
 		List<EClass> superTypes = ec.getESuperTypes();
 		if (superTypes.size() > 1)
@@ -376,14 +376,14 @@ import java.util.*;
 					"Multiple inheritance not allowed: " + ec.getName() + ".",
 					"", Task.TRANSLATE_METAMODEL);
 		if (!superTypes.isEmpty()) {
-			parent = classifier2sig.get(EchoHelper.classifierKey(metamodel,
+			parent = classifier2sig.get(EchoHelper.classifierLabel(metamodel,
 					superTypes.get(0)));
 			if (parent == null)
 				processClass(superTypes.get(0));
-			parent = classifier2sig.get(EchoHelper.classifierKey(metamodel,
+			parent = classifier2sig.get(EchoHelper.classifierLabel(metamodel,
 					superTypes.get(0)));
 		}
-		String signame = EchoHelper.classifierKey(metamodel, ec);
+		String signame = EchoHelper.classifierLabel(metamodel, ec);
 		try {
 			if (ec.isAbstract())
 				ecsig = new PrimSig(signame, parent, Attr.ABSTRACT);
@@ -398,7 +398,7 @@ import java.util.*;
 					"Failed to create class sig.", a, Task.TRANSLATE_METAMODEL);
 		}
 		sig2statefield.put(ecsig, statefield);
-		classifier2sig.put(EchoHelper.classifierKey(metamodel, ec), ecsig);
+		classifier2sig.put(EchoHelper.classifierLabel(metamodel, ec), ecsig);
 	}
 	
 	/**
@@ -415,13 +415,13 @@ import java.util.*;
 			throws EchoError {
 		Field field = null;
 		for (EAttribute attr : attributes) {
-			PrimSig classsig = classifier2sig.get(EchoHelper.classifierKey(
+			PrimSig classsig = classifier2sig.get(EchoHelper.classifierLabel(
 					metamodel, attr.getEContainingClass()));
-			String fieldname = EchoHelper.featureKey(metamodel, attr);
+			String fieldname = EchoHelper.featureLabel(metamodel, attr);
 			try {
 				if (attr.getEType().getName().equals("EBoolean"))
 					field = classsig.addField(
-							EchoHelper.featureKey(metamodel, attr),
+							EchoHelper.featureLabel(metamodel, attr),
 							SIG.setOf());
 				else {
 					PrimSig type = null;
@@ -435,7 +435,7 @@ import java.util.*;
 								Task.TRANSLATE_METAMODEL);
 					}
 					else if (attr.getEType() instanceof EEnum)
-						type = classifier2sig.get(EchoHelper.classifierKey(
+						type = classifier2sig.get(EchoHelper.classifierLabel(
 								metamodel, attr.getEType()));
 					else
 						throw new ErrorUnsupported(
@@ -484,7 +484,7 @@ import java.util.*;
 			throws EchoError {
 		for (EReference reference : references) {
 			PrimSig classsig = classifier2sig.get(
-                    EchoHelper.classifierKey(metamodel, reference.getEContainingClass()));
+                    EchoHelper.classifierLabel(metamodel, reference.getEContainingClass()));
 			EReference op = reference.getEOpposite();
 
 			if (op != null && EchoOptionsSetup.getInstance().isOptimize()) {
@@ -501,10 +501,10 @@ import java.util.*;
 			if (cc == null)
 				throw new ErrorParser(ErrorParser.METAMODEL,"Failed to find reference '"+reference.getName()+"' type.",
 						"Check the meta-model specification.",Task.TRANSLATE_METAMODEL);
-			String coDomainName = EchoHelper.classifierKey(metamodel,cc);
+			String coDomainName = EchoHelper.classifierLabel(metamodel,cc);
             PrimSig trgsig = classifier2sig.get(coDomainName);
 			Field field;
-			String feature_key = EchoHelper.featureKey(metamodel, reference);
+			String feature_key = EchoHelper.featureLabel(metamodel, reference);
 
 			try {
 				field = classsig.addField(feature_key,
@@ -637,7 +637,7 @@ import java.util.*;
 			OCLHelper helper = ocl.createOCLHelper(annotation.eContainer());
 			AlloyContext context = new AlloyContext();
 
-			PrimSig classsig = classifier2sig.get(EchoHelper.classifierKey(
+			PrimSig classsig = classifier2sig.get(EchoHelper.classifierLabel(
 					metamodel, (EClassifier) annotation.eContainer()));
 			Field statefield = sig2statefield.get(classsig);
 			try {
@@ -704,7 +704,7 @@ import java.util.*;
 			throws EchoError {
 		OCL ocl = OCL.newInstance(new PivotEnvironmentFactory());
 		for (EOperation operation : eoperations) {
-			PrimSig classsig = classifier2sig.get(EchoHelper.classifierKey(
+			PrimSig classsig = classifier2sig.get(EchoHelper.classifierLabel(
 					metamodel, operation.getEContainingClass()));
 			List<Decl> decls = new ArrayList<Decl>();
 			AlloyContext context = new AlloyContext();
@@ -814,18 +814,18 @@ import java.util.*;
 		PrimSig enumSig = null;
 		for (EEnum enu : enums) {
 			try {
-				enumSig = new PrimSig(EchoHelper.classifierKey(metamodel, enu),
+				enumSig = new PrimSig(EchoHelper.classifierLabel(metamodel, enu),
 						Attr.ABSTRACT);
 			} catch (Err a) {
 				throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
 						"Failed to create enum sig.", a,
 						Task.TRANSLATE_METAMODEL);
 			}
-			classifier2sig.put(EchoHelper.classifierKey(metamodel, enu), enumSig);
+			classifier2sig.put(EchoHelper.classifierLabel(metamodel, enu), enumSig);
 			PrimSig litSig = null;
 			for (EEnumLiteral lit : enu.getELiterals()) {
 				try {
-					litSig = new PrimSig(EchoHelper.literalKey(metamodel, lit),
+					litSig = new PrimSig(EchoHelper.literalLabel(metamodel, lit),
 							enumSig, Attr.ONE);
 				} catch (Err a) {
 					throw new ErrorAlloy(ErrorAlloy.FAIL_CREATE_SIG,
