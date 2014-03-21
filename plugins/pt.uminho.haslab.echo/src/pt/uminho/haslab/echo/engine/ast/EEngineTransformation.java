@@ -4,7 +4,9 @@ import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ITContext;
+import pt.uminho.haslab.echo.engine.alloy.ErrorAlloy;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -46,8 +48,9 @@ public abstract class EEngineTransformation {
 		initModelParams();
 
 		// translates each top relation
+		// in ATL all transformations (including lazy ones) must be translated at top-level due to implicit calls
 		for (ERelation rel : transformation.getRelations()) {
-			if (rel.isTop())
+			if (rel.isTop()||trace)
 				for (EDependency dep : dependencies.get(rel.getName())) 
 					createRelation(rel, dep, trace);
 		}
@@ -147,6 +150,6 @@ public abstract class EEngineTransformation {
 			List<IExpression> params);
 
 	public abstract IExpression callAllRelation(ITContext context,
-			IExpression param);
+			IExpression param) throws ErrorAlloy, ErrorUnsupported;
 
 }

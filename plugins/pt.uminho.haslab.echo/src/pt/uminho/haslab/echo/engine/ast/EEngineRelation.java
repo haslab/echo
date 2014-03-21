@@ -44,14 +44,14 @@ public abstract class EEngineRelation {
 	
 	/** the engine declarations of the root variables
 	 * null if top call */
-	protected Map<String, IDecl> rootVar2engineDecl = new HashMap<>();
-	protected Map<String, IDecl> rootVarS2engineDecl = new HashMap<>();
-	protected Map<String, IDecl> rootVarT2engineDecl = new HashMap<>();
+	protected Map<String, IDecl> rootVar2engineDecl = new LinkedHashMap<>();
+	protected Map<String, IDecl> rootVarS2engineDecl = new LinkedHashMap<>();
+	protected Map<String, IDecl> rootVarT2engineDecl = new LinkedHashMap<>();
 
 	/** the root variables of the relation being translated*/
-	private Map<EVariable,String> rootvariables = new HashMap<>();
-	private Map<EVariable,String> rootvariablesS = new HashMap<>();
-	private Map<EVariable,String> rootvariablesT = new HashMap<>();
+	private Map<EVariable,String> rootvariables = new LinkedHashMap<>();
+	private Map<EVariable,String> rootvariablesS = new LinkedHashMap<>();
+	private Map<EVariable,String> rootvariablesT = new LinkedHashMap<>();
 
 	/** the target relation domain */
 	private EModelDomain targetdomain;
@@ -61,15 +61,15 @@ public abstract class EEngineRelation {
 
 	/** the engine declarations of the variables occurring in the when constraint
 	 * if non-top relation, does not contain root variables*/
-	private Map<String,IDecl> whenVar2engineDecl = new HashMap<>();
+	private Map<String,IDecl> whenVar2engineDecl = new LinkedHashMap<>();
 	
 	/** the engine declarations of the variables occurring in the source domain but not in the when constraint
 	 * if non-top relation, does not contain root variables*/
-	private Map<String,IDecl> sourceVar2engineDecl = new HashMap<>();
+	private Map<String,IDecl> sourceVar2engineDecl = new LinkedHashMap<>();
 	
 	/** the engine declarations of the variables occurring in the target domain and where constraint but not in the source domains and the when constraint constraint
 	 * if non-top relation, does not contain root variables*/
-	private Map<String,IDecl> targetVar2engineDecl = new HashMap<>();
+	private Map<String,IDecl> targetVar2engineDecl = new LinkedHashMap<>();
 
 	public final IFormula constraint;
 
@@ -93,7 +93,7 @@ public abstract class EEngineRelation {
 	 * @throws EchoError
 	 */
 	public EEngineRelation (ERelation relation, EDependency dependency, EEngineTransformation transformation, boolean trace) throws EchoError {
-		this (relation,trace?Mode.TOP_TRACEABILITY:Mode.TOP_QUANTIFIER,dependency,null,transformation);
+		this (relation,trace?(relation.isTop()?Mode.TOP_TRACEABILITY:Mode.SUB_TRACEABILITY):Mode.TOP_QUANTIFIER,dependency,null,transformation);
 	}
 
 	/** 
@@ -147,9 +147,9 @@ public abstract class EEngineRelation {
 		manageModelParams();
 		
 		// retrieve the variables occurring in the predicates and assign them owning domains (if possible)
-		Map<EVariable,String> preVar2model = new HashMap<EVariable,String>();
-		Map<EVariable,String> sourceVar2model = new HashMap<EVariable,String>();
-		Map<EVariable,String> targetVar2model = new HashMap<EVariable,String>();
+		Map<EVariable,String> preVar2model = new LinkedHashMap<EVariable,String>();
+		Map<EVariable,String> sourceVar2model = new LinkedHashMap<EVariable,String>();
+		Map<EVariable,String> targetVar2model = new LinkedHashMap<EVariable,String>();
 		
 		for (EModelDomain dom : relation.getDomains()) {
 			rootvariables.put(dom.getRootVariable(),dom.getModel().getName());
@@ -217,11 +217,11 @@ public abstract class EEngineRelation {
 			}
 		}
 	
-		EchoReporter.getInstance().debug("rootvarsS: "+rootvariablesS);
-		EchoReporter.getInstance().debug("rootvarsT: "+rootvariablesT);
-		EchoReporter.getInstance().debug("srcvars: "+sourceVar2model);
-		EchoReporter.getInstance().debug("trgvars: "+targetVar2model);
-		EchoReporter.getInstance().debug("prevars: "+preVar2model);
+//		EchoReporter.getInstance().debug("rootvarsS: "+rootvariablesS);
+//		EchoReporter.getInstance().debug("rootvarsT: "+rootvariablesT);
+//		EchoReporter.getInstance().debug("srcvars: "+sourceVar2model);
+//		EchoReporter.getInstance().debug("trgvars: "+targetVar2model);
+//		EchoReporter.getInstance().debug("prevars: "+preVar2model);
 		
 		// embed retrieved variable in engine representation
 		sourceVar2engineDecl = createVarDecls(sourceVar2model,true);
@@ -315,7 +315,7 @@ public abstract class EEngineRelation {
 
 		return formula;
 	}	
-	
+
 	/**
 	 * Translates a predicate to an engine formula.
 	 * @param predicate the predicate to be translated
@@ -344,14 +344,16 @@ public abstract class EEngineRelation {
 	protected Map<String, IDecl> createVarDecls(
 			Map<EVariable, String> var2model, boolean addContext)
 			throws EchoError {
+
 		if (addContext)
 			for (EVariable s : var2model.keySet())
 				context.setVarModel(s.getName(), var2model.get(s));
 
-		Map<String, IDecl> ivars = new HashMap<>();
+		Map<String, IDecl> ivars = new LinkedHashMap<>();
 		for (EVariable var : var2model.keySet())
 			ivars.put(var.getName(), context.getDecl(var, addContext));
 
+		EchoReporter.getInstance().debug("Created vars: "+ivars);
 		return ivars;
 	}
 
@@ -376,7 +378,7 @@ public abstract class EEngineRelation {
 		if (relation.getDomains().size() > 2) throw new ErrorUnsupported("Calls between more than 2 models not yet supported.");
 		IDecl fst = rootVar2engineDecl.get(relation.getDomains().get(0).getRootVariable().getName());
 		IDecl snd = rootVar2engineDecl.get(relation.getDomains().get(1).getRootVariable().getName());
-		System.out.println(constraint.comprehension(fst,snd));
+		EchoReporter.getInstance().debug(relation.getName() + " defined by comprehension.");
 		IFormula e = field.eq(constraint.comprehension(fst,snd));
 		transformation.defineSubRelationField(this,e);
 	}

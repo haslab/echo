@@ -32,6 +32,8 @@ import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
+import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
+import pt.uminho.haslab.mde.transformation.qvt.EQVTTransformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -138,15 +140,24 @@ class AlloyEchoTranslator extends EchoTranslator {
 	@Override
 	public void translateTransformation(ETransformation constraint) throws EchoError {
 		Map<String,List<EDependency>> deps = new HashMap<String,List<EDependency>>();
-		for (ERelation r : constraint.getRelations()) {
-			List<EDependency> aux2 = new ArrayList<EDependency>();
-			for (EModelDomain dom : r.getDomains()) {
-				List<EModelDomain> aux = new ArrayList<EModelDomain>(r.getDomains());
-				aux.remove(dom);
-				aux2.add(new EDependency(dom,aux,null));
-			}
-			deps.put(r.getName(),aux2);
-		}	
+//		if (constraint instanceof EATLTransformation)
+//			for (ERelation r : constraint.getRelations()) {
+//				List<EDependency> aux2 = new ArrayList<>();
+//				List<EModelDomain> aux = new ArrayList<>();
+//				aux.add(r.getDomains().get(0));
+//				aux2.add(new EDependency(r.getDomains().get(1),aux,null));
+//				deps.put(r.getName(),aux2);
+//			}	
+//		else
+			for (ERelation r : constraint.getRelations()) {
+				List<EDependency> aux2 = new ArrayList<EDependency>();
+				for (EModelDomain dom : r.getDomains()) {
+					List<EModelDomain> aux = new ArrayList<EModelDomain>(r.getDomains());
+					aux.remove(dom);
+					aux2.add(new EDependency(dom,aux,null));
+				}
+				deps.put(r.getName(),aux2);
+			}	
 		translateTransformation(constraint,deps);
 	}
 	

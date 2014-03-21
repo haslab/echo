@@ -23,9 +23,6 @@ public interface ERelation {
 	 * @throws EchoError */
 	public ETransformation getTransformation() throws ErrorUnsupported, ErrorParser, EchoError;
 
-	/** if the relation is top level */
-	public boolean isTop();
-
 	/** the relation name  */
 	public String getName();
 
@@ -38,5 +35,7 @@ public interface ERelation {
 	/** the pre-condition */
 	public EPredicate getPre();
 
+	/** if the relation is top level */
+	public boolean isTop();
 
 }

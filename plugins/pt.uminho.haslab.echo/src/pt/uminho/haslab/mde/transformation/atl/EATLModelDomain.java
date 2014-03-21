@@ -60,7 +60,8 @@ public class EATLModelDomain extends EModelDomain {
 		EATLPredicate x = new EATLPredicate();
 		if (domain.eClass().getName().equals("InPattern")) {
 			EObject filter = (EObject) domain.eGet(domain.eClass().getEStructuralFeature("filter"));
-			x.addCondition(filter);
+			if (filter != null)
+				x.addCondition(filter);
 		} 
 //		else if (domain.eClass().getName().equals("OutPattern")) {
 //			EStructuralFeature elems = domain.eClass().getEStructuralFeature("elements");

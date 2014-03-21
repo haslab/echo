@@ -8,6 +8,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.EchoHelper;
@@ -15,10 +16,13 @@ import pt.uminho.haslab.echo.engine.EchoTranslator;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.Constants;
 import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
+import pt.uminho.haslab.echo.engine.ast.EEngineRelation.Mode;
 import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
+import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.transformation.EDependency;
+import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ERelation;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -47,6 +51,8 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** the Alloy functions defining top-relation constraints */
 	private Map<String, Func> topRelationConstraints;
+	
+	private Field trace;
 
 	/**
 	 * the Alloy declarations denoting the transformation parameters used in the
@@ -107,6 +113,15 @@ class EAlloyTransformation extends EEngineTransformation {
 		if (subRelationDefs != null)
 			for (Func f : subRelationDefs.values())
 				fact = fact.and(f.call(vars));
+		
+		if (subRelationFields != null && trace != null) {
+			Expr aux = Sig.NONE.product(Sig.NONE);
+			for (Func f : subRelationFields.values())
+				aux = aux.plus(f.call(vars));
+			fact = fact.and((vars[1].join(vars[0].join(trace))).equal(aux));
+		}
+
+		EchoReporter.getInstance().debug("Transformation: "+fact);
 
 		// creates functions with transformation parameters
 		try {
@@ -125,7 +140,6 @@ class EAlloyTransformation extends EEngineTransformation {
 	protected AlloyFormula getConstraint(List<String> modelIDs) {
 		// calls constraint function with the model's state sig
 		List<Expr> sigs = new ArrayList<Expr>();
-		EchoReporter.getInstance().debug("qvt: "+func.getBody());
 		for (String modelID : modelIDs) {
 			EAlloyModel mdl = (EAlloyModel) EchoTranslator.getInstance().getModel(modelID);
 			sigs.add(mdl.getModelSig());
@@ -165,6 +179,15 @@ class EAlloyTransformation extends EEngineTransformation {
 		if (subRelationFields == null)
 			subRelationFields = new HashMap<String, Func>();
 
+		if (relation.mode == Mode.TOP_TRACEABILITY) {
+			String op = EchoHelper.relationFieldName(relation.relation, relation.dependency.getSources().get(0));
+			if (subRelationFields.get(op) != null) {
+				subRelationFields.put(EchoHelper.relationFieldName(
+						relation.relation, relation.dependency.target), subRelationFields.get(op));
+				return;
+			}
+		}
+		
 		// creates a function that calls the sub-relation field with appropriate
 		// model parameters
 		List<Decl> decls = new ArrayList<Decl>();
@@ -240,22 +263,34 @@ class EAlloyTransformation extends EEngineTransformation {
 	}
 
 	@Override
-	public IExpression callAllRelation(ITContext context, IExpression param) {
-		if (subRelationFields == null) return Constants.EMPTY();
-		
-		// applies the model parameters to the relation function
+	public IExpression callAllRelation(ITContext context, IExpression param) throws ErrorAlloy, ErrorUnsupported {
+
+		if (trace == null) addTrace();
+
 		Expr[] vars = new Expr[context.getModelExpressions().size()];
 		for (int i = 0; i < context.getModelExpressions().size(); i++)
 			vars[i] = ((AlloyExpression) context.getModelExpressions().get(i)).EXPR;
-		
-		Expr exp = Sig.NONE;
-		// retrieves the relation field 		
-		for (Func f : subRelationFields.values())
-			exp = exp.plus(f.call(vars));
+
+		Expr exp = vars[1].join(vars[0].join(trace));
 		
 		IExpression expp = new AlloyExpression(exp);
 
 		return param.join(expp);
 	}
+	
+	protected void addTrace() throws ErrorAlloy, ErrorUnsupported {
+		if (modelParamDecls.size() > 2) throw new ErrorUnsupported("Traces between more than 2 models not yet supported.");
+		try {
+			Sig s0 = (Sig) (modelParamDecls.get(0).expr.type().toExpr());
+			Sig s1 = (Sig) (modelParamDecls.get(1).expr.type().toExpr());
+			trace = s0.addField("trace", s1.product(Sig.UNIV.product(Sig.UNIV)));
+		} catch (Err a) {
+			throw new ErrorAlloy(ErrorInternalEngine.FAIL_CREATE_FIELD,
+					"Failed to create relation field representation: "
+							+"trace", a,
+					Task.TRANSLATE_TRANSFORMATION);
+		}
+	}
+
 
 }
