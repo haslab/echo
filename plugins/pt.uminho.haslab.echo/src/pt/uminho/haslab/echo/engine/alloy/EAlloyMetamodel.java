@@ -264,14 +264,8 @@ import java.util.*;
          System.out.println("==============================ASD!================================================");
 
          for (String current : mapContainment.keySet()) {
-             System.out.println("Current: " + current);
              Set<Field> containers = getParentsContainers(current);
-             for(Field f : containers)
-             System.out.println("Field:"+  f);
-
              Set<Pair<Field,Field>> typeGroups = getSameTypeContainers(current);
-             for(Pair p : typeGroups)
-                System.out.println("Pair" + p);
              makeContainmentFact(containers,typeGroups,classifier2sig.get(current));
          }
      }
