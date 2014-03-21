@@ -261,9 +261,17 @@ import java.util.*;
 	}
 
      private void makeContainmentConstraint() {
+         System.out.println("==============================ASD!================================================");
+
          for (String current : mapContainment.keySet()) {
+             System.out.println("Current: " + current);
              Set<Field> containers = getParentsContainers(current);
+             for(Field f : containers)
+             System.out.println("Field:"+  f);
+
              Set<Pair<Field,Field>> typeGroups = getSameTypeContainers(current);
+             for(Pair p : typeGroups)
+                System.out.println("Pair" + p);
              makeContainmentFact(containers,typeGroups,classifier2sig.get(current));
          }
      }
@@ -311,7 +319,10 @@ import java.util.*;
              for(Field f : all){
                  aux = aux.plus(f.join(model_var.get()));
              }
-             conformsPred = conformsPred.and(aux.join(d.get()).one()).forAll(d);
+
+             conformsPred = conformsPred.and(
+                     aux.join(d.get()).one().and(aux.join(d.get()).equal(d.get()).not())
+                     .forAll(d));
 
              for(Pair<Field,Field> p : sameType)
              {
@@ -336,7 +347,13 @@ import java.util.*;
 	* @throws ErrorAlloy 
 	*/
 	Func getGenerate() throws ErrorAlloy {
-		Func f;
+        if(!doneContainments){
+            makeContainmentConstraint();
+            doneContainments = true;
+        }
+
+        Func f;
+
 		try {
 			f = new Func(null, metamodel.getEObject().getName(), new ArrayList<Decl>(Arrays.asList(model_var)), null, conformsPred.and(constraint_generate));
 		} catch (Err e) {
@@ -589,12 +606,12 @@ import java.util.*;
 				}
 
 				if (reference.isContainment()) {
-					d = (sig2statefield.get(trgsig).join(model_var.get()))
+					/*d = (sig2statefield.get(trgsig).join(model_var.get()))
 							.oneOf("trg_");
 					fact = ((field.join(model_var.get())).join(d.get())).lone()
 							.forAll(d);
 					conformsPred = conformsPred.and(fact);
-
+                    */
 
                     if(mapContainment.containsKey(coDomainName))
                         mapContainment.get(coDomainName).add(field);
