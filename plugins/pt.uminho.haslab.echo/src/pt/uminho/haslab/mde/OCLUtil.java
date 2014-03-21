@@ -112,8 +112,9 @@ public class OCLUtil {
 		if (exp.eClass().getName().equals("VariableExp")) {
 			final EStructuralFeature var = exp.eClass().getEStructuralFeature("referredVariable");
 			final EObject x = (EObject) exp.eGet(var);
-			if (vars.get(x) == null)
-				vars.put(EVariable.getVariable(x),null);
+			if (!x.eGet(x.eClass().getEStructuralFeature("varName")).equals("thisModule"))
+				if (vars.get(x) == null)
+					vars.put(EVariable.getVariable(x),null);
 		}/*
 		else if (exp instanceof ObjectTemplateExp) {
 			VariableDeclaration x = ((ObjectTemplateExp) exp).getBindsTo();

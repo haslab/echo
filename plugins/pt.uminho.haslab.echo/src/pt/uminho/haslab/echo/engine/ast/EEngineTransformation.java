@@ -146,7 +146,7 @@ public abstract class EEngineTransformation {
 	 * @return the expression resulting from calling
 	 *         <code>rel</rel> over <code>params</code>
 	 */
-	public abstract IFormula callRelation(ERelation rel, ITContext context,
+	public abstract INode callRelation(ERelation rel, ITContext context,
 			List<IExpression> params);
 
 	public abstract IExpression callAllRelation(ITContext context,

@@ -7,4 +7,5 @@
     xsi:schemaLocation="NHSM /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore"
     name="machine">
   <states name="X"/>
+  <states name="Y"/>
 </nhsm:StateMachine>

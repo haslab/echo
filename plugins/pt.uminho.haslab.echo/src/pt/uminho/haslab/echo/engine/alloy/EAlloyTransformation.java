@@ -21,6 +21,7 @@ import pt.uminho.haslab.echo.engine.ast.EEngineTransformation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.engine.ast.INode;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
@@ -234,7 +235,7 @@ class EAlloyTransformation extends EEngineTransformation {
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyFormula callRelation(ERelation n, ITContext context,
+	public INode callRelation(ERelation n, ITContext context,
 			List<IExpression> params) {
 		if (subRelationFields == null) return null;
 		
@@ -251,15 +252,19 @@ class EAlloyTransformation extends EEngineTransformation {
 		Expr exp = f.call(vars);
 		
 		IExpression expp = new AlloyExpression(exp);
-
+		INode form = null;
 		// applies the relation parameters to the relation function
-		IExpression insig = params.get(params.size() - 1);
-		params.remove(insig);
-		for (IExpression param : params)
-			expp = param.join(expp);
-		IFormula form = insig.in(expp);
-
-		return (AlloyFormula) form;
+		if (params.size() == 1) {
+			form = params.get(0).join(expp);
+		}
+		else {
+			IExpression insig = params.get(params.size() - 1);
+			params.remove(insig);
+			for (IExpression param : params)
+				expp = param.join(expp);
+			form = insig.in(expp);
+		}
+		return form;
 	}
 
 	@Override

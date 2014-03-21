@@ -6,6 +6,7 @@ import org.eclipse.ocl.examples.pivot.*;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
+
 import pt.uminho.haslab.echo.*;
 import pt.uminho.haslab.echo.engine.ast.*;
 import pt.uminho.haslab.mde.MDEManager;
@@ -456,13 +457,13 @@ public class OCLTranslator {
 		}
 
 		// tries to call referred relation
-		IFormula res = ((ITContext) context).getCallerRel().transformation
+		IFormula res = (IFormula) ((ITContext) context).getCallerRel().transformation
 				.callRelation(rel,((ITContext) context),params);
 
 		// if it doesn't exist, process it
 		if (res == null) {
 			((ITContext) context).getCallerRel().newRelation(rel);
-			res = ((ITContext) context).getCallerRel().transformation
+			res = (IFormula) ((ITContext) context).getCallerRel().transformation
 					.callRelation(rel, ((ITContext) context), params);
 		}
 				

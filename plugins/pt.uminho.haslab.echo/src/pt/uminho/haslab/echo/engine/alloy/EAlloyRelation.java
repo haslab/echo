@@ -113,7 +113,7 @@ class EAlloyRelation extends EEngineRelation {
 	}
 
 	@Override
-	public void newRelation(EQVTRelation rel) throws EchoError {
+	public void newRelation(ERelation rel) throws EchoError {
 		new EAlloyRelation(this, rel);
 	}
 

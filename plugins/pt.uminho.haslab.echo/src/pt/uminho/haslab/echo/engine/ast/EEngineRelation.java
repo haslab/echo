@@ -8,7 +8,6 @@ import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
-import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
 import java.util.*;
 
@@ -262,7 +261,7 @@ public abstract class EEngineRelation {
 			List<IExpression> params = new ArrayList<>();
 			for (IDecl d : rootVar2engineDecl.values())
 				params.add(d.variable());
-			targetFormula = targetFormula.and(transformation.callRelation(relation, context, params));
+			targetFormula = targetFormula.and((IFormula) transformation.callRelation(relation, context, params));
 		}
 
 		if (targetVar2engineDecl.size() == 1)
@@ -415,7 +414,7 @@ public abstract class EEngineRelation {
 	 */
 	abstract protected IFormula simplify(IFormula formula) throws ErrorUnsupported;
 
-	public abstract void newRelation(EQVTRelation rel) throws EchoError;
+	public abstract void newRelation(ERelation rel) throws EchoError;
 	
 	public enum Mode {
 		TOP_QUANTIFIER,

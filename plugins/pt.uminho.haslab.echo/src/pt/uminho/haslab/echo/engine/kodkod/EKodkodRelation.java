@@ -70,7 +70,7 @@ public class EKodkodRelation extends EEngineRelation {
 
 	/** {@inheritDoc} */
 	@Override
-	public void newRelation(EQVTRelation rel) throws EchoError {
+	public void newRelation(ERelation rel) throws EchoError {
 		new EKodkodRelation(this, rel);
 	}
 
