@@ -261,7 +261,6 @@ import java.util.*;
 	}
 
      private void makeContainmentConstraint() {
-         System.out.println("==============================ASD!================================================");
 
          for (String current : mapContainment.keySet()) {
              Set<Field> containers = getParentsContainers(current);
