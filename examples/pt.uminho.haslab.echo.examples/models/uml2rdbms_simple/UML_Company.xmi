@@ -19,5 +19,7 @@
       persistent="true"
       super="//@classes.0"/>
   <classes name="Employee"
-      persistent="true"/>
+      persistent="true"
+      super="//@classes.3"
+      child="//@classes.3"/>
 </uml:Package>

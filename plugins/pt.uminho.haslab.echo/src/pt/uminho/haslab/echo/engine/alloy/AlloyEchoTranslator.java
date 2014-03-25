@@ -260,14 +260,16 @@ class AlloyEchoTranslator extends EchoTranslator {
 						scopesincrement.put(sig,1);
 					}
 				}
+				EClass rootc = model.emodel.getRootEElement().type;
+				scopesincrement.put(model.metamodel.getSigFromEClassifier(rootc), 0);
 			}
 		}
 		scopes = AlloyHelper.createScope(scopesmap, scopesexact);
 //		EchoReporter.getInstance().debug("Init scope: "+scopes);
-//		EchoReporter.getInstance().debug("Increment: "+scopesincrement);
+		EchoReporter.getInstance().debug("Increment: "+scopesincrement);
 	}	
 	
-	public void createScopesFromID(List<String> modelIDs, List<String> targetIDs) throws ErrorAlloy {
+	void createScopesFromID(List<String> modelIDs, List<String> targetIDs) throws ErrorAlloy {
 		Map<PrimSig, Integer> scopesmap = new HashMap<PrimSig, Integer>();
 		Map<PrimSig, Integer> scopesexact = new HashMap<PrimSig, Integer>();
 		for (String modelID : modelIDs) {
@@ -296,6 +298,8 @@ class AlloyEchoTranslator extends EchoTranslator {
 							scopesincrement.put(sig,1);
 						}
 					}
+					EClass rootc = model.emodel.getRootEElement().type;
+					scopesincrement.put(model.metamodel.getSigFromEClassifier(rootc), 0);
 				}
 			} else {
 				scopesexact.put(metamodel.SIG,0);
@@ -504,7 +508,4 @@ class AlloyEchoTranslator extends EchoTranslator {
 	public ITContext newContext() {
 		return new AlloyContext();
 	}
-
-
-
 }
