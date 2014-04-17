@@ -82,8 +82,12 @@ public class OCLTranslator {
 			if (n instanceof IFormula)
 				return (IFormula) n;
 		}
-
-		throw new EchoTypeError("Formula");
+		else if (expr instanceof RelationCallExp) {
+			INode n = translate((RelationCallExp) expr);
+			if (n instanceof IFormula)
+				return (IFormula) n;
+		}
+		throw new EchoTypeError("Formula: "+expr.getClass());
 	}
 
 	public IExpression translateExpression(OCLExpression expr) throws EchoError {
@@ -112,7 +116,7 @@ public class OCLTranslator {
 				return (IExpression) n;
 		}
 
-		throw new EchoTypeError("Expression");
+		throw new EchoTypeError("Expression: "+expr.getClass());
 	}
 
 	public IIntExpression translateInteger(OCLExpression expr) throws EchoError {

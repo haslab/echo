@@ -6,6 +6,13 @@
     xmlns:nhsm="NHSM"
     xsi:schemaLocation="NHSM /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore"
     name="machine">
-  <states name="X"/>
-  <states name="Y"/>
+  <states name="Active"/>
+  <states name="Idle"/>
+  <states name="Error"/>
+  <transitions
+      source="//@states.1"
+      target="//@states.0"/>
+  <transitions
+      source="//@states.0"
+      target="//@states.2"/>
 </nhsm:StateMachine>
