@@ -175,9 +175,19 @@ class AlloyRunner implements EngineRunner {
 			EAlloyModel model = AlloyEchoTranslator.getInstance().getModel(
 					modelID);
 			EAlloyMetamodel metamodel = model.metamodel;
-			edelta = metamodel.getDeltaSetFunc().call(original, target)
-					.cardinality();
-			edelta = metamodel.getDeltaRelFunc().call(original, target);
+			edelta = metamodel.getDeltaSetFunc().call(original, target);
+			try {
+				Collection<Sig> aux = new ArrayList<Sig>();
+				aux.add(Sig.UNIV);
+				SubsetSig news = new SubsetSig(EchoHelper.NEWSNAME,
+						aux, new Attr[0]);
+				allsigs.add(news);
+				finalfact = finalfact.and(news.equal(edelta));
+			} catch (Err e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			edelta = edelta.cardinality().iplus(metamodel.getDeltaRelFunc().call(original, target));
 			AlloyEchoTranslator.getInstance().createScopesFromID(modelIDs);
 			finalfact = finalfact.and(model.metamodel.getConforms(modelID).FORMULA);
 			finalfact = finalfact.and(model.getModelConstraint().FORMULA);
@@ -324,6 +334,8 @@ class AlloyRunner implements EngineRunner {
 							.getConforms(modelID).FORMULA);
 					if (!EchoOptionsSetup.getInstance().isOperationBased()) {
 						EAlloyMetamodel metamodel = model.metamodel;
+						edelta = metamodel.getDeltaSetFunc().call(original,
+								target);
 						try {
 							Collection<Sig> aux = new ArrayList<Sig>();
 							aux.add(Sig.UNIV);
@@ -335,11 +347,9 @@ class AlloyRunner implements EngineRunner {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						Expr temp = metamodel.getDeltaSetFunc().call(original,
-								target);
-						edelta = edelta.iplus(temp.cardinality().iplus(
+						edelta = edelta.cardinality().iplus(
 								metamodel.getDeltaRelFunc().call(original,
-										target)));
+										target));
 					} else {
 						edelta = Sig.NONE.no();
 					}

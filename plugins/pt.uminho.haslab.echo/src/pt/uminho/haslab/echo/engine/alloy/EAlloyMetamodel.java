@@ -242,7 +242,7 @@ import java.util.*;
 	*/
 	protected AlloyFormula getConforms(String modelID) throws ErrorAlloy {
 		if(!doneContainments){
-            makeContainmentConstraint();
+            //makeContainmentConstraint();
             doneContainments = true;
         }
 

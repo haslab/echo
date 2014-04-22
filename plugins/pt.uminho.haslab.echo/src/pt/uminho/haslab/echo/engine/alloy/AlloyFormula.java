@@ -9,6 +9,7 @@ import pt.uminho.haslab.echo.ErrorInternalEngine;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.echo.engine.ast.INode;
 
 /**
  * Alloy representation of formulas.
@@ -26,46 +27,54 @@ class AlloyFormula implements IFormula {
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula and(IFormula f) {
+    public AlloyFormula and(IFormula f) {
         return new AlloyFormula(FORMULA.and(((AlloyFormula) f).FORMULA));
     }
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula or(IFormula f) {
+    public AlloyFormula or(IFormula f) {
         return new AlloyFormula(FORMULA.or(((AlloyFormula) f).FORMULA));
     }
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula iff(IFormula f) {
+    public AlloyFormula iff(IFormula f) {
         return new AlloyFormula(FORMULA.iff(((AlloyFormula) f).FORMULA));
     }
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula implies(IFormula f) {
+    public AlloyFormula implies(IFormula f) {
         return new AlloyFormula(FORMULA.implies(((AlloyFormula) f).FORMULA));
     }
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula not() {
+    public AlloyFormula not() {
         return new AlloyFormula(FORMULA.not());
     }
 
 	/** {@inheritDoc} */
     @Override
-	public IExpression thenElse(IExpression thenExpr, IExpression elseExpr) {
+	public AlloyExpression thenElse(IExpression thenExpr, IExpression elseExpr) {
 		return new AlloyExpression(ExprITE.make(null, FORMULA,
 				((AlloyExpression) thenExpr).EXPR,
 				((AlloyExpression) elseExpr).EXPR));
 	}
 
+    /** {@inheritDoc} */
+    @Override
+	public AlloyFormula thenElse(IFormula thenExpr, IFormula elseExpr) {
+		return new AlloyFormula(ExprITE.make(null, FORMULA,
+				((AlloyFormula) thenExpr).FORMULA,
+				((AlloyFormula) elseExpr).FORMULA));
+	}
+
     //TODO check
 	/** {@inheritDoc} */
     @Override
-    public IExpression comprehension(IDecl firstDecl, IDecl... extraDecls) throws ErrorInternalEngine {
+    public AlloyExpression comprehension(IDecl firstDecl, IDecl... extraDecls) throws ErrorInternalEngine {
     	Decl[] ds = new Decl[extraDecls.length];
     	for(int i = 0; i < extraDecls.length; i++)
             ds[i] = (((AlloyDecl) extraDecls[i]).DECL);
@@ -81,7 +90,7 @@ class AlloyFormula implements IFormula {
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula forAll(IDecl decl, IDecl... extraDecls) throws ErrorInternalEngine {
+    public AlloyFormula forAll(IDecl decl, IDecl... extraDecls) throws ErrorInternalEngine {
     	Decl[] ds = new Decl[extraDecls.length];
     	for(int i = 0; i < extraDecls.length; i++)
             ds[i] = (((AlloyDecl) extraDecls[i]).DECL);
@@ -95,7 +104,7 @@ class AlloyFormula implements IFormula {
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula forSome(IDecl decl, IDecl... extraDecls) throws ErrorInternalEngine {
+    public AlloyFormula forSome(IDecl decl, IDecl... extraDecls) throws ErrorInternalEngine {
     	Decl[] ds = new Decl[extraDecls.length];
     	for(int i = 0; i < extraDecls.length; i++)
             ds[i] = (((AlloyDecl) extraDecls[i]).DECL);
@@ -109,7 +118,7 @@ class AlloyFormula implements IFormula {
 
 	/** {@inheritDoc} */
     @Override
-    public IFormula forOne(IDecl d) throws ErrorInternalEngine {
+    public AlloyFormula forOne(IDecl d) throws ErrorInternalEngine {
         try {
 			return new AlloyFormula(FORMULA.forOne(((AlloyDecl) d).DECL));
 		} catch (Err e) {

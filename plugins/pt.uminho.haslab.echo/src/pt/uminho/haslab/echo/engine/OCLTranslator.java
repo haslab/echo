@@ -52,7 +52,7 @@ public class OCLTranslator {
 			return n;
 		}
 		else if (expr instanceof IfExp)
-			return translateExpression((IfExp) expr);
+			return translate((IfExp) expr);
 		else if (expr instanceof UnlimitedNaturalLiteralExp)
 			return translateInteger((UnlimitedNaturalLiteralExp) expr);
 		else if (expr instanceof TypeExp)
@@ -82,6 +82,8 @@ public class OCLTranslator {
 			if (n instanceof IFormula)
 				return (IFormula) n;
 		}
+		else if (expr instanceof IfExp)
+			return (IFormula) translate((IfExp) expr);
 		else if (expr instanceof RelationCallExp) {
 			INode n = translate((RelationCallExp) expr);
 			if (n instanceof IFormula)
@@ -96,7 +98,7 @@ public class OCLTranslator {
 		else if (expr instanceof VariableExp)
 			return translateExpression((VariableExp) expr);
 		else if (expr instanceof IfExp)
-			return translateExpression((IfExp) expr);
+			return (IExpression) translate((IfExp) expr);
 
 		else if (expr instanceof PropertyCallExp) {
 			INode n = translate((PropertyCallExp) expr);
@@ -218,13 +220,17 @@ public class OCLTranslator {
 		return result;
 	}
 
-	private IExpression translateExpression(IfExp expr) throws EchoError {
+	private INode translate(IfExp expr) throws EchoError {
 		IFormula eif = translateFormula(expr.getCondition());
-		IExpression thenExpr = translateExpression(expr.getThenExpression());
-		IExpression elseExpr = translateExpression(expr.getElseExpression());
+		INode thenExpr = translate(expr.getThenExpression());
+		INode elseExpr = translate(expr.getElseExpression());
 
-		IExpression res = eif.thenElse(thenExpr, elseExpr);
-		return res;
+		if (thenExpr instanceof IExpression && elseExpr instanceof IExpression)
+			return eif.thenElse((IExpression) thenExpr,(IExpression) elseExpr);
+		else if (thenExpr instanceof IFormula && elseExpr instanceof IFormula)
+			return (IFormula) eif.thenElse((IFormula) thenExpr,(IFormula) elseExpr);
+
+		throw new EchoTypeError("Expression: "+expr.getClass());
 	}
 
 	private INode translate(PropertyCallExp expr) throws EchoError {
