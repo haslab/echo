@@ -12,6 +12,7 @@ import org.eclipse.ocl.examples.pivot.IteratorExp;
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoTypeError;
 import pt.uminho.haslab.echo.ErrorTransform;
 import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
@@ -53,11 +54,29 @@ public class ATLOCLTranslator {
 			return translateAtlOclBooleanLit(expr);
 		} else if (expr.eClass().getName().equals("Binding")) {
 			return translateAtlOclBinding(expr);
+		} else if (expr.eClass().getName().equals("IfExp")) {
+			return translateAtlOclIf(expr);
 		} else if (expr.eClass().getName().equals("IteratorExp")) {
 			return translateAtlOclIterator(expr);
 		} else
 			throw new ErrorUnsupported("OCL expression not supported: " + expr
 					+ ".");
+	}
+
+	private INode translateAtlOclIf(EObject expr) throws EchoError {
+		EStructuralFeature x = expr.eClass().getEStructuralFeature("condition");
+		IFormula eif = (IFormula) translateAtlOcl((EObject) expr.eGet(x));
+		x = expr.eClass().getEStructuralFeature("thenExpression");
+		INode thenExpr = translateAtlOcl((EObject) expr.eGet(x));
+		x = expr.eClass().getEStructuralFeature("elseExpression");
+		INode elseExpr = translateAtlOcl((EObject) expr.eGet(x));
+
+		if (thenExpr instanceof IExpression && elseExpr instanceof IExpression)
+			return eif.thenElse((IExpression) thenExpr,(IExpression) elseExpr);
+		else if (thenExpr instanceof IFormula && elseExpr instanceof IFormula)
+			return (IFormula) eif.thenElse((IFormula) thenExpr,(IFormula) elseExpr);
+		
+		throw new EchoTypeError("Expression: "+expr.getClass());
 	}
 
 	IExpression translateAtlOclVariable(EObject expr) {
@@ -184,6 +203,8 @@ public class ATLOCLTranslator {
 			res = ((IFormula) src).not();
 		else if (operatorname.equals("isEmpty"))
 			res = ((IExpression) src).no();
+		else if (operatorname.equals("notEmpty"))
+			res = ((IExpression) src).some();
 		else if (operatorname.equals("size"))
 			res = ((IExpression) src).cardinality();
 		else if (operatorname.equals("=")) {
@@ -232,6 +253,12 @@ public class ATLOCLTranslator {
 		else if (operatorname.equals("union"))
 			res = ((IExpression) src)
 					.union((IExpression) translateAtlOcl(argumentso.get(0)));
+		else if (operatorname.equals("including"))
+			res = ((IExpression) src)
+					.union((IExpression) translateAtlOcl(argumentso.get(0)));
+		else if (operatorname.equals("excluding"))
+			res = ((IExpression) src)
+					.difference((IExpression) translateAtlOcl(argumentso.get(0)));
 		else if (operatorname.equals("intersection"))
 			res = ((IExpression) src)
 					.intersection((IExpression) translateAtlOcl(argumentso
@@ -239,15 +266,32 @@ public class ATLOCLTranslator {
 		else if (operatorname.equals("includes"))
 			res = ((IExpression) translateAtlOcl(argumentso.get(0)))
 					.in((IExpression) src);
+		else if (operatorname.equals("includesAll"))
+			res = ((IExpression) translateAtlOcl(argumentso.get(0)))
+					.in((IExpression) src);
+		else if (operatorname.equals("excludes"))
+			res = ((IExpression) translateAtlOcl(argumentso.get(0)))
+					.in((IExpression) src).not();
+		else if (operatorname.equals("excludesAll"))
+			res = ((IExpression) translateAtlOcl(argumentso.get(0)))
+					.in((IExpression) src).not();
 		else if (operatorname.equals("oclAsSet")
 				|| operatorname.equals("asSet"))
 			res = src;
+		else if (operatorname.equals("oclIsKindOf"))
+			res = ((IExpression) src).in((IExpression) translateAtlOcl(argumentso.get(0)));
+		else if (operatorname.equals("oclAsType"))
+			res = ((IExpression) src);
 		else if (operatorname.equals("+"))
 			res = ((IIntExpression) src)
 					.plus((IIntExpression) translateAtlOcl(argumentso.get(0)));
-		else if (operatorname.equals("-"))
-			res = ((IIntExpression) src)
-					.minus((IIntExpression) translateAtlOcl(argumentso.get(0)));
+		else if (operatorname.equals("-")) {
+			INode x = translateAtlOcl(argumentso.get(0));
+			if (src instanceof IIntExpression && x instanceof IIntExpression)
+				res = ((IIntExpression) src).minus((IIntExpression) x);
+			else
+				res = ((IIntExpression) src).difference((IIntExpression) x);
+		}
 		else if (operatorname.equals("allInstances"))
 			res = src;
 		else if (((EATLTransformation) context.getCallerRel().transformation.transformation).getRelation(operatorname) != null) {

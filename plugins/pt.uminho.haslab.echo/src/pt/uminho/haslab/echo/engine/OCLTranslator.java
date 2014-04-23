@@ -331,6 +331,8 @@ public class OCLTranslator {
 			res = ((IFormula) src).not();
 		else if (expr.getReferredOperation().getName().equals("isEmpty"))
 			res = ((IExpression) src).no();
+		else if (expr.getReferredOperation().getName().equals("notEmpty"))
+			res = ((IExpression) src).some();
 		else if (expr.getReferredOperation().getName().equals("size")) {
 			EchoReporter.getInstance().warning(
 					"Integer operators (size) require suitable bitwidths.",
@@ -423,6 +425,10 @@ public class OCLTranslator {
 					.getArgument().get(0)));
 		else if (expr.getReferredOperation().getName().equals("allInstances"))
 			res = src;
+		else if (expr.getReferredOperation().getName().equals("oclIsKindOf"))
+			res = ((IExpression) src).in(translateExpression(expr.getArgument().get(0)));
+		else if (expr.getReferredOperation().getName().equals("oclAsType"))
+			res = ((IExpression) src);
 		else if (expr.getReferredOperation().getName().equals("oclIsNew")) {
 			EObject container = expr.eContainer();
 			while (!(container instanceof IteratorExp) && container != null)
