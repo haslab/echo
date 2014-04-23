@@ -161,15 +161,15 @@ public class EMFParser {
 			InputStream f = resourceSet.getURIConverter().createInputStream(URI.createURI(atlPath.toOSString()));
 			module = AtlParser.getDefault().parse(f);
 			
-//			Resource resource = resourceSet.createResource(URI.createURI("/pt.uminho.haslab.echo.examples/adsateste.xmi"));
-//			resource.getContents().add(module);
-//			Map<Object,Object> options = new HashMap<Object,Object>();
-//			options.put(XMLResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
-//			try{
-//			    resource.save(options);
-//		    }catch (Exception e) {
-//		    	throw new ErrorTransform(e.getMessage());
-//		    }
+			Resource resource = resourceSet.createResource(URI.createURI("/pt.uminho.haslab.echo.examples/adsateste.xmi"));
+			resource.getContents().add(module);
+			Map<Object,Object> options = new HashMap<Object,Object>();
+			options.put(XMLResource.OPTION_SCHEMA_LOCATION, Boolean.TRUE);
+			try{
+			    resource.save(options);
+		    }catch (Exception e) {
+		    	throw new ErrorTransform(e.getMessage());
+		    }
 			
 			EchoReporter.getInstance().debug(module.eClass().toString());
 			EchoReporter.getInstance().debug(module.eContents().toString());

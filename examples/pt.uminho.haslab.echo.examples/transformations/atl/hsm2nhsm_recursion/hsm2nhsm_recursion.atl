@@ -1,41 +1,36 @@
 -- @atlcompiler atl2006
--- @nsURI HSM=HSM.ecore
--- @nsURI NHSM=NHSM.ecore
+-- @nsURI HSM='/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore'
+-- @nsURI NHSM='/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore'
 
-module HSM2NHSM;
-create OUT : NHSM from IN : HSM;
+module hsm2nhsm;
+create nhm : NHSM from hsm : HSM;
 
-helper context HSM!State def :
-	topcontainer : HSM!State =
-		if self.owner->isEmpty() then self
-		else self.container.topcontainer
-		endif;
-	
-rule M2M { 
-	from
-		c : HSM!StateMachine ()
-	to
-		t : NHSM!StateMachine (
-			name <- c.name
-		)
+rule M2M {
+  from
+    hm : HSM!StateMachine () 
+  to 
+    nm : NHSM!StateMachine ( name <- hm.name )
 }
 
-rule S2S{
-	from
-		c : HSM!State (c.owner->isEmpty()) 
-	to 
-		t : NHSM!State (
-			name <- c.name,
-			machine <- c.machine
-		)
+rule S2S {
+  from
+    hs : HSM!State ( hs.container->isEmpty() ) 
+  to 
+    ns : NHSM!State (
+      name    <- hs.name,
+      machine <- hs.machine
+    )
 }
 
 rule T2T {
-	from 
-		c : HSM!Transition
-	to 
-		s : NHSM!Transition(
-			source <- c.source.topcontainer,
-			target <- c.target.topcontainer
-	)
+  from 
+    ht : HSM!Transition
+  to 
+    nt : NHSM!Transition (
+      source  <- ht.source->closure(x | x.container)->
+        any(s | s.container->isEmpty()),
+      target  <- ht.target->closure(x | x.container)->
+        any(s | s.container->isEmpty()),
+      machine <- ht.machine
+    )
 }

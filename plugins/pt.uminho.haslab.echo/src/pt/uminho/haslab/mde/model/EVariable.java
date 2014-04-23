@@ -10,9 +10,11 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 
+import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.ErrorParser;
 import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.atl.EATLModelParameter;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
@@ -27,6 +29,18 @@ public class EVariable {
 
 	private static Map<EObject,EVariable> vars = new HashMap<EObject,EVariable>();
 
+	public static EVariable getVariable(VariableDeclaration xx) {
+		if (vars.get(xx)==null) {
+			try {
+				vars.put(xx, new EVariable(xx));
+			} catch (ErrorUnsupported | ErrorParser e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return vars.get(xx);
+	}
+	
 	public static EVariable getVariable(EObject xx) {
 		if (vars.get(xx)==null) {
 			try {
@@ -38,36 +52,82 @@ public class EVariable {
 		}
 		return vars.get(xx);
 	}
+	
+	public static EVariable getVariable(EObject xx, String classID) {
+		try {
+			vars.put(xx, new EVariable(xx,classID));
+		} catch (ErrorUnsupported | ErrorParser e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return vars.get(xx);
+	}
+
 
 	private String name;
 	private String metamodelURI;
 	private EObject type;
 
-	private EVariable(EObject var) throws ErrorUnsupported, ErrorParser {
+	private EVariable(VariableDeclaration var) throws ErrorUnsupported, ErrorParser {
 		// standard EMF variable
-		if (var instanceof VariableDeclaration) {
-			this.type = ((VariableDeclaration) var).getType();
-			this.name = ((VariableDeclaration) var).getName();
-			this.metamodelURI = EcoreUtil.getURI(((Type) type).getPackage()).path().replace(".oclas", "").replace("resource/", "");
-		} 
+		this.type = ((VariableDeclaration) var).getType();
+		this.name = ((VariableDeclaration) var).getName();
+		this.metamodelURI = EcoreUtil.getURI(((Type) type).getPackage()).path().replace(".oclas", "").replace("resource/", "");	
+	}
+	
+	private EVariable(EObject var) throws ErrorUnsupported, ErrorParser {
 		// ATL variable
-		else{
-			// InPatternElement or OutPatternElement
-			for (Object x : var.eContents())
-				if (((EObject) x).eClass().getName().equals("OclModelElement"))
+		// InPatternElement or OutPatternElement
+		if (var.eClass().getName().equals("SimpleInPatternElement") || var.eClass().getName().equals("SimpleOutPatternElement")) {
+			for (Object x : var.eContents()) {
+				if (((EObject) x).eClass().getName().equals("OclModelElement")) {
 					type = (EObject) x;
-
+				}
+			}
+		}
+		else if (var.eClass().getName().equals("VariableDeclaration") || var.eClass().getName().equals("Iterator")) {
+			EStructuralFeature t = var.eClass().getEStructuralFeature("type");
+			type = (EObject) var.eGet(t);
+			if (type == null) {
+				EchoReporter.getInstance().debug("Null type: "+this.name);
+				EchoReporter.getInstance().debug("And: "+var.eContents());
+				EchoReporter.getInstance().debug("And: "+var.eAllContents());
+				EchoReporter.getInstance().debug("And: "+var);
+			}
+		}
+		else throw new ErrorUnsupported("Var type: "+var.eClass().getName());
+		
+		if (type != null) {
 			EObject mdlref = type.eCrossReferences().get(0);
 			EObject metamdlref = ((EList<EObject>) mdlref.eGet(mdlref.eClass().getEStructuralFeature("model"))).get(0);
 			String mname = (String) metamdlref.eGet(metamdlref.eClass().getEStructuralFeature("name"));
 			metamodelURI = EATLModelParameter.get(mname).getMetamodel().getURI();
-
-			EStructuralFeature name = var.eClass().getEStructuralFeature("name");
-			if (name == null)
-				name = var.eClass().getEStructuralFeature("varName");
-			this.name = (String) var.eGet(name);
 		}
+		
+		EStructuralFeature name = var.eClass().getEStructuralFeature("name");
+		if (name == null)
+			name = var.eClass().getEStructuralFeature("varName");
+		this.name = (String) var.eGet(name);
 //		EchoReporter.getInstance().debug("** Created var: "+name+"::"+metamodelURI);
+	}
+
+	public EVariable(EObject var, String classID) throws ErrorUnsupported, ErrorParser {
+		// ATL variable
+		// InPatternElement or OutPatternElement
+		String metamodelID = EchoHelper.getMetamodelIDfromLabel(classID);
+		EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(metamodelID);
+		String className = EchoHelper.getClassifierName(classID);
+		type = metamodel.getEObject().getEClassifier(className);
+
+		metamodelURI = metamodel.getURI();
+		
+		EStructuralFeature name = var.eClass().getEStructuralFeature("name");
+		if (name == null)
+			name = var.eClass().getEStructuralFeature("varName");
+		this.name = (String) var.eGet(name);	
+		
+		EchoReporter.getInstance().debug("** Created var: "+this.name+":"+type+"::"+metamodelURI);
+
 	}
 
 	public String getName() {
@@ -80,10 +140,10 @@ public class EVariable {
 	
 	public String getType() throws ErrorParser, ErrorUnsupported {
 		String stype = null;
-	if (type instanceof Type) {
+		if (type == null)
+			return null;
+		else if (type instanceof Type)
 			stype = ((Type) type).getName();
-			
-		}
 		else {
 			// for ATL
 			stype = (String) type.eGet(type.eClass().getEStructuralFeature(

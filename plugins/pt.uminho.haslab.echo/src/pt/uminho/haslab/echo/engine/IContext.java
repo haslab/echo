@@ -75,8 +75,9 @@ public interface IContext {
      * @param className the class name
      * @param propName the property name
      * @return the expression representing a property
+     * @throws ErrorParser 
      */
-    IExpression getPropExpression(String metaModelID, String className, String propName);
+    IExpression getPropExpression(String metaModelID, String className, String propName) throws ErrorParser;
 
     /**
      * Returns the expression representing a class call.

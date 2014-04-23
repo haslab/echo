@@ -303,6 +303,10 @@ public class OCLTranslator {
 			aux = (IFormula) body;
 			aux = ((d.variable().in(src)).and(aux));
 			res = aux.comprehension(d);
+		} else if (expr.getReferredIteration().getName().equals("any")) {
+			aux = (IFormula) body;
+			aux = ((d.variable().in(src)).and(aux));
+			res = aux.comprehension(d);
 		} else if (expr.getReferredIteration().getName().equals("reject")) {
 			aux = (IFormula) body;
 			aux = ((d.variable().in(src)).and(aux.not()));
@@ -337,10 +341,18 @@ public class OCLTranslator {
 			if (expr.getArgument().get(0).getType().getName().equals("Boolean"))
 				res = ((IFormula) src).iff((IFormula) aux);
 			else if (expr.getArgument().get(0).getType().getName()
-					.equals("UnlimitedNatural"))
-				res = ((IIntExpression) src).eq((IIntExpression) aux);
-			else
-				res = ((IExpression) src).eq((IExpression) aux);
+					.equals("UnlimitedNatural")) {
+				if (expr.getArgument().get(0) instanceof IteratorExp && ((IteratorExp) expr.getArgument().get(0)).getReferredIteration().getName().equals("any"))
+					res = (((IIntExpression) src).in((IIntExpression) aux)).and(((IIntExpression) src).one());
+				else
+					res = ((IIntExpression) src).eq((IIntExpression) aux);
+			}
+			else {
+				if (expr.getArgument().get(0) instanceof IteratorExp && ((IteratorExp) expr.getArgument().get(0)).getReferredIteration().getName().equals("any"))
+					res = (((IExpression) src).in((IExpression) aux)).and(((IExpression) src).one());
+				else
+					res = ((IExpression) src).eq((IExpression) aux);
+			}	
 		} else if (expr.getReferredOperation().getName().equals("<>")) {
 			INode aux = translate(expr.getArgument().get(0));
 			if (expr.getArgument().get(0).getType().getName().equals("Boolean"))

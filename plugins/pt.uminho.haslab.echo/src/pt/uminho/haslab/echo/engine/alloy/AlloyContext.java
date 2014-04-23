@@ -93,7 +93,9 @@ public class AlloyContext implements ITContext {
 		try {
 			// calculates the expression representing the type in the state
 			Expr range = Sig.NONE;
-			if (type.equals("String"))
+			if (type == null)
+				range = Sig.UNIV;
+			else if (type.equals("String"))
 				range = Sig.STRING;
 			else if (type.equals("Int"))
 				range = Sig.SIGINT;
@@ -116,10 +118,10 @@ public class AlloyContext implements ITContext {
 		}
 	}
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc} 
+	 * @throws ErrorParser */
 	@Override
-	public AlloyExpression getPropExpression(String metaModelID, String className, String fieldName) {
-		EchoReporter.getInstance().debug("var models: "+varModel);
+	public AlloyExpression getPropExpression(String metaModelID, String className, String fieldName) throws ErrorParser {
 		EAlloyMetamodel ameta = AlloyEchoTranslator.getInstance().getMetamodel(metaModelID);
 		AlloyExpression state = (AlloyExpression) Constants.EMPTY();
 
@@ -131,6 +133,7 @@ public class AlloyContext implements ITContext {
 		// fetches the corresponding field
 		EClass eclass = ((EClass) ameta.metamodel.getEObject().getEClassifier(className));
 		EStructuralFeature feature = eclass.getEStructuralFeature(fieldName);
+		if (feature == null) throw new ErrorParser("Field "+fieldName+" over "+className+" yielded null feature.");
 		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metaModelID,feature);
 		
 		// calculates the expression field.state

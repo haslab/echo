@@ -7,6 +7,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.ocl.examples.pivot.IteratorExp;
 
 import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
@@ -16,12 +17,14 @@ import pt.uminho.haslab.echo.ErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.Constants;
+import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.echo.engine.ast.IIntExpression;
 import pt.uminho.haslab.echo.engine.ast.INode;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
+import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.atl.EATLRelation;
 import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 
@@ -50,6 +53,8 @@ public class ATLOCLTranslator {
 			return translateAtlOclBooleanLit(expr);
 		} else if (expr.eClass().getName().equals("Binding")) {
 			return translateAtlOclBinding(expr);
+		} else if (expr.eClass().getName().equals("IteratorExp")) {
+			return translateAtlOclIterator(expr);
 		} else
 			throw new ErrorUnsupported("OCL expression not supported: " + expr
 					+ ".");
@@ -63,7 +68,9 @@ public class ATLOCLTranslator {
 				"varName");
 		String varname = (String) vardecl.eGet(name);
 		context.setCurrentModel(context.getVarModel(varname));
-		return context.getVar(varname);
+		IExpression res = context.getVar(varname);
+		EchoReporter.getInstance().debug("Translated "+varname+" to "+res);
+		return res;
 	}
 
 	IFormula translateAtlOclBooleanLit(EObject expr) {
@@ -84,6 +91,7 @@ public class ATLOCLTranslator {
 		context.setCurrentModel(null);
 
 		IExpression var = (IExpression) translateAtlOcl(sourceo);
+
 		EStructuralFeature oname = expr.eClass().getEStructuralFeature("name");
 		IExpression aux = propertyToField((String) expr.eGet(oname), var);
 
@@ -152,8 +160,12 @@ public class ATLOCLTranslator {
 		String nameo = feature.getEType().getName();
 		if (nameo.equals("EBoolean"))
 			res = ((IFormula) var.join(aux)).iff((IFormula) val);
-		else
-			res = var.join(aux).eq((IExpression) val);
+		else {
+			if (((EObject) expr.eGet(value)).eClass().getName().equals("IteratorExp") && ((EObject) expr.eGet(value)).eGet(((EObject) expr.eGet(value)).eClass().getEStructuralFeature("name")).equals("any"))
+				res = var.join(aux).in((IExpression) val).and(var.join(aux).one());
+			else
+				res = var.join(aux).eq((IExpression) val);
+		}
 		return res;
 	}
 
@@ -178,8 +190,12 @@ public class ATLOCLTranslator {
 			INode aux = translateAtlOcl(argumentso.get(0));
 			if (src instanceof IFormula)
 				res = ((IFormula) src).iff((IFormula) aux);
-			else
-				res = ((IExpression) src).eq((IExpression) aux);
+			else {
+				if (argumentso.get(0).eClass().getName().equals("IteratorExp") && argumentso.get(0).eGet(argumentso.get(0).eClass().getEStructuralFeature("name")).equals("any"))
+					res = (((IExpression) src).in((IExpression) aux)).and(((IExpression) src).one());
+				else
+					res = ((IExpression) src).eq((IExpression) aux); 	
+			}
 		} else if (operatorname.equals("<>")) {
 			INode aux = translateAtlOcl(argumentso.get(0));
 			EStructuralFeature type = argumentso.get(0).eClass()
@@ -263,6 +279,86 @@ public class ATLOCLTranslator {
 
 		return res;
 	}
+	
+	INode translateAtlOclIterator(EObject expr) throws EchoError {
+		INode res = null;
+		
+		EStructuralFeature source = expr.eClass().getEStructuralFeature(
+				"source");
+		IExpression src = (IExpression) translateAtlOcl((EObject) expr.eGet(source));
+		EStructuralFeature iterator = expr.eClass().getEStructuralFeature("iterators");
+		EVariable x = null;
+		try {
+			x = EVariable.getVariable(((EList<EObject>) expr.eGet(iterator)).get(0),((AlloyExpression) src).EXPR.type().toExpr().toString());
+		} catch (Err e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		IDecl d = context.getDecl(x, true);
+		
+		// tries to determine owning model of the iterator variable
+		for (String s : context.getVars()) {
+			IExpression var = context.getVar(s);
+			if (src.hasVar(var) && context.getVarModel(s) != null)
+				context.addVar(d, context.getVarModel(s));
+			else
+				context.addVar(d);
+		}
+
+		EStructuralFeature operat = expr.eClass().getEStructuralFeature(
+				"name");
+		String operatorname = (String) expr.eGet(operat);
+		EStructuralFeature arguments = expr.eClass().getEStructuralFeature(
+				"body");
+		INode body = translateAtlOcl((EObject) expr.eGet(arguments));
+		IFormula aux;
+		
+		if (operatorname.equals("forAll")) {
+			aux = (IFormula) body;
+			aux = ((d.variable().in(src)).implies(aux));
+			res = aux.forAll(d);
+		}
+		else if (operatorname.equals("exists")) {
+			aux = (IFormula) body;
+			aux = ((d.variable().in(src)).and(aux));
+			res = aux.forSome(d);			
+		}
+		else if (operatorname.equals("one")) {
+			aux = (IFormula) body;
+			aux = ((d.variable().in(src)).and(aux));
+			res = aux.forOne(d);
+		}
+		else if (operatorname.equals("collect")) {
+			aux = d.variable().in(src);
+			res = src.join(aux.comprehension(d,
+					((IExpression) body).oneOf("2_")));
+		}
+		else if (operatorname.equals("select")) {
+			aux = (IFormula) body;
+			aux = ((d.variable().in(src)).and(aux));
+			res = aux.comprehension(d);			
+		}
+		else if (operatorname.equals("any")) {
+			aux = (IFormula) body;
+			aux = ((d.variable().in(src)).and(aux));
+			res = aux.comprehension(d);
+		}
+		else if (operatorname.equals("reject")) {
+			aux = (IFormula) body;
+			aux = ((d.variable().in(src)).and(aux.not()));
+			res = aux.comprehension(d);
+		}
+		else if (operatorname.equals("closure")) {
+			IDecl dd = ((IExpression) body).oneOf("2_");
+			res = Constants.TRUE().comprehension(d, dd);
+			res = src.join(((IExpression) res).closure());
+		} else
+			throw new ErrorUnsupported("OCL iterator not supported: "
+					+ operatorname + ".");
+		context.remove(d.name());
+	
+		return res;
+	}
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
 	IExpression propertyToField(String propn, IExpression var)
@@ -273,8 +369,8 @@ public class ATLOCLTranslator {
 		try {
 			varsig = ((AlloyExpression) var).EXPR.type().toExpr().toString();
 			metamodelID = EchoHelper.getMetamodelIDfromLabel(varsig);
-			EMetamodel metamodel;
-			metamodel = MDEManager.getInstance().getMetamodelID(metamodelID);
+			EMetamodel metamodel = MDEManager.getInstance().getMetamodelID(metamodelID);
+
 			EStructuralFeature feature = ((EClass) metamodel.getEObject()
 					.getEClassifier(EchoHelper.getClassifierName(varsig)))
 					.getEStructuralFeature(propn);
