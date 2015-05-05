@@ -5,7 +5,7 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
@@ -219,7 +219,7 @@ public class EchoHelper {
 		try {
 			EModelParameter model = dir.getModel();
 			return rel.getName() +"@"+model.getName()+"@";
-		} catch (EchoError e) {
+		} catch (EError e) {
 			return "Err";
 		}
 	}
@@ -234,7 +234,7 @@ public class EchoHelper {
 		try {
 			EModelParameter model = dir.getModel();
 			return rel.getName() +"_"+model.getName();
-		} catch (EchoError e) {
+		} catch (EError e) {
 			return "Err";
 		}		
 	}

@@ -14,4 +14,6 @@ public interface EchoSolution {
     void writeXML(String filename);
 
     Object getContents();
+    
+    void next();
 }

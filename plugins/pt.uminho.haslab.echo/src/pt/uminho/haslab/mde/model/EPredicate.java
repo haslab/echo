@@ -2,8 +2,7 @@ package pt.uminho.haslab.mde.model;
 
 import org.eclipse.emf.ecore.EObject;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.engine.IContext;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 
@@ -20,7 +19,7 @@ public interface EPredicate {
 
 	public void addCondition(EObject expr);
 	public List<? extends EObject> getConditions();
-	public IFormula translate(ITContext context) throws EchoError;
-	public Map<EVariable, String> getVariables(String metamodel) throws EchoError;
+	public IFormula translate(ITContext context) throws EError;
+	public Map<EVariable, String> getVariables(String metamodel) throws EError;
 	
 }

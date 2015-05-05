@@ -7,15 +7,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.Constants;
-import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
+import pt.uminho.haslab.echo.engine.ast.CoreRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -54,7 +56,7 @@ public class AlloyContext implements ITContext {
 	/** the model to be currently considered in expression management */
 	private String currentModel;
 	/** the current relation being translated */
-	private EAlloyRelation currentRel;
+	private AlloyRelation currentRel;
 	/** if methods should be run in pre-state mode */
 	private boolean currentPre = false;
 	
@@ -86,7 +88,7 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyDecl getDecl(EVariable var, boolean addContext) throws EchoError {
+	public AlloyDecl getDecl(EVariable var, boolean addContext) throws EError {
 		// gets the type of the variable
 		String type = var.getType();
 	
@@ -100,6 +102,7 @@ public class AlloyContext implements ITContext {
 			else if (type.equals("Int"))
 				range = Sig.SIGINT;
 			else {
+//				EchoReporter.getInstance().debug("var::type:"+var.getName()+"::"+type);
 				EMetamodel metamodel = MDEManager.getInstance().getMetamodel(var.getMetamodel(), false);
 				// if owning model was set, retrieve it
 				String temp = currentModel;
@@ -108,21 +111,21 @@ public class AlloyContext implements ITContext {
 				range = getClassExpression(metamodel.ID, type).EXPR;
 				currentModel = temp;
 			}
-			EchoReporter.getInstance().debug("Context decl: "+var.getName()+"::"+range);
+//			EchoReporter.getInstance().debug("Context decl: "+var.getName()+"::"+range);
 			AlloyDecl d = new AlloyDecl(range.oneOf(var.getName()));
 			if (addContext) addVar(d);
 			return d;
 
 		} catch (Err a) {
-			throw new ErrorAlloy(a.getMessage());
+			throw new EErrorAlloy(EErrorAlloy.FAIL_CREATE_VAR,a.getMessage(),a,Task.TRANSLATE_OCL);
 		}
 	}
 
 	/** {@inheritDoc} 
-	 * @throws ErrorParser */
+	 * @throws EErrorParser */
 	@Override
-	public AlloyExpression getPropExpression(String metaModelID, String className, String fieldName) throws ErrorParser {
-		EAlloyMetamodel ameta = AlloyEchoTranslator.getInstance().getMetamodel(metaModelID);
+	public AlloyExpression getPropExpression(String metaModelID, String className, String fieldName) throws EErrorParser {
+		AlloyMetamodel ameta = AlloyTranslator.getInstance().getMetamodel(metaModelID);
 		AlloyExpression state = (AlloyExpression) Constants.EMPTY();
 
 		// tries to retrieve the state sig of the current model context
@@ -133,8 +136,8 @@ public class AlloyContext implements ITContext {
 		// fetches the corresponding field
 		EClass eclass = ((EClass) ameta.metamodel.getEObject().getEClassifier(className));
 		EStructuralFeature feature = eclass.getEStructuralFeature(fieldName);
-		if (feature == null) throw new ErrorParser("Field "+fieldName+" over "+className+" yielded null feature.");
-		Field field = AlloyEchoTranslator.getInstance().getFieldFromFeature(metaModelID,feature);
+		if (feature == null) throw new EErrorParser(EErrorParser.METAMODEL,"Field "+fieldName+" over "+className+" yielded null feature.",Task.TRANSLATE_TRANSFORMATION);
+		Field field = AlloyTranslator.getInstance().getFieldFromFeature(metaModelID,feature);
 		
 		// calculates the expression field.state
 		if (field == null) return null;
@@ -143,7 +146,7 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public AlloyExpression getClassExpression(String metaModelID, String className) throws ErrorParser, ErrorUnsupported {
+	public AlloyExpression getClassExpression(String metaModelID, String className) throws EErrorParser, EErrorUnsupported {
 		EMetamodel emeta = MDEManager.getInstance().getMetamodelID(metaModelID);		
 		AlloyExpression state = (AlloyExpression) Constants.EMPTY();
 		
@@ -154,7 +157,7 @@ public class AlloyContext implements ITContext {
 
 		// fetches the corresponding field
 		EClass eclass = (EClass) emeta.getEObject().getEClassifier(className);
-		Field field = AlloyEchoTranslator.getInstance().getStateFieldFromClass(metaModelID, eclass);
+		Field field = AlloyTranslator.getInstance().getStateFieldFromClass(metaModelID, eclass);
 
 		// calculates the expression statefield.state
 		return (AlloyExpression) (new AlloyExpression(field)).join(state);
@@ -186,7 +189,7 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public void setVarModel(String name, String model) throws ErrorParser {
+	public void setVarModel(String name, String model) throws EErrorParser {
 		varModel.put(name,model);
 	}
 
@@ -222,41 +225,74 @@ public class AlloyContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public void setCurrentRel(EEngineRelation parentRelation) {
-		currentRel = (EAlloyRelation) parentRelation;
+	public void setCurrentRel(CoreRelation parentRelation) {
+		currentRel = (AlloyRelation) parentRelation;
 	}
 	
 	/** {@inheritDoc} */
 	@Override
-	public EAlloyRelation getCallerRel() {
+	public AlloyRelation getCallerRel() {
 		return currentRel;
 	}
 	
-	/** {@inheritDoc} */
+	/**
+	 * Creates the formula denoting the frames condition from modifies clauses.
+	 * Also handles inheritance (if class is modified, so are parents).
+	 * @param metaModelID the respective metamodel ID.
+	 * @param modifies the modifies clauses, either Class or Class.Feature.
+	 * @return the frame condition formula
+	 */
 	@Override
-	public IFormula createFrameCondition(String metaModelID, String frame) throws ErrorParser, ErrorUnsupported {
-		String className = frame.split("\\.")[0];
+	public IFormula createFrameCondition(String metaModelID, Collection<String> modifies) throws EErrorParser, EErrorUnsupported {
+		EMetamodel emeta = MDEManager.getInstance().getMetamodelID(metaModelID);		
+		List<String> mod_classes = new ArrayList<String>();
+		Map<String,List<String>> mod_fields = new HashMap<String,List<String>>();
+		for (String c : modifies) {
+			if (c.split("\\.").length == 1) {
+				mod_classes.add(c.split("\\.")[0]);
+				for (EClass s : ((EClass) emeta.getEObject().getEClassifier(c.split("\\.")[0])).getEAllSuperTypes())
+					mod_classes.add(s.getName());
+			}
+			else if (c.split("\\.").length == 2) {
+				List<String> aux = mod_fields.get(c.split("\\.")[0]);
+				if (aux == null) aux = new ArrayList<String>();
+				aux.add(c.split("\\.")[1]);
+				mod_fields.put(c.split("\\.")[0], aux);				
+			}			
+			else
+				throw new EErrorParser(EErrorParser.FRAME,"Failed to parse frame condition: "+c,Task.TRANSLATE_METAMODEL);
+		}
+
+		IFormula res = AlloyTranslator.getInstance().getTrueFormula();
 		IExpression pre,post;
 		boolean temp = currentPre;
-		if (frame.split("\\.").length == 1) {
-			currentPre = true;
-			pre = getClassExpression(metaModelID, className);
-			currentPre = false;
-			post = getClassExpression(metaModelID, className);
+		for (EClassifier c : emeta.getEObject().getEClassifiers()) {
+			if (c instanceof EEnum) {}
+			else if (mod_classes.contains(c.getName())) {}
+			else {
+				currentPre = true;
+				pre = getClassExpression(metaModelID, c.getName());
+				currentPre = false;
+				post = getClassExpression(metaModelID, c.getName());
+				res = res.and(pre.eq(post));
+				
+				for (EStructuralFeature s : ((EClass) c).getEStructuralFeatures()) {
+					if (mod_fields.get(c.getName()) != null && mod_fields.get(c.getName()).contains(s.getName())) {}
+					else {
+						currentPre = true;
+						pre = getPropExpression(metaModelID, c.getName(), s.getName());
+						currentPre = false;
+						post = getPropExpression(metaModelID, c.getName(), s.getName());	
+						if (pre != null && post != null) // may happen due to optimized opposite references
+							res = res.and(pre.eq(post));
+					}
+				}
+			}
 		}
-		else if (frame.split("\\.").length == 2) {
-			String fieldName = frame.split("\\.")[1];
-			currentPre = true;
-			pre = getPropExpression(metaModelID, className, fieldName);
-			currentPre = false;
-			post = getPropExpression(metaModelID, className, fieldName);			
-		} 
-		else {
-			currentPre = temp;
-			throw new ErrorParser("Failed to parse frame condition: "+frame);
-		}
+			
 		currentPre = temp;
-		return pre.eq(post);
+//		EchoReporter.getInstance().debug("**** Modifies clause: "+res);
+		return res;
 	}
 
 	@Override

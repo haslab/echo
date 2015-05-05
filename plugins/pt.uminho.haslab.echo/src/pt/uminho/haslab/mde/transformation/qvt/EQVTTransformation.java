@@ -4,8 +4,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.mde.transformation.EDependency;
 import pt.uminho.haslab.mde.transformation.ETransformation;
 
 import java.util.ArrayList;
@@ -27,14 +29,16 @@ public class EQVTTransformation extends ETransformation {
 	private Map<String,EQVTModelParameter> modelParams;
 	/** the containing relations of this transformation */
 	private List<EQVTRelation> relations;
+	/** the domain dependencies of this transformation */
+	private List<EDependency> dependencies;
 
 	/**
 	 * Processes an EMF QVT-R transformation.
 	 * @param transformation the original EMF transformation
-	 * @throws ErrorParser
-	 * @throws ErrorUnsupported
+	 * @throws EErrorParser
+	 * @throws EErrorUnsupported
 	 */
-	public EQVTTransformation(org.eclipse.qvtd.pivot.qvtbase.Transformation transformation) throws ErrorUnsupported, ErrorParser {
+	public EQVTTransformation(org.eclipse.qvtd.pivot.qvtbase.Transformation transformation) throws EErrorUnsupported, EErrorParser {
 		super(transformation.getName(),transformation);
 	}
 
@@ -46,7 +50,7 @@ public class EQVTTransformation extends ETransformation {
 	
 	/** {@inheritDoc} */
 	@Override
-	protected void process(EObject artifact) throws ErrorUnsupported {
+	protected void process(EObject artifact) throws EErrorUnsupported {
 		this.transformation = (RelationalTransformation) artifact;
 
 		// required because it may be called from the parent constructor
@@ -55,7 +59,7 @@ public class EQVTTransformation extends ETransformation {
 		
 		for (TypedModel mdl : transformation.getModelParameter())
 			modelParams.put(mdl.getName(),new EQVTModelParameter(mdl));
-		
+	
 		for (Rule rule : transformation.getRule())
 			relations.add(new EQVTRelation(rule));
 	}
@@ -82,6 +86,12 @@ public class EQVTTransformation extends ETransformation {
 	@Override
 	public EQVTModelParameter getModelParameter(String paramName) {
 		return modelParams.get(paramName);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public List<EDependency> getDependencies() {
+		return dependencies;
 	}
 
 }

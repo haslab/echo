@@ -9,8 +9,9 @@ import org.eclipse.qvtd.pivot.qvtrelation.RelationCallExp;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorTransform;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.model.EVariable;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.Map;
 public class OCLUtil {
 
 	// retrieves the list of variable occurrences of an OCL expression (very incomplete)
-	public static Map<EVariable,String> variablesOCLExpression (OCLExpression exp, String mdl) throws ErrorUnsupported, ErrorTransform {
+	public static Map<EVariable,String> variablesOCLExpression (OCLExpression exp, String mdl) throws EErrorUnsupported, EErrorTransform {
 		Map<EVariable,String> vars = new HashMap<EVariable,String>();
 		if (exp == null) return vars;
 		if (exp instanceof VariableExp) {
@@ -101,13 +102,13 @@ public class OCLUtil {
 		}
 		else if (exp instanceof PrimitiveLiteralExp) {}
 		else if (exp instanceof TypeExpImpl) {}
-		else throw new ErrorUnsupported ("OCL expression not supported: "+exp.getClass()+".");
+		else throw new EErrorUnsupported (EErrorUnsupported.OCL,"OCL expression not supported: "+exp.getClass()+".",Task.TRANSLATE_TRANSFORMATION);
 
 		return vars;
 	}
 
 
-	public static Map<EVariable,String> variablesOCLExpression (EObject exp, String mdl) throws ErrorUnsupported, ErrorTransform {
+	public static Map<EVariable,String> variablesOCLExpression (EObject exp, String mdl) throws EErrorUnsupported, EErrorTransform {
 		Map<EVariable,String> vars = new HashMap<EVariable,String>();
 		if (exp == null) return vars;
 		if (exp.eClass().getName().equals("VariableExp")) {
@@ -212,7 +213,7 @@ public class OCLUtil {
 		}
 		else if (exp instanceof PrimitiveLiteralExp) {}*/
 		else if (exp.eClass().getName().equals("BooleanExp")) {}
-		else throw new ErrorUnsupported ("OCL expression not supported: "+exp+".");
+		else throw new EErrorUnsupported (EErrorUnsupported.OCL,"OCL expression not supported: "+exp+".",Task.TRANSLATE_TRANSFORMATION);
 
 		return vars;
 	}

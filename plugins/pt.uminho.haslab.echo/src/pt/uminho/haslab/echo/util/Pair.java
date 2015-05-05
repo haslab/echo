@@ -18,7 +18,7 @@ public class Pair<L,R> {
         this.right = right;
     }
 
-    public boolean equals(Pair p2){
+    public boolean equals(Pair p2) {
         return this.left.equals(p2.left) && this.right.equals(p2.right);
     }
 
@@ -28,9 +28,7 @@ public class Pair<L,R> {
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         return this == o || o instanceof Pair && equals((Pair) o);
-
     }
 }

@@ -6,15 +6,18 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.ProgressProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.PlatformUI;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
+import pt.uminho.haslab.echo.plugin.PluginMonitor;
 import pt.uminho.haslab.echo.plugin.ResourceRules;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 import pt.uminho.haslab.mde.MDEManager;
@@ -54,6 +57,18 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 		try {
 			if (ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res)) {
 				Job j = new ModelRepairJob(res);
+				
+				IJobManager manager = Job.getJobManager();
+				
+				final PluginMonitor p = new PluginMonitor();
+				ProgressProvider provider = new ProgressProvider() {
+				  @Override
+				  public IProgressMonitor createMonitor(Job job) {
+				    return p;
+				  }
+				};
+				manager.setProgressProvider(provider);
+				
 				j.setRule(new ResourceRules(res,ResourceRules.WRITE));
 				j.schedule();
 			} else {
@@ -61,7 +76,7 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 					marker.delete();
 				
 			}
-		} catch (CoreException | EchoError e) {
+		} catch (CoreException | EError e) {
 			e.printStackTrace();
 		}
 	}
@@ -79,7 +94,7 @@ public class EchoIntraQuickFix  implements IMarkerResolution {
 			try {
 				EModel model = MDEManager.getInstance().getModel(res.getFullPath().toString(), false);
 				EchoPlugin.getInstance().getRunner().repair(model.ID);
-				EchoPlugin.getInstance().getGraphView().setTargetPath(res.getFullPath().toString(), false, null);
+				EchoPlugin.getInstance().getGraphView().setTargetID(model.ID, false, null);
 				EchoPlugin.getInstance().getGraphView().drawGraph();
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -1,13 +1,14 @@
 package pt.uminho.haslab.echo.engine;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
 import pt.uminho.haslab.mde.model.EVariable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -64,9 +65,9 @@ public interface IContext {
      * @param var the variable
      * @param addContext if the variable should be stored in the context
      * @return the matching declaration
-     * @throws EchoError
+     * @throws EError
      */
-    IDecl getDecl(EVariable var, boolean addContext) throws EchoError;
+    IDecl getDecl(EVariable var, boolean addContext) throws EError;
 
     /**
      * Returns the expression representing a property call.
@@ -75,9 +76,9 @@ public interface IContext {
      * @param className the class name
      * @param propName the property name
      * @return the expression representing a property
-     * @throws ErrorParser 
+     * @throws EErrorParser 
      */
-    IExpression getPropExpression(String metaModelID, String className, String propName) throws ErrorParser;
+    IExpression getPropExpression(String metaModelID, String className, String propName) throws EErrorParser;
 
     /**
      * Returns the expression representing a class call.
@@ -85,10 +86,10 @@ public interface IContext {
      * @param metaModelID the owning metamodel
      * @param className the class name
      * @return the expression representing a class
-     * @throws ErrorParser
-     * @throws ErrorUnsupported
+     * @throws EErrorParser
+     * @throws EErrorUnsupported
      */
-    IExpression getClassExpression(String metaModelID, String className) throws ErrorParser, ErrorUnsupported;
+    IExpression getClassExpression(String metaModelID, String className) throws EErrorParser, EErrorUnsupported;
     
     /**
      * The current model of the context.
@@ -106,7 +107,7 @@ public interface IContext {
      */
 	void setCurrentPre(boolean preState);
 
-	IFormula createFrameCondition(String metaModelID, String frame)
-			throws ErrorParser, ErrorUnsupported;
+	IFormula createFrameCondition(String metaModelID, Collection<String> frame)
+			throws EErrorParser, EErrorUnsupported;
 	
 }

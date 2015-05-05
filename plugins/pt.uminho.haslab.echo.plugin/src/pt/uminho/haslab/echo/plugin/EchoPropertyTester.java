@@ -8,7 +8,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 public class EchoPropertyTester extends PropertyTester {
@@ -50,7 +50,7 @@ public class EchoPropertyTester extends PropertyTester {
 			if (ext.equals("xmi"))
 				try {
 					return ProjectPropertiesManager.getProperties(res.getProject()).isManagedModel(res);
-				} catch (EchoError e) {
+				} catch (EError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

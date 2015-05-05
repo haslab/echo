@@ -30,8 +30,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorAPI;
+import pt.uminho.haslab.echo.EErrorParser;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.wizards.ModelGenerateWizard;
 
@@ -125,7 +126,7 @@ IWorkbenchPropertyPage {
 			try {
 				if (!ProjectPropertiesManager.getProperties(project).isManagedModel((IResource) x))
 					ProjectPropertiesManager.getProperties(project).addModel((IResource) x);
-			} catch (EchoError e) {
+			} catch (EError e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -134,14 +135,14 @@ IWorkbenchPropertyPage {
 			if (!Arrays.asList(modellist.getCheckedElements()).contains(x))
 				try {
 					ProjectPropertiesManager.getProperties(project).remModel(x);
-				} catch (EchoError e) {
+				} catch (EError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
 		try {
 			ProjectPropertiesManager.saveProjectProperties(project);
-		} catch (ErrorParser e) {
+		} catch (EErrorAPI e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -198,7 +199,7 @@ IWorkbenchPropertyPage {
 		public boolean isChecked(Object element) {
 			try {
 				return ProjectPropertiesManager.getProperties(p).isManagedModel((IResource) element);
-			} catch (EchoError e) {
+			} catch (EError e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

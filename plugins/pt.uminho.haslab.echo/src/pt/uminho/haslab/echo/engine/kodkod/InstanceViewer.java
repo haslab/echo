@@ -36,15 +36,7 @@ public class InstanceViewer {
     private final ViewerFactory factory;
     private int idCounter;
 
-
-
-    public static void main(String args[]){
-        InstanceViewer iv = new InstanceViewer(null,null);
-        save(iv.getAlloyInstance());
-    }
-
-
-    public InstanceViewer(Map<Relation,TupleSet> map, Set<EKodkodMetamodel> metas){
+    public InstanceViewer(Map<Relation,TupleSet> map, Set<KodkodMetamodel> metas){
         mapRelations = map;
         this.metaInfo = new MetaInfo(metas);
         mapObjectLabel = new HashMap<>();
@@ -61,12 +53,8 @@ public class InstanceViewer {
 
         for(EClass ec : abs)
             handleAbs(ec);
-
-
-
-
-        for(Relation rel : mapRelations.keySet())
-        {
+ 
+        for(Relation rel : mapRelations.keySet()) {
             if(rel.arity() == 2)
                 refs.add(rel);
             else if(metaInfo.isBoolRel(rel))
@@ -75,20 +63,13 @@ public class InstanceViewer {
                 rels.add(rel);
         }
 
-
         for(Relation rel: rels)
             handleRel(rel);
         for(Relation rel: refs)
             handleRef(rel);
         for(Relation rel: bools)
             handleBool(rel);
-
-
-
     }
-
-
-
 
     private void handleAbs(EClass ec) {
         if(!mapClassId.containsKey(ec)){
@@ -98,8 +79,7 @@ public class InstanceViewer {
             int id =  idCounter++;
             mapClassId.put(ec,id);
             EList<EClass> list = ec.getESuperTypes();
-            if(list.size()>0)
-            {
+            if(list.size()>0) {
                 EClass parent = list.get(0);
                 Relation p = metaInfo.getRelation(parent);
                 if(p == null)
@@ -115,7 +95,6 @@ public class InstanceViewer {
         }
     }
 
-
     private void makeBasic() {
         res = factory.createalloy();
         instance = factory.createInstance();
@@ -123,9 +102,7 @@ public class InstanceViewer {
         instance.setBitwidth(EchoOptionsSetup.getInstance().getBitwidth());
         instance.setMaxseq(instance.getBitwidth()+1);
 
-
         res.getInstance().add(instance);
-
 
         Sig univ = factory.createSig();
         univ.setID(2);
@@ -149,21 +126,14 @@ public class InstanceViewer {
             a.setLabel(((String)t.atom(0)).substring(3));
             string.getAtom().add(a);
         }
-
-
-
-
-
-
     }
 
     private void makeEnums(){
         HashSet<EEnum> enums = new HashSet<>();
-        for(EKodkodMetamodel e2k : metaInfo.getMetas())
-            enums.addAll(e2k.getEEnums());
+        for(KodkodMetamodel metamodel : metaInfo.getMetas())
+            enums.addAll(metamodel.getEEnums());
 
-        for(EEnum en: enums)
-        {
+        for(EEnum en: enums) {
             Relation rel = metaInfo.getRelation(en);
             Sig s;
             int id = idCounter++;
@@ -171,8 +141,7 @@ public class InstanceViewer {
             instance.getSig().add(s);
 
             TupleSet ts = mapRelations.get(rel);
-            for(Tuple t: ts )
-            {
+            for(Tuple t: ts ) {
                 EEnumLiteral el = (EEnumLiteral)  t.atom(0);
                 mapObjectLabel.put(el,el.getName());
                 Atom atom = factory.createAtom();
@@ -182,8 +151,6 @@ public class InstanceViewer {
             
             mapClassId.put(en, id);
         }
-
-
     }
 
     private void handleRel(Relation rel) {
@@ -240,8 +207,6 @@ public class InstanceViewer {
               s.getAtom().add(makeAtom(t.atom(0)));
 
         instance.getSig().add(s);
-
-
     }
 
 
@@ -252,7 +217,6 @@ public class InstanceViewer {
         EClass parent = sf.getEContainingClass();
         	int parentId = mapClassId.get(parent);
         
-
         	Field field = factory.createField();
         	field.setID(id);
         	field.setParentID(parentId);
@@ -261,8 +225,7 @@ public class InstanceViewer {
         	int typeId=0;
         	if(sf instanceof EReference)
         		typeId = mapClassId.get( sf.getEType());
-        	else if(sf instanceof EAttribute)
-        	{
+        	else if(sf instanceof EAttribute) {
         		if(sf.getEType().getName().equals("EString"))
         			typeId = 3;
         		else if(sf.getEType().getName().equals("EInt"))
@@ -281,16 +244,13 @@ public class InstanceViewer {
         	Type type2 = factory.createType();
         	type2.setID(typeId);
 
-
         	lTypes.add(type);
         	lTypes.add(type2);
         	field.getTypes().add(types);
 
-
         	EList<AlloyTuple> tuples = field.getTuple();
         	TupleSet ts = mapRelations.get(rel);
-        	for(Tuple t: ts )
-        	{
+        	for(Tuple t: ts ) {
         		AlloyTuple at = factory.createAlloyTuple();
         		at.getAtom().add(makeAtom(t.atom(0)));
         		at.getAtom().add(makeAtom(t.atom(1)));
@@ -308,7 +268,7 @@ public class InstanceViewer {
         if(mapObjectLabel.containsKey(obj))
             label= mapObjectLabel.get(obj);
 
-        else{ //if(obj instanceof String){
+        else { //if(obj instanceof String){
             String str = (String) obj;
             if(str.startsWith("str"))
                 label = str.substring(3);
@@ -346,13 +306,13 @@ public class InstanceViewer {
     }
 
     private class MetaInfo {
-        private Set<EKodkodMetamodel> metas;
+        private Set<KodkodMetamodel> metas;
 
-        public Set<EKodkodMetamodel> getMetas() {
+        public Set<KodkodMetamodel> getMetas() {
             return metas;
         }
 
-        MetaInfo(Set<EKodkodMetamodel> metas)
+        MetaInfo(Set<KodkodMetamodel> metas)
         {
             this.metas =metas;
         }
@@ -360,18 +320,18 @@ public class InstanceViewer {
 
         public Set<EClass> getAbstracts() {
             Set<EClass> abs = new HashSet<>();
-            for(EKodkodMetamodel e2k : metas)
+            for(KodkodMetamodel e2k : metas)
                 abs.addAll(e2k.getAbstracts());
 
             return abs;
         }
 
         public boolean isBoolRel(Relation rel) {
-            Iterator<EKodkodMetamodel> it = metas.iterator();
+            Iterator<KodkodMetamodel> it = metas.iterator();
 
             boolean isBool = false;
             while (it.hasNext() && !isBool){
-                EKodkodMetamodel e2k = it.next();
+                KodkodMetamodel e2k = it.next();
                 if(e2k.getBoolType(rel) != null)
                     isBool = true;
             }
@@ -382,12 +342,12 @@ public class InstanceViewer {
         }
 
         public Relation getRelation(EClassifier ec) {
-            Iterator<EKodkodMetamodel> it = metas.iterator();
+            Iterator<KodkodMetamodel> it = metas.iterator();
             Relation rel = null;
 
 
             while (it.hasNext() && rel==null){
-                EKodkodMetamodel e2k = it.next();
+                KodkodMetamodel e2k = it.next();
                 rel = e2k.getRelation(ec);
             }
 
@@ -396,12 +356,12 @@ public class InstanceViewer {
         }
 
         public EClassifier getEClass(Relation rel) {
-            Iterator<EKodkodMetamodel> it = metas.iterator();
+            Iterator<KodkodMetamodel> it = metas.iterator();
             EClassifier ec = null;
 
 
             while (it.hasNext() && ec==null){
-                EKodkodMetamodel e2k = it.next();
+                KodkodMetamodel e2k = it.next();
                 ec = e2k.getEClass(rel);
             }
 
@@ -410,12 +370,12 @@ public class InstanceViewer {
         }
 
         public EStructuralFeature getSf(Relation rel) {
-            Iterator<EKodkodMetamodel> it = metas.iterator();
+            Iterator<KodkodMetamodel> it = metas.iterator();
             EStructuralFeature sf = null;
 
 
             while (it.hasNext() && sf==null){
-                EKodkodMetamodel e2k = it.next();
+                KodkodMetamodel e2k = it.next();
                 sf = e2k.getSf(rel);
             }
 

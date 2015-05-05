@@ -5,8 +5,9 @@ import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4.ErrorWarning;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
@@ -20,23 +21,23 @@ import java.util.Map.Entry;
  */
 class AlloyOptimizations {
 
-	Expr trading(Expr expr) throws ErrorUnsupported {
+	Expr trading(Expr expr) throws EErrorUnsupported {
 		TradeQnt trader = new TradeQnt();
 		Expr res = null;
 		try {
 			res = trader.visitThis(expr);
-		} catch (Err e) { throw new ErrorUnsupported(e.getMessage()); }
+		} catch (Err e) { throw new EErrorUnsupported(EErrorUnsupported.ALLOY,e.getMessage(),Task.CORE_RUN); }
 	
 		return res;
 	}
 	
-	Expr onePoint(Expr expr) throws ErrorUnsupported {
+	Expr onePoint(Expr expr) throws EErrorUnsupported {
 		
 		OnePointQnt onpointer = new OnePointQnt();
 		Expr res = null;
 		try {
 			res = onpointer.visitThis(expr);
-		} catch (Err e) { throw new ErrorUnsupported(e.getMessage()+": "+expr); }
+		} catch (Err e) { throw new EErrorUnsupported(EErrorUnsupported.ALLOY,e.getMessage()+": "+expr,Task.CORE_RUN); }
 
 		return res;
 	}
@@ -287,7 +288,7 @@ class AlloyOptimizations {
 							aux.add(last);
 							res = x.op.make(null, null, aux, ebody);
 						}
-					} catch (ErrorUnsupported e) {
+					} catch (EErrorUnsupported e) {
 						aux.add(last);
 						res = x.op.make(null, null, aux, ebody);
 					}
@@ -335,13 +336,13 @@ class AlloyOptimizations {
 						Decl d = decls.get(i);
 	        			try {
 	        				//EchoReporter.getInstance().debug("Onepointing "+d.get().label + " over "+d.expr+ " which is "+AlloyEchoTranslator.getInstance().isFunctional(d.expr));
-							if (AlloyEchoTranslator.getInstance().isFunctional(d.expr)) {
+							if (AlloyTranslator.getInstance().isFunctional(d.expr)) {
 								sub = AlloyHelper.replace(sub, d.get(), d.expr);
 								decls.remove(d);
 								for (int j = 0; j < decls.size() ; j++)
 									decls.set(j, new Decl(decls.get(j).isPrivate, decls.get(j).disjoint, decls.get(j).disjoint2, decls.get(j).names, AlloyHelper.replace(decls.get(j).expr,d.get(),d.expr)));
 							}
-						} catch (EchoError e) { throw new ErrorFatal(e.getMessage());}
+						} catch (EError e) { throw new ErrorFatal(e.getMessage());}
 	        		}
 	        		if (true) {
 		        		List<Decl> delcsaux = new ArrayList<Decl>(decls);
@@ -352,7 +353,7 @@ class AlloyOptimizations {
 		        					sub = aux;
 		        					decls.remove(d);
 		        				}
-			        		} catch (ErrorUnsupported e) {}
+			        		} catch (EErrorUnsupported e) {}
 	        		}
 	        		if (decls.size() > 0) return x.op.make(null, null, decls, sub);
 	        		else return sub;    		
@@ -360,11 +361,11 @@ class AlloyOptimizations {
 	        		for (Decl d : x.decls) {
 	        			try {
 	        				//System.out.println("Onepointing "+d.expr+ " which is "+translator.isFunctional(d.expr));
-							if (AlloyEchoTranslator.getInstance().isFunctional(d.expr)) {
+							if (AlloyTranslator.getInstance().isFunctional(d.expr)) {
 								sub = AlloyHelper.replace(sub, d.get(), d.expr);
 								decls.remove(d);
 							}
-						} catch (EchoError e) { throw new ErrorFatal(e.getMessage());}
+						} catch (EError e) { throw new ErrorFatal(e.getMessage());}
 	        		}
 	        		if (decls.size() > 0) return x.op.make(null, null, decls, sub);
 	        		else return sub;
@@ -399,7 +400,7 @@ class AlloyOptimizations {
         @Override public final Expr visit(Sig.Field x) { return x; }
     }
 	
-	private Expr cutExists(Expr e) throws ErrorUnsupported, Err {
+	private Expr cutExists(Expr e) throws EErrorUnsupported, Err {
 		CutExists cutter = new CutExists();
 		Entry<Expr,List<ExprVar>> pair = cutter.visitThis(e);
 		if(pair==null) return null;
@@ -410,7 +411,7 @@ class AlloyOptimizations {
 		else return null;
 	}
 	
-	private Expr cutForall(Expr e, Decl d) throws ErrorUnsupported {
+	private Expr cutForall(Expr e, Decl d) throws EErrorUnsupported {
 		if (e instanceof ExprBinary && ((ExprBinary)e).op.equals(ExprBinary.Op.IN)) {
 			try {
 				if (((ExprBinary)e).left.hasVar((ExprVar)d.get()) && ((ExprBinary)e).right.hasVar((ExprVar)d.get())) {
@@ -440,10 +441,10 @@ class AlloyOptimizations {
 	    			List<ExprVar> vars;
 					try {
 						vars = AlloyHelper.getVars(x);
-					} catch (ErrorUnsupported e) { throw new ErrorFatal(e.getMessage()); }
+					} catch (EErrorUnsupported e) { throw new ErrorFatal(e.getMessage()); }
 	    			for (ExprVar var : vars) {
 	    				try {
-	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(AlloyEchoTranslator.STATE))) {
+	    					if (!(var.type().toExpr() instanceof PrimSig && ((PrimSig)var.type().toExpr()).parent.isSame(AlloyTranslator.STATE))) {
 	    						//System.out.println ("var "+var.type().toExpr());
 	    						PushVar pusher = new PushVar(var);
 	    						Expr body = pusher.visitThis(x);

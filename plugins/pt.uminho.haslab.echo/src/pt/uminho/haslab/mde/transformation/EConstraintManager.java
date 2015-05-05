@@ -1,11 +1,20 @@
 package pt.uminho.haslab.mde.transformation;
 
-import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.engine.CoreTranslator;
+import pt.uminho.haslab.echo.engine.ast.CoreTransformation;
+import pt.uminho.haslab.echo.engine.ast.IFormula;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EArtifact;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.emf.ecore.EObject;
 
 /**
  * Manages the current set of inter-model constraints.
@@ -21,11 +30,13 @@ public class EConstraintManager {
 	public static EConstraintManager getInstance() {
 		return instance;
 	}
-
+	
+	
+	private Map<String,EConstraint> constraints = new HashMap<String,EConstraint>();
 	/** maps transformations to related existing inter-model constraints */
-	private Map<String,List<EConstraint>> trans2constraints = new HashMap<String, List<EConstraint>>();
+	private Map<String,List<String>> trans2constraints = new HashMap<String, List<String>>();
 	/** maps models to related existing inter-model constraints */
-	private Map<String,List<EConstraint>> model2constraints = new HashMap<String, List<EConstraint>>();
+	private Map<String,List<String>> model2constraints = new HashMap<String, List<String>>();
 
 	/**
 	 * Creates a new inter-model constraint
@@ -33,26 +44,23 @@ public class EConstraintManager {
 	 * @param transformation the transformation to related the models
 	 * @param models the models to be related
 	 * @return the newly created constraint
+	 * @throws EError 
 	 */
-	public EConstraint addConstraint(ETransformation transformation, List<EModel> models){
-		List<EConstraint> cs = trans2constraints.get(transformation.ID);
-		if (cs == null) cs = new ArrayList<EConstraint>();
-		for (EConstraint c : cs) {
-			boolean same = true;
-			for (int i = 0; i < models.size() && same; i++)
-				same = same && c.models.get(i).equals(models.get(i));
-			if (same) return c;
-		}
-		EConstraint c = new EConstraint(models, transformation);
-		cs.add(c);
-		trans2constraints.put(transformation.ID, cs);
+	public EConstraint addConstraint(String transformationID, List<String> models) throws EError{
+		EConstraint c = new EConstraint(models, transformationID);
 
-		for (EModel model : models) {
-			cs = model2constraints.get(model.ID);
-			if (cs == null) cs = new ArrayList<EConstraint>();
-			cs.add(c);
-			model2constraints.put(model.ID, cs);
+		List<String> cs = trans2constraints.get(transformationID);
+		if (cs == null) cs = new ArrayList<String>();
+		cs.add(c.ID);
+		trans2constraints.put(transformationID, cs);
+
+		for (String id : models) {
+			cs = model2constraints.get(id);
+			if (cs == null) cs = new ArrayList<String>();
+			cs.add(c.ID);
+			model2constraints.put(id, cs);
 		}
+		constraints.put(c.ID,c);
 		return c;
 	}
 
@@ -60,11 +68,8 @@ public class EConstraintManager {
 	 * Returns all currently existing constraints
 	 * @return the set of constraints
 	 */
-	public List<EConstraint> getAllConstraints() {
-		List<EConstraint> aux = new ArrayList<EConstraint>();
-		for (List<EConstraint> x : trans2constraints.values())
-			aux.addAll(x);
-		return aux;
+	public List<String> getAllConstraints() {
+		return new ArrayList<String>(constraints.keySet());
 	}
 
 	/**
@@ -72,9 +77,9 @@ public class EConstraintManager {
 	 * @param model the model
 	 * @return constraints involving <code>model</code>
 	 */
-	public List<EConstraint> getConstraintsModel(String modelID) {
-		List<EConstraint> res = model2constraints.get(modelID);
-		return res == null? new ArrayList<EConstraint>() : res;
+	public List<String> getConstraintsModel(String modelID) {
+		List<String> res = model2constraints.get(modelID);
+		return res == null? new ArrayList<String>() : res;
 	}
 
 	/**
@@ -82,43 +87,22 @@ public class EConstraintManager {
 	 * @param transformation the transformation
 	 * @return constraints involving <code>transformation</code>
 	 */
-	public List<EConstraint> getConstraintsTransformation(String transformationID) {
-		List<EConstraint> res = trans2constraints.get(transformationID);
-		return res == null? new ArrayList<EConstraint>() : res;
-	}
-
-	/**
-	 * Removes a constraint relating a set of models by a given transformation
-	 * @param models the related models
-	 * @param transformation the relating transformation
-	 * @return the removed constraint
-	 */
-	public EConstraint removeConstraint(List<EModel> models, ETransformation transformation) {
-		EConstraint c = new EConstraint(models, transformation);
-		removeConstraint(c);
-		return c;
+	public List<String> getConstraintsTransformation(String transformationID) {
+		List<String> res = trans2constraints.get(transformationID);
+		return res == null? new ArrayList<String>() : res;
 	}
 
 	/**
 	 * Removes the given constraint from the system
 	 * @param constraint the constraint to be removed
 	 */
-	public void removeConstraint(EConstraint constraint) {
-		List<EConstraint> cs = new ArrayList<EConstraint>();
-		for (EConstraint c : trans2constraints.get(constraint.transformation.ID)) {
-			if (!(c.equals(constraint)))
-				cs.add(c);
-		}
-		trans2constraints.put(constraint.transformation.ID, cs);
+	public void removeConstraint(String constraintID) {
+		EConstraint c = constraints.remove(constraintID);
 
-		for (EModel model : constraint.models) {
-			cs = new ArrayList<EConstraint>();
-			for (EConstraint c : model2constraints.get(model.ID)) {
-				if (!(c.equals(constraint)))
-					cs.add(c);
-			}
-			model2constraints.put(model.ID, cs);
-		}
+		trans2constraints.get(c.transformationID).remove(constraintID);
+
+		for (String id : c.getModels())
+			model2constraints.get(id).remove(constraintID);
 	}
 
 	/**
@@ -126,23 +110,25 @@ public class EConstraintManager {
 	 * Consists of a set of models and the relating transformation
 	 * @author nmm
 	 */
-	public class EConstraint {
+	public class EConstraint extends EArtifact {
 		/** the related models */
-		private List<EModel> models;
+		private List<String> models;
 		/** the relating transformation */
-		public final ETransformation transformation;
+		public final String transformationID;
 
 		/**
 		 * Creates a constraint given a set of models and a transformation
 		 * @param models the models to be related
 		 * @param transformation the relating transformation
+		 * @throws EError 
 		 */
-		private EConstraint(List<EModel> models, ETransformation transformation) {
-			this.models = new ArrayList<EModel>(models);
-			this.transformation = transformation;
+		private EConstraint(List<String> models, String transformationID) throws EError {
+			super(transformationID+models,MDEManager.getInstance().getETransformationID(transformationID).getEObject());
+			this.models = new ArrayList<String>(models);
+			this.transformationID = transformationID;
 		}
 
-		public List<EModel> getModels() {
+		public List<String> getModels() {
 			return models;
 		}
 
@@ -151,7 +137,7 @@ public class EConstraintManager {
 			if (!(cons instanceof EConstraint))
 				return false;
 			EConstraint constraint = (EConstraint) cons;
-			if (!this.transformation.equals(constraint.transformation)) return false;
+			if (!this.transformationID.equals(constraint.transformationID)) return false;
 			if (this.models.size() != constraint.models.size()) return false;
 			boolean same = true;
 			for (int i = 0; i < this.models.size() && same; i++)
@@ -161,7 +147,7 @@ public class EConstraintManager {
 
 		@Override
 		public String toString() {
-			StringBuilder s = new StringBuilder(transformation.getName());
+			StringBuilder s = new StringBuilder(transformationID);
 			s.append(": ");
 			s.append(models.get(0).toString());
 			for (int i = 1; i < models.size(); i++) {
@@ -170,6 +156,29 @@ public class EConstraintManager {
 			}
 			return s.toString();
 		}
+		
+		public IFormula getConstraint() {
+			CoreTransformation t = CoreTranslator.getInstance().getTransformation(transformationID);
+			return t.getConstraint(models);
+		}
 
+		@Override
+		public EObject getEObject() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected void process(EObject artifact) throws EErrorUnsupported,
+				EErrorParser {
+			// TODO Auto-generated method stub
+			
+		}
+
+
+	}
+
+	public EConstraint getConstraintID(String constraintID) {
+		return constraints.get(constraintID);
 	}
 }

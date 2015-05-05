@@ -3,11 +3,10 @@ package pt.uminho.haslab.mde.model;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
 import org.eclipse.emf.ecore.EEnumLiteral;
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
 
 import java.util.ArrayList;
@@ -36,16 +35,20 @@ public class EModel extends EArtifact {
 	 * 
 	 * @param name the model name
 	 * @param eobject the XMI input object
-	 * @throws ErrorParser
-	 * @throws EchoError
+	 * @throws EErrorParser
+	 * @throws EError
 	 */
-	public EModel(EObject eobject) throws ErrorUnsupported, ErrorParser {
+	public EModel(EObject eobject) throws EErrorUnsupported, EErrorParser {
 		super(eobject.eClass().getName(),eobject);
+	}
+
+	public EModel(EObject eobject, String uri) throws EErrorUnsupported, EErrorParser {
+		super(eobject.eClass().getName(),eobject,uri);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected void process(EObject eobject) throws ErrorUnsupported, ErrorParser {
+	protected void process(EObject eobject) throws EErrorUnsupported, EErrorParser {
 		root = new XMI2EModel(eobject).eelement;
 		String metamodelURI = eobject.eClass().getEPackage().eResource().getURI().path();
 		metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
@@ -104,14 +107,11 @@ public class EModel extends EArtifact {
 		 * 
 		 * @param obj
 		 *            the root XMI object
-		 * @throws ErrorUnsupported
+		 * @throws EErrorUnsupported
 		 */
-		XMI2EModel(EObject obj) throws ErrorUnsupported {
-			EchoReporter.getInstance().start(Task.TRANSLATE_MODEL,
-					obj.toString());
+		XMI2EModel(EObject obj) throws EErrorUnsupported {
 			eobject = obj;
 			eelement = translateEObject(eobject);
-			EchoReporter.getInstance().result(Task.TRANSLATE_MODEL, "", true);
 		}
 
 		/**
@@ -160,9 +160,9 @@ public class EModel extends EArtifact {
 		 * @param eobj
 		 *            the object to be translated
 		 * @return the EElement representing the object
-		 * @throws ErrorUnsupported
+		 * @throws EErrorUnsupported
 		 */
-		private EElement translateEObject(EObject eobj) throws ErrorUnsupported {
+		private EElement translateEObject(EObject eobj) throws EErrorUnsupported {
 			EElement eelement = new EElement(eobj);
 
 			if (eclass2elements.get(eelement.type.getName()) == null)
@@ -194,7 +194,7 @@ public class EModel extends EArtifact {
 								(EReference) sf);
 					} else if (value == null) {
 					} else
-						throw new ErrorUnsupported(ErrorUnsupported.ECORE,
+						throw new EErrorUnsupported(EErrorUnsupported.ECORE,
 								"EReference type not supported: "
 										+ value.getClass().getName(), "",
 										Task.TRANSLATE_MODEL);
@@ -215,10 +215,10 @@ public class EModel extends EArtifact {
 		 * @param ref
 		 *            the reference
 		 * @return the representing sig
-		 * @throws ErrorUnsupported
+		 * @throws EErrorUnsupported
 		 */
 		private EElement processReference(EObject obj, EElement eelement,
-				EReference ref) throws ErrorUnsupported {
+				EReference ref) throws EErrorUnsupported {
 			EElement value = object2element.get(obj);
 
 			if (value == null)
@@ -241,10 +241,10 @@ public class EModel extends EArtifact {
 		 * @param ref
 		 *            the reference
 		 * @return the EElement values
-		 * @throws ErrorUnsupported
+		 * @throws EErrorUnsupported
 		 */
 		private List<EElement> processReference(EList<?> values,
-				EElement eelement, EReference ref) throws ErrorUnsupported {
+				EElement eelement, EReference ref) throws EErrorUnsupported {
 			List<EElement> res = new ArrayList<EElement>();
 			EElement value;
 
@@ -253,7 +253,7 @@ public class EModel extends EArtifact {
 					value = processReference((EObject) o, eelement, ref);
 					res.add(value);
 				} else
-					throw new ErrorUnsupported(ErrorUnsupported.ECORE,
+					throw new EErrorUnsupported(EErrorUnsupported.ECORE,
 							"EReference type not supported: "
 									+ o.getClass().getName(), "",
 									Task.TRANSLATE_MODEL);
@@ -270,11 +270,12 @@ public class EModel extends EArtifact {
 		 *            the parent EElement
 		 * @param att
 		 *            the reference
-		 * @throws ErrorUnsupported
+		 * @throws EErrorUnsupported
 		 */
 		private void processAttribute(Object value, EElement eelement,
-				EAttribute att) throws ErrorUnsupported {
-			if (value instanceof Boolean)
+				EAttribute att) throws EErrorUnsupported {
+			if (value == null) {}
+			else if (value instanceof Boolean)
 				eelement.addValue(att, (Boolean) value);
 			else if (value instanceof EEnumLiteral)
 				eelement.addValue(att, (EEnumLiteral) value);
@@ -283,7 +284,7 @@ public class EModel extends EArtifact {
 			else if (value instanceof Integer)
 				eelement.addValue(att, (Integer) value);
 			else
-				throw new ErrorUnsupported(ErrorUnsupported.PRIMITIVE_TYPE,
+				throw new EErrorUnsupported(EErrorUnsupported.PRIMITIVE_TYPE,
 						"Primitive type not supported: "
 								+ value.getClass().getName(), "",
 								Task.TRANSLATE_MODEL);

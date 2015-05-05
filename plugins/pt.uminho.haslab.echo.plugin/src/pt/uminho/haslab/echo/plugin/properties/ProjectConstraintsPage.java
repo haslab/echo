@@ -26,8 +26,8 @@ import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyPage;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorAPI;
 import pt.uminho.haslab.echo.plugin.wizards.ConstraintAddWizard;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -44,7 +44,7 @@ IWorkbenchPropertyPage {
 	protected Control createContents(Composite parent) {
 		project = (IProject) getElement().getAdapter(IProject.class);
 
-		List<EConstraint> constraints = ProjectPropertiesManager.getProperties(project).getConstraints();
+		List<String> constraintIDs = ProjectPropertiesManager.getProperties(project).getConstraints();
 
 		Composite rootcomposite = new Composite(parent, SWT.NONE);
 
@@ -80,7 +80,7 @@ IWorkbenchPropertyPage {
 		sndcol.setLabelProvider(new ViewLabelProvider(2));
 
 		constraintlist.setContentProvider(new ArrayContentProvider());
-		constraintlist.setInput(constraints);
+		constraintlist.setInput(constraintIDs);
 
 		Composite buttonscomposite = new Composite(tablecomposite, SWT.NONE);
 
@@ -122,8 +122,7 @@ IWorkbenchPropertyPage {
 		depButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ETransformation t = getSelectedContraint().transformation;
-				DependencyTransformationManageDialog d = new DependencyTransformationManageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),t);
+				DependencyTransformationManageDialog d = new DependencyTransformationManageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),getSelectedContraint().transformationID);
 				d.open();
 			}
 		});
@@ -144,21 +143,21 @@ IWorkbenchPropertyPage {
 //				};
 
 		}
-		for (EConstraint x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
+		for (String x : ProjectPropertiesManager.getProperties(project).getConstraints()) {
 			boolean has = false;
 			for (TableItem y : constraintlist.getTable().getItems()) 
-				if (x.equals((EConstraint) y.getData())) has = true;
+				if (x.equals((String) y.getData())) has = true;
 			if (!has) 
 				try {
 					ProjectPropertiesManager.getProperties(project).removeQVTConstraint(x);
-				} catch (EchoError e) {
+				} catch (EError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}	
 		try {
 			ProjectPropertiesManager.saveProjectProperties(project);
-		} catch (ErrorParser e) {
+		} catch (EErrorAPI e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -186,8 +185,8 @@ IWorkbenchPropertyPage {
 
 		public String getText(Object obj) {
 			EConstraint qvt = (EConstraint) obj;
-			if (i == 0) return qvt.transformation.ID.toString();
-			else return qvt.getModels().get(i-1).ID.toString();
+			if (i == 0) return qvt.transformationID;
+			else return qvt.getModels().get(i-1);
 		}
 
 		public Image getImage(Object obj) {

@@ -2,8 +2,8 @@ package pt.uminho.haslab.mde.model;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 
 /**
@@ -21,10 +21,15 @@ public abstract class EArtifact {
 	/** the artifact URI (may change) */
 	private String URI;
 
-	protected EArtifact(String iD, EObject artifact) throws ErrorUnsupported, ErrorParser {
+	protected EArtifact(String iD, EObject artifact) throws EErrorUnsupported, EErrorParser {
 		ID = EchoHelper.makeID(iD, this);
 		URI = EcoreUtil.getURI(artifact).path();
 		process(artifact);
+	}
+
+	protected EArtifact(String iD, EObject artifact, String uri) throws EErrorUnsupported, EErrorParser {
+		this(iD,artifact);
+		URI = uri;
 	}
 
 	/**
@@ -46,10 +51,10 @@ public abstract class EArtifact {
 	 * Updates the content of the artifact
 	 * 
 	 * @param artifact the new artifact
-	 * @throws ErrorUnsupported
-	 * @throws ErrorParser
+	 * @throws EErrorUnsupported
+	 * @throws EErrorParser
 	 */
-	public void update(EObject artifact) throws ErrorUnsupported, ErrorParser {
+	public void update(EObject artifact) throws EErrorUnsupported, EErrorParser {
 		URI = EcoreUtil.getURI(artifact).path();
 		process(artifact);
 	}
@@ -57,8 +62,8 @@ public abstract class EArtifact {
 	/**
 	 * Effectively processes the artifact
 	 * @param artifact the object to be processed
-	 * @throws ErrorUnsupported
-	 * @throws ErrorParser
+	 * @throws EErrorUnsupported
+	 * @throws EErrorParser
 	 */
-	protected abstract void process(EObject artifact) throws ErrorUnsupported, ErrorParser;
+	protected abstract void process(EObject artifact) throws EErrorUnsupported, EErrorParser;
 }

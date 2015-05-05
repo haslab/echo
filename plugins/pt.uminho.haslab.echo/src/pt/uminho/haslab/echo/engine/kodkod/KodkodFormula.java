@@ -100,4 +100,10 @@ class KodkodFormula implements IFormula {
             return formula.equals(((KodkodFormula)o).formula);
     }
 
+	@Override
+	public IFormula thenElse(IFormula thenExpr, IFormula elseExpr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -1,25 +1,21 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import org.eclipse.core.runtime.Path;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EStructuralFeature;
-
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.mde.model.EMetamodel;
-import pt.uminho.haslab.mde.transformation.EModelParameter;
-import pt.uminho.haslab.mde.transformation.ERelation;
-import pt.uminho.haslab.mde.transformation.ETransformation;
-import pt.uminho.haslab.mde.transformation.qvt.EQVTModelParameter;
-import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoReporter;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.mde.transformation.EDependency;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 
 /**
  * An embedding of an EMF ATL model transformation in Echo.
@@ -32,10 +28,11 @@ public class EATLTransformation extends ETransformation {
 	private Map<String,EATLModelParameter> modelParams;
 	private HashMap<String,EATLRelation> relations;
 	private EObject transformation;
+	private List<EDependency> dependencies;
 
 	public static Map<String,String> metamodeluris = new HashMap<>();
 
-	public EATLTransformation(EObject module) throws EchoError {
+	public EATLTransformation(EObject module) throws EError {
 		super((String) module.eGet(module.eClass().getEStructuralFeature("name")),module);
 	}
 
@@ -45,13 +42,13 @@ public class EATLTransformation extends ETransformation {
 	}
 
 	@Override
-	protected void process(EObject module) throws ErrorUnsupported, ErrorParser {
+	protected void process(EObject module) throws EErrorUnsupported, EErrorParser {
 		this.transformation = module;
 
 		if (modelParams == null) modelParams = new HashMap<>();
 		if (relations == null) relations = new HashMap<>();
 	
-		if (!module.eClass().getName().equals("Module")) throw new ErrorParser("Bad atl");
+		if (!module.eClass().getName().equals("Module")) throw new EErrorParser(EErrorParser.ATL,"Bad atl",Task.TRANSLATE_TRANSFORMATION);
 
 		EStructuralFeature cms = module.eClass().getEStructuralFeature("commentsBefore");
 		EList<String> comments = (EList<String>) module.eGet(cms);
@@ -60,8 +57,8 @@ public class EATLTransformation extends ETransformation {
 				String uri = comment.split(" ")[2].split("=")[1].replace("\'", "");
 				EchoReporter.getInstance().debug("URI: "+uri);
 				EchoReporter.getInstance().debug("URI: "+org.eclipse.emf.common.util.URI.createURI(uri));
-				EchoReporter.getInstance().debug("URI: "+new Path(uri).makeAbsolute());
-				EchoReporter.getInstance().debug("URI: "+new Path(uri).makeRelative());
+//				EchoReporter.getInstance().debug("URI: "+new Path(uri).makeAbsolute());
+//				EchoReporter.getInstance().debug("URI: "+new Path(uri).makeRelative());
 				metamodeluris.put(comment.split(" ")[2].split("=")[0],uri);
 			}
 		}
@@ -104,6 +101,11 @@ public class EATLTransformation extends ETransformation {
 	@Override
 	public EATLModelParameter getModelParameter(String paramName) {
 		return modelParams.get(paramName);
+	}
+
+	@Override
+	public List<EDependency> getDependencies() {
+		return dependencies;
 	}
 
 

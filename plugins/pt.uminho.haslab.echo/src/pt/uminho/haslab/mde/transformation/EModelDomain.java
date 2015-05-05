@@ -1,8 +1,8 @@
 package pt.uminho.haslab.mde.transformation;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.mde.model.EPredicate;
 import pt.uminho.haslab.mde.model.EVariable;
 
@@ -20,10 +20,10 @@ public abstract class EModelDomain {
 	abstract public ERelation getRelation();
 	
 	/** the model parameter regarding this model domain 
-	 * @throws ErrorParser 
-	 * @throws ErrorUnsupported 
-	 * @throws EchoError */
-	abstract public EModelParameter getModel() throws ErrorUnsupported, ErrorParser, EchoError;
+	 * @throws EErrorParser 
+	 * @throws EErrorUnsupported 
+	 * @throws EError */
+	abstract public EModelParameter getModel() throws EErrorUnsupported, EErrorParser, EError;
 	
 	/** the root variable of the domain */
 	abstract public EVariable getRootVariable();
@@ -36,7 +36,7 @@ public abstract class EModelDomain {
 		try {
 			EModelParameter model = getModel();
 			return model.getName() + "::" + model.getMetamodel().ID;
-		} catch (EchoError e) {
+		} catch (EError e) {
 			return "Err";
 		}
 	}
@@ -48,7 +48,7 @@ public abstract class EModelDomain {
 			EModelParameter model = getModel();
 			EModelDomain in = (EModelDomain) obj;
 			return model.equals(in.getModel());
-		} catch (EchoError e) {
+		} catch (EError e) {
 			return false;
 		}
 	}

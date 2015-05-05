@@ -3,8 +3,7 @@ package pt.uminho.haslab.mde.transformation.qvt;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.ocl.examples.pivot.OCLExpression;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.engine.IContext;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.OCLTranslator;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -39,13 +38,13 @@ public class EQVTPredicate implements EPredicate {
 	}
 
 	@Override
-	public IFormula translate(ITContext context) throws EchoError {
+	public IFormula translate(ITContext context) throws EError {
 		OCLTranslator trad = new OCLTranslator(context);
 		return trad.translateExpressions(exps);
 	}
 
 	@Override
-	public Map<EVariable,String> getVariables(String metamodel) throws EchoError {
+	public Map<EVariable,String> getVariables(String metamodel) throws EError {
 		Map<EVariable,String> res = new HashMap<EVariable,String>();
 		for (OCLExpression predicate : exps)
 			res.putAll(OCLUtil.variablesOCLExpression(predicate,metamodel));

@@ -5,7 +5,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.EConstraintManager;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 public class ResourceRules implements ISchedulingRule{
@@ -48,9 +53,11 @@ public class ResourceRules implements ISchedulingRule{
 						case "xmi" : return res.equals(res2);
 						case "ecore" : return manager.getMetamodel(res).equals(res2);
 						case "qvtr" : 
-							for (EConstraint c : manager.getConstraints(res2))
+							for (String cID : manager.getConstraints(res2)) {
+								EConstraint c = EConstraintManager.getInstance().getConstraintID(cID);
 								if (c.getModels().get(0).equals(res) || c.getModels().get(1).equals(res))
 									return true;
+							}
 					}
 					break;
 				case "ecore" :
@@ -58,23 +65,45 @@ public class ResourceRules implements ISchedulingRule{
 						case "ecore" : return res.equals(res2);
 						case "xmi" : return manager.getMetamodel(res2).equals(res);
 						case "qvtr" : 
-							for (EConstraint c : manager.getConstraints(res2))
-								if (ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(0).getMetamodel().getURI()).equals(res) || 
-										ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(1).getMetamodel().getURI()).equals(res))
+							for (String cID : manager.getConstraints(res2)) {
+								EConstraint c = EConstraintManager.getInstance().getConstraintID(cID);
+								EModel m1=null,m2=null;
+								try {
+									m1 = MDEManager.getInstance().getModel(c.getModels().get(0),false);
+									m2 = MDEManager.getInstance().getModel(c.getModels().get(1),false);
+								} catch (EErrorParser | EErrorUnsupported e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								if (ResourcesPlugin.getWorkspace().getRoot().findMember(m1.getMetamodel().getURI()).equals(res) || 
+										ResourcesPlugin.getWorkspace().getRoot().findMember(m2.getMetamodel().getURI()).equals(res))
 									return true;
+							}
 					}
 					break;
 				case "qvtr" :
 					switch (res2.getFileExtension()) {
 						case "ecore" :
-							for (EConstraint c : manager.getConstraints(res))
-								if (ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(0).getMetamodel().getURI()).equals(res2) || 
-										ResourcesPlugin.getWorkspace().getRoot().findMember(c.getModels().get(1).getMetamodel().getURI()).equals(res2))
+							for (String cID : manager.getConstraints(res)) {
+								EConstraint c = EConstraintManager.getInstance().getConstraintID(cID);
+								EModel m1=null,m2=null;
+								try {
+									m1 = MDEManager.getInstance().getModel(c.getModels().get(0),false);
+									m2 = MDEManager.getInstance().getModel(c.getModels().get(1),false);
+								} catch (EErrorParser | EErrorUnsupported e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								if (ResourcesPlugin.getWorkspace().getRoot().findMember(m1.getMetamodel().getURI()).equals(res2) || 
+										ResourcesPlugin.getWorkspace().getRoot().findMember(m2.getMetamodel().getURI()).equals(res2))
 									return true;
+							}
 						case "xmi" : 
-							for (EConstraint c : manager.getConstraints(res))
+							for (String cID : manager.getConstraints(res)) {
+								EConstraint c = EConstraintManager.getInstance().getConstraintID(cID);
 								if (c.getModels().get(0).equals(res2) || c.getModels().get(1).equals(res2))
 									return true;
+							}
 						case "qvtr" : return res.equals(res2);
 					}
 					break;

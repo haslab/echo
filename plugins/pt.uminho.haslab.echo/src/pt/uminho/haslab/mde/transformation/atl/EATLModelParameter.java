@@ -1,17 +1,15 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.util.EcoreUtil;
+import java.util.HashMap;
+import java.util.Map;
 
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import org.eclipse.emf.ecore.EObject;
+
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * An embedding of an EMF ATL model parameter in Echo.
@@ -28,7 +26,7 @@ public class EATLModelParameter extends EModelParameter {
 	private EATLTransformation module;
 	private EMetamodel metamodel;
 
-	public EATLModelParameter(EObject mdl2,EATLTransformation module) throws ErrorParser, ErrorUnsupported {
+	public EATLModelParameter(EObject mdl2,EATLTransformation module) throws EErrorParser, EErrorUnsupported {
 		this.module = module;
 		mdl = mdl2;
 		

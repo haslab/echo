@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.EchoReporter;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
@@ -64,7 +64,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 							IFile f = (IFile) res;
 							try {
 								if (p.isManagedModel(res)) {
-									EchoReporter.getInstance().debug("Tracked model was changed");
+									EchoReporter.getInstance().debug("Tracked model was changed with flags: "+flags);
 									WorkspaceJob j = new ModelChangedJob(f);
 									j.setRule(new ResourceRules(f,ResourceRules.READ));
 									j.schedule();
@@ -79,7 +79,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 									j.setRule(new ResourceRules(f,ResourceRules.READ));
 									j.schedule();
 								}
-							} catch (EchoError e) {
+							} catch (EError e) {
 								e.printStackTrace();
 							}
 						}
@@ -104,7 +104,7 @@ public class ResourceChangeListener implements IResourceChangeListener {
 								j.setRule(new ResourceRules(f,ResourceRules.READ));
 								j.schedule();
 							} 
-						} catch (EchoError e) {
+						} catch (EError e) {
 							e.printStackTrace();
 						}
 					}

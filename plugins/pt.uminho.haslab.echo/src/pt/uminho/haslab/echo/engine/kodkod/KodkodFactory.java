@@ -1,8 +1,8 @@
 package pt.uminho.haslab.echo.engine.kodkod;
 
-import pt.uminho.haslab.echo.EngineRunner;
-import pt.uminho.haslab.echo.engine.EchoTranslator;
-import pt.uminho.haslab.echo.engine.TransformFactory;
+import pt.uminho.haslab.echo.CoreRunner;
+import pt.uminho.haslab.echo.engine.CoreTranslator;
+import pt.uminho.haslab.echo.engine.CoreFactory;
 
 /**
  * Launches Kodkod transformation and runner objects.
@@ -10,18 +10,23 @@ import pt.uminho.haslab.echo.engine.TransformFactory;
  * @author tmg
  * @version 0.4 20/02/2014
  */
-public class KodkodFactory implements TransformFactory {
+public class KodkodFactory implements CoreFactory {
 	
 	/** {@inheritDoc} */
 	@Override
-    public EngineRunner createRunner() {
+    public CoreRunner createRunner() {
         return new KodkodRunner();
     }
 
 	/** {@inheritDoc} */
     @Override
-    public EchoTranslator createTranslator() {
-        return new KodkodEchoTranslator();
+    public CoreTranslator createTranslator() {
+        return new KodkodTranslator();
     }
+    
+	public String toString() {
+		return "Kodkod";
+	}
+
 
 }

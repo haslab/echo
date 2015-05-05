@@ -5,11 +5,10 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprITE;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.EErrorCore;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
-import pt.uminho.haslab.echo.engine.ast.INode;
 
 /**
  * Alloy representation of formulas.
@@ -74,7 +73,7 @@ class AlloyFormula implements IFormula {
     //TODO check
 	/** {@inheritDoc} */
     @Override
-    public AlloyExpression comprehension(IDecl firstDecl, IDecl... extraDecls) throws ErrorInternalEngine {
+    public AlloyExpression comprehension(IDecl firstDecl, IDecl... extraDecls) throws EErrorCore {
     	Decl[] ds = new Decl[extraDecls.length];
     	for(int i = 0; i < extraDecls.length; i++)
             ds[i] = (((AlloyDecl) extraDecls[i]).DECL);
@@ -83,14 +82,14 @@ class AlloyFormula implements IFormula {
 		try {
 			res = FORMULA.comprehensionOver(((AlloyDecl) firstDecl).DECL,ds);
 		} catch (Err e) {
-			throw ErrorInternalEngine.thrownew("", "", e, Task.TRANSLATE_OCL);
+			throw EErrorCore.thrownew("", "", e, Task.TRANSLATE_OCL);
 		}
         return new AlloyExpression(res);
     }
 
 	/** {@inheritDoc} */
     @Override
-    public AlloyFormula forAll(IDecl decl, IDecl... extraDecls) throws ErrorInternalEngine {
+    public AlloyFormula forAll(IDecl decl, IDecl... extraDecls) throws EErrorCore {
     	Decl[] ds = new Decl[extraDecls.length];
     	for(int i = 0; i < extraDecls.length; i++)
             ds[i] = (((AlloyDecl) extraDecls[i]).DECL);
@@ -98,13 +97,13 @@ class AlloyFormula implements IFormula {
         try {
 			return new AlloyFormula(FORMULA.forAll(((AlloyDecl) decl).DECL,ds));
 		} catch (Err e) {
-			throw ErrorInternalEngine.thrownew("", "", e, Task.TRANSLATE_OCL);
+			throw EErrorCore.thrownew("", "", e, Task.TRANSLATE_OCL);
 		}
     }
 
 	/** {@inheritDoc} */
     @Override
-    public AlloyFormula forSome(IDecl decl, IDecl... extraDecls) throws ErrorInternalEngine {
+    public AlloyFormula forSome(IDecl decl, IDecl... extraDecls) throws EErrorCore {
     	Decl[] ds = new Decl[extraDecls.length];
     	for(int i = 0; i < extraDecls.length; i++)
             ds[i] = (((AlloyDecl) extraDecls[i]).DECL);
@@ -112,17 +111,17 @@ class AlloyFormula implements IFormula {
         try {
 			return new AlloyFormula(FORMULA.forSome(((AlloyDecl) decl).DECL,ds));
 		} catch (Err e) {
-			throw ErrorInternalEngine.thrownew("", "", e, Task.TRANSLATE_OCL);
+			throw EErrorCore.thrownew("", "", e, Task.TRANSLATE_OCL);
 		}
     }
 
 	/** {@inheritDoc} */
     @Override
-    public AlloyFormula forOne(IDecl d) throws ErrorInternalEngine {
+    public AlloyFormula forOne(IDecl d) throws EErrorCore {
         try {
 			return new AlloyFormula(FORMULA.forOne(((AlloyDecl) d).DECL));
 		} catch (Err e) {
-			throw ErrorInternalEngine.thrownew("", "", e, Task.TRANSLATE_OCL);
+			throw EErrorCore.thrownew("", "", e, Task.TRANSLATE_OCL);
 		}
     }
     

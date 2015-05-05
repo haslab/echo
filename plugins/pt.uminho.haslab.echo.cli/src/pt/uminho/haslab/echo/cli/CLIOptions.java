@@ -3,19 +3,19 @@ package pt.uminho.haslab.echo.cli;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.AbstractMap.SimpleEntry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
-import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.EchoRunner.Task;
+import pt.uminho.haslab.echo.engine.CoreFactory;
 
 public class CLIOptions extends Options implements EchoOptions{
 
@@ -24,14 +24,16 @@ public class CLIOptions extends Options implements EchoOptions{
 	CommandLine cmd;
 
 	@SuppressWarnings("static-access")
-	public CLIOptions (String[] args) throws ErrorParser {	
+	public CLIOptions (String[] args) throws EErrorParser {	
 		super();
 		
 		this.addOption(OptionBuilder
 				.withDescription("generate new QVT consistent target instance")
-				.withLongOpt("new")
-				.create("n"));
-		
+				.withLongOpt("batch")
+				.hasArg()
+				.withArgName("direction")
+				.create("b"));
+				
 		this.addOption(OptionBuilder
 				.withDescription("do not overwrite the original xmi")
 				.withLongOpt("no-overwrite")
@@ -128,30 +130,47 @@ public class CLIOptions extends Options implements EchoOptions{
 				.create());
 		
 		this.addOption(OptionBuilder
-				.withDescription("surpress optimitazions")
+				.withDescription("surpress optimizations")
 				.withLongOpt("no-optimizations")
 				.create("o"));
-		
+
+		this.addOption(OptionBuilder
+				.hasArg()
+				.withArgName("core")
+				.withDescription("core engine")
+				.withLongOpt("core")
+				.withType(String.class)
+				.create());
+
 		CommandLineParser parser = new PosixParser();
 		try {
 			cmd = parser.parse(this, args);
-			if (isGenerate() && (isQVT() || isConformance() || cmd.getOptionValues("i") != null)) 
-				throw new ErrorParser("Cannot perform tests and generate instances.");
+			if (isGenerate() && (isQVT() || isConformance())) 
+				throw new EErrorParser(EErrorParser.MODE,"Cannot perform tests and generate instances.",Task.ECHO_RUN);
 			if (isRepair() && (isQVT() || isConformance())) 
-				throw new ErrorParser("Cannot perform tests and repair instances.");
+				throw new EErrorParser(EErrorParser.MODE,"Cannot perform tests and repair instances.",Task.ECHO_RUN);
 			if (getMetamodels() == null) 
-				throw new ErrorParser("Metamodels required","CLI Parser");
-			if (isQVT() && !(isCheck() || isEnforce()))
-				throw new ErrorParser("Applying QVT transformation requires running mode.");
+				throw new EErrorParser(EErrorParser.MODE,"Metamodels required","CLI Parser",Task.ECHO_RUN);
+			if (isQVT() && !(isCheck() || isEnforce() || isBatch()))
+				throw new EErrorParser(EErrorParser.MODE,"Applying QVT transformation requires running mode.",Task.ECHO_RUN);
 			if (isCheck() && isEnforce()) 
-				throw new ErrorParser("Choose either enforce or check mode.");
+				throw new EErrorParser(EErrorParser.MODE,"Choose either enforce or check mode.",Task.ECHO_RUN);
+			if (getCore() == null) 
+				throw new EErrorParser(EErrorParser.MODE,"Choose either 'alloy' or 'kodkod' core engine.",Task.ECHO_RUN);
 		} catch (Exception e) {
+			if (e instanceof EErrorParser) throw (EErrorParser) e;
 			if (!(Arrays.asList(args)).contains("--help"))
-				throw new ErrorParser(e.getMessage());
+				throw new EErrorParser(EErrorParser.MODE,e.getMessage(),Task.ECHO_RUN);
 		}
-		
 	}
 
+	public CoreFactory getCore() {
+		if (!cmd.hasOption("core"))	return EchoOptionsSetup.DEFAULT_ENGINE;
+		if (cmd.getOptionValue("core").toLowerCase().equals("alloy")) return CoreFactory.ALLOY;
+		if (cmd.getOptionValue("core").toLowerCase().equals("kodkod")) return CoreFactory.KODKOD;
+		return null;
+	}
+	
 	public boolean isVerbose() {
 		return cmd.hasOption("verbose");
 	}
@@ -180,8 +199,8 @@ public class CLIOptions extends Options implements EchoOptions{
 		return !cmd.hasOption("no-overwrite");
 	}
 
-	public boolean isNew() {
-		return cmd.hasOption("new");
+	public boolean isBatch() {
+		return cmd.hasOption("batch");
 	}
 
 	public boolean isOptimize() {
@@ -198,13 +217,13 @@ public class CLIOptions extends Options implements EchoOptions{
 
 	public String getDirection() {
 		if (cmd.hasOption("r")) return cmd.getOptionValue("r");
+		else if (cmd.hasOption("g")) return cmd.getOptionValue("g");
+		else if (cmd.hasOption("b")) return cmd.getOptionValue("b");
 		else return cmd.getOptionValue("e");
 	}
 	
 	public Integer getOverallScope() {
-		Integer size = 0;
-		try {size = Integer.parseInt(cmd.getOptionValue("g"));}
-		catch (Exception x) { size = 0; }
+		Integer size = EchoOptionsSetup.DEFAULT_SCOPE;
 		return size;
 	}
 	
@@ -213,7 +232,8 @@ public class CLIOptions extends Options implements EchoOptions{
 	}
 	
 	public String[] getMetamodels() {
-		return cmd.getOptionValues("m");
+		String[] x = cmd.getOptionValues("m");
+		return x;
 	}
 
 	public String[] getModels() {
@@ -222,37 +242,42 @@ public class CLIOptions extends Options implements EchoOptions{
 		return res;
 	}
 	
-	public Map<Entry<String,String>,Integer> getScopes() {
-		Map<Entry<String,String>,Integer> res = new HashMap<Entry<String,String>,Integer>();
+	public Map<String,Map<String,Integer>> getScopes(String metamodelID) {
+		Map<String,Map<String,Integer>> res = new HashMap<String,Map<String,Integer>>();
 		String[] args = cmd.getOptionValues("scopes");
+		Map<String,Integer> aux = new HashMap<String,Integer>();
 		if (args != null) {
 			for (int i = 0; i < args.length ; i++) {
-				String[] split = args[i].split("::");
-				if (split.length == 2)
-					res.put(new SimpleEntry<String,String>(split[0],split[1]),Integer.parseInt(args[++i]));
-				else if (split.length == 1)
-					res.put(new SimpleEntry<String,String>("",split[0]),Integer.parseInt(args[++i]));
+				aux.put(args[i],Integer.parseInt(args[++i]));
+//				String[] split = args[i].split("::");
+//				if (split.length == 2)
+//					res.put(new SimpleEntry<String,String>(split[0],split[1]),Integer.parseInt(args[++i]));
+//				else if (split.length == 1)
+//					res.put(new SimpleEntry<String,String>("",split[0]),Integer.parseInt(args[++i]));
 			}
 		}
+		res.put(metamodelID, aux);
 		return res;
 	}
 
 
 	public Integer getMaxDelta() {
-		Integer delta = Integer.MAX_VALUE;
+		Integer delta = EchoOptionsSetup.DEFAULT_DELTA;
 		try {
 			if (cmd.hasOption("d"))
-				delta = (Integer) cmd.getParsedOptionValue("d");
-		} catch (ParseException e) { delta = 0; }
+				delta = Integer.parseInt(cmd.getOptionValue("d"));
+		} catch (Exception e) { 
+			delta = EchoOptionsSetup.DEFAULT_DELTA;
+		}
 		return delta;
 	}
 	
 	public Integer getBitwidth() {
-		Integer delta = 2;
+		Integer delta = EchoOptionsSetup.DEFAULT_BITWIDTH;
 		try {
 			if (cmd.hasOption("bitwidth"))
 				delta = Integer.parseInt(cmd.getOptionValue("bitwidth"));
-		} catch (Exception x) { delta = 2; }
+		} catch (Exception x) { delta =  EchoOptionsSetup.DEFAULT_BITWIDTH; }
 		return delta;
 	}
 	
@@ -263,11 +288,6 @@ public class CLIOptions extends Options implements EchoOptions{
 	
 	public boolean isOperationBased(){
 		return cmd.hasOption("operation");
-	}
-
-	@Override
-	public String getWorkspacePath() {
-		return "";
 	}
 
 	@Override

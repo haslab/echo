@@ -5,11 +5,11 @@ import kodkod.ast.Relation;
 
 import org.eclipse.emf.ecore.EClass;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.echo.engine.ITContext;
-import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
+import pt.uminho.haslab.echo.engine.ast.CoreRelation;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -37,7 +37,7 @@ class KodkodContext implements ITContext {
 	private Map<String,KodkodExpression> modelPosT = new HashMap<String,KodkodExpression>();
 	
 	private String currentModel;
-	private EKodkodRelation currentRel;
+	private KodkodRelation currentRel;
 	private boolean currentPre = false;
 
     public KodkodContext(){}
@@ -69,7 +69,7 @@ class KodkodContext implements ITContext {
 
 	/** {@inheritDoc} */
     @Override
-    public KodkodDecl getDecl(EVariable var, boolean addContext) throws EchoError {
+    public KodkodDecl getDecl(EVariable var, boolean addContext) throws EError {
         Expression range;
         String type = var.getType();
     	
@@ -79,8 +79,8 @@ class KodkodContext implements ITContext {
             range = Expression.INTS;
         else {
         	EMetamodel metamodel = MDEManager.getInstance().getMetamodel(var.getMetamodel(), false);
-        	KodkodEchoTranslator translator = KodkodEchoTranslator.getInstance();
-            EKodkodMetamodel e2k = translator.getMetamodel(metamodel.ID);
+        	KodkodTranslator translator = KodkodTranslator.getInstance();
+            KodkodMetamodel e2k = translator.getMetamodel(metamodel.ID);
             range = e2k.getRelation((EClass) metamodel.getEObject().getEClassifier(type));
         }
         KodkodDecl d = (new KodkodExpression(range)).oneOf(var.getName());
@@ -90,7 +90,7 @@ class KodkodContext implements ITContext {
 
     @Override
     public KodkodExpression getPropExpression(String metaModelID, String className, String fieldName) {
-        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
+        KodkodMetamodel e2k = KodkodTranslator.getInstance().getMetamodel(metaModelID);
         Relation r = e2k.getRelation(((EClass) e2k.metamodel.getEObject().getEClassifier(className)).getEStructuralFeature(fieldName));
         if(r!=null)
             return new KodkodExpression(r);
@@ -100,7 +100,7 @@ class KodkodContext implements ITContext {
 
     @Override
     public KodkodExpression getClassExpression(String metaModelID, String className) {
-        EKodkodMetamodel e2k = KodkodEchoTranslator.getInstance().getMetamodel(metaModelID);
+        KodkodMetamodel e2k = KodkodTranslator.getInstance().getMetamodel(metaModelID);
         return new KodkodExpression(
                 e2k.getRelation(e2k.metamodel.getEObject().getEClassifier(className))
         );
@@ -118,7 +118,7 @@ class KodkodContext implements ITContext {
 		currentPre = isPre;
 	}
 
-	public void setVarModel(String name, String model) throws ErrorParser {
+	public void setVarModel(String name, String model) throws EErrorParser {
 		varModel.put(name,model);
 	}
 
@@ -152,8 +152,8 @@ class KodkodContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public void setCurrentRel(EEngineRelation parentRelation) {
-		currentRel = (EKodkodRelation) parentRelation;
+	public void setCurrentRel(CoreRelation parentRelation) {
+		currentRel = (KodkodRelation) parentRelation;
 	}
 	
 	/** {@inheritDoc} */
@@ -170,19 +170,19 @@ class KodkodContext implements ITContext {
 
 	/** {@inheritDoc} */
 	@Override
-	public EKodkodRelation getCallerRel() {
+	public KodkodRelation getCallerRel() {
 		return currentRel;
-	}
-
-	@Override
-	public IFormula createFrameCondition(String metaModelID, String frame)
-			throws ErrorParser, ErrorUnsupported {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public String getCurrentModel() {
 		return currentModel;
+	}
+
+	@Override
+	public IFormula createFrameCondition(String metaModelID,
+			Collection<String> frame) throws EErrorParser, EErrorUnsupported {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import edu.mit.csail.sdg.alloy4.ConstList;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
@@ -45,27 +46,27 @@ class AlloyHelper {
 		return parent.label +"#"+ c +"#";
 	}
 
-	static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, Map<PrimSig,Integer> sizesexact) throws ErrorAlloy {
+	static ConstList<CommandScope> createScope(Map<PrimSig,Integer> sizes, Map<PrimSig,Integer> sizesexact) throws EErrorAlloy {
 		List<CommandScope> scopes = new ArrayList<CommandScope>();
-
+	
 		for (PrimSig sig : sizes.keySet()) 
 			try {scopes.add(new CommandScope(sig, false, sizes.get(sig)));}
-		catch (Err e) { throw new ErrorAlloy(e.getMessage());}
+		catch (Err e) { throw new EErrorAlloy(EErrorAlloy.FAIL_SCOPE,e.getMessage(),e,Task.CORE_RUN);}
 		for (PrimSig sig : sizesexact.keySet()) 
 			try {scopes.add(new CommandScope(sig, true, sizesexact.get(sig)));}
-		catch (Err e) { throw new ErrorAlloy(e.getMessage());}
+		catch (Err e) { throw new EErrorAlloy(EErrorAlloy.FAIL_SCOPE,e.getMessage(),e,Task.CORE_RUN);}
 
 		return ConstList.make(scopes);
 	}
 
-	static ConstList<CommandScope> incrementStringScopes (List<CommandScope> scopes) throws ErrorAlloy {
+	static ConstList<CommandScope> incrementStringScopes (List<CommandScope> scopes) throws EErrorAlloy {
 		List<CommandScope> list = new ArrayList<CommandScope>();
 
 		for (CommandScope scope : scopes)
 			try {
 				if (scope.sig.label.equals("String")) list.add(new CommandScope(scope.sig, true, scope.startingScope+1));
 				else list.add(new CommandScope(scope.sig, scope.isExact, scope.startingScope));
-			} catch (ErrorSyntax e) { throw new ErrorAlloy(e.getMessage());}
+			} catch (ErrorSyntax e) { throw new EErrorAlloy(EErrorAlloy.FAIL_SCOPE,e.getMessage(),e,Task.CORE_RUN);}
 
 		return ConstList.make(list);
 	}
@@ -205,12 +206,12 @@ class AlloyHelper {
 
 	}
 
-	static List<ExprVar> getVars(Expr in) throws ErrorUnsupported {
+	static List<ExprVar> getVars(Expr in) throws EErrorUnsupported {
 		VarGetter getter = new VarGetter();
 		List<ExprVar> res;
 		try {
 			res = getter.visitThis(in);
-		} catch (Err e) { throw new ErrorUnsupported(e.getMessage()); }
+		} catch (Err e) { throw new EErrorUnsupported(EErrorUnsupported.ALLOY,e.getMessage(),Task.CORE_RUN); }
 		return res;
 	}
 

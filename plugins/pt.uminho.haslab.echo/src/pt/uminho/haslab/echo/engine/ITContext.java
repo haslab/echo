@@ -1,7 +1,7 @@
 package pt.uminho.haslab.echo.engine;
 
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.engine.ast.EEngineRelation;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.engine.ast.CoreRelation;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 
 import java.util.List;
@@ -40,14 +40,14 @@ public interface ITContext extends IContext {
 	 * Should be self it top or parent if non-top.
 	 * @return the caller relation
 	 */
-	public EEngineRelation getCallerRel();
+	public CoreRelation getCallerRel();
 	
 	/**
 	 * Sets the relation called the current transformation.
 	 * Should be self it top or parent if non-top.
 	 * @param parentRelation the caller relation
 	 */
-	public void setCurrentRel(EEngineRelation parentRelation);
+	public void setCurrentRel(CoreRelation parentRelation);
 
 	/**
 	 * Adds a new expression representing a meta-model.
@@ -71,9 +71,9 @@ public interface ITContext extends IContext {
 	 * Sets the owning model of a variable.
 	 * @param name the variable
 	 * @param model the owning model
-	 * @throws ErrorParser
+	 * @throws EErrorParser
 	 */
-	void setVarModel(String name, String model) throws ErrorParser;
+	void setVarModel(String name, String model) throws EErrorParser;
 
 
 }

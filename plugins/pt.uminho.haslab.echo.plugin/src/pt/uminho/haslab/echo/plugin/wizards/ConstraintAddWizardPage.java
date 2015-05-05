@@ -27,7 +27,7 @@ import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
 import pt.uminho.haslab.mde.transformation.ETransformation;
@@ -105,8 +105,8 @@ public class ConstraintAddWizardPage extends WizardPage {
 		for (Label c : model2label.values()) c.dispose();
 		
 		try {
-			trans = MDEManager.getInstance().getETransformation(qvtresource.getFullPath(),false);
-		} catch (EchoError e) {
+			trans = MDEManager.getInstance().getETransformation(qvtresource.getFullPath().toString(),false);
+		} catch (EError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

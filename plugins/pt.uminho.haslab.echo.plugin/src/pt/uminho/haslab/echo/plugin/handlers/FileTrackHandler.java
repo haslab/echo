@@ -10,7 +10,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.EErrorAPI;
+import pt.uminho.haslab.echo.EErrorParser;
 import pt.uminho.haslab.echo.plugin.properties.ProjectPropertiesManager;
 
 /**
@@ -45,7 +46,7 @@ public class FileTrackHandler extends AbstractHandler {
 			
 			try {
 				ProjectPropertiesManager.saveProjectProperties(res.getProject());
-			} catch (ErrorParser e) {
+			} catch (EErrorAPI e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

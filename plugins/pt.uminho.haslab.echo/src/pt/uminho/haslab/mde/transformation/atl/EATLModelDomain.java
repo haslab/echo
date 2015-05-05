@@ -4,13 +4,10 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
-import pt.uminho.haslab.mde.transformation.EModelParameter;
-import pt.uminho.haslab.mde.transformation.ERelation;
-import pt.uminho.haslab.mde.transformation.qvt.EQVTRelation;
 
 /**
  * An embedding of an EMF ATL model domain in Echo.
@@ -24,10 +21,10 @@ public class EATLModelDomain extends EModelDomain {
 	private EObject domain; // InPattern or OutPattern
 	private EATLRelation relation;
 
-	public EATLModelDomain(EATLRelation rule, EObject dom) throws ErrorParser {
+	public EATLModelDomain(EATLRelation rule, EObject dom) throws EErrorParser {
 		if (dom.eClass().getName().equals("InPattern") || dom.eClass().getName().equals("OutPattern") )
 			this.domain = dom;
-		else throw new ErrorParser("Bad atl");
+		else throw new EErrorParser(EErrorParser.ATL,"Bad atl",Task.TRANSLATE_TRANSFORMATION);
 		this.relation = rule;
 		getModel();
 	}

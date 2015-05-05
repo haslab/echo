@@ -1,20 +1,17 @@
 package pt.uminho.haslab.mde.transformation.atl;
 
-import org.eclipse.core.runtime.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
-import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.transformation.ERelation;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An embedding of an EMF ATL relation in Echo.
@@ -27,10 +24,10 @@ public class EATLRelation implements ERelation {
 	private List<EATLModelDomain> domains = new ArrayList<>();
 	private EATLTransformation transformation;
 	
-	public EATLRelation(EATLTransformation transformation, EObject rule) throws ErrorUnsupported, ErrorParser {
+	public EATLRelation(EATLTransformation transformation, EObject rule) throws EErrorUnsupported, EErrorParser {
 		if (rule.eClass().getName().equals("MatchedRule") || rule.eClass().getName().equals("LazyMatchedRule") )
 			this.relation = rule;
-		else throw new ErrorUnsupported("Bad atl");
+		else throw new EErrorUnsupported(EErrorUnsupported.ATL,"Bad atl",Task.TRANSLATE_TRANSFORMATION);
 		this.transformation = transformation;
 		EStructuralFeature inmdls = relation.eClass().getEStructuralFeature("inPattern");
 		EStructuralFeature outmdls = relation.eClass().getESuperTypes().get(0).getEStructuralFeature("outPattern");
@@ -46,7 +43,7 @@ public class EATLRelation implements ERelation {
 	}
 
 	@Override
-	public EATLTransformation getTransformation() throws EchoError {
+	public EATLTransformation getTransformation() throws EError {
 		return transformation;
 	}
 

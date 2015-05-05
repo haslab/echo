@@ -10,14 +10,13 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ocl.examples.pivot.Type;
 import org.eclipse.ocl.examples.pivot.VariableDeclaration;
 
-import pt.uminho.haslab.echo.EchoError;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.transformation.atl.EATLModelParameter;
-import pt.uminho.haslab.mde.transformation.atl.EATLTransformation;
 
 /**
  * Echo representation of a variable.
@@ -33,7 +32,7 @@ public class EVariable {
 		if (vars.get(xx)==null) {
 			try {
 				vars.put(xx, new EVariable(xx));
-			} catch (ErrorUnsupported | ErrorParser e) {
+			} catch (EErrorUnsupported | EErrorParser e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -45,7 +44,7 @@ public class EVariable {
 		if (vars.get(xx)==null) {
 			try {
 				vars.put(xx, new EVariable(xx));
-			} catch (ErrorUnsupported | ErrorParser e) {
+			} catch (EErrorUnsupported | EErrorParser e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -56,7 +55,7 @@ public class EVariable {
 	public static EVariable getVariable(EObject xx, String classID) {
 		try {
 			vars.put(xx, new EVariable(xx,classID));
-		} catch (ErrorUnsupported | ErrorParser e) {
+		} catch (EErrorUnsupported | EErrorParser e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -68,14 +67,14 @@ public class EVariable {
 	private String metamodelURI;
 	private EObject type;
 
-	private EVariable(VariableDeclaration var) throws ErrorUnsupported, ErrorParser {
+	private EVariable(VariableDeclaration var) throws EErrorUnsupported, EErrorParser {
 		// standard EMF variable
 		this.type = ((VariableDeclaration) var).getType();
 		this.name = ((VariableDeclaration) var).getName();
 		this.metamodelURI = EcoreUtil.getURI(((Type) type).getPackage()).path().replace(".oclas", "").replace("resource/", "");	
 	}
 	
-	private EVariable(EObject var) throws ErrorUnsupported, ErrorParser {
+	private EVariable(EObject var) throws EErrorUnsupported, EErrorParser {
 		// ATL variable
 		// InPatternElement or OutPatternElement
 		if (var.eClass().getName().equals("SimpleInPatternElement") || var.eClass().getName().equals("SimpleOutPatternElement")) {
@@ -95,7 +94,7 @@ public class EVariable {
 				EchoReporter.getInstance().debug("And: "+var);
 			}
 		}
-		else throw new ErrorUnsupported("Var type: "+var.eClass().getName());
+		else throw new EErrorUnsupported(EErrorUnsupported.ATL,"Var type: "+var.eClass().getName(),Task.TRANSLATE_TRANSFORMATION);
 		
 		if (type != null) {
 			EObject mdlref = type.eCrossReferences().get(0);
@@ -111,7 +110,7 @@ public class EVariable {
 //		EchoReporter.getInstance().debug("** Created var: "+name+"::"+metamodelURI);
 	}
 
-	public EVariable(EObject var, String classID) throws ErrorUnsupported, ErrorParser {
+	public EVariable(EObject var, String classID) throws EErrorUnsupported, EErrorParser {
 		// ATL variable
 		// InPatternElement or OutPatternElement
 		String metamodelID = EchoHelper.getMetamodelIDfromLabel(classID);
@@ -138,7 +137,7 @@ public class EVariable {
 		return metamodelURI;
 	}
 	
-	public String getType() throws ErrorParser, ErrorUnsupported {
+	public String getType() throws EErrorParser, EErrorUnsupported {
 		String stype = null;
 		if (type == null)
 			return null;

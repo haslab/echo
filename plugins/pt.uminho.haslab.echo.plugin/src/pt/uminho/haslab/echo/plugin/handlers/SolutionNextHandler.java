@@ -4,7 +4,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EExceptMaxDelta;
 import pt.uminho.haslab.echo.plugin.EchoPlugin;
 import pt.uminho.haslab.echo.plugin.views.GraphView;
 
@@ -24,7 +25,7 @@ public class SolutionNextHandler extends AbstractHandler {
 			GraphView amv = EchoPlugin.getInstance().getGraphView();
 			if(amv!= null) amv.drawGraph();
 				
-		} catch (EchoError e) {
+		} catch (EError | EExceptMaxDelta e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

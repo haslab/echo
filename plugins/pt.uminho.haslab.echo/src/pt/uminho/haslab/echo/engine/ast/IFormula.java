@@ -1,6 +1,6 @@
 package pt.uminho.haslab.echo.engine.ast;
 
-import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.EErrorCore;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,9 +21,9 @@ public interface IFormula extends INode{
 
     IFormula not();
 
-    IExpression comprehension(IDecl firstDecl, IDecl... extraDecls) throws ErrorInternalEngine;
+    IExpression comprehension(IDecl firstDecl, IDecl... extraDecls) throws EErrorCore;
 
-    IFormula forAll(IDecl decl, IDecl... moreDecls) throws ErrorInternalEngine;
-    IFormula forSome(IDecl decl, IDecl... moreDecls) throws ErrorInternalEngine;
-    IFormula forOne(IDecl d) throws ErrorInternalEngine;
+    IFormula forAll(IDecl decl, IDecl... moreDecls) throws EErrorCore;
+    IFormula forSome(IDecl decl, IDecl... moreDecls) throws EErrorCore;
+    IFormula forOne(IDecl d) throws EErrorCore;
 }

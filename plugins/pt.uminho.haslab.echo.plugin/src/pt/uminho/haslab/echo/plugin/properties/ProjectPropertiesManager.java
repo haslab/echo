@@ -11,15 +11,17 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.ErrorAPI;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorAPI;
+import pt.uminho.haslab.echo.EErrorCore;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorTransform;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.plugin.PlugInOptions;
 import pt.uminho.haslab.echo.plugin.ResourceManager;
+import pt.uminho.haslab.mde.transformation.EConstraintManager;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 /**
@@ -42,7 +44,7 @@ public class ProjectPropertiesManager {
 						.isPersistent()) {
 			try {
 				res = loadProperties(project);
-			} catch (EchoError | CoreException e) {
+			} catch (EError | CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -59,15 +61,15 @@ public class ProjectPropertiesManager {
 	 * 
 	 * @param project
 	 * @return
-	 * @throws ErrorAPI
-	 * @throws ErrorParser
-	 * @throws ErrorTransform
-	 * @throws ErrorUnsupported
+	 * @throws EErrorAPI
+	 * @throws EErrorParser
+	 * @throws EErrorTransform
+	 * @throws EErrorUnsupported
 	 * @throws CoreException
-	 * @throws ErrorInternalEngine
+	 * @throws EErrorCore
 	 */
 	public static ResourceManager loadProperties(IProject project)
-			throws EchoError, CoreException {
+			throws EError, CoreException {
 		String propertiesstring = project.getPersistentProperty(ECHO_PROPERTIES);
 		ResourceManager properties = null;
 		if (propertiesstring != null) {
@@ -84,15 +86,15 @@ public class ProjectPropertiesManager {
 	 * Writes persistent properties
 	 * 
 	 * @param project
-	 * @throws ErrorParser
+	 * @throws EErrorParser
 	 */
 	public static void saveProjectProperties(IProject project)
-			throws ErrorParser {
+			throws EErrorAPI {
 		try {
 			project.setPersistentProperty(ECHO_PROPERTIES,
 					toString(properties.get(project)));
 		} catch (CoreException e) {
-			throw new ErrorParser(e.getMessage());
+			throw new EErrorAPI(EErrorAPI.PROPERTIES,e.getMessage(),Task.PLUGIN);
 		}
 	}
 
@@ -103,8 +105,9 @@ public class ProjectPropertiesManager {
 			builder.append(",");
 		}
 		builder.append(";");
-		for (EConstraint c : man.getConstraints()) {
-			builder.append(c.transformation);
+		for (String cID : man.getConstraints()) {
+			EConstraint c = EConstraintManager.getInstance().getConstraintID(cID);
+			builder.append(c.transformationID);
 			builder.append("@");
 			builder.append(c.getModels().get(0));
 			for (int i = 1; i < c.getModels().size(); i ++) {
@@ -116,7 +119,7 @@ public class ProjectPropertiesManager {
 		return builder.toString();
 	}
 	
-	private static void fromString(ResourceManager man, String propertiesstring) throws EchoError {
+	private static void fromString(ResourceManager man, String propertiesstring) throws EError {
 		String models = propertiesstring.split(";")[0];
 		for (String model : models.split(",")) {
 			IResource res = ResourcesPlugin.getWorkspace().getRoot()

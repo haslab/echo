@@ -3,6 +3,7 @@ package pt.uminho.haslab.echo.plugin;
 
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoOptionsSetup.EchoOptions;
+import pt.uminho.haslab.echo.engine.CoreFactory;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -117,6 +118,12 @@ public class PlugInOptions implements EchoOptions {
 		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.OPTIMIZE);
 		EchoPlugin.getInstance().getPreferenceStore().setToDefault(EchoOptionsSetup.SCOPE);
 		EchoPlugin.getInstance().getPreferenceStore().setToDefault(ISPERSISTENT);		
+	}
+
+	@Override
+	public CoreFactory getCore() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

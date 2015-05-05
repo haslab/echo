@@ -1,6 +1,6 @@
 package pt.uminho.haslab.echo.engine.ast;
 
-import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.EErrorCore;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,7 +28,7 @@ public interface IExpression extends INode{
     IFormula no();
     IFormula lone();
 
-    IDecl oneOf(String name) throws ErrorInternalEngine;
+    IDecl oneOf(String name) throws EErrorCore;
 
     IIntExpression cardinality();
 	boolean hasVar(IExpression var);

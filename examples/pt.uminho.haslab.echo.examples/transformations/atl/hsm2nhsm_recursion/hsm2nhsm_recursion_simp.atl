@@ -1,0 +1,25 @@
+-- @atlcompiler atl2006
+-- @nsURI HSM='/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore'
+-- @nsURI NHSM='/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore'
+
+module HSM2NHSM;
+create OUT : NHSM from IN : HSM;
+
+unique lazy rule M2M { 
+	from
+		sm : HSM!StateMachine ()
+	to
+		tm : NHSM!StateMachine (
+			name <- sm.name
+		)
+}
+
+rule S2S{
+	from
+		ss : HSM!State (ss.container->isEmpty()) 
+	to 
+		ts : NHSM!State (
+			name <- ss.name,
+			machine <- thisModule.M2M(ss.machine)
+		)
+}

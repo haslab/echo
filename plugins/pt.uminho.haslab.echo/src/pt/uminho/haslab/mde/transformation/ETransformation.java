@@ -1,8 +1,8 @@
 package pt.uminho.haslab.mde.transformation;
 
 import org.eclipse.emf.ecore.EObject;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.mde.model.EArtifact;
 
 import java.util.List;
@@ -26,6 +26,9 @@ public abstract class ETransformation extends EArtifact {
 	/** returns transformation name */
 	public abstract String getName();
 	
+	/** returns transformation's domain dependencies */
+	public abstract List<EDependency> getDependencies();
+	
 	/** 
 	 * Returns a concrete model parameter.
 	 * @param paramName the naming of the model parameter to return
@@ -37,10 +40,10 @@ public abstract class ETransformation extends EArtifact {
 	 * Processes an EMF transformation itno Echo.
 	 * @param ID the ID of the new transformation
 	 * @param artifact the EMF artifact containing the transformation
-	 * @throws ErrorUnsupported
-	 * @throws ErrorParser
+	 * @throws EErrorUnsupported
+	 * @throws EErrorParser
 	 */
-	protected ETransformation(String ID, EObject artifact) throws ErrorUnsupported, ErrorParser {
+	protected ETransformation(String ID, EObject artifact) throws EErrorUnsupported, EErrorParser {
 		super(ID, artifact);
 	}
 

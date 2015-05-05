@@ -8,12 +8,15 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
+
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
-import pt.uminho.haslab.echo.EchoError;
+
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
-import pt.uminho.haslab.echo.ErrorTransform;
+import pt.uminho.haslab.echo.EErrorTransform;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,13 +29,12 @@ class Alloy2XMI {
 	private final EObject result;
 	private final A4Solution sol;
 	private final Expr state;
-	private final EAlloyMetamodel metamodel;
+	private final AlloyMetamodel metamodel;
 	private final List<PrimSig> instancesigs;
 	private Map<String,ExprVar> mapAtoms;
 	
-	Alloy2XMI(A4Solution sol, PrimSig rootatom, EAlloyMetamodel metamodel, PrimSig state, List<PrimSig> instsigs) throws EchoError 
-	{
-		if (sol.eval(rootatom).size() != 1) throw new ErrorTransform("Could not resolve top atom: "+rootatom);
+	Alloy2XMI(A4Solution sol, PrimSig rootatom, AlloyMetamodel metamodel, PrimSig state, List<PrimSig> instsigs) throws EError {
+		if (sol.eval(rootatom).size() != 1) throw new EErrorTransform(EErrorTransform.ROOT,"Could not resolve top atom: "+rootatom,Task.TRANSLATE_MODEL);
 		instancesigs = (instsigs==null)?new ArrayList<PrimSig>():instsigs;
 		this.metamodel = metamodel;
 		this.sol = sol;
@@ -42,8 +44,7 @@ class Alloy2XMI {
 	}
 	
 	
-	EObject getModel()
-	{
+	EObject getModel() 	{
 		return result;
 	}
 	
@@ -58,11 +59,11 @@ class Alloy2XMI {
 	
 	//TODO : Recheck relation arity
 	
-	private EObject createObject(ExprVar ex) throws EchoError {
+	private EObject createObject(ExprVar ex) throws EError {
 		EClass ec = null;
 		PrimSig type = null;
 		try {
-			type = (PrimSig)ex.type().toExpr();
+			type = (PrimSig) ex.type().toExpr();
 			if (instancesigs.contains(type)) {
 				ec = (EClass) metamodel.getEClassifierFromSig(type.parent);
 			}
@@ -71,7 +72,7 @@ class Alloy2XMI {
 				if (ec == null)
 					ec = (EClass) metamodel.getEClassifierFromSig(type.parent);
 			}
-		} catch (Err e) { throw new ErrorAlloy(e.getMessage()); }
+		} catch (Err e) { throw new EErrorAlloy(EErrorAlloy.FAIL_TYPE,e.getMessage(),e,Task.TRANSLATE_MODEL); }
 
 		EObject obj = ec.getEPackage().getEFactoryInstance().create(ec);
 
@@ -96,24 +97,24 @@ class Alloy2XMI {
 						Expr e = mapAtoms.get(ts.iterator().next().atom(0));
 						EEnumLiteral lit = metamodel.getEEnumLiteralFromSig((PrimSig)e.type().toExpr());
 						obj.eSet(sf, lit);
-					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+					} catch (Err a) {throw new EErrorAlloy (EErrorAlloy.FAIL_EVAL,a.getMessage(),a,Task.TRANSLATE_MODEL);}
 
 				}
 				else if(att.getEType().getName().equals("EBoolean"))
 					try {
 						obj.eSet(sf,sol.eval(ex.in(field.join(state))));
-					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+					} catch (Err a) {throw new EErrorAlloy (EErrorAlloy.FAIL_EVAL,a.getMessage(),a,Task.TRANSLATE_MODEL);}
 				else if(att.getEType().getName().equals("EString")) {
 					try {
 						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						obj.eSet(sf, ts.iterator().next().atom(0));
-					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+					} catch (Err a) {throw new EErrorAlloy (EErrorAlloy.FAIL_EVAL,a.getMessage(),a,Task.TRANSLATE_MODEL);}
 				}
 				else if(att.getEType().getName().equals("EInt")) {
 					try {
 						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
 						obj.eSet(sf,Integer.parseInt(ts.iterator().next().atom(0)));
-					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+					} catch (Err a) {throw new EErrorAlloy (EErrorAlloy.FAIL_EVAL,a.getMessage(),a,Task.TRANSLATE_MODEL);}
 
 				}
 			}
@@ -123,7 +124,7 @@ class Alloy2XMI {
 				else {
 					try {
 						ts = (A4TupleSet) sol.eval(ex.join(field.join(state)));
-					} catch (Err a) {throw new ErrorAlloy (a.getMessage());}
+					} catch (Err a) {throw new EErrorAlloy (EErrorAlloy.FAIL_EVAL,a.getMessage(),a,Task.TRANSLATE_MODEL);}
 					if (ref.isMany())//ref.getUpperBound() == 1 )//&& ref.getLowerBound()==1)
 					{
 						itList = new BasicEList<EObject>();

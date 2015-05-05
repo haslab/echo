@@ -1,8 +1,8 @@
 package pt.uminho.haslab.mde.transformation;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EErrorUnsupported;
 import pt.uminho.haslab.mde.model.EPredicate;
 
 import java.util.List;
@@ -18,10 +18,10 @@ import java.util.List;
 public interface ERelation {
 
 	/** the parent transformation 
-	 * @throws ErrorParser 
-	 * @throws ErrorUnsupported 
-	 * @throws EchoError */
-	public ETransformation getTransformation() throws ErrorUnsupported, ErrorParser, EchoError;
+	 * @throws EErrorParser 
+	 * @throws EErrorUnsupported 
+	 * @throws EError */
+	public ETransformation getTransformation() throws EErrorUnsupported, EErrorParser, EError;
 
 	/** the relation name  */
 	public String getName();

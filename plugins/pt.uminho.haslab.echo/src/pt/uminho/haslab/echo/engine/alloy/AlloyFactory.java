@@ -1,8 +1,8 @@
 package pt.uminho.haslab.echo.engine.alloy;
 
-import pt.uminho.haslab.echo.EngineRunner;
-import pt.uminho.haslab.echo.engine.EchoTranslator;
-import pt.uminho.haslab.echo.engine.TransformFactory;
+import pt.uminho.haslab.echo.CoreRunner;
+import pt.uminho.haslab.echo.engine.CoreTranslator;
+import pt.uminho.haslab.echo.engine.CoreFactory;
 
 /**
  * Launches Alloy transformation and runner objects.
@@ -10,18 +10,21 @@ import pt.uminho.haslab.echo.engine.TransformFactory;
  * @author tmg
  * @version 0.4 20/02/2014
  */
-public class AlloyFactory implements TransformFactory {
+public class AlloyFactory implements CoreFactory {
 
 	/** {@inheritDoc} */
 	@Override
-    public EngineRunner createRunner() {
+    public CoreRunner createRunner() {
         return  new AlloyRunner();
     }
 
 	/** {@inheritDoc} */
 	@Override
-    public EchoTranslator createTranslator() {
-        return new AlloyEchoTranslator();
+    public CoreTranslator createTranslator() {
+        return new AlloyTranslator();
     }
 
+	public String toString() {
+		return "Alloy";
+	}
 }

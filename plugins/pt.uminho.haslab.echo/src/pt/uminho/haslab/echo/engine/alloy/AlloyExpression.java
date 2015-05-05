@@ -4,7 +4,7 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.ErrorInternalEngine;
+import pt.uminho.haslab.echo.EErrorCore;
 import pt.uminho.haslab.echo.engine.ast.IDecl;
 import pt.uminho.haslab.echo.engine.ast.IExpression;
 import pt.uminho.haslab.echo.engine.ast.IFormula;
@@ -103,11 +103,11 @@ class AlloyExpression implements IExpression{
 
 	/** {@inheritDoc} */
 	@Override
-	public IDecl oneOf(String name) throws ErrorInternalEngine {
+	public IDecl oneOf(String name) throws EErrorCore {
 		try {
 			return new AlloyDecl(EXPR.oneOf(name));
 		} catch (Err e) {
-			throw ErrorInternalEngine.thrownew("", "", e, Task.TRANSLATE_OCL);
+			throw EErrorCore.thrownew("", "", e, Task.TRANSLATE_OCL);
 		}
 	}
 

@@ -4,9 +4,9 @@ import org.eclipse.qvtd.pivot.qvtrelation.DomainPattern;
 import org.eclipse.qvtd.pivot.qvtrelation.RelationDomain;
 import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.model.EVariable;
 import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
@@ -24,15 +24,15 @@ public class EQVTModelDomain extends EModelDomain {
 	/** the parent QVT-R relation */
 	private EQVTRelation relation;
 
-	public EQVTModelDomain(ERelation relation, org.eclipse.qvtd.pivot.qvtbase.Domain domain) throws ErrorUnsupported {
+	public EQVTModelDomain(ERelation relation, org.eclipse.qvtd.pivot.qvtbase.Domain domain) throws EErrorUnsupported {
 		this.relation = (EQVTRelation) relation;
 		if (domain instanceof RelationDomain)
 			this.domain = (RelationDomain) domain;
-		else throw new ErrorUnsupported("Domain not a relation domain");
+		else throw new EErrorUnsupported(EErrorUnsupported.QVT,"Domain not a relation domain",Task.TRANSLATE_TRANSFORMATION);
 	}
 
 	@Override
-	public EQVTModelParameter getModel() throws EchoError {
+	public EQVTModelParameter getModel() throws EError {
 		return relation.getTransformation().getModelParameter(domain.getTypedModel().getName());
 	}
 

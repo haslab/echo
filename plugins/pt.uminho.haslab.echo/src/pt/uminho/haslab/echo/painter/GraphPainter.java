@@ -6,7 +6,7 @@ import edu.mit.csail.sdg.alloy4viz.*;
 
 import org.eclipse.emf.ecore.*;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
@@ -31,9 +31,9 @@ public class GraphPainter {
 	
 	/**
 	 * Generates the Alloy theme for a Viz instance
-	 * @throws EchoError 
+	 * @throws EError 
 	 */
-	public void generateTheme() throws EchoError {
+	public void generateTheme() throws EError {
 		//vizstate = new VizState(vizstate.getOriginalInstance());
 		List<DotShape> availableshapes = new ArrayList<DotShape>();
 		availableshapes.add(DotShape.BOX);

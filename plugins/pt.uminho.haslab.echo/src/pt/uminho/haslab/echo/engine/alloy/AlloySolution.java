@@ -11,7 +11,7 @@ import java.util.Map;
  * @author tmg
  * @version 0.4 10/25/2013
  */
-class AlloySolution {
+public class AlloySolution {
 
     private A4Solution sol;
     private Map<String,Sig.PrimSig> state;

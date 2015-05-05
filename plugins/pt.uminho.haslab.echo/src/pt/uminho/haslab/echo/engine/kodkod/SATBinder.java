@@ -17,37 +17,32 @@ import java.util.Set;
  */
 class SATBinder extends AbstractBinder implements Binder {
 
-	SATBinder(EKodkodModel x2k)
-    {
+	SATBinder(KodkodModel model) {
         Set<Object> uni = numberCollection();
-        uni.addAll(x2k.getUniverse());
+        uni.addAll(model.getUniverse());
         universe = new Universe(uni);
         bounds = new Bounds(universe);
         factory = universe.factory();
-        initNumbers();
-        makeStringBounds(x2k);
-        makeBounds(x2k);
+        bindInts();
+        Set<KodkodModel> models = new HashSet<KodkodModel>();
+        models.add(model);
+        bindStrings(models);
+        makeBounds(model);
     }
 
-
-
-
-    SATBinder(Set<EKodkodModel> models, Map<Relation, Pair<Set<Relation>, Set<Relation>>> extraRels)
-    {
+    SATBinder(Set<KodkodModel> models, Map<Relation, Pair<Set<Relation>, Set<Relation>>> extraRels) {
         Set<Object> uni = numberCollection();
-        for(EKodkodModel x2k : models){
+        for(KodkodModel x2k : models){
             uni.addAll(x2k.getUniverse());
         }
 
         universe = new Universe(uni);
         bounds = new Bounds(universe);
         factory = universe.factory();
-        initNumbers();
-        makeStringBounds(models);
-        for(EKodkodModel x2k :models)
+        bindInts();
+        bindStrings(models);
+        for(KodkodModel x2k :models)
             makeBounds(x2k);
-
-
 
         for(Relation r: extraRels.keySet()){
 
@@ -67,7 +62,7 @@ class SATBinder extends AbstractBinder implements Binder {
 
 
 
-    private void makeBounds (EKodkodModel x2k)
+    private void makeBounds (KodkodModel x2k)
     {
         Map<Relation,Set<Object>> map = x2k.getBounds();
 

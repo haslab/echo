@@ -23,10 +23,10 @@ class Kodkod2XMI {
 
     private EObject root;
     private Map<Relation,TupleSet> mapTuples;
-    private EKodkodMetamodel e2k;
+    private KodkodMetamodel e2k;
     private HashMap<Object,EObject> objects;
 
-    Kodkod2XMI(Instance ins, EObject root, EKodkodMetamodel e2k){
+    Kodkod2XMI(Instance ins, EObject root, KodkodMetamodel e2k){
 
         
         this.mapTuples = ins.relationTuples();

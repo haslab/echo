@@ -8,6 +8,7 @@ import org.eclipse.qvtd.pivot.qvttemplate.ObjectTemplateExp;
 import org.eclipse.qvtd.pivot.qvttemplate.PropertyTemplateItem;
 
 import pt.uminho.haslab.echo.*;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.ast.*;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Translates EMF OCL expressions into engine representation.
+ * Translates EMF OCL expressions into its engine representation.
  * 
  * @author nmm, tmg
  * @version 0.4 14/02/2014
@@ -34,14 +35,14 @@ public class OCLTranslator {
 		this.context = context;
 	}
 
-	public INode translate(OCLExpression expr) throws EchoError {
+	public INode translate(OCLExpression expr) throws EError {
 		if (expr instanceof ObjectTemplateExp)
 			return translateFormula((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp)
 			return translateFormula((BooleanLiteralExp) expr);
 		else if (expr instanceof VariableExp)
 			return translateExpression((VariableExp) expr);
-		 else if (expr instanceof RelationCallExp) 
+    	else if (expr instanceof RelationCallExp) 
 			 return translateFormula((RelationCallExp) expr);
 		else if (expr instanceof IteratorExp)
 			return translate((IteratorExp) expr);
@@ -58,11 +59,11 @@ public class OCLTranslator {
 		else if (expr instanceof TypeExp)
 			return translateExpression((TypeExp) expr);
 		else
-			throw new ErrorUnsupported("OCL expression not supported: " + expr
-					+ ".");
+			throw new EErrorUnsupported(EErrorUnsupported.OCL,"OCL expression not supported: " + expr
+					+ ".",Task.TRANSLATE_OCL);
 	}
 
-	public IFormula translateFormula(OCLExpression expr) throws EchoError {
+	public IFormula translateFormula(OCLExpression expr) throws EError {
 		if (expr instanceof ObjectTemplateExp)
 			return translateFormula((ObjectTemplateExp) expr);
 		else if (expr instanceof BooleanLiteralExp)
@@ -89,10 +90,10 @@ public class OCLTranslator {
 			if (n instanceof IFormula)
 				return (IFormula) n;
 		}
-		throw new EchoTypeError("Formula: "+expr.getClass());
+		throw new EErrorType(EErrorType.FORM,"Formula: "+expr.getClass(),Task.TRANSLATE_OCL);
 	}
 
-	public IExpression translateExpression(OCLExpression expr) throws EchoError {
+	public IExpression translateExpression(OCLExpression expr) throws EError {
 		if (expr instanceof TypeExp)
 			return translateExpression((TypeExp) expr);
 		else if (expr instanceof VariableExp)
@@ -118,10 +119,10 @@ public class OCLTranslator {
 				return (IExpression) n;
 		}
 
-		throw new EchoTypeError("Expression: "+expr.getClass());
+		throw new EErrorType(EErrorType.EXPR,"Expression: "+expr.getClass(),Task.TRANSLATE_OCL);
 	}
 
-	public IIntExpression translateInteger(OCLExpression expr) throws EchoError {
+	public IIntExpression translateInteger(OCLExpression expr) throws EError {
 		if (expr instanceof UnlimitedNaturalLiteralExp)
 			return translateInteger((UnlimitedNaturalLiteralExp) expr);
 
@@ -131,7 +132,7 @@ public class OCLTranslator {
 				return (IIntExpression) n;
 		}
 
-		throw new EchoTypeError("IntExpression");
+		throw new EErrorType(EErrorType.INT,"IntExpression",Task.TRANSLATE_OCL);
 
 	}
 
@@ -149,21 +150,21 @@ public class OCLTranslator {
 	}
 
 	private IIntExpression translateInteger(UnlimitedNaturalLiteralExp expr)
-			throws EchoError {
+			throws EError {
 		Number n = expr.getUnlimitedNaturalSymbol();
 
 		if (n.toString().equals("*"))
-			throw new ErrorTransform("No support for unlimited integers.");
+			throw new EErrorTransform(EErrorTransform.BITWIDTH,"No support for unlimited integers.",Task.TRANSLATE_OCL);
 		Integer bitwidth = EchoOptionsSetup.getInstance().getBitwidth();
 		Integer max = (int) (Math.pow(2, bitwidth) / 2);
 		if (n.intValue() >= max || n.intValue() < -max)
-			throw new ErrorTransform("Bitwidth not enough to represent: " + n
-					+ ".");
+			throw new EErrorTransform(EErrorTransform.BITWIDTH,"Bitwidth not enough to represent: " + n
+					+ ".",Task.TRANSLATE_OCL);
 
 		return Constants.makeNumber(n.intValue());
 	}
 
-	private IFormula translateFormula(ObjectTemplateExp temp) throws EchoError {
+	private IFormula translateFormula(ObjectTemplateExp temp) throws EError {
 		IFormula result = Constants.TRUE();
 		
 		for (PropertyTemplateItem part : temp.getPart()) {
@@ -178,8 +179,8 @@ public class OCLTranslator {
 			IExpression var = context.getVar(varName);
 
 			if (var == null)
-				throw new ErrorTransform("Variable not declared: "
-						+ temp.getBindsTo());
+				throw new EErrorTransform(EErrorTransform.VAR_DECL,"Variable not declared: "
+						+ temp.getBindsTo(),Task.TRANSLATE_OCL);
 
 			context.setCurrentModel(context.getVarModel(varName));
 			EchoReporter.getInstance().debug("Template "+varName+" so model "+context.getVarModel(varName));
@@ -194,8 +195,8 @@ public class OCLTranslator {
 				varName = ((ObjectTemplateExp) value).getBindsTo().getName();
 				IExpression var1 = context.getVar(varName);
 				if (var1 == null)
-					throw new ErrorTransform("Variable not declared: "
-							+ ((ObjectTemplateExp) value).getBindsTo());
+					throw new EErrorTransform(EErrorTransform.VAR_DECL,"Variable not declared: "
+							+ ((ObjectTemplateExp) value).getBindsTo(),Task.TRANSLATE_OCL);
 
 				item = var1.in(var.join(localField));
 				item = item.and((IFormula) ocl);
@@ -220,7 +221,7 @@ public class OCLTranslator {
 		return result;
 	}
 
-	private INode translate(IfExp expr) throws EchoError {
+	private INode translate(IfExp expr) throws EError {
 		IFormula eif = translateFormula(expr.getCondition());
 		INode thenExpr = translate(expr.getThenExpression());
 		INode elseExpr = translate(expr.getElseExpression());
@@ -230,10 +231,10 @@ public class OCLTranslator {
 		else if (thenExpr instanceof IFormula && elseExpr instanceof IFormula)
 			return (IFormula) eif.thenElse((IFormula) thenExpr,(IFormula) elseExpr);
 
-		throw new EchoTypeError("Expression: "+expr.getClass());
+		throw new EErrorType(EErrorType.EXPR,"Expression: "+expr.getClass(),Task.TRANSLATE_OCL);
 	}
 
-	private INode translate(PropertyCallExp expr) throws EchoError {
+	private INode translate(PropertyCallExp expr) throws EError {
 		context.setCurrentModel(null);
 		context.setCurrentPre(expr.isPre());
 		INode res = null;
@@ -248,7 +249,7 @@ public class OCLTranslator {
 		return res;
 	}
 
-	private IExpression translateExpression(TypeExp expr) throws EchoError {
+	private IExpression translateExpression(TypeExp expr) throws EError {
 		String metaModelUri = EcoreUtil.getURI(
 				expr.getReferredType().getPackage().getEPackage()).path();
 		EMetamodel metaModel = MDEManager.getInstance().getMetamodel(
@@ -257,13 +258,13 @@ public class OCLTranslator {
 				.getName());
 	}
 
-	public INode translate(IteratorExp expr) throws EchoError {
+	public INode translate(IteratorExp expr) throws EError {
 		INode res;
 
 		List<Variable> varIterator = expr.getIterator();
 		if (varIterator.size() != 1)
-			throw new ErrorUnsupported("Invalid variables on closure: "
-					+ varIterator);
+			throw new EErrorUnsupported(EErrorUnsupported.MULTIPLE_QUANTIFIER,"Invalid variables on closure: "
+					+ varIterator,Task.TRANSLATE_OCL);
 		EVariable x = EVariable.getVariable(varIterator.get(0));
 
 		IDecl d = context.getDecl(x, true);
@@ -316,14 +317,14 @@ public class OCLTranslator {
 			res = Constants.TRUE().comprehension(d, dd);
 			res = src.join(((IExpression) res).closure());
 		} else
-			throw new ErrorUnsupported("OCL iterator not supported: "
-					+ expr.getReferredIteration() + ".");
+			throw new EErrorUnsupported(EErrorUnsupported.OCL,"OCL iterator not supported: "
+					+ expr.getReferredIteration() + ".",Task.TRANSLATE_OCL);
 		context.remove(d.name());
 
 		return res;
 	}
 
-	INode translate(OperationCallExp expr) throws EchoError {
+	INode translate(OperationCallExp expr) throws EError {
 		INode res;
 		context.setCurrentPre(expr.isPre());
 		INode src = translate(expr.getSource());
@@ -436,8 +437,8 @@ public class OCLTranslator {
 			if (container == null
 					|| !((IteratorExp) container).getReferredIteration()
 							.getName().equals("one"))
-				throw new ErrorTransform(
-						"oclIsNew may only occur in a \"one\" iteration");
+				throw new EErrorTransform(EErrorTransform.OCLISNEW,
+						"oclIsNew may only occur in a \"one\" iteration",Task.TRANSLATE_OCL);
 
 			VariableExp var = (VariableExp) expr.getSource();
 			String cl = var.getType().getName();
@@ -466,15 +467,15 @@ public class OCLTranslator {
 		}
 
 		else
-			throw new ErrorUnsupported("OCL operation not supported: "
-					+ expr.toString() + ".");
+			throw new EErrorUnsupported(EErrorUnsupported.OCL,"OCL operation not supported: "
+					+ expr.toString() + ".",Task.TRANSLATE_OCL);
 
 		context.setCurrentPre(false);
 
 		return res;
 	}
 
-	IFormula translateFormula(RelationCallExp expr) throws EchoError {
+	IFormula translateFormula(RelationCallExp expr) throws EError {
 		EQVTRelation rel = new EQVTRelation(expr.getReferredRelation());
 		
 		// translates variable parameters
@@ -503,7 +504,7 @@ public class OCLTranslator {
 		return news;
 	}
 
-	public IFormula translateExpressions(List<? extends EObject> lex) throws EchoError {
+	public IFormula translateExpressions(List<? extends EObject> lex) throws EError {
 
 		IFormula expr = Constants.TRUE();
 
@@ -520,11 +521,11 @@ public class OCLTranslator {
 	 * @param x
 	 * @param y
 	 * @return
-	 * @throws ErrorTransform
-	 * @throws ErrorUnsupported
+	 * @throws EErrorTransform
+	 * @throws EErrorUnsupported
 	 */
 	protected IFormula closure2Reflexive(OCLExpression x, OCLExpression y)
-			throws EchoError {
+			throws EError {
 		IFormula res = Constants.TRUE();
 		IExpression exp;
 		OperationCallExp a = null, b = null;
@@ -558,7 +559,7 @@ public class OCLTranslator {
 						.getReferredVariable().equals(b1.getReferredVariable()))) {
 
 			if (it.getIterator().size() > 1)
-				throw new ErrorUnsupported("Unsupported number of variables.");
+				throw new EErrorUnsupported(EErrorUnsupported.OCL,"Unsupported number of variables.",Task.TRANSLATE_OCL);
 			
 			IDecl d = context.getDecl(EVariable.getVariable(it.getIterator().get(0)), true);
 			IExpression bdy = translateExpression(it.getBody());
@@ -576,7 +577,7 @@ public class OCLTranslator {
 	}
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
-	protected IExpression propertyToField(Property prop) throws EchoError {
+	protected IExpression propertyToField(Property prop) throws EError {
 		String metamodeluri = EcoreUtil
 				.getURI(prop.getOwningType().getPackage().getEPackage()).path()
 				.replace("/resource", "");

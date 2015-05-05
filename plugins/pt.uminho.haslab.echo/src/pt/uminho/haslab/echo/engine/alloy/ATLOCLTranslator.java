@@ -7,14 +7,14 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.ocl.examples.pivot.IteratorExp;
 
-import pt.uminho.haslab.echo.EchoError;
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoReporter;
-import pt.uminho.haslab.echo.EchoTypeError;
-import pt.uminho.haslab.echo.ErrorTransform;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EErrorType;
+import pt.uminho.haslab.echo.EErrorTransform;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.echo.engine.EchoHelper;
 import pt.uminho.haslab.echo.engine.ITContext;
 import pt.uminho.haslab.echo.engine.ast.Constants;
@@ -40,7 +40,7 @@ public class ATLOCLTranslator {
 		this.context = context;
 	}
 
-	public INode translateAtlOcl(EObject expr) throws EchoError {
+	public INode translateAtlOcl(EObject expr) throws EError {
 		if (expr.eClass().getName().equals("OperatorCallExp") || 
 				expr.eClass().getName().equals("OperationCallExp") ||
 				expr.eClass().getName().equals("CollectionOperationCallExp")) {
@@ -59,11 +59,11 @@ public class ATLOCLTranslator {
 		} else if (expr.eClass().getName().equals("IteratorExp")) {
 			return translateAtlOclIterator(expr);
 		} else
-			throw new ErrorUnsupported("OCL expression not supported: " + expr
-					+ ".");
+			throw new EErrorUnsupported(EErrorUnsupported.OCL,"OCL expression not supported: " + expr
+					+ ".",Task.TRANSLATE_OCL);
 	}
 
-	private INode translateAtlOclIf(EObject expr) throws EchoError {
+	private INode translateAtlOclIf(EObject expr) throws EError {
 		EStructuralFeature x = expr.eClass().getEStructuralFeature("condition");
 		IFormula eif = (IFormula) translateAtlOcl((EObject) expr.eGet(x));
 		x = expr.eClass().getEStructuralFeature("thenExpression");
@@ -76,7 +76,7 @@ public class ATLOCLTranslator {
 		else if (thenExpr instanceof IFormula && elseExpr instanceof IFormula)
 			return (IFormula) eif.thenElse((IFormula) thenExpr,(IFormula) elseExpr);
 		
-		throw new EchoTypeError("Expression: "+expr.getClass());
+		throw new EErrorType(EErrorType.EXPR,"Expression: "+expr.getClass(),Task.TRANSLATE_OCL);
 	}
 
 	IExpression translateAtlOclVariable(EObject expr) {
@@ -101,7 +101,7 @@ public class ATLOCLTranslator {
 			return Constants.FALSE();
 	}
 
-	INode translateAtlOclAttribute(EObject expr) throws EchoError {
+	INode translateAtlOclAttribute(EObject expr) throws EError {
 		INode res = null;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
 				"source");
@@ -135,7 +135,7 @@ public class ATLOCLTranslator {
 		return res;
 	}
 
-	INode translateAtlOclBinding(EObject expr) throws EchoError {
+	INode translateAtlOclBinding(EObject expr) throws EError {
 		INode res = null;
 
 		EStructuralFeature value = expr.eClass().getEStructuralFeature("value");
@@ -188,7 +188,7 @@ public class ATLOCLTranslator {
 		return res;
 	}
 
-	INode translateAtlOclOperationCall(EObject expr) throws EchoError {
+	INode translateAtlOclOperationCall(EObject expr) throws EError {
 		INode res = null;
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
 				"source");
@@ -318,13 +318,13 @@ public class ATLOCLTranslator {
 			EchoReporter.getInstance().debug("Call rule result: "+res);
 		}
 		else
-			throw new ErrorUnsupported("OCL operation not supported: "
-					+ expr.toString() + ".");
+			throw new EErrorUnsupported(EErrorUnsupported.OCL,"OCL operation not supported: "
+					+ expr.toString() + ".",Task.TRANSLATE_OCL);
 
 		return res;
 	}
 	
-	INode translateAtlOclIterator(EObject expr) throws EchoError {
+	INode translateAtlOclIterator(EObject expr) throws EError {
 		INode res = null;
 		
 		EStructuralFeature source = expr.eClass().getEStructuralFeature(
@@ -397,8 +397,8 @@ public class ATLOCLTranslator {
 			res = Constants.TRUE().comprehension(d, dd);
 			res = src.join(((IExpression) res).closure());
 		} else
-			throw new ErrorUnsupported("OCL iterator not supported: "
-					+ operatorname + ".");
+			throw new EErrorUnsupported(EErrorUnsupported.OCL,"OCL iterator not supported: "
+					+ operatorname + ".",Task.TRANSLATE_OCL);
 		context.remove(d.name());
 	
 		return res;
@@ -406,7 +406,7 @@ public class ATLOCLTranslator {
 
 	// retrieves the Alloy field corresponding to an OCL property (attribute)
 	IExpression propertyToField(String propn, IExpression var)
-			throws ErrorTransform {
+			throws EErrorTransform {
 		IExpression exp = null;
 		String metamodelID = null;
 		String varsig = null;
@@ -442,7 +442,7 @@ public class ATLOCLTranslator {
 		return exp;
 	}
 
-	public IFormula translateExpressions(List<EObject> lex) throws EchoError {
+	public IFormula translateExpressions(List<EObject> lex) throws EError {
 		IFormula expr = Constants.TRUE();
 		for (Object ex : lex) {
 			expr = expr.and((IFormula) translateAtlOcl((EObject) ex));

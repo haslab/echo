@@ -5,29 +5,34 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.qvtd.pivot.qvtrelation.RelationalTransformation;
-
+import pt.uminho.haslab.echo.EErrorParser;
+import pt.uminho.haslab.echo.EException;
 import pt.uminho.haslab.echo.EchoOptionsSetup;
 import pt.uminho.haslab.echo.EchoRunner;
-import pt.uminho.haslab.echo.EchoRunner.Task;
-import pt.uminho.haslab.echo.alloy.AlloyTuple;
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.EngineFactory;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.mde.emf.EMFParser;
+import pt.uminho.haslab.echo.EchoSolution;
+import pt.uminho.haslab.mde.MDEManager;
+import pt.uminho.haslab.mde.model.EMetamodel;
+import pt.uminho.haslab.mde.model.EModel;
+import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
+import pt.uminho.haslab.mde.transformation.ETransformation;
 import edu.mit.csail.sdg.alloy4.Err;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4viz.VizGUI;
 
+/**
+ * Runs Echo through the command-line.
+ * 
+ * @author nmm
+ * @version 0.4 23/03/2015
+ */
 public class CLIMain {
 
-	public static void main(String[] args) throws IOException, Err, EchoError {	
+	public static void main(String[] args) throws IOException, EException, Err {	
 	
 		CLIOptions options = null;
 		
@@ -37,7 +42,7 @@ public class CLIMain {
 				options.printHelp();
 				return;
 			}
-		} catch (ErrorParser e) { 
+		} catch (EErrorParser e) { 
 			System.out.println(e.getMessage());
 			String[] a = {"--help"};
 			options = new CLIOptions(a);
@@ -47,68 +52,71 @@ public class CLIMain {
 		
 		CLIReporter reporter = new CLIReporter();
 		EchoOptionsSetup.init(options);
-
-		reporter.beginStage(Task.ECHO_RUN);
-		EMFParser parser = EMFParser.getInstance();
-		EchoRunner runner = new EchoRunner(EngineFactory.ALLOY);
-
-		reporter.beginStage(Task.PROCESS_RESOURCES);		
-		for (String metamodeluri : options.getMetamodels()){
-			EPackage metamodel = parser.loadMetamodel(metamodeluri);
-			runner.addMetaModel(metamodel);
-			reporter.debug(metamodeluri + " loaded.");
+		
+		EchoRunner runner = new EchoRunner();
+		MDEManager parser = MDEManager.getInstance();
+		
+		for (String metamodelURI : options.getMetamodels()){
+			EMetamodel metamodel = parser.getMetamodel(metamodelURI, true);
+			runner.addMetamodel(metamodel);
 		}
+		
+		List<String> modelIDs = new ArrayList<String>();
+		for (String modelURI : options.getModels()) {
+			EModel model = null;
+			if (modelURI.equals(options.getDirection())&&(options.isGenerate()||options.isBatch())) {
+				EMetamodel metamodel = MDEManager.getInstance().getMetamodel(options.getMetamodels()[0], false);
+				model = MDEManager.getInstance().createEmpty(metamodel.ID,options.getDirection(), "");
+			}
+			else {
+				model = parser.getModel(modelURI, true);
+			}
+			modelIDs.add(model.ID);
+			runner.addModel(model);		
+		}	
+		
+		EConstraint cons = null;
 		if (options.isQVT()){
-			RelationalTransformation qvt = parser.loadQVT(options.getQVTURI());
-			runner.addTransformation(qvt);
+			ETransformation tran = parser.getETransformation(options.getQVTURI(),true);
+			runner.addTransformation(tran);
+			cons = runner.addConstraint(tran.ID, modelIDs);
 			reporter.debug(options.getQVTURI() + " loaded.");
 		}
-		for (String modeluri : options.getModels()){
-			EObject model = parser.loadModel(modeluri);
-			runner.addModel(model);
-			reporter.debug(modeluri + " loaded.");
-		}
-		reporter.result(Task.PROCESS_RESOURCES,true);
-		//reporter.debug(reporter.printModel());
 		
 		boolean conforms = true;
 		boolean success = false;
 		if (options.isConformance()) {
-			reporter.beginStage(Task.CONFORMS_TASK);
-			conforms = runner.conforms(Arrays.asList(options.getModels()));
-			reporter.result(Task.CONFORMS_TASK,conforms);
-		} else if (options.isGenerate()) {
-			reporter.beginStage(Task.GENERATE_TASK);
-			runner.generate(options.getMetamodels()[0],options.getScopes());
-			reporter.result(Task.GENERATE_TASK,success);
-		} else if (options.isRepair()) {
-			reporter.beginStage(Task.REPAIR_TASK);
-			runner.repair(options.getDirection());
-			reporter.result(Task.REPAIR_TASK,success);
+			conforms = runner.conforms(modelIDs);
+		} 
+		else if (options.isGenerate()) {
+			EModel m = parser.getModel(options.getDirection(), false);
+			success = runner.generate(options.getScopes(m.getMetamodel().ID),m.ID);
+		} 
+		else if (options.isRepair()) {
+			EModel m = parser.getModel(options.getDirection(), false);
+			success = runner.repair(m.ID);
 		}
-		if (options.isCheck() && conforms) {
-			reporter.beginStage(Task.CHECK_TASK);
-			success = runner.check(options.getQVTURI(),Arrays.asList(options.getModels()));
-			reporter.result(Task.CHECK_TASK,success);
-		} else if (options.isEnforce() && conforms) {
-			reporter.beginStage(Task.ENFORCE_TASK);
-			/*if (options.isNew())
-				success = echo.enforcenew(options.getQVTPath(),Arrays.asList(options.getInstances()),options.getDirection());
-			else*/ 
-			success = runner.enforce(options.getQVTURI(),Arrays.asList(options.getModels()),options.getDirection());
-			reporter.result(Task.ENFORCE_TASK,success);
+		else if (options.isCheck()) {
+			success = runner.check(cons.ID);
+		} 
+		else if (options.isEnforce() && conforms) {
+			EModel m = parser.getModel(options.getDirection(), false);
+			success = runner.enforce(cons.ID,Arrays.asList(m.ID));
+		}
+		else if (options.isBatch()) {
+			EModel m = parser.getModel(options.getDirection(), false);
+			success = runner.batch(options.getScopes(m.getMetamodel().ID),Arrays.asList(m.ID),cons.ID);
 		}
 		String next = "n";
-
-		if ((options.isEnforce() || options.isGenerate() || options.isRepair()) && success) {
+		EchoSolution esol = runner.getAInstance();
+		if ((options.isEnforce() || options.isGenerate() || options.isRepair() || options.isBatch()) && success) {
 			/*if (options.isEnforce() && !options.isNew()) {
 				String sb = runner.backUpInstance(options.getDirection());
 				printer.print("Backup file created: " + sb);	
 			}*/
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
 			next = "y";
-			A4Solution sol = ((AlloyTuple) runner.getAInstance().getContents()).getSolution();
-			sol.writeXML("alloy_output.xml");
+			esol.writeXML("alloy_output.xml");
 			VizGUI viz = new VizGUI(true, "alloy_output.xml",null, null, null, true);
 			Window win = SwingUtilities.getWindowAncestor(viz.getPanel());
 			win.setVisible(true);
@@ -120,16 +128,17 @@ public class CLIMain {
 			next = in.readLine();
 			while (next.equals("y")) {
 				runner.next();
-				sol = ((AlloyTuple) runner.getAInstance().getContents()).getSolution();
-				sol.writeXML("alloy_output.xml");
+				esol = runner.getAInstance();
+				esol.writeXML("alloy_output.xml");
 				viz.loadXML("alloy_output.xml", true);
 				reporter.askUser("Search another instance? (y)");
 				next = in.readLine();
 			}  
 			in.close();
-			if (options.isGenerate())
-				for (String uri : options.getMetamodels())
-					runner.writeAllInstances(uri,"new.xmi");	
+			if (options.isGenerate()) {
+				EModel newm = MDEManager.getInstance().getModel(options.getDirection(), false);
+				runner.writeInstance(newm.ID);
+			}
 			else if(options.isRepair()&&options.isOverwrite())
 				runner.writeInstance(options.getDirection());	
 			else if(options.isEnforce()&&options.isOverwrite())
@@ -137,7 +146,6 @@ public class CLIMain {
 			SwingUtilities.getWindowAncestor(viz.getPanel()).dispose();
 			new File("alloy_output.xml").delete();
 		}
-		reporter.result(Task.ECHO_RUN,next.equals("y"));
 	}
 
 	

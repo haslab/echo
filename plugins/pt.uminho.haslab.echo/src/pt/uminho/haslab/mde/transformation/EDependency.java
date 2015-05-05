@@ -1,6 +1,6 @@
 package pt.uminho.haslab.mde.transformation;
 
-import pt.uminho.haslab.echo.ErrorParser;
+import pt.uminho.haslab.echo.EErrorParser;
 import pt.uminho.haslab.mde.transformation.EConstraintManager.EConstraint;
 
 import java.util.List;
@@ -26,9 +26,9 @@ public class EDependency {
 	 * Owning relation should be the same for all.
 	 * @param target
 	 * @param sources
-	 * @throws ErrorParser
+	 * @throws EErrorParser
 	 */
-	public EDependency(EModelDomain target, List<EModelDomain> sources, EConstraint constraint) throws ErrorParser {
+	public EDependency(EModelDomain target, List<EModelDomain> sources, EConstraint constraint) throws EErrorParser {
 		//if (!constraint.transformation.getRelations().contains(target.getRelation()))
 		//	throw new ErrorParser(ErrorParser.CONSTRAINT,"Error creating dependency.","Constraint relation does not mais model domains.", Task.TRANSLATE_TRANSFORMATION);
 		this.constraint = constraint;

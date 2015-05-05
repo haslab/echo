@@ -2,7 +2,8 @@ package pt.uminho.haslab.mde.transformation.qvt;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.qvtd.pivot.qvtbase.TypedModel;
-import pt.uminho.haslab.echo.EchoError;
+
+import pt.uminho.haslab.echo.EError;
 import pt.uminho.haslab.mde.MDEManager;
 import pt.uminho.haslab.mde.model.EMetamodel;
 import pt.uminho.haslab.mde.transformation.EModelParameter;
@@ -26,10 +27,11 @@ public class EQVTModelParameter extends EModelParameter {
 	 */
 	public EQVTModelParameter(TypedModel modelParam) {
 		this.modelParam = modelParam;
+		
 		String metamodelURI = EcoreUtil.getURI(modelParam.getUsedPackage().get(0).getEPackage()).path().replace("/resource", "");
 		try {
 			metamodel = MDEManager.getInstance().getMetamodel(metamodelURI, false);
-		} catch (EchoError e) {
+		} catch (EError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

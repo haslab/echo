@@ -1,20 +1,18 @@
 package pt.uminho.haslab.mde.transformation.qvt;
 
-import org.eclipse.core.runtime.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.qvtd.pivot.qvtbase.Pattern;
 import org.eclipse.qvtd.pivot.qvtbase.Predicate;
 import org.eclipse.qvtd.pivot.qvtbase.Rule;
 
-import pt.uminho.haslab.echo.EchoError;
-import pt.uminho.haslab.echo.ErrorParser;
-import pt.uminho.haslab.echo.ErrorUnsupported;
+import pt.uminho.haslab.echo.EError;
+import pt.uminho.haslab.echo.EErrorUnsupported;
+import pt.uminho.haslab.echo.EchoRunner.Task;
 import pt.uminho.haslab.mde.MDEManager;
-import pt.uminho.haslab.mde.transformation.EModelDomain;
 import pt.uminho.haslab.mde.transformation.ERelation;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An embedding of an EMF QVT-R relation in Echo.
@@ -32,12 +30,12 @@ public class EQVTRelation implements ERelation {
 	/**
 	 * Processes an EMF QVT-R relation.
 	 * @param rule the original EMF relation
-	 * @throws ErrorUnsupported
+	 * @throws EErrorUnsupported
 	 */
-	public EQVTRelation(Rule rule) throws ErrorUnsupported {
+	public EQVTRelation(Rule rule) throws EErrorUnsupported {
 		if (rule instanceof org.eclipse.qvtd.pivot.qvtrelation.Relation)
 			this.relation = (org.eclipse.qvtd.pivot.qvtrelation.Relation) rule;
-		else throw new ErrorUnsupported("Rule not a relation");
+		else throw new EErrorUnsupported(EErrorUnsupported.QVT,"Rule not a relation",Task.TRANSLATE_TRANSFORMATION);
 		for (org.eclipse.qvtd.pivot.qvtbase.Domain dom : relation.getDomain())
 			domains.add(new EQVTModelDomain(this,dom));
 	}
@@ -49,11 +47,10 @@ public class EQVTRelation implements ERelation {
 	}
 
 	/** {@inheritDoc} 
-	 * @throws EchoError */
+	 * @throws EError */
 	@Override
-	public EQVTTransformation getTransformation() throws EchoError {
-		Path path = new Path(EcoreUtil.getURI(relation.getTransformation()).path());
-		return (EQVTTransformation) MDEManager.getInstance().getETransformation(path, false);
+	public EQVTTransformation getTransformation() throws EError {
+		return (EQVTTransformation) MDEManager.getInstance().getETransformation(EcoreUtil.getURI(relation.getTransformation()).path(), false);
 	}
 
 	/** {@inheritDoc} */
