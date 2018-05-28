@@ -5,7 +5,7 @@ It is able to both check and recover, through minimal updates, both intra- and i
 
 ## Features
 
-Echo is meta-model independent, being able to process any meta-model specified in ECore and its respective instances in XMI. Additional constraints, as well as operations, are specified by embedding OCL in annotations, as prescribed by EMF. Inter-model consistency is specified by the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) transformation language.
+Echo is meta-model independent, being able to process any meta-model specified in ECore and its respective instances in XMI. Additional constraints, as well as operations, are specified by embedding OCL in annotations, as prescribed by EMF. Inter-model consistency is specified by the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) or [ATL](http://www.eclipse.org/atl/) transformation languages.
 
 Over these constraints and models, Echo possesses the following features.
 
@@ -14,22 +14,22 @@ Over these constraints and models, Echo possesses the following features.
   <dd>Models are presented using the Alloy visualizer. For better readability, an Alloy theme is automatically inferred from the meta-model, although an user-defined theme can also be provided if desired.</dd>
 
   <dt>Model generation</dt>
-  <dd>Given a meta-model and user-specified size, Echo can generate a new model conformant with the metamodel. Additional constraints can also be specified to generate instances with a parametrized shape.</dd>
+  <dd>Given a meta-model and user-specified size, Echo can generate a new model conformant with the metamodel. Additional OCL constraints can also be specified to generate instances with a parametrized shape.</dd>
 
   <dt>Consistency check</dt>
-  <dd>Given a model, Echo can check if it conforms to the respective meta-model.</dd>
+  <dd>Given a model, Echo can check if it conforms to the respective meta-model annotated with OCL constraints.</dd>
 
   <dt>Model repair</dt>
-  <dd>Given a model that does not conform to its meta-model, Echo can find a minimal repair that produces a consistent model.</dd>
+  <dd>Given a model that does not conform to its OCL-annotated meta-model, Echo can find a minimal repair that produces a consistent model.</dd>
 
   <dt>Inter-model consistency check</dt>
-  <dd>Given a QVT-R transformation and two models that are supposed to be consistent via it, Echo can check if such is the case. The checking semantics follows exactly the specified in the QVT standard.</dd>
+  <dd>Given a QVT-R or ATL transformation and a set of models that are supposed to be consistent via it, Echo can check if such is the case. </dd>
 
   <dt>Inter-model consistency repair</dt>
-  <dd>QVT-R specifications are interpreted as bidirectional transformations, thus, given inconsistent models, Echo is able to repair either one to recover consistency.</dd>
+  <dd>QVT-R or ATL transformation are interpreted as bidirectional transformations, so that given inconsistent models, Echo is able to repair them in order to recover consistency.</dd>
 
-  <dt>Inter-model generation</dt>
-  <dd>Given a QVT-R transformation and an existing model, Echo can generate the minimal model consistent with existing model by the QVT-R transformation.</dd>
+  <dt>Batch transformation</dt>
+  <dd>Given a QVT-R or ATL transformation and existing models, Echo can generate the minimal model consistent with the existing models by the specified transformation.</dd>
 </dl>
 
 For all generation and repair procedures, Echo presents *all* valid solutions, allowing the user to select the desired one.
