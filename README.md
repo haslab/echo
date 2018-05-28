@@ -99,7 +99,6 @@ java -jar -t -m <models>... -i <instances>...
 ```
 -->
 
-
 ## Examples
 
 Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains ECore meta-models and QVT-R implementations of some typical bidirectional transformations, as well some example XMI model instances. Alternatively, download this [archive](http://haslab.github.io/echo/downloads/echo-0.3.0_examples.zip) containing the same examples.
@@ -109,17 +108,19 @@ Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains E
 ([read more](https://github.com/haslab/echo/wiki/Examples))
 
 ## Publications
-* N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](http://alfa.di.uminho.pt/~nfmmacedo/publications/echo13.pdf). To appear in proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). ACM, 2013.
-* N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
+
+* N. Macedo and A. Cunha. [*Least-change bidirectional model transformation with QVT-R and ATL*](https://doi.org/10.1007/s10270-014-0437-x). Software and Systems Modeling. Springer, 2016
+* N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](https://doi.org/10.1109/ASE.2013.6693135). In the proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). IEEE, 2013.
+* N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](https://doi.org/10.1007/978-3-642-37057-1_22). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
 
 ([read more](https://github.com/haslab/echo/wiki/Publications))
 
 ## Contributors
-* [Alcino Cunha] (http://di.uminho.pt/~mac)
+* [Alcino Cunha](http://di.uminho.pt/~mac)
 * Tiago Guimarães 
-* [Nuno Macedo] (http://di.uminho.pt/~nfmmacedo)
+* [Nuno Macedo](http://nmacedo.github.io/)
 
-The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho, and have developed this work under the [FATBiT](fatbit.di.uminho.pt) project, funded by the ERDF through the programme COMPETE and by the Portuguese Government through FCT (Foundation for Science and Technology), project reference FCOMP-01-0124-FEDER-020532.
+The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho, and have developed this work under the [FATBIT](fatbit.di.uminho.pt) project, funded by the ERDF through the programme COMPETE and by the Portuguese Government through FCT (Foundation for Science and Technology), project reference FCOMP-01-0124-FEDER-020532.
 
 <img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE" height="100px"/>
 <img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px"/>
