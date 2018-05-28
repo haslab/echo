@@ -111,7 +111,7 @@ Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains E
 
 * N. Macedo and A. Cunha. [*Least-change bidirectional model transformation with QVT-R and ATL*](https://nmacedo.github.io/pubs/SoSyM16.pdf). Software and Systems Modeling. Springer, 2016
 * N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](https://nmacedo.github.io/pubs/ASE13.pdf). In the proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). IEEE, 2013.
-* N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](https://nmacedo.github.io/pubs/FASE13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
+* N. Macedo and A. Cunha. [*Implementing QVT-R bidirectional model transformations using Alloy*](https://nmacedo.github.io/pubs/FASE13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
 
 ([read more](https://github.com/haslab/echo/wiki/Publications))
 
