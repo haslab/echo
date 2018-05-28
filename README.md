@@ -1,54 +1,55 @@
 # Echo
 
-*Echo* is a tool for model repair and transformation based on the [Alloy](http://alloy.mit.edu) model finder, with support for bidirectional model transformations.
-It is able to both check and recover, through minimal updates, both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).
+*Echo* is a tool for model repair and transformation built over the [Alloy](http://alloy.mit.edu) model finder, with support for bidirectional model transformations.
+It is able to both check and recover, through minimal updates, both intra- and inter-model consistency, and is deployed over the Eclipse Modeling Framework (EMF).
 
 ## Features
 
-Echo is meta-model independent, being able to process any meta-model specified in ECore and its respective instances in XMI. Additional constraints, as well as operations, are specified by embedding OCL in annotations, as prescribed by EMF. Inter-model consistency is specified by the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) transformation language.
+Echo is meta-model independent, being able to process any meta-model specified in ECore and its respective instances in XMI. Additional constraints, as well as operations, are specified by embedding OCL in annotations, as prescribed by EMF. Inter-model consistency is specified by the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) or [ATL](http://www.eclipse.org/atl/) transformation languages.
 
-Over these constraints and models, Echo possesses the following features.
+Over these constraints and models, Echo v0.3.1 possesses the following features:
 
 <dl>
   <dt>Model visualization</dt>
   <dd>Models are presented using the Alloy visualizer. For better readability, an Alloy theme is automatically inferred from the meta-model, although an user-defined theme can also be provided if desired.</dd>
 
   <dt>Model generation</dt>
-  <dd>Given a meta-model and user-specified size, Echo can generate a new model conformant with the metamodel. Additional constraints can also be specified to generate instances with a parametrized shape.</dd>
+  <dd>Given a meta-model and user-specified size, Echo can generate a new model conformant with the metamodel. Additional OCL constraints can also be specified to generate instances with a parametrized shape.</dd>
 
   <dt>Consistency check</dt>
-  <dd>Given a model, Echo can check if it conforms to the respective meta-model.</dd>
+  <dd>Given a model, Echo can check if it conforms to the respective meta-model annotated with OCL constraints.</dd>
 
   <dt>Model repair</dt>
-  <dd>Given a model that does not conform to its meta-model, Echo can find a minimal repair that produces a consistent model.</dd>
+  <dd>Given a model that does not conform to its OCL-annotated meta-model, Echo can find a minimal repair that produces a consistent model.</dd>
 
   <dt>Inter-model consistency check</dt>
-  <dd>Given a QVT-R transformation and two models that are supposed to be consistent via it, Echo can check if such is the case. The checking semantics follows exactly the specified in the QVT standard.</dd>
+  <dd>Given a QVT-R or ATL transformation and a set of models that are supposed to be consistent via it, Echo can check if such is the case. </dd>
 
   <dt>Inter-model consistency repair</dt>
-  <dd>QVT-R specifications are interpreted as bidirectional transformations, thus, given inconsistent models, Echo is able to repair either one to recover consistency.</dd>
+  <dd>QVT-R or ATL transformation are interpreted as bidirectional (or multidirectional) transformations, so that given inconsistent models, Echo is able to repair them in order to recover consistency.</dd>
 
-  <dt>Inter-model generation</dt>
-  <dd>Given a QVT-R transformation and an existing model, Echo can generate the minimal model consistent with existing model by the QVT-R transformation.</dd>
+  <dt>Batch transformation</dt>
+  <dd>Given a QVT-R or ATL transformation and existing models, Echo can generate the minimal model consistent with the existing models by the specified transformation.</dd>
 </dl>
 
 For all generation and repair procedures, Echo presents *all* valid solutions, allowing the user to select the desired one.
 
 Repair procedures are always *minimal*, in the sense that the resulting consistent model is as close as possible to the original inconsistent one. The user is able to choose how to measure this distance: either through *graph edit distance*, a meta-model independent metric that sees models as graphs and counts modifications of edges and nodes, or through an *operation-based distance*, that counts the number of applications of user-defined operations required to obtain the new model.
 
-For more information about how the tool is implemented please consult the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf), accepted for publication at [FASE'13](http://www.etaps.org/2013/fase13). For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
+For more information about how the tool is implemented and its semantics, please consult the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](https://nmacedo.github.io/pubs/FASE13.pdf). For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
 
 ([read more](https://github.com/haslab/echo/wiki/Overview))
 
 ## Installing
 
-*Echo* is deployed over the Eclipse Modeling Tools 4.3 (Kepler). The following steps assume a fresh installation of Eclipse. 
+*Echo* is deployed over the Eclipse (Kepler) Modeling Tools. The following steps assume a fresh installation of Eclipse. 
 
-* Download Eclipse [Modeling Tools 4.3](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplersr1) (Kepler);
+* Download Eclipse [Modeling Tools (Kepler Service Release 2)](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplersr2);
 * Download and install in Eclipse (through the **Help > Install New Software...**) menu the following archives in the given order:
-  + [Eclipse OCL 4.2](http://www.eclipse.org/modeling/mdt/downloads/?project=ocl) of the Model Development Tools (MDT) project;
+  + [Eclipse OCL 5.0](http://www.eclipse.org/modeling/mdt/downloads/?project=ocl) of the Model Development Tools (MDT) project;
   + [Eclipse QVTd 0.11](http://www.eclipse.org/mmt/downloads/?project=qvtd) of the Model to Model Transformation (MMT) project;
-  + [Echo 0.3](http://haslab.github.io/echo/downloads/echo-0.3.1.zip).
+  + [Eclipse ATL 3.5](http://www.eclipse.org/mmt/downloads/?project=atl) of the Model to Model Transformation (MMT) project;
+  + [Echo 0.3.1](http://haslab.github.io/echo/downloads/echo-0.3.1.zip).
 
 For Mac OS users, versions of Java earlier than 7up40 have an issue with the bridge between AWT and SWT that does not allow the embedding of the Alloy Visualizer in Eclipse. This is fixed in posterior releases.
 <!---
@@ -73,8 +74,7 @@ This will create the `echo.jar` file in the project's root directory.
 
 ## Running
 
-The best way to get started with Echo is to watch this [video](https://vimeo.com/67716977) or to follow this [tutorial](https://github.com/haslab/echo/wiki/Tutorial).
-
+The best way to get started with Echo is to follow this [tutorial](https://github.com/haslab/echo/wiki/Tutorial) or to watch this [video](https://vimeo.com/67716977).
 
 <!---
 ### Command-line
@@ -99,7 +99,6 @@ java -jar -t -m <models>... -i <instances>...
 ```
 -->
 
-
 ## Examples
 
 Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains ECore meta-models and QVT-R implementations of some typical bidirectional transformations, as well some example XMI model instances. Alternatively, download this [archive](http://haslab.github.io/echo/downloads/echo-0.3.0_examples.zip) containing the same examples.
@@ -109,19 +108,19 @@ Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains E
 ([read more](https://github.com/haslab/echo/wiki/Examples))
 
 ## Publications
-* N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](http://alfa.di.uminho.pt/~nfmmacedo/publications/echo13.pdf). To appear in proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). ACM, 2013.
-* N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
+
+* N. Macedo and A. Cunha. [*Least-change bidirectional model transformation with QVT-R and ATL*](https://nmacedo.github.io/pubs/SoSyM16.pdf). Software and Systems Modeling. Springer, 2016
+* N. Macedo, A. Cunha and H. Pacheco. [*Towards a framework for multi-directional model transformations*](https://nmacedo.github.io/pubs/BX14.pdf). In the proceedings of the 3rd International Workshop on Bidirectional Transformations (BX'14). CEUR-WS, 2016.
+* N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](https://nmacedo.github.io/pubs/ASE13.pdf). In the proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). IEEE, 2013.
+* N. Macedo and A. Cunha. [*Implementing QVT-R bidirectional model transformations using Alloy*](https://nmacedo.github.io/pubs/FASE13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
 
 ([read more](https://github.com/haslab/echo/wiki/Publications))
 
 ## Contributors
-* [Alcino Cunha] (http://di.uminho.pt/~mac)
+* [Alcino Cunha](http://di.uminho.pt/~mac)
 * Tiago Guimarães 
-* [Nuno Macedo] (http://di.uminho.pt/~nfmmacedo)
+* [Nuno Macedo](http://nmacedo.github.io/)
 
-The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho, and have developed this work under the [FATBiT](fatbit.di.uminho.pt) project, funded by the ERDF through the programme COMPETE and by the Portuguese Government through FCT (Foundation for Science and Technology), project reference FCOMP-01-0124-FEDER-020532.
+The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho, and have developed this work under the [FATBIT](fatbit.di.uminho.pt) project, funded by the ERDF through the programme COMPETE and by the Portuguese Government through FCT (Foundation for Science and Technology), project reference FCOMP-01-0124-FEDER-020532.
 
-<img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_UE.jpg" alt="UE" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_FCT.jpg" alt="FCT" height="100px"/>
+<img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE" height="100px"/><img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px"/><img src="http://haslab.github.io/echo/images/Logo_UE.jpg" alt="UE" height="100px"/><img src="http://haslab.github.io/echo/images/Logo_FCT.jpg" alt="FCT" height="100px"/>
