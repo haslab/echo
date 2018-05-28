@@ -42,9 +42,9 @@ For more information about how the tool is implemented and its semantics, please
 
 ## Installing
 
-*Echo* is deployed over the Eclipse Modeling Tools 4.3 (Kepler). The following steps assume a fresh installation of Eclipse. 
+*Echo* is deployed over the Eclipse (Kepler) Modeling Tools. The following steps assume a fresh installation of Eclipse. 
 
-* Download Eclipse [Modeling Tools (Kepler Service Release 2)](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplersr2) (Kepler);
+* Download Eclipse [Modeling Tools (Kepler Service Release 2)](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplersr2);
 * Download and install in Eclipse (through the **Help > Install New Software...**) menu the following archives in the given order:
   + [Eclipse OCL 5.0](http://www.eclipse.org/modeling/mdt/downloads/?project=ocl) of the Model Development Tools (MDT) project;
   + [Eclipse QVTd 0.11](http://www.eclipse.org/mmt/downloads/?project=qvtd) of the Model to Model Transformation (MMT) project;
