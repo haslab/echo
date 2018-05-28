@@ -122,7 +122,4 @@ Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains E
 
 The contributors are members of the *High-Assurance Software Laboratory* ([HASLab](haslab.di.uminho.pt)) at University of Minho, and have developed this work under the [FATBIT](fatbit.di.uminho.pt) project, funded by the ERDF through the programme COMPETE and by the Portuguese Government through FCT (Foundation for Science and Technology), project reference FCOMP-01-0124-FEDER-020532.
 
-<img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_UE.jpg" alt="UE" height="100px"/>
-<img src="http://haslab.github.io/echo/images/Logo_FCT.jpg" alt="FCT" height="100px"/>
+<img src="http://haslab.github.io/echo/images/Logo_Compete.jpg" alt="COMPETE" height="100px"/><img src="http://haslab.github.io/echo/images/Logo_QREN.jpg" alt="QREN" height="100px"/><img src="http://haslab.github.io/echo/images/Logo_UE.jpg" alt="UE" height="100px"/><img src="http://haslab.github.io/echo/images/Logo_FCT.jpg" alt="FCT" height="100px"/>
