@@ -36,7 +36,7 @@ For all generation and repair procedures, Echo presents *all* valid solutions, a
 
 Repair procedures are always *minimal*, in the sense that the resulting consistent model is as close as possible to the original inconsistent one. The user is able to choose how to measure this distance: either through *graph edit distance*, a meta-model independent metric that sees models as graphs and counts modifications of edges and nodes, or through an *operation-based distance*, that counts the number of applications of user-defined operations required to obtain the new model.
 
-For more information about how the tool is implemented please consult the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](http://www3.di.uminho.pt/~mac/Publications/fase13.pdf), accepted for publication at [FASE'13](http://www.etaps.org/2013/fase13). For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
+For more information about how the tool is implemented and its semantics, please consult the paper [Implementing QVT-R Bidirectional Model Transformations Using Alloy](https://nmacedo.github.io/pubs/FASE13.pdf). For an overview of Echo's features please watch this [video](https://vimeo.com/67716977).
 
 ([read more](https://github.com/haslab/echo/wiki/Overview))
 
@@ -109,9 +109,9 @@ Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains E
 
 ## Publications
 
-* N. Macedo and A. Cunha. [*Least-change bidirectional model transformation with QVT-R and ATL*](https://doi.org/10.1007/s10270-014-0437-x). Software and Systems Modeling. Springer, 2016
-* N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](https://doi.org/10.1109/ASE.2013.6693135). In the proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). IEEE, 2013.
-* N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](https://doi.org/10.1007/978-3-642-37057-1_22). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
+* N. Macedo and A. Cunha. [*Least-change bidirectional model transformation with QVT-R and ATL*](https://nmacedo.github.io/pubs/SoSyM16.pdf). Software and Systems Modeling. Springer, 2016
+* N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](https://nmacedo.github.io/pubs/ASE13.pdf). In the proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). IEEE, 2013.
+* N. Macedo and A. Cunha. [*Implementing QVT-R Bidirectional Model Transformations Using Alloy*](https://nmacedo.github.io/pubs/FASE13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
 
 ([read more](https://github.com/haslab/echo/wiki/Publications))
 
