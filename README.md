@@ -7,7 +7,7 @@ It is able to both check and recover, through minimal updates, both intra- and i
 
 Echo is meta-model independent, being able to process any meta-model specified in ECore and its respective instances in XMI. Additional constraints, as well as operations, are specified by embedding OCL in annotations, as prescribed by EMF. Inter-model consistency is specified by the [QVT Relations](http://www.omg.org/spec/QVT/1.1/) (QVT-R) or [ATL](http://www.eclipse.org/atl/) transformation languages.
 
-Over these constraints and models, Echo possesses the following features.
+Over these constraints and models, Echo v0.3.1 possesses the following features:
 
 <dl>
   <dt>Model visualization</dt>
@@ -26,7 +26,7 @@ Over these constraints and models, Echo possesses the following features.
   <dd>Given a QVT-R or ATL transformation and a set of models that are supposed to be consistent via it, Echo can check if such is the case. </dd>
 
   <dt>Inter-model consistency repair</dt>
-  <dd>QVT-R or ATL transformation are interpreted as bidirectional transformations, so that given inconsistent models, Echo is able to repair them in order to recover consistency.</dd>
+  <dd>QVT-R or ATL transformation are interpreted as bidirectional (or multidirectional) transformations, so that given inconsistent models, Echo is able to repair them in order to recover consistency.</dd>
 
   <dt>Batch transformation</dt>
   <dd>Given a QVT-R or ATL transformation and existing models, Echo can generate the minimal model consistent with the existing models by the specified transformation.</dd>
@@ -110,6 +110,7 @@ Folder [examples](http://github.com/haslab/echo/tree/master/examples) contains E
 ## Publications
 
 * N. Macedo and A. Cunha. [*Least-change bidirectional model transformation with QVT-R and ATL*](https://nmacedo.github.io/pubs/SoSyM16.pdf). Software and Systems Modeling. Springer, 2016
+* N. Macedo, A. Cunha and H. Pacheco. [*Towards a framework for multi-directional model transformations*](https://nmacedo.github.io/pubs/BX14.pdf). In the proceedings of the 3rd International Workshop on Bidirectional Transformations (BX'14). CEUR-WS, 2016.
 * N. Macedo, T. Guimarães and A. Cunha. [*Model repair and transformation with Echo*](https://nmacedo.github.io/pubs/ASE13.pdf). In the proceedings of the 28th IEEE/ACM International Conference on Automated Software Engineering (ASE'13). IEEE, 2013.
 * N. Macedo and A. Cunha. [*Implementing QVT-R bidirectional model transformations using Alloy*](https://nmacedo.github.io/pubs/FASE13.pdf). In the proceedings of the 16th International Conference on Fundamental Approaches to Software Engineering (FASE'13). LNCS 7793. Springer, 2013.
 
