@@ -1,7 +1,7 @@
 # Echo
 
-*Echo* is a tool for model repair and transformation based on the [Alloy](http://alloy.mit.edu) model finder, with support for bidirectional model transformations.
-It is able to both check and recover, through minimal updates, both intra- and inter-model consistency, and is built over the Eclipse Modeling Framework (EMF).
+*Echo* is a tool for model repair and transformation built over the [Alloy](http://alloy.mit.edu) model finder, with support for bidirectional model transformations.
+It is able to both check and recover, through minimal updates, both intra- and inter-model consistency, and is deployed over the Eclipse Modeling Framework (EMF).
 
 ## Features
 
@@ -44,10 +44,11 @@ For more information about how the tool is implemented please consult the paper 
 
 *Echo* is deployed over the Eclipse Modeling Tools 4.3 (Kepler). The following steps assume a fresh installation of Eclipse. 
 
-* Download Eclipse [Modeling Tools 4.3](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplersr1) (Kepler);
+* Download Eclipse [Modeling Tools (Kepler Service Release 2)](http://www.eclipse.org/downloads/packages/eclipse-modeling-tools/keplersr2) (Kepler);
 * Download and install in Eclipse (through the **Help > Install New Software...**) menu the following archives in the given order:
-  + [Eclipse OCL 4.2](http://www.eclipse.org/modeling/mdt/downloads/?project=ocl) of the Model Development Tools (MDT) project;
+  + [Eclipse OCL 5.0](http://www.eclipse.org/modeling/mdt/downloads/?project=ocl) of the Model Development Tools (MDT) project;
   + [Eclipse QVTd 0.11](http://www.eclipse.org/mmt/downloads/?project=qvtd) of the Model to Model Transformation (MMT) project;
+  + [Eclipse ATL 3.5](http://www.eclipse.org/mmt/downloads/?project=atl) of the Model to Model Transformation (MMT) project;
   + [Echo 0.3](http://haslab.github.io/echo/downloads/echo-0.3.1.zip).
 
 For Mac OS users, versions of Java earlier than 7up40 have an issue with the bridge between AWT and SWT that does not allow the embedding of the Alloy Visualizer in Eclipse. This is fixed in posterior releases.
@@ -73,8 +74,7 @@ This will create the `echo.jar` file in the project's root directory.
 
 ## Running
 
-The best way to get started with Echo is to watch this [video](https://vimeo.com/67716977) or to follow this [tutorial](https://github.com/haslab/echo/wiki/Tutorial).
-
+The best way to get started with Echo is to follow this [tutorial](https://github.com/haslab/echo/wiki/Tutorial) or to watch this [video](https://vimeo.com/67716977).
 
 <!---
 ### Command-line
