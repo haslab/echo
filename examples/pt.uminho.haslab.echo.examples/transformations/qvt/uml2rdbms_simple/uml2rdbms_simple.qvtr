@@ -1,5 +1,7 @@
-import UML : '../../../metamodels/uml2rdbms_simple/UML.ecore' :: UML;
+-- @dependencies uml -> rdbms
+
 import RDBMS : '../../../metamodels/uml2rdbms_simple/RDBMS.ecore' :: RDBMS;
+import UML : '../../../metamodels/uml2rdbms_simple/UML.ecore' :: UML;
 
 transformation uml2rdbms (uml : UML, rdbms : RDBMS) {
 

@@ -1,0 +1,12 @@
+import A : '../../../../metamodels/multiplicities/A_base.ecore' :: ABase;
+import B : '../../../../metamodels/multiplicities/B_attributes.ecore' :: BAttributes;
+
+transformation a2b (as : A, bs : B) {
+
+	top relation A2B { 
+    	domain as ra:RootA {};
+    	domain bs rb:RootB {};
+    	where { ra.as->size() = rb.bs->size(); }    	
+  	}
+  	
+}

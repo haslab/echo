@@ -1,0 +1,17 @@
+-- @atlcompiler atl2006
+-- @nsURI UML='/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore'
+-- @nsURI RDBMS='/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore'
+module UML2RDBMS;
+create OUT : RDBMS from IN : UML;
+
+rule Property {
+	from
+		class : UML!Class (
+			class.persistent = true
+		)
+	to
+		table : RDBMS!Table (
+			name <- class.name
+		)
+}
+

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="UML" nsURI="UML" nsPrefix="uml">
-  <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//NamedEntity">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmi:id="UML" name="UML" nsURI="UML" nsPrefix="uml">
+  <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="#//NamedEntity">
     <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
       <details key="acyclic_inheritance" value="not self->closure(super)->includes(self)"/>
       <details key="unique_names" value="self.attributes->forAll(x | self.attributes->forAll(y | x = y or x.name &lt;> y.name))"/>
@@ -18,14 +18,11 @@
         <details key="post_frame_name" value="NamedEntity.allInstances@pre()->forAll(x | x.name@pre = x.name or x = self)"/>
         <details key="post_frame_type" value="Attribute.allInstances@pre()-> forAll(x | x.type@pre = x.type or x = self)"/>
       </eAnnotations>
-      <eAnnotations source="Echo/@frame">
-        <details key="Package.classes" value="Package.classes"/>
-        <details key="Class" value="Class"/>
-        <details key="Class.persistent" value="Class.persistent"/>
-        <details key="Class.super" value="Class.super"/>
-        <details key="Package" value="Package"/>
-        <details key="Package.name" value="Package.name"/>
-        <details key="Class.name" value="Class.name"/>
+      <eAnnotations source="Echo/@modifies">
+        <details key="Class.attributes" value="Class.attributes"/>
+        <details key="Attribute" value="Attribute"/>
+        <details key="Attribute.type" value="Attribute.type"/>
+        <details key="NamedEntity.name" value="NamedEntity.name"/>
       </eAnnotations>
       <eAnnotations source="Bug: may create other Attributes with name &lt;> n"/>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -49,52 +46,68 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="persistent" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Attribute"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
-        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/child"/>
+        eType="ecore:EClass #//Attribute"
+        containment="true" eOpposite="#//Attribute/class"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="super" eType="ecore:EClass #//Class"
+        eOpposite="#//Class/child"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="namespace" lowerBound="1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Package"
-        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Package/classes"/>
+        eType="ecore:EClass #//Package"
+        eOpposite="#//Package/classes"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="child" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
-        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/super"/>
+        eType="ecore:EClass #//Class"
+        eOpposite="#//Class/super"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Attribute" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//NamedEntity">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EEnum /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Type"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Attribute" eSuperTypes="#//NamedEntity">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EEnum #//Type"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="class" eType="ecore:EClass #//Class"
+        eOpposite="#//Class/attributes"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Package" eSuperTypes="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//NamedEntity">
+  <eClassifiers xsi:type="ecore:EClass" name="Package" eSuperTypes="#//NamedEntity">
     <eAnnotations source="Echo/Gen">
       <details key="gen_linear" value="self.classes->one(x | x.super->isEmpty())"/>
-      <details key="lkm" value="self.classes->size() = 3"/>
     </eAnnotations>
-    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL_">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
       <details key="unique_names" value="self.classes->forAll(x | self.classes->forAll(y | x = y or x.name &lt;> y.name))"/>
     </eAnnotations>
     <eOperations name="addClass">
-      <eAnnotations source="back">
-        <details key="post_e" value="Attribute.allInstances()->forAll(x | x.name@pre = x.name)"/>
-        <details key="post_c" value="Class.allInstances()->one(x | x.oclIsNew() and x.name = n and self.classes->includes(x))"/>
-        <details key="post_d" value="Attribute.allInstances@pre() = Attribute.allInstances()"/>
-        <details key="post_a" value="Class.allInstances@pre()->forAll(x | x.name@pre = x.name and x.attributes@pre = x.attributes)"/>
-        <details key="post_cc" value="Package.allInstances@pre()->forAll(x | Package.allInstances()->includes(x) and x.classes@pre->forAll(y | x.classes->includes(y)) and x.name@pre = x.name)"/>
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+        <details key="post_add_class" value="Class.allInstances()->one(x | x.oclIsNew() and x.name = n and self.classes = self.classes@pre->including(x))"/>
+        <details key="post_frame_name" value="NamedEntity.allInstances@pre()->forAll(x | x.name@pre = x.name)"/>
+        <details key="post_frame_classes" value="Package.allInstances()->forAll(x | x.classes = x.classes@pre or x = self)"/>
+        <details key="post_frame_super" value="Class.allInstances@pre()->forAll(x | x.super@pre = x.super)"/>
+      </eAnnotations>
+      <eAnnotations source="Echo/@modifies">
+        <details key="classes" value="Package.classes"/>
+        <details key="Class" value="Class"/>
+        <details key="name" value="NamedEntity.name"/>
+        <details key="super" value="Class.super"/>
       </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eOperations name="remClass">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL_"/>
+      <eAnnotations source="Echo/@modifies_">
+        <details key="classes" value="Package.classes"/>
+        <details key="Class" value="Class"/>
+        <details key="name" value="NamedEntity.name"/>
+        <details key="super" value="Class.super"/>
+        <details key="attributes" value="Class.attributes"/>
+        <details key="Attribute" value="Attribute"/>
+        <details key="type" value="Attribute.type"/>
+      </eAnnotations>
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="classes" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class"
-        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#//Class/namespace"/>
+        eType="ecore:EClass #//Class"
+        containment="true" eOpposite="#//Class/namespace"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="NamedEntity" abstract="true">
     <eOperations name="setName">
-      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL_">
         <details key="post_set_name" value="self.name = n"/>
         <details key="post_frame_name" value="NamedEntity.allInstances()->forAll(x | x.name@pre = x.name or x = self)"/>
       </eAnnotations>
-      <eAnnotations source="Echo/@frame">
+      <eAnnotations source="Echo/@modifies_">
         <details key="Package.classes" value="Package.classes"/>
         <details key="NamedEntity" value="NamedEntity"/>
         <details key="Class.attributes" value="Class.attributes"/>

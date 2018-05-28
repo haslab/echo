@@ -5,21 +5,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:rdbms="RDBMS"
     xsi:schemaLocation="RDBMS /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore#RDBMS"
-    name="Company">
-  <tables name="Employee">
+    name="T">
+  <tables name="A">
     <columns
-        name="name"/>
-    <columns
-        name="X"/>
+        name="a"/>
   </tables>
-  <tables name="Employer">
+  <tables name="B">
     <columns
-        name="name"/>
-  </tables>
-  <tables name="Employee">
+        name="a"/>
     <columns
-        name="name"/>
-    <columns
-        name="X"/>
+        name="b"/>
   </tables>
 </rdbms:Scheme>

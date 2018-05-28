@@ -1,0 +1,11 @@
+import A : '../../../../metamodels/multiplicities/A_keys.ecore' :: AKeys;
+import B : '../../../../metamodels/multiplicities/B_keys.ecore' :: BKeys;
+
+transformation a2b (as : A, bs : B) {
+
+	top relation A2B { 
+    	domain as ra:RootA {};
+    	domain bs rb:RootB {};
+  	}
+
+}

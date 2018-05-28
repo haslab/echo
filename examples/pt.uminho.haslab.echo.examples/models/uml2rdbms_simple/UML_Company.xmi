@@ -4,22 +4,19 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:uml="UML"
-    xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore"
+    xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/UML.ecore#UML"
     name="Company">
   <classes name="Person"
-      child="//@classes.1 //@classes.2">
+      super="//@classes.0"
+      child="//@classes.1 //@classes.2 //@classes.0"/>
+  <classes name="Employer"
+      persistent="true"
+      super="//@classes.0">
     <attributes
         name="name"
         type="Float"/>
   </classes>
-  <classes name="Employer"
-      persistent="true"
-      super="//@classes.0"/>
   <classes name="Employee"
       persistent="true"
       super="//@classes.0"/>
-  <classes name="Employee"
-      persistent="true"
-      super="//@classes.3"
-      child="//@classes.3"/>
 </uml:Package>
