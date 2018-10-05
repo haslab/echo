@@ -3,10 +3,11 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="world" nsURI="world" nsPrefix="world">
   <eClassifiers xsi:type="ecore:EClass" name="World">
     <eStructuralFeatures xsi:type="ecore:EReference" name="people" ordered="false"
-        upperBound="-1" eType="#//Person" containment="true" eOpposite="#//Person/world"/>
+        upperBound="-1" eType="ecore:EClass #//Person"
+        containment="true" eOpposite="#//Person/world"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Person" abstract="true">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="world" lowerBound="1" eType="#//World"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="world" lowerBound="1" eType="ecore:EClass #//World"
         eOpposite="#//World/people"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="surname" lowerBound="1"

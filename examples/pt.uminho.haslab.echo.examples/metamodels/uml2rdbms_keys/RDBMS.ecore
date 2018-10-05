@@ -36,15 +36,16 @@
     <eOperations name="remColumn">
       <eParameters name="n" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="key" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//PKey"
+        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//PKey/table"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="columns" lowerBound="1"
-        upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="columns" upperBound="-1"
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column"
         containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column/table"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="scheme" lowerBound="1"
         eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Scheme"
         eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Scheme/tables"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="key" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//PKey"
-        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="key" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//PKey"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Column">
     <eOperations name="setName">
@@ -73,6 +74,9 @@
         eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Scheme/keys"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="PKey">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="column" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="column" lowerBound="1"
+        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Column"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Table"
+        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#//Table/key"/>
   </eClassifiers>
 </ecore:EPackage>

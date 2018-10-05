@@ -3,8 +3,8 @@
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:BKeys="pt/uminho/haslabl/echo/examples/BKeys"
-    xsi:schemaLocation="pt/uminho/haslabl/echo/examples/BKeys ../../metamodels/multiplicities/B_keys.ecore">
+    xmlns:BKeys="BKeys"
+    xsi:schemaLocation="../../metamodels/multiplicities/B_keys.ecore">
   <bs y="//@ys.1"/>
   <bs y="//@ys.0"/>
   <ys b="//@bs.1"/>

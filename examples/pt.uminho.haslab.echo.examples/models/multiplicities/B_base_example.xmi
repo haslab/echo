@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ASCII"?>
-<B:RootB xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:B="B" xsi:schemaLocation="B /pt.uminho.haslab.echo.examples/metamodels/multiplicities/B_base.ecore">
+<B:RootB xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:B="B" xsi:schemaLocation="B ../../metamodels/multiplicities/B_base.ecore">
   <bs/>
   <bs/>
   <bs/>

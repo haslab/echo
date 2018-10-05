@@ -3,14 +3,17 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="geneology" nsURI="geneology" nsPrefix="geneology">
   <eClassifiers xsi:type="ecore:EClass" name="Geneology">
     <eStructuralFeatures xsi:type="ecore:EReference" name="families" ordered="false"
-        upperBound="-1" eType="#//Family" containment="true" eOpposite="#//Family/geneology"/>
+        upperBound="-1" eType="ecore:EClass #//Family"
+        containment="true" eOpposite="#//Family/geneology"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Family">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="geneology" ordered="false"
-        lowerBound="1" eType="#//Geneology" eOpposite="#//Geneology/families"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="members" lowerBound="1"
-        upperBound="-1" eType="#//Member" containment="true" eOpposite="#//Member/family"/>
+        upperBound="-1" eType="ecore:EClass #//Member"
+        containment="true" eOpposite="#//Member/family"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="geneology" ordered="false"
+        lowerBound="1" eType="ecore:EClass #//Geneology"
+        eOpposite="#//Geneology/families"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Member">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
@@ -18,6 +21,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="female" lowerBound="1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="family" ordered="false"
-        lowerBound="1" eType="#//Family" eOpposite="#//Family/members"/>
+        lowerBound="1" eType="ecore:EClass #//Family"
+        eOpposite="#//Family/members"/>
   </eClassifiers>
 </ecore:EPackage>

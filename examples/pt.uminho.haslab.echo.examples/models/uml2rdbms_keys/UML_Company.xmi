@@ -4,7 +4,7 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:uml="UML"
-    xsi:schemaLocation="UML /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/UML.ecore"
+    xsi:schemaLocation="UML ../../metamodels/uml2rdbms_keys/UML.ecore"
     name="Company">
   <classes name="Employee"
       persistent="true"
@@ -25,14 +25,6 @@
     <attributes
         name="location"/>
   </classes>
-  <classes name="asdas"
-      persistent="true"/>
-  <classes name="asdasd"
-      persistent="true"/>
-  <classes name="dddd"
-      persistent="true"/>
-  <classes name="fdsfdsf"
-      persistent="true"/>
   <associations
       source="//@classes.0"
       target="//@classes.3"

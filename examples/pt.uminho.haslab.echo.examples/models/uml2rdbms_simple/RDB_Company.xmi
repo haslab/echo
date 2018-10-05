@@ -4,16 +4,16 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:rdbms="RDBMS"
-    xsi:schemaLocation="RDBMS /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_simple/RDBMS.ecore#RDBMS"
-    name="T">
-  <tables name="A">
+    xsi:schemaLocation="RDBMS ../../metamodels/uml2rdbms_simple/RDBMS.ecore#RDBMS"
+    name="Company">
+  <tables name="Employer">
     <columns
-        name="a"/>
+        name="name"/>
   </tables>
-  <tables name="B">
+  <tables name="Employee">
     <columns
-        name="a"/>
+        name="name"/>
     <columns
-        name="b"/>
+        name="salary"/>
   </tables>
 </rdbms:Scheme>

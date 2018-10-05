@@ -3,8 +3,8 @@
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:AKeys="pt/uminho/haslabl/echo/examples/AKeys"
-    xsi:schemaLocation="pt/uminho/haslabl/echo/examples/AKeys ../../metamodels/multiplicities/A_keys.ecore">
+    xmlns:AKeys="AKeys"
+    xsi:schemaLocation="../../metamodels/multiplicities/A_keys.ecore">
   <as x="//@xs.0"/>
   <as x="//@xs.1"/>
   <as x="//@xs.2"/>

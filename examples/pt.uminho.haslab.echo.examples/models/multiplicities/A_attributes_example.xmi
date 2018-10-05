@@ -3,7 +3,7 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:A="A"
-    xsi:schemaLocation="A /pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_attributes.ecore">
+    xsi:schemaLocation="A ../../metamodels/multiplicities/A_attributes.ecore">
   <as x="//@xs.0"/>
   <as x="//@xs.0"/>
   <as x="//@xs.0"/>

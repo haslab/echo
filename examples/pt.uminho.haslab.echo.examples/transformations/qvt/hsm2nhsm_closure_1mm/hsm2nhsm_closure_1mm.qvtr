@@ -28,7 +28,7 @@ transformation hsm2nhsm (hm : HSM, nm : HSM) {
   	}
 
 	-- Transition2Transition
-  top	relation T2T { 
+  	top relation T2T { 
     	n: String; s,t: HSM::State; 
     	domain hm t1:Transition { 
       		target = trg1:State{}, 

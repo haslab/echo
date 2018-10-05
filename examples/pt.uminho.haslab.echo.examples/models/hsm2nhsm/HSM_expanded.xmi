@@ -4,15 +4,15 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:hsm="HSM"
-    xsi:schemaLocation="HSM /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/HSM.ecore"
+    xsi:schemaLocation="HSM ../../metamodels/hsm2nhsm/HSM.ecore"
     name="machine">
   <states xsi:type="hsm:CompositeState"
-      name="Active"/>
+      name="Actives"/>
   <states name="Running"
       container="//@states.0"/>
-  <states name="Waiting"
-      container="//@states.0"/>
+  <states name="Waiting"/>
   <transitions
       source="//@states.1"
-      target="//@states.2"/>
+      target="//@states.2"
+      machine="/"/>
 </hsm:StateMachine>

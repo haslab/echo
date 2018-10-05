@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="BKeys" nsURI="pt/uminho/haslabl/echo/examples/BKeys" nsPrefix="BKeys">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="BKeys" nsURI="BKeys" nsPrefix="BKeys">
   <eClassifiers xsi:type="ecore:EClass" name="B">
     <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="#//RootB"
         eOpposite="#//RootB/bs"/>
@@ -8,8 +8,8 @@
         eOpposite="#//Y/b"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RootB">
-    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL">
-      <details key="unique_keys" value="self.bs->forAll(x,y | x = y or x.key &lt;> y.key)"/>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore/OCL_">
+      <details key="unique_keys" value="self.as->forAll(x,y | x = y or x.key &lt;> y.key)"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="bs" upperBound="-1" eType="#//B"
         containment="true" eOpposite="#//B/root"/>

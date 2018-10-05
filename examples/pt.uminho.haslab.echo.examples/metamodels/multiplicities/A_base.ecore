@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="ABase" nsURI="pt/uminho/haslabl/echo/examples/ABase" nsPrefix="ABase">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="ABase" nsURI="ABase" nsPrefix="ABase">
   <eClassifiers xsi:type="ecore:EClass" name="A">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_base.ecore#//RootA"
-        eOpposite="/pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_base.ecore#//RootA/as"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="ecore:EClass #//RootA"
+        eOpposite="#//RootA/as"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RootA">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="as" upperBound="-1" eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_base.ecore#//A"
-        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/multiplicities/A_base.ecore#//A/root"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="as" upperBound="-1" eType="ecore:EClass #//A"
+        containment="true" eOpposite="#//A/root"/>
   </eClassifiers>
 </ecore:EPackage>

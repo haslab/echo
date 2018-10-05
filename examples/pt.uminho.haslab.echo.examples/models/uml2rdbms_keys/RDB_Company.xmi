@@ -4,8 +4,8 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:rdbms="RDBMS"
-    xsi:schemaLocation="RDBMS /pt.uminho.haslab.echo.examples/metamodels/uml2rdbms_keys/RDBMS.ecore#RDBMS"
-    name="Companys">
+    xsi:schemaLocation="RDBMS ../../metamodels/uml2rdbms_keys/RDBMS.ecore#RDBMS"
+    name="Company">
   <tables name="Employer">
     <columns
         name="name"/>
@@ -19,9 +19,9 @@
         name="department"/>
   </tables>
   <tables name="Department">
+    <key column="//@tables.2/@columns.0"/>
     <columns
         name="location"/>
-    <key column="//@tables.2/@columns.0"/>
   </tables>
   <keys refersTo="//@tables.2/@key"
       column="//@tables.1/@columns.2"/>

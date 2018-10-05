@@ -3,23 +3,23 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="NHSM" nsURI="NHSM" nsPrefix="nhsm">
   <eClassifiers xsi:type="ecore:EClass" name="StateMachine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="states" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//State"
-        containment="true" eOpposite="/pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//State/machine"/>
+        eType="ecore:EClass #//State"
+        containment="true" eOpposite="#//State/machine"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="transitions" upperBound="-1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//Transition"
+        eType="ecore:EClass #//Transition"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="State">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="machine" eType="#//StateMachine"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="machine" eType="ecore:EClass #//StateMachine"
         eOpposite="#//StateMachine/states"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Transition">
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" lowerBound="1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//State"/>
+        eType="ecore:EClass #//State"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
-        eType="ecore:EClass /pt.uminho.haslab.echo.examples/metamodels/hsm2nhsm/NHSM.ecore#//State"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="machine" eType="#//StateMachine"/>
+        eType="ecore:EClass #//State"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="machine" eType="ecore:EClass #//StateMachine"/>
   </eClassifiers>
 </ecore:EPackage>
